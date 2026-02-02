@@ -196,7 +196,7 @@ static void debug_field_row(char *word, UInt16 len, UInt16 row, Boolean visible)
   UInt16 max;
 
   if (word) {
-    max = 256 - sys_strlen(module->buf) - 1;
+    max = (UInt16)(256 - sys_strlen(module->buf) - 1);
     if (len > max) len = max;
     sys_strncat(module->buf, word, len);
   } else {
@@ -594,7 +594,7 @@ static Boolean deleteSelection(FieldType *fldP) {
 static void FldGrabFocusEx(FieldType *fldP, Boolean setPos) {
   if (fldP) {
     fldP->attr.hasFocus = true;
-    FldRenderField(fldP, setPos, fldP->attr.visible, 0, NULL, NULL);
+    FldRenderField(fldP, setPos, (Boolean)fldP->attr.visible, 0, NULL, NULL);
     InsPtEnable(true);
   }
 }
@@ -625,14 +625,14 @@ Boolean FldHandleEvent(FieldType *fldP, EventType *eventP) {
               debug(DEBUG_TRACE, PALMOS_MODULE, "FldHandleEvent NL");
               if (!fldP->attr.singleLine) {
                 deleteSelection(fldP);
-                c = eventP->data.keyDown.chr;
+                c = (Char)eventP->data.keyDown.chr;
                 FldInsert(fldP, &c, 1);
               }
               break;
             default:
               if (eventP->data.keyDown.chr >= 32) {
                 deleteSelection(fldP);
-                c = eventP->data.keyDown.chr;
+                c = (Char)eventP->data.keyDown.chr;
                 debug(DEBUG_TRACE, PALMOS_MODULE, "FldHandleEvent key %d", c);
                 FldInsert(fldP, &c, 1);
               }
@@ -1289,7 +1289,7 @@ Boolean FldInsert(FieldType *fldP, const Char *insertChars, UInt16 insertLen) {
 
     FldUpdateHandle(fldP);
     FldSetDirty(fldP, true);
-    FldRenderField(fldP, false, fldP->attr.visible, 0, NULL, NULL);
+    FldRenderField(fldP, false, (Boolean)fldP->attr.visible, 0, NULL, NULL);
   }
   OUTV;
 
@@ -1338,7 +1338,7 @@ void FldDelete(FieldType *fldP, UInt16 start, UInt16 end) {
 
     FldUpdateHandle(fldP);
     FldSetDirty(fldP, true);
-    FldRenderField(fldP, false, fldP->attr.visible, 0, NULL, NULL);
+    FldRenderField(fldP, false, (Boolean)fldP->attr.visible, 0, NULL, NULL);
   }
   OUTV;
 }
@@ -1529,7 +1529,7 @@ void FldReplaceText(FieldType *fldP, char *s, Boolean focus) {
   IN;
   if (fldP) {
     FldGetAttributes(fldP, &attr);
-    old = attr.editable;
+    old = (Boolean)attr.editable;
     attr.editable = true;
     FldSetAttributes(fldP, &attr);
 

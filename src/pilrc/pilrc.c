@@ -103,7 +103,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#ifndef strdup
+#if !defined(strdup) && !defined(_MSC_VER)
 char *strdup(const char *s);
 /*lint -sem( strdup, @p == (1p ? malloc(1p) : 0) )*/
 #endif
@@ -327,7 +327,13 @@ AddSym(const char *sz,
 
   psym = calloc(1, sizeof(SYM));
   if (psym == NULL) Error("out of memory");
+
+#ifdef _MSC_VER
+  psym->sz = _strdup(sz);
+#else
   psym->sz = strdup(sz);
+#endif
+
   psym->wVal = wVal;
   psym->sVal = NULL;
   psym->psymNext = psymFirst;
@@ -340,9 +346,21 @@ VOID AddSymString(const char* sz, const char* val)
     
     psym = calloc(1, sizeof(SYM));
     if (psym == NULL) Error("out of memory");
+
+#ifdef _MSC_VER
+	psym->sz = _strdup(sz);
+#else
     psym->sz = strdup(sz);
+#endif
+
     psym->wVal = 0;
+
+#ifdef _MSC_VER
+	psym->sVal = _strdup(val);
+#else
     psym->sVal = strdup(val);
+#endif
+
     psym->psymNext = psymFirst;
     psymFirst = psym;
 }
@@ -535,7 +553,7 @@ NextLine(void)
 
   if (eoln == NULL)
   {
-    int buflen = strlen(vIn.pch);
+    int buflen = (int)strlen(vIn.pch);
     memmove(vIn.buffer, vIn.pch, buflen + 1);
     vIn.pch = vIn.buffer;
     fgets(&vIn.buffer[buflen], sizeof vIn.buffer - buflen, vIn.file.fh);
@@ -626,7 +644,11 @@ FGetTok(TOK *ptok)
      */
     pte = PteFromSz(ptok->lex.szId);
     if (pte != NULL)
+#if __STDC_WANT_SECURE_LIB__
+      strcpy_s(ptok->lex.szId, 4096, pte->szTrans);
+#else
       strcpy(ptok->lex.szId, pte->szTrans);
+#endif
   }
 
   vIn.pendingTok = *ptok;
@@ -770,7 +792,12 @@ PchGetString(const char *szErr)
       else
         szOut = sz;
 
+#if __STDC_WANT_SECURE_LIB__
+	  strcpy_s(szOut + outlen, singlelen + 1, szSingle);
+#else
       strcpy(szOut + outlen, szSingle);
+#endif
+
       outlen += singlelen;
     }
 
@@ -827,20 +854,22 @@ WGetConst(char *szErr)
       {
         ErrorLine("%s expected, got %s", szErr, tok.lex.szId);
       }
-      return tok.lex.val;
+	  break;
     case rwPrevLeft:
-      return rcPrev.topLeft.x;
+      return (int)rcPrev.topLeft.x;
     case rwPrevRight:
-      return rcPrev.topLeft.x + rcPrev.extent.x;
+      return (int)(rcPrev.topLeft.x + rcPrev.extent.x);
     case rwPrevWidth:
-      return rcPrev.extent.x;
+      return (int)rcPrev.extent.x;
     case rwPrevTop:
-      return rcPrev.topLeft.y;
+      return (int)rcPrev.topLeft.y;
     case rwPrevBottom:
-      return rcPrev.topLeft.y + rcPrev.extent.y;
+      return (int)(rcPrev.topLeft.y + rcPrev.extent.y);
     case rwPrevHeight:
-      return rcPrev.extent.y;
+      return (int)rcPrev.extent.y;
   }
+
+  return tok.lex.val;
 }
 
 /*-----------------------------------------------------------------------------
@@ -944,7 +973,13 @@ AddDefineSymbol(void)
     int        current_line;
     
     GetExpectLt(&tok, ltId, "identifier");
+
+#if __STDC_WANT_SECURE_LIB__
+	strcpy_s(szId, 256, tok.lex.szId);
+#else
     strcpy(szId, tok.lex.szId);
+#endif
+
     if (NULL != PsymLookup(szId))
         ErrorLine("Symbol %s is defined multiple times", szId);
     
@@ -1083,7 +1118,7 @@ ParsePaletteFile(char *pchFileName,
                  int p[256][3],
                  int *nColors)
 {
-  FILE *fh;
+  FILE *fh = NULL;
   int i = 0;
   int r, g, b;
 
@@ -1093,7 +1128,11 @@ ParsePaletteFile(char *pchFileName,
 
   // Start parse of file
 
+#if __STDC_WANT_SECURE_LIB__
+  while (EOF != fscanf_s(fh, "%d %d %d", &r, &g, &b))
+#else
   while (EOF != fscanf(fh, "%d %d %d", &r, &g, &b))
+#endif
   {
 	if (r > 255)
 	{
@@ -1201,9 +1240,9 @@ WResolveK(const K * pk,
 
     case ktCenter:
       if (fHoriz)
-        dxyCenterAcross = PBAFIELD(vpfrm, form.window.windowBounds.extent.x);
+        dxyCenterAcross = (int)PBAFIELD(vpfrm, form.window.windowBounds.extent.x);
       else
-        dxyCenterAcross = PBAFIELD(vpfrm, form.window.windowBounds.extent.y);
+        dxyCenterAcross = (int)PBAFIELD(vpfrm, form.window.windowBounds.extent.y);
       wVal = (dxyCenterAcross - dxyExtent) / 2;
       return wVal;
     case ktCenterAt:
@@ -1232,9 +1271,9 @@ ResolveKrcKpt(ITM * pitm)
     pitm->rc.extent.y = WResolveK(&pitm->krc.kptExtent.kY, pitm, 0, fFalse);
 
     pitm->rc.topLeft.x =
-      WResolveK(&pitm->krc.kptUpperLeft.kX, pitm, pitm->rc.extent.x, fTrue);
+      WResolveK(&pitm->krc.kptUpperLeft.kX, pitm, (int)pitm->rc.extent.x, fTrue);
     pitm->rc.topLeft.y =
-      WResolveK(&pitm->krc.kptUpperLeft.kY, pitm, pitm->rc.extent.y, fFalse);
+      WResolveK(&pitm->krc.kptUpperLeft.kY, pitm, (int)pitm->rc.extent.y, fFalse);
     rcPrev = pitm->rc;
   }
 
@@ -1359,7 +1398,7 @@ ParseItm(ITM * pitm,
   {
     pitm->grifOut |= ifText;
     pitm->text = PchGetString("item string");
-    pitm->cbText = strlen(pitm->text) + 1;
+    pitm->cbText = (int)strlen(pitm->text) + 1;
   }
   if (grif & ifMultText)
   {
@@ -1379,7 +1418,7 @@ ParseItm(ITM * pitm,
         pitm->text = pch;
 
       memcpy(pitm->text + pitm->cbText, pchSingle, singleSize);
-      pitm->cbText += singleSize;
+      pitm->cbText += (int)singleSize;
       pitm->numItems++;
 
       free(pchSingle);
@@ -2044,7 +2083,7 @@ CbEmitStruct(void *pv,
           else
           {
             if (pi) {
-              CondEmitL(*pi);
+              CondEmitL((int)*pi);
               pi++;
             }
           }
@@ -2189,22 +2228,21 @@ CbFromLt(RCFORMOBJLIST * plt,
     case frmListObj:
       pchText = NULL;
       if (PBAFIELD(pobj->list, numItems))        // RMa add Test for case : List with NO item
-        cb +=
-          PBAFIELD(pobj->list, numItems) * 4 + PBAFIELD(pobj->list,
-                                                        cbListItems);
+		  cb += (int)(PBAFIELD(pobj->list, numItems) * 4 + PBAFIELD(pobj->list,
+                                                        cbListItems));
       break;
     case frmTableObj:
       pchText = NULL;
-      cb += PBAFIELD(pobj->table, numColumns) *
+      cb += (int)(PBAFIELD(pobj->table, numColumns) *
         CbStruct(szRCTABLECOLUMNATTR) + PBAFIELD(pobj->table, numRows) *
         CbStruct(szRCTABLEROWATTR) + PBAFIELD(pobj->table, numColumns) *
-        PBAFIELD(pobj->table, numRows) * CbStruct(szRCTABLEPADDING);
+        PBAFIELD(pobj->table, numRows) * CbStruct(szRCTABLEPADDING));
       ;
       break;
   }
 
   if (fText && pchText != NULL)
-    cb += strlen(pchText) + 1;
+    cb += (int)(strlen(pchText) + 1);
   /*
    * padding 
    */
@@ -2232,8 +2270,8 @@ DumpForm(FRM * pfrm)
   int ib;
   int il;
 
-  OpenOutput(kPalmResType[kFormRscType], PBAFIELD(pfrm, form.formId));  /* RMa "tFRM" */
-  clt = PBAFIELD(pfrm, form.numObjects);
+  OpenOutput(kPalmResType[kFormRscType], (int)PBAFIELD(pfrm, form.formId));  /* RMa "tFRM" */
+  clt = (int)PBAFIELD(pfrm, form.numObjects);
   if (vfLE32)
     Assert(PlexGetCount(&PBAFIELD32(pfrm, pllt)) == clt);
   else
@@ -2335,7 +2373,7 @@ DumpForm(FRM * pfrm)
     if (pchText != NULL)
     {
       PadBoundary();
-      DumpBytes(pchText, strlen(pchText) + 1);
+      DumpBytes(pchText, (int)(strlen(pchText) + 1));
     }
   }
   PadBoundary();
@@ -2385,23 +2423,23 @@ IdFromObj(const RCFORMOBJECT * pobj,
   {
     case frmFieldObj:
       //              return pobj->field->id;
-      return PBAFIELD(pobj->field, id);
+      return (int)PBAFIELD(pobj->field, id);
 
     case frmControlObj:
     case frmGraphicalControlObj:
-      return PBAFIELD(pobj->control, id);
+      return (int)PBAFIELD(pobj->control, id);
     case frmListObj:
-      return PBAFIELD(pobj->list, id);
+      return (int)PBAFIELD(pobj->list, id);
     case frmTableObj:
-      return PBAFIELD(pobj->table, id);
+      return (int)PBAFIELD(pobj->table, id);
     case frmScrollBarObj:
-      return pobj->scrollbar->id;
+      return (int)pobj->scrollbar->id;
     case frmGadgetObj:
-      return pobj->gadget->id;
+      return (int)pobj->gadget->id;
     case frmLabelObj:
-      return PBAFIELD(pobj->label, id);
+      return (int)PBAFIELD(pobj->label, id);
     case frmSliderObj:
-      return PBAFIELD(pobj->slider, id);
+      return (int)PBAFIELD(pobj->slider, id);
 
     case frmTitleObj:
     case frmPopupObj:
@@ -3019,7 +3057,7 @@ DumpMenu()
   p_int ibStrings;
 
   OpenOutput(kPalmResType[kMenuRscType], idMenu);       /* RMa "MBAR" */
-  cmpd = BAFIELD(menu, numMenus);
+  cmpd = (int)BAFIELD(menu, numMenus);
   CbEmitStruct(&menu, szRCMENUBAR, NULL, fTrue);
   imi = 0;
   ibCommands = CbStruct(szRCMENUBAR) + cmpd * CbStruct(szRCMENUPULLDOWN);
@@ -3084,13 +3122,13 @@ DumpMenu()
     int imiT;
 
     DumpBytes(BAFIELD(rgmpd[impd], title),
-              strlen(BAFIELD(rgmpd[impd], title)) + 1);
+              (int)(strlen(BAFIELD(rgmpd[impd], title)) + 1));
     /*
      * word align? 
      */
     for (imiT = 0; imiT < BAFIELD(rgmpd[impd], numItems); imiT++)
     {
-      DumpBytes(rgmi[imi].itemStr, strlen(rgmi[imi].itemStr) + 1);
+      DumpBytes(rgmi[imi].itemStr, (int)(strlen(rgmi[imi].itemStr) + 1));
       imi++;
     }
   }
@@ -3111,7 +3149,7 @@ AssignMenuRects()
   int imi;
   int xTitle;
 
-  cmpd = BAFIELD(menu, numMenus);
+  cmpd = (int)BAFIELD(menu, numMenus);
   imi = 0;
   xTitle = 4;
   for (impd = 0; impd < cmpd; impd++)
@@ -3127,7 +3165,7 @@ AssignMenuRects()
     SETPBAFIELD(pmpd, titleBounds.topLeft.y, 0);
     SETPBAFIELD(pmpd, titleBounds.extent.y, 12);
     SETPBAFIELD(pmpd, titleBounds.extent.x, dx);
-    xTitle += PBAFIELD(pmpd, titleBounds.extent.x);
+    xTitle += (int)PBAFIELD(pmpd, titleBounds.extent.x);
 
     SETPBAFIELD(pmpd, bounds.topLeft.y, 14);
     SETPBAFIELD(pmpd, bounds.extent.y, 0);
@@ -3157,8 +3195,8 @@ AssignMenuRects()
     }
     SETPBAFIELD(pmpd, bounds.extent.x, dxMac);
     SETPBAFIELD(pmpd, bounds.topLeft.x,
-                WMin(PBAFIELD(pmpd, titleBounds.topLeft.x) + 2,
-                     dxScreen - dxMac - 2));
+                WMin((int)(PBAFIELD(pmpd, titleBounds.topLeft.x) + 2),
+                     (int)(dxScreen - dxMac - 2)));
   }
 
 }
@@ -3196,7 +3234,12 @@ FParsePullDown(RCPFILE * prcpfile)
           return fFalse;
         if (tok.rw == rwSeparator)
         {
+#ifdef _MSC_VER
+          mi.itemStr = _strdup("-");
+#else
           mi.itemStr = strdup("-");
+#endif
+
           // BLC: eat an auto ID so menus specified using AutoIDs and a start number
           // will correctly skip ID numbers when used with the PilRC plugin
           (void) IdGetAutoId();
@@ -3224,7 +3267,7 @@ FParsePullDown(RCPFILE * prcpfile)
 
           UngetTok();
           mi.itemStr = PchGetString("Item Text");
-          cch = strlen(mi.itemStr);
+          cch = (int)strlen(mi.itemStr);
 
           // only apply special treatment if not requested
           if (!vfNoEllipsis)
@@ -3247,7 +3290,7 @@ FParsePullDown(RCPFILE * prcpfile)
           }
           mi.id = WGetId("CommandId");
           if (vfPalmRez)
-            previousID = mi.id + 1;              // RMa 
+            previousID = (int)(mi.id + 1);              // RMa 
           if (FIsString(PeekTok()))
           {
             char *key = PchGetString("CommandKey string");
@@ -3481,8 +3524,8 @@ WriteAlert:
 
   OpenOutput(kPalmResType[kAlertRscType], idAlert);     /* RMa "Talt" */
   CbEmitStruct(&at, szRCALERTTEMPLATE, NULL, fTrue);
-  DumpBytes(pchTitle, strlen(pchTitle) + 1);
-  DumpBytes(pchMessage, strlen(pchMessage) + 1);
+  DumpBytes(pchTitle, (int)(strlen(pchTitle) + 1));
+  DumpBytes(pchMessage, (int)(strlen(pchMessage) + 1));
   if (itm.text != NULL)
     DumpBytes(itm.text, itm.cbText);
   CloseOutput();
@@ -3505,7 +3548,7 @@ ParseDumpVersion()
   if (DesirableLocale(NULL))
   {
     OpenOutput(kPalmResType[kVerRscType], id);     /* RMa "tver" */
-    DumpBytes(pchVersion, strlen(pchVersion) + 1);
+    DumpBytes(pchVersion, (int)(strlen(pchVersion) + 1));
     if (vfLE32)
       PadWordBoundary();
     CloseOutput();
@@ -3558,11 +3601,16 @@ ParseDumpStringTable()
   while (FIsString(PeekTok()))
   {
     char *pch = PchGetString("String text");
-    int l = strlen(pch) + 1;
+    int l = (int)(strlen(pch) + 1);
     if (tot + l > 32768)
       ErrorLine("Sum of string lengths must be less than 32768");
 
+#if __STDC_WANT_SECURE_LIB__
+	strcpy_s(buf + tot, 32768 - tot, pch);
+#else
     strcpy(buf + tot, pch);
+#endif
+
     tot += l;
     numStrings++;
     if (numStrings >= 384)
@@ -3574,7 +3622,7 @@ ParseDumpStringTable()
   if (DesirableLocale(itm.Locale))
   {
     OpenOutput(kPalmResType[kStrListRscType], id); /* RMa "tSTL" */
-    DumpBytes(prefixString, strlen(prefixString) + 1);
+    DumpBytes(prefixString, (int)(strlen(prefixString) + 1));
     if (vfLE32)
     {
       // RMa add  little hack for generate 68k format stringTable on LE32
@@ -3636,8 +3684,8 @@ ParseDumpString()
   if (tok.rw == rwFile)
   {
     char *pchFilename = PchGetString("String filename");
-    FILE *fh;
-    int cch;
+    FILE *fh = NULL;
+    int cch = 0;
 
     pchString = malloc(szMultipleLineMaxLength);
 
@@ -3645,7 +3693,7 @@ ParseDumpString()
     if (fh == NULL)
       ErrorLine("Unable to open String file %s", pchFilename);
 
-    cch = fread(pchString, 1, szMultipleLineMaxLength, fh);
+    cch = (int)fread(pchString, 1, szMultipleLineMaxLength, fh);
     if (cch == szMultipleLineMaxLength)
       ErrorLine("String too long!");
     pchString[cch] = 0;
@@ -3662,7 +3710,7 @@ ParseDumpString()
     pchString = PchGetString("String Text");
   }
 
-  cch = strlen(pchString);                       // RMa add 
+  cch = (int)strlen(pchString);                       // RMa add 
 
   // only apply special treatment if not requested
   if (!vfNoEllipsis)
@@ -3696,7 +3744,7 @@ ParseDumpString()
   if (DesirableLocale(itm.Locale))
   {
     OpenOutput(kPalmResType[kStrRscType], id);     /* RMa "tSTR" */
-    DumpBytes(pchString, strlen(pchString) + 1);
+    DumpBytes(pchString, (int)(strlen(pchString) + 1));
     CloseOutput();
   }
 
@@ -3742,7 +3790,7 @@ ParseDumpCategories()
   while (FIsString(PeekTok()))
   {
     string = PchGetString("String Text");
-    len = strlen(string);
+    len = (int)strlen(string);
     /*
      * Check the size of the string and only write 15 character max 
      */
@@ -4387,7 +4435,7 @@ ParseDumpLauncherCategory(void)
   if (DesirableLocale(pLocale))
   {
     OpenOutput(kPalmResType[kDefaultCategoryRscType], id);      /* RMa "taic" */
-    DumpBytes(pString, strlen(pString) + 1);
+    DumpBytes(pString, (int)(strlen(pString) + 1));
     //      RMa Remove padding is it no necessary padding. it done by prcbuild if needded
     //      PadBoundary();
     CloseOutput();
@@ -4412,7 +4460,7 @@ ParseDumpApplicationIconName()
   if (DesirableLocale(itm.Locale))
   {
     OpenOutput(kPalmResType[kAinRscType], itm.id);     /* RMa "tAIN" */
-    DumpBytes(pchString, strlen(pchString) + 1);
+    DumpBytes(pchString, (int)(strlen(pchString) + 1));
 
     // RMa this resource is align on 16 bits in the two world
     //      Force 16 bit padding
@@ -4589,7 +4637,7 @@ ParseDumpHex()
     {
       char *pch = PchGetString("String Text");
       if (DesirableLocale(itm.Locale))
-        DumpBytes(pch, strlen(pch));
+        DumpBytes(pch, (int)strlen(pch));
       free(pch);
     }
     else if (ptok->lex.lt == ltConst ||
@@ -4669,7 +4717,7 @@ ParseDumpData()
       {
         int cch;
         char *data;
-        FILE *fh;
+        FILE *fh = NULL;
 
         free(FindAndOpenFile(pchFileName, "rb", &fh));
         if (fh == NULL)
@@ -4677,11 +4725,11 @@ ParseDumpData()
 
         data = malloc(4096);
         if (data == NULL) Error("out of memory");
-        cch = fread(data, 1, 4096, fh);
+        cch = (int)fread(data, 1, 4096, fh);
         while (cch != 0)
         {
           DumpBytes(data, cch);
-          cch = fread(data, 1, 4096, fh);
+          cch = (int)fread(data, 1, 4096, fh);
         }
         fclose(fh);
         free(data);
@@ -4774,7 +4822,7 @@ ParseDumpWordList(void)
   OpenOutput(kPalmResType[kWrdListRscType], id); /* RMa "wrdl" */
   EmitW(n);                                /* RMa element in list */
   for (i = 0; i < n; i++)                 /* RMa dump each value */
-    EmitW(buffer[i]);
+    EmitW((unsigned short)buffer[i]);
   CloseOutput();
   free(buffer);
 }
@@ -4850,7 +4898,7 @@ ParseDumpByteList(void)
   EmitW((unsigned short)defaultItem);            /* RMa default item */
   EmitW((unsigned short)n);                /* RMa element in list */
   for (i = 0; i < n; i++)                 /* RMa dump each value */
-    EmitB(buffer[i]);
+    EmitB((BYTE)buffer[i]);
   CloseOutput();
   free(buffer);
 }
@@ -4993,9 +5041,9 @@ ParseDumpMidi(void)
   }
   else
   {
-    FILE *pFh;
-    char *pData;
-    int fileSize;
+    FILE *pFh = NULL;
+    char *pData = NULL;
+    int fileSize = 0;
 
     free(FindAndOpenFile(pFileName, "rb", &pFh));      /* open file in read and binary */
     if (pFh == NULL)
@@ -5016,11 +5064,11 @@ ParseDumpMidi(void)
         // write the data to file
         OpenOutput(kPalmResType[kMidiRscType], resId);  /* RMa "MIDI" */
 
-        cch = fread(pData, 1, fileSize, pFh);
+        cch = (int)fread(pData, 1, fileSize, pFh);
         while (cch != 0)
         {
           DumpBytes(pData, cch);
-          cch = fread(pData, 1, fileSize, pFh);
+          cch = (int)fread(pData, 1, fileSize, pFh);
         }
         fclose(pFh);
         CloseOutput();
@@ -5213,7 +5261,7 @@ ParseNavigationMap(RCNAVIGATIONITEM **navigationItems, p_int *numItems)
     if (tok.rw == rwEnd) break;
     else if (tok.rw == rwRow)
     {
-	  currentRowStart = *numItems;
+	  currentRowStart = (int)*numItems;
 	  
 	  /* parse a row of data, which will be in the form:
 	   * <ID.n> [SKIP] [FORCEINTERACTION] [BIGBUTTON] */
@@ -5245,7 +5293,7 @@ ParseNavigationMap(RCNAVIGATIONITEM **navigationItems, p_int *numItems)
   	  }
   	  
 	  /* store ID of start of current row to use for "above" of next row */
-	  lastRowFirstID = (*navigationItems)[currentRowStart].objectID;
+	  lastRowFirstID = (int)((*navigationItems)[currentRowStart].objectID);
 
       /* fix previous row to point to start of current row */
       for (i = lastRowStart; i < lastRowEnd; ++i)
@@ -5255,7 +5303,7 @@ ParseNavigationMap(RCNAVIGATIONITEM **navigationItems, p_int *numItems)
 
 	  /* store start/end of current row to fixup after next row */
       lastRowStart = currentRowStart;
-  	  lastRowEnd = *numItems;
+  	  lastRowEnd = (int)*numItems;
     }
     else
       Error("Expected END or ROW");
@@ -5443,7 +5491,12 @@ ParseCInclude(const char *szIncludeFile)
                   SYM *psym;
 
                   GetExpectLt(&tok, ltId, "identifier");
+
+#if __STDC_WANT_SECURE_LIB__
+				  strcpy_s(szId, 256, tok.lex.szId);
+#else
                   strcpy(szId, tok.lex.szId);
+#endif
 
                   psym = PsymLookup(szId);
                   if (psym == NULL)
@@ -5467,7 +5520,12 @@ ParseCInclude(const char *szIncludeFile)
                   SYM *psym;
 
                   GetExpectLt(&tok, ltId, "identifier");
+
+#if __STDC_WANT_SECURE_LIB__
+				  strcpy_s(szId, 256, tok.lex.szId);
+#else
                   strcpy(szId, tok.lex.szId);
+#endif
 
                   psym = PsymLookup(szId);
                   if (psym != NULL)
@@ -5546,7 +5604,12 @@ ParseCInclude(const char *szIncludeFile)
         }
         else
         {
+#if __STDC_WANT_SECURE_LIB__
+          strcpy_s(szId, 256, tok.lex.szId);
+#else
           strcpy(szId, tok.lex.szId);
+#endif
+
           GetExpectRw(rwEqu);
           wIdVal = WGetConstEx("Constant");
           AddSym(szId, wIdVal);
@@ -5626,7 +5689,12 @@ ParseJavaInclude(char *szIncludeFile)
     switch (tok.lex.lt)
     {
       case ltId:
+#if __STDC_WANT_SECURE_LIB__
+        strcpy_s(szId, 256, tok.lex.szId);
+#else
         strcpy(szId, tok.lex.szId);
+#endif
+
         GetExpectLt(&tok, ltAssign,
                     "[public] [static] [final] [short|int] Name = number;");
 
@@ -5654,15 +5722,21 @@ endOfClass:
 static BOOL
 OverwriteIncFile( const char *inc_fn, const char *tmp_fn )
 {
-	FILE *inc_file, *tmp_file;
-	int inc_char, tmp_char;
+	FILE *inc_file = NULL, *tmp_file = NULL;
+	int inc_char = 0, tmp_char = 0;
 	BOOL overwrite = 1;
 
 	if ( ! inc_fn || ! tmp_fn )
 		return 1;
 
+#if __STDC_WANT_SECURE_LIB__
+	fopen_s( &inc_file, inc_fn, "r" );
+	fopen_s( &tmp_file, tmp_fn, "r" );
+#else
 	inc_file = fopen( inc_fn, "r" );
 	tmp_file = fopen( tmp_fn, "r" );
+#endif
+
 	if ( inc_file && tmp_file )
 	{
 		do
@@ -5687,13 +5761,25 @@ OverwriteIncFile( const char *inc_fn, const char *tmp_fn )
 static void
 WriteIncFile(char *szFile)
 {
-  FILE *temp_file;
-  SYM *psym;
+  FILE *temp_file = NULL;
+  SYM *psym = NULL;
   char *temp_name = MakeTempFilename();
+#if __STDC_WANT_SECURE_LIB__
+  char errorstr[256];
 
+  fopen_s(&temp_file, temp_name, "w");
+
+  if (temp_file == NULL) {
+    strerror_s(errorstr, 256, errno);
+
+	Error("Can't write to temporary file %s: %s", temp_name, errorstr);
+  }
+#else
   temp_file = fopen(temp_name, "w");
+
   if (temp_file == NULL)
     Error("Can't write to temporary file %s: %s", temp_name, strerror(errno));
+#endif
 
   fprintf(temp_file, "/* pilrc generated file.  Do not edit!*/\n");
 
@@ -5718,21 +5804,46 @@ WriteIncFile(char *szFile)
       /* Attempt to copy manually; rename() may have failed merely because
          the files are on different filesystems, for example.  */
 
-      FILE *out_file;
-      char buffer[4096];
-      size_t n;
+      FILE *out_file = NULL;
+	  char buffer[4096] = { 0 };
+      size_t n = 0;
 
-      if ((temp_file = fopen(temp_name, "r")) == NULL)
+#if __STDC_WANT_SECURE_LIB__
+	  fopen_s(&temp_file, temp_name, "r");
+
+	  if (temp_file == NULL) {
+        strerror_s(errorstr, 256, errno);
+
+        Error("Can't open temporary file %s: %s", temp_name, errorstr);
+	  }
+
+	  fopen_s(&out_file, szFile, "w");
+
+	  if (out_file == NULL) {
+        strerror_s(errorstr, 256, errno);
+
+        Error("Can't write to include file %s: %s", szFile, errorstr);
+	  }
+#else
+	  if ((temp_file = fopen(temp_name, "r")) == NULL)
         Error("Can't open temporary file %s: %s", temp_name, strerror(errno));
 
-      if ((out_file = fopen(szFile, "w")) == NULL)
-        Error("Can't write to include file %s: %s", szFile, strerror(errno));
+	  if ((out_file = fopen(szFile, "w")) == NULL)
+         Error("Can't write to include file %s: %s", szFile, strerror(errno));
+#endif
 
       while ((n = fread(buffer, 1, sizeof buffer, temp_file)) > 0)
         fwrite(buffer, 1, n, out_file);
 
-      if (ferror(out_file))
+	  if (ferror(out_file)) {
+#if __STDC_WANT_SECURE_LIB__
+        strerror_s(errorstr, 256, errno);
+
+        Error("Error writing to include file %s: %s", szFile, errorstr);
+#else
         Error("Error writing to include file %s: %s", szFile, strerror(errno));
+#endif
+	  }
 
       fclose(out_file);
       fclose(temp_file);
@@ -6116,7 +6227,12 @@ ParseDirectives(RCPFILE * prcpfile)
           SYM *psym;
 
           GetExpectLt(&tok, ltId, "identifier");
+
+#if __STDC_WANT_SECURE_LIB__
+		  strcpy_s(szId, 256, tok.lex.szId);
+#else
           strcpy(szId, tok.lex.szId);
+#endif
 
           psym = PsymLookup(szId);
           if (psym == NULL)
@@ -6141,7 +6257,12 @@ ParseDirectives(RCPFILE * prcpfile)
           SYM *psym;
 
           GetExpectLt(&tok, ltId, "identifier");
+
+#if __STDC_WANT_SECURE_LIB__
+		  strcpy_s(szId, 256, tok.lex.szId);
+#else
           strcpy(szId, tok.lex.szId);
+#endif
 
           psym = PsymLookup(szId);
           if (psym != NULL)
@@ -6305,7 +6426,14 @@ ParseFile(const char *szIn,
   if (vfTrackDepends)
   {
     char *szDependsFile = MakeFilename("%s%e.d", szIn, ".rcp");
+#if __STDC_WANT_SECURE_LIB__
+	FILE *dependsFile = NULL;
+
+	fopen_s(&dependsFile, szDependsFile, "w");
+#else
     FILE *dependsFile = fopen(szDependsFile, "w");
+#endif
+
     if (dependsFile)
     {
         OutputDependsList(dependsFile, szMainOutput);

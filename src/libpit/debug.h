@@ -51,11 +51,19 @@ void debug_bytes_offset_full(const char *file, const char *func, int line, int l
                              unsigned char *buf, int len, unsigned int offset);
 #endif
 
+#ifdef _MSC_VER
+#define debug_errno(sys, fmt, ...)    debug_errno_full(__FILE__, __FUNCTION__, __LINE__, sys, fmt, ##__VA_ARGS__)
+#define debugva(level, sys, fmt, ...) debugva_full(__FILE__, __FUNCTION__, __LINE__, level, sys, fmt, ##__VA_ARGS__)
+#define debug(level, sys, fmt, ...)   debug_full(__FILE__, __FUNCTION__, __LINE__, level, sys, fmt, ##__VA_ARGS__)
+#define debug_bytes(level, sys, buf, len) debug_bytes_full(__FILE__, __FUNCTION__, __LINE__, level, sys, buf, len);
+#define debug_bytes_offset(level, sys, buf, len, offset) debug_bytes_offset_full(__FILE__, __FUNCTION__, __LINE__, level, sys, buf, len, offset);
+#else
 #define debug_errno(sys, fmt, args...)    debug_errno_full(__FILE__, __FUNCTION__, __LINE__, sys, fmt, ##args)
 #define debugva(level, sys, fmt, args...) debugva_full(__FILE__, __FUNCTION__, __LINE__, level, sys, fmt, ##args)
 #define debug(level, sys, fmt, args...)   debug_full(__FILE__, __FUNCTION__, __LINE__, level, sys, fmt, ##args)
 #define debug_bytes(level, sys, buf, len) debug_bytes_full(__FILE__, __FUNCTION__, __LINE__, level, sys, buf, len);
 #define debug_bytes_offset(level, sys, buf, len, offset) debug_bytes_offset_full(__FILE__, __FUNCTION__, __LINE__, level, sys, buf, len, offset);
+#endif
 
 #ifdef __cplusplus
 }

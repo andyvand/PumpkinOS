@@ -17,7 +17,7 @@ $(LIB)$(EXT):
 
 $(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
 	@echo Linking $(PROGRAM)$(SOEXT)
-	@$(CC) -shared -o $(LIB)$(SOEXT) $(OBJS) -L$(BIN) -lpit $(LIBS)
+	@$(CC) -shared -o $(LIB)$(SOEXT) -Wl,--out-implib,$(LIB).a $(OBJS) -L$(BIN) -lpit $(LIBS) --def $(LIB).def
 	@$(STRIP) $(LIB)$(SOEXT)
 
 $(LIB).a: $(OBJS)

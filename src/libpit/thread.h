@@ -7,7 +7,10 @@ extern "C" {
 
 #define FLAG_FINISH  1
 
+#ifndef STATUS_SUCCESS
 #define STATUS_SUCCESS 0
+#endif
+
 #define STATUS_ERROR   1
 #define STATUS_FAULT   2
 

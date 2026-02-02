@@ -499,9 +499,9 @@ Err VFSFileGetDate(FileRef fileRef, UInt16 whichDate, UInt32 *dateP) {
         if (dateP) {
           dt = pumpkin_dt();
           switch (whichDate) {
-            case vfsFileDateCreated:  *dateP = dt + ent->ctime; break;
-            case vfsFileDateModified: *dateP = dt + ent->mtime; break;
-            case vfsFileDateAccessed: *dateP = dt + ent->atime; break;
+            case vfsFileDateCreated:  *dateP = (UInt32)(dt + ent->ctime); break;
+			case vfsFileDateModified: *dateP = (UInt32)(dt + ent->mtime); break;
+			case vfsFileDateAccessed: *dateP = (UInt32)(dt + ent->atime); break;
             default: return_err(sysErrParamErr);
           }
         }
@@ -748,8 +748,8 @@ Err VFSVolumeSize(UInt16 volRefNum, UInt32 *volumeUsedP, UInt32 *volumeTotalP) {
   buildpath(module, volRefNum, module->path, "");
 
   if (vfs_statfs(module->session[volRefNum-1], module->path, &total, &free) == 0) {
-    if (volumeTotalP) *volumeTotalP = total; // XXX overflow 64 -> 32 bits
-    if (volumeUsedP) *volumeUsedP = total - free; // XXX overflow 64 -> 32 bits
+	if (volumeTotalP) *volumeTotalP = (UInt32)total; // XXX overflow 64 -> 32 bits
+	if (volumeUsedP) *volumeUsedP = (UInt32)(total - free); // XXX overflow 64 -> 32 bits
     err = errNone;
   }
 

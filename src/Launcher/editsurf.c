@@ -100,7 +100,7 @@ Boolean editSurface(FormType *frm, char *title, surface_t *surface) {
 
   if (s) {
     MemSet(&data, sizeof(surface_edit_t), 0);
-    data.bmp = BmpCreate3(width, height, 0, kDensityLow, depth, false, 0, NULL, &error);
+    data.bmp = BmpCreate3(width, height, 0, kDensityLow, (UInt8)depth, false, 0, NULL, &error);
 
     if (data.bmp) {
       data.x = rect.topLeft.x + (rect.extent.x - width) / 2;

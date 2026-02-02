@@ -22,7 +22,7 @@ static void drawColorCell(RectangleType *rect, UInt16 i, Boolean border) {
   cr.extent.y = cell - 1;
 
   if (border) {
-    WinIndexToRGB(i, &rgb);
+    WinIndexToRGB((IndexedColorType)i, &rgb);
     rgb.r = 255 - rgb.r;
     rgb.g = 255 - rgb.g;
     rgb.b = 255 - rgb.b;
@@ -30,7 +30,7 @@ static void drawColorCell(RectangleType *rect, UInt16 i, Boolean border) {
     WinPaintRectangleFrame(simpleFrame, &cr);
     WinSetForeColorRGB(&prev, NULL);
   } else {
-    oldf = WinSetForeColor(i);
+    oldf = WinSetForeColor((IndexedColorType)i);
     WinPaintRectangle(&cr, 0);
     WinSetForeColor(oldf);
   }
@@ -130,9 +130,9 @@ static Boolean ColorGridGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd
             i = row * NCOLS + col;
             if (i >= 0 && i < 256) {
               debug(DEBUG_TRACE, PALMOS_MODULE, "UIPickColor grid select i=%d", i);
-              drawGrid(&rect, i);
-              *indexP = i;
-              WinIndexToRGB(i, &rgb);
+			  drawGrid(&rect, (IndexedColorType)i);
+			  *indexP = (IndexedColorType)i;
+			  WinIndexToRGB((IndexedColorType)i, &rgb);
               setSliderColor(frm, 13306, 13313, rgb.r);
               setSliderColor(frm, 13308, 13314, rgb.g);
               setSliderColor(frm, 13310, 13315, rgb.b);
@@ -169,9 +169,9 @@ static Boolean ColorGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
   switch (cmd) {
     case formGadgetDrawCmd:
       rgb.index = 0;
-      rgb.r = getSliderColor(frm, 13306, NULL, 0);
-      rgb.g = getSliderColor(frm, 13308, NULL, 0);
-      rgb.b = getSliderColor(frm, 13310, NULL, 0);
+      rgb.r = (UInt8)getSliderColor(frm, 13306, NULL, 0);
+	  rgb.g = (UInt8)getSliderColor(frm, 13308, NULL, 0);
+	  rgb.b = (UInt8)getSliderColor(frm, 13310, NULL, 0);
       drawColorPanel(&rect, &rgb);
       break;
 
@@ -282,13 +282,13 @@ static void ctlSelectHandlEvent(FormType *frm, UInt16 controlID) {
     case 13306:
     case 13308:
     case 13310:
-      rgb.r = getSliderColor(frm, 13306, buf, sizeof(buf)-1);
+	  rgb.r = (UInt8)getSliderColor(frm, 13306, buf, sizeof(buf) - 1);
       updateLabel(frm, 13313, buf);
 
-      rgb.g = getSliderColor(frm, 13308, buf, sizeof(buf)-1);
+	  rgb.g = (UInt8)getSliderColor(frm, 13308, buf, sizeof(buf) - 1);
       updateLabel(frm, 13314, buf);
 
-      rgb.b = getSliderColor(frm, 13310, buf, sizeof(buf)-1);
+	  rgb.b = (UInt8)getSliderColor(frm, 13310, buf, sizeof(buf) - 1);
       updateLabel(frm, 13315, buf);
 
       index = FrmGetObjectIndex(frm, 13312); // color panel gadget
@@ -402,9 +402,9 @@ Boolean UIPickColor(IndexedColorType *indexP, RGBColorType *rgbP, UIPickColorSta
     // fit in the RGB space is used if the palette contains colors.
 
     if (rgbP) {
-      rgbP->r = getSliderColor(frm, 13306, NULL, 0);
-      rgbP->g = getSliderColor(frm, 13308, NULL, 0);
-      rgbP->b = getSliderColor(frm, 13310, NULL, 0);
+	  rgbP->r = (UInt8)getSliderColor(frm, 13306, NULL, 0);
+	  rgbP->g = (UInt8)getSliderColor(frm, 13308, NULL, 0);
+	  rgbP->b = (UInt8)getSliderColor(frm, 13310, NULL, 0);
     }
 
     r = true;

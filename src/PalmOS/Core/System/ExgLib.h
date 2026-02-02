@@ -62,7 +62,10 @@
 /************************************************************
  * Net Library procedures.
  *************************************************************/ 
+#ifndef _MSC_VER
 #pragma mark Functions
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

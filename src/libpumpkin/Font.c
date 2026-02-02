@@ -201,7 +201,7 @@ Int16 FntCharsWidth(Char const *chars, Int16 len) {
 
 Int16 FntWCharWidth(WChar iChar) {
   fnt_module_t *module = (fnt_module_t *)pumpkin_get_local_storage(fnt_key);
-  UInt8 uc = (UInt16)iChar; // XXX
+  UInt8 uc = (UInt8)iChar; // XXX
   Int16 r = MISSING_SYMBOL_WIDTH;
   if (module->fonts[module->currentFont] && uc >= module->fonts[module->currentFont]->firstChar && uc <= module->fonts[module->currentFont]->lastChar) {
     r = module->fonts[module->currentFont]->width[uc - module->fonts[module->currentFont]->firstChar];
@@ -292,7 +292,7 @@ FontPtr FntCopyFont(FontPtr f) {
     f2->data = sys_calloc(ff->densityCount, sizeof(uint8_t *));
     f2->bmp = sys_calloc(ff->densityCount, sizeof(BitmapType *));
 
-    for (j = 0; j < ff->densityCount; j++) {
+    for (j = 0; j < (uint32_t)ff->densityCount; j++) {
       switch (ff->densities[j].density) {
         case kDensityLow:
           glyph_len = ff->pitch[j] * ff->fRectHeight;
@@ -334,7 +334,7 @@ void FntFreeFont(FontPtr f) {
       pumpkin_heap_free(f, "FontCopy");
     } else {
       ff = (FontTypeV2 *)f;
-      for (j = 0; j < ff->densityCount; j++) {
+      for (j = 0; j < (uint32_t)ff->densityCount; j++) {
         BmpDelete(ff->bmp[j]);
         sys_free(ff->data[j]);
       }

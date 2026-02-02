@@ -122,21 +122,33 @@ static int vfs_local_checktype(char *path, void *_data) {
   data = (vfsassets_mount_t *)_data;
 
   if ((aux = xcalloc(1, VFS_PATH)) == NULL) {
+#ifdef _DEBUG
+	debug(DEBUG_ERROR, "VFS", "xcalloc failed of %d bytes", VFS_PATH);
+#endif
     return -1;
   }
   sys_snprintf(aux, VFS_PATH-1, "%s%s", data->local, path);
 
   if (sys_stat(aux, &st) == -1) {
-    xfree(aux);
+#ifdef _DEBUG
+	debug(DEBUG_ERROR, "VFS", "stat \"%s\" failed", aux);
+#endif
+	xfree(aux);
     return -1;
   }
 
   if (st.mode & SYS_IFDIR) {
+#ifdef _DEBUG
+    debug(DEBUG_ERROR, "VFS", "\"%s\" is directory", aux);
+#endif
     xfree(aux);
     return VFS_DIR;
   }
 
   if (st.mode & SYS_IFREG) {
+#ifdef _DEBUG
+    debug(DEBUG_ERROR, "VFS", "\"%s\" is file", aux);
+#endif
     xfree(aux);
     return VFS_FILE;
   }
@@ -173,7 +185,7 @@ static vfs_ent_t *vfs_local_readdir(vfs_priv_t *priv) {
 
   sys_memset(&priv->current, 0, sizeof(vfs_ent_t));
   sys_strncpy(priv->current.name, name, VFS_NAME-1);
-  priv->current.size  = st.size;
+  priv->current.size  = (uint32_t)st.size;
   priv->current.atime = st.atime;
   priv->current.mtime = st.mtime;
   priv->current.ctime = st.ctime;
@@ -219,13 +231,19 @@ static vfs_priv_t *vfs_local_opendir(char *path, void *_data) {
     return NULL;
   }
 
+#ifdef _DEBUG
   debug(DEBUG_TRACE, "VFS", "vfs_local_opendir \"%s\"", path);
+#endif
+
   if (path[0] == 0) {
     sys_strncpy(priv->path, data->local, VFS_PATH-1);
   } else {
     sys_snprintf(priv->path, VFS_PATH-1, "%s%s%c", data->local, path, '/');
   }
+
+#ifdef _DEBUG
   debug(DEBUG_TRACE, "VFS", "aux \"%s\"", priv->path);
+#endif
 
   if ((priv->dir = sys_opendir(priv->path)) == NULL) {
     xfree(priv);
@@ -238,9 +256,9 @@ static vfs_priv_t *vfs_local_opendir(char *path, void *_data) {
 static int vfs_local_peek(vfs_fpriv_t *fpriv, uint32_t us) {
   uint32_t pos1, pos2;
 
-  pos1 = sys_seek(fpriv->fd, 0, SYS_SEEK_CUR);
+  pos1 = (uint32_t)sys_seek(fpriv->fd, 0, SYS_SEEK_CUR);
   if (pos1 == -1) return -1;
-  pos2 = sys_seek(fpriv->fd, 0, SYS_SEEK_END);
+  pos2 = (uint32_t)sys_seek(fpriv->fd, 0, SYS_SEEK_END);
   if (pos2 == -1) return -1;
   if (sys_seek(fpriv->fd, pos1, SYS_SEEK_SET) == -1) return -1;
 
@@ -295,7 +313,7 @@ static vfs_ent_t *vfs_local_fstat(vfs_fpriv_t *fpriv) {
       if (st.mode & (SYS_IFREG | SYS_IFDIR)) {
         xmemset(&fpriv->current, 0, sizeof(vfs_ent_t));
         fpriv->current.type = (st.mode & SYS_IFREG) ? VFS_FILE : VFS_DIR;
-        fpriv->current.size = st.size;
+        fpriv->current.size = (uint32_t)st.size;
         fpriv->current.atime = st.atime;
         fpriv->current.mtime = st.mtime;
         fpriv->current.ctime = st.ctime;
@@ -316,20 +334,26 @@ static vfs_ent_t *vfs_local_stat(char *path, void *_data, vfs_ent_t *ent) {
   vfs_ent_t *r = NULL;
 
   data = (vfsassets_mount_t *)_data;
+
+#ifdef _DEBUG
   debug(DEBUG_TRACE, "VFS", "vfs_local_stat \"%s\"", path);
+#endif
 
   if ((aux = xcalloc(1, VFS_PATH)) == NULL) {
     return NULL;
   }
 
   sys_snprintf(aux, VFS_PATH-1, "%s%s", data->local, path);
+
+#ifdef _DEBUG
   debug(DEBUG_TRACE, "VFS", "aux \"%s\"", aux);
+#endif
 
   if (sys_stat(aux, &st) == 0) {
     if (st.mode & (SYS_IFREG | SYS_IFDIR)) {
       xmemset(ent, 0, sizeof(vfs_ent_t));
       ent->type = (st.mode & SYS_IFREG) ? VFS_FILE : VFS_DIR;
-      ent->size = st.size;
+      ent->size = (uint32_t)st.size;
       ent->atime = st.atime;
       ent->mtime = st.mtime;
       ent->ctime = st.ctime;
@@ -355,7 +379,7 @@ static uint32_t vfs_local_seek(vfs_fpriv_t *fpriv, uint32_t pos, int fromend) {
   }
 
   if (fpriv && fpriv->fd) {
-    r = sys_seek(fpriv->fd, pos, whence);
+    r = (uint32_t)sys_seek(fpriv->fd, pos, whence);
   }
 
   return r;

@@ -34,6 +34,11 @@
 #define STBI_NO_PIC
 #define STBI_NO_PNM
 #define STBI_NO_LINEAR
+
+#ifdef __MINGW32__
+#define abs64 abss
+#endif
+
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -78,8 +83,8 @@ int surface_font_char_width(font_t *f, int font, int c) {
 }
 
 int surface_font_chars_width(font_t *f, int font, char *s, int len) {
-  if (!f) f = getfont(font);
   int i, width = 0;
+  if (!f) f = getfont(font);
 
   for (i = 0; s[i] && (len < 0 || i < len); i++) {
     if (s[i] >= f->min && s[i] <= f->max) {
@@ -96,8 +101,8 @@ int surface_font_height(font_t *f, int font) {
 }
 
 void surface_print(surface_t *surface, int x, int y, char *s, font_t *f, int font, uint32_t fg, uint32_t bg) {
-  if (!f) f = getfont(font);
   int i;
+  if (!f) f = getfont(font);
 
   if (surface && s) {
     for (i = 0; s[i]; x += surface_font_char_width(f, font, s[i]), i++) {
@@ -669,7 +674,7 @@ void surface_rgb_color(int encoding, surface_palette_t *palette, int npalette, u
       break;
     case SURFACE_ENCODING_PALETTE:
       if (alpha) *alpha =  0xff;
-      if (color < npalette) {
+      if (color < (uint32_t)npalette) {
         if (red)   *red   = palette[color].red;
         if (green) *green = palette[color].green;
         if (blue)  *blue  = palette[color].blue;

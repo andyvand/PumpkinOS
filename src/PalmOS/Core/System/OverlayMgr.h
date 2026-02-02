@@ -177,6 +177,10 @@ typedef struct {
   UInt32 rscChecksum;
 } OmOverlayRscType;
 
+#ifdef _MSC_VER
+#pragma warning(disable:4200)
+#endif
+
 typedef struct {
   UInt16 version;
   UInt32 flags;

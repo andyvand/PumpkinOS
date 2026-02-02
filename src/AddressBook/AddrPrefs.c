@@ -497,17 +497,17 @@ void PrvPrefsSave (FormPtr frm)
 	FormPtr formP;
 	Boolean sortByCompany;
 
-	RememberLastCategory = CtlGetValue(FrmGetObjectPtr (frm,
+	RememberLastCategory = (Boolean)CtlGetValue(FrmGetObjectPtr(frm,
 														FrmGetObjectIndex (frm, PreferencesRememberCategoryCheckbox)));
 
 	#if WRISTPDA
 	EnableTapDialing = false;
 	#else
-	EnableTapDialing = CtlGetValue(FrmGetObjectPtr (frm,
+	EnableTapDialing = (Boolean)CtlGetValue(FrmGetObjectPtr(frm,
 													FrmGetObjectIndex (frm, PreferencesEnableTapDialingCheckbox)));
 	#endif
 
-	sortByCompany = CtlGetValue(FrmGetObjectPtr (frm, FrmGetObjectIndex (frm, PreferencesCompanyName)));
+	sortByCompany = (Boolean)CtlGetValue(FrmGetObjectPtr(frm, FrmGetObjectIndex(frm, PreferencesCompanyName)));
 
 	if (sortByCompany != SortByCompany)
 	{

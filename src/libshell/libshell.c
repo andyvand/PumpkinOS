@@ -143,7 +143,7 @@ static int libshell_write_aux(shell_t *shell, int err, char *buf, int len) {
   int r;
 
   if (len == -1) {
-    len = sys_strlen(buf);
+    len = (int)sys_strlen(buf);
   }
 
   if (shell->fout && !err) {
@@ -246,7 +246,7 @@ static char *libshell_eval(shell_t *shell, char *s) {
   script_arg_t ret;
   char *val = NULL;
 
-  if (libshell_script_call(shell->pe, shell->ref, (uint8_t *)s, sys_strlen(s), &ret) == 0) {
+  if (libshell_script_call(shell->pe, shell->ref, (uint8_t *)s, (int)sys_strlen(s), &ret) == 0) {
     val = libshell_ret(shell->pe, &ret);
   }
 
@@ -396,7 +396,7 @@ static int cmd_rm(shell_t *shell, vfs_session_t *session, int pe, int argc, char
 }
 
 static int cmd_echo(shell_t *shell, vfs_session_t *session, int pe, int argc, char *argv[], void *data) {
-  libshell_write(shell, argv[1], sys_strlen(argv[1]));
+  libshell_write(shell, argv[1], (int)sys_strlen(argv[1]));
   return 0;
 }
 
@@ -549,13 +549,13 @@ static int cmd_dump(shell_t *shell, vfs_session_t *session, int pe, int argc, ch
       hbuf[j++] = ' ';
       hbuf[j++] = ' ';
 
-      for (i = 0, k = j + 8*3 + 1 + 8*3 + 1; i < i0+n; i++) {
+      for (i = 0, k = (int)(j + 8*3 + 1 + 8*3 + 1); i < (int)(i0+n); i++) {
         sys_sprintf(aux, "%02X", buf[i]);
-        hbuf[j++] = i >= i0 ? aux[0] : ' ';
-        hbuf[j++] = i >= i0 ? aux[1] : ' ';
+        hbuf[j++] = i >= (int)i0 ? aux[0] : ' ';
+        hbuf[j++] = i >= (int)i0 ? aux[1] : ' ';
         hbuf[j++] = ' ';
         if (i == 7) hbuf[j++] = ' ';
-        hbuf[k++] = i >= i0 ? (buf[i] < 32 || buf[i] >= 127 ? '.' : buf[i]) : ' ';
+        hbuf[k++] = i >= (int)i0 ? (buf[i] < 32 || buf[i] >= 127 ? '.' : buf[i]) : ' ';
       }
       for (; i < 16; i++) {
         hbuf[j++] = ' ';
@@ -1120,7 +1120,7 @@ static int libshell_escape_sequence(shell_t *shell, char *seq) {
     libshell_write(shell, ERASELINE, -1);
     libshell_prompt(shell);
     sys_strncpy(shell->line, s, MAX_LINE-1);
-    shell->linelen = sys_strlen(s);
+    shell->linelen = (int)sys_strlen(s);
     shell->linepos = shell->linelen;
     libshell_write(shell, shell->line, shell->linelen);
     shell->used_history = 1;

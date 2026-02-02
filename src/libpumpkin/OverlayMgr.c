@@ -37,8 +37,8 @@ Err OmLocaleToOverlayDBName(const Char *baseDBName, const LmLocaleType *targetLo
         }
         MemMove(overlayDBName, baseDBName, len);
         overlayDBName[len] = '_';
-        overlayDBName[len + 1] = TxtLowerChar(language[0]);
-        overlayDBName[len + 2] = TxtLowerChar(language[1]);
+        overlayDBName[len + 1] = (Char)TxtLowerChar(language[0]);
+        overlayDBName[len + 2] = (Char)TxtLowerChar(language[1]);
         overlayDBName[len + 3] = country[0];
         overlayDBName[len + 4] = country[1];
         overlayDBName[len + 5] = 0;

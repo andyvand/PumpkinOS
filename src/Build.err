@@ -1,0 +1,94 @@
+BUILD: [Thread:SystemTickCount:Type  ] Message
+BUILD: [01:0000001656:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1522) : error C2065: 'S_IRUSR' : undeclared identifier
+BUILD: [01:0000001656:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1523) : error C2065: 'S_IWUSR' : undeclared identifier
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2291) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2292) : error C2275: 'WCHAR' : illegal use of this type as an expression
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2292) : error C2146: syntax error : missing ';' before identifier 'wbuf'
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2292) : error C2065: 'wbuf' : undeclared identifier
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2292) : error C2109: subscript requires array or pointer type
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2293) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000001672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2295) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2296) : error C2065: 'len' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2296) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2297) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2297) : error C2065: 'len' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2298) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : error C2065: 'wbuf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2304) : error C2065: 'wbuf' : undeclared identifier
+BUILD: [01:0000001688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2308) : error C2065: 'wbuf' : undeclared identifier
+BUILD: [01:0000001703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2311) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2314) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2318) : error C2065: 'buf' : undeclared identifier
+BUILD: [01:0000001703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2845) : error C2275: 'fd_t' : illegal use of this type as an expression
+BUILD: [01:0000001703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2845) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000001703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2847) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2851) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2851) : error C2223: left of '->type' must point to struct/union
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : error C2223: left of '->socket' must point to struct/union
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : error C2198: 'connect' : too few arguments for call
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3313) : error C2275: 'fd_t' : illegal use of this type as an expression
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3313) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3315) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3319) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3319) : error C2223: left of '->type' must point to struct/union
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : error C2065: 'f' : undeclared identifier
+BUILD: [01:0000002313:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : error C2223: left of '->socket' must point to struct/union
+BUILD: [01:0000002328:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : error C2198: 'setsockopt' : too few arguments for call
+BUILD: [01:0000002438:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\builtin.c(106) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002453:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\builtin.c(106) : error C2065: 'argstext' : undeclared identifier
+BUILD: [01:0000002453:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\builtin.c(106) : error C2065: 'stext' : undeclared identifier
+BUILD: [01:0000002453:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\builtin.c(106) : error C2224: left of '.value' must have struct/union type
+BUILD: [01:0000002453:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\builtin.c(106) : fatal error C1903: unable to recover from previous error(s); stopping compilation
+BUILD: [01:0000002547:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(297) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002547:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(298) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002547:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(299) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002547:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(302) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002563:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(303) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002563:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(306) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002563:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(307) : error C2143: syntax error : missing ';' before 'type'
+BUILD: [01:0000002594:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(309) : error C2065: 'cur' : undeclared identifier
+BUILD: [01:0000002610:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(311) : error C2065: 'x' : undeclared identifier
+BUILD: [01:0000002610:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(311) : error C2065: 'y' : undeclared identifier
+BUILD: [01:0000002610:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(312) : error C2065: 'cur' : undeclared identifier
+BUILD: [01:0000002610:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(313) : error C2065: 'x' : undeclared identifier
+BUILD: [01:0000002610:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(313) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002625:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(313) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002625:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(313) : error C2065: 'xy' : undeclared identifier
+BUILD: [01:0000002625:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(314) : error C2065: 'y' : undeclared identifier
+BUILD: [01:0000002672:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(314) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(314) : error C2065: 'ey' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(318) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(318) : error C2065: 'y' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(318) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(318) : error C2065: 'x' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(318) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(318) : error C2065: 'ey' : undeclared identifier
+BUILD: [01:0000002688:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(325) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(325) : error C2065: 'xy' : undeclared identifier
+BUILD: [01:0000002703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(326) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(326) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(326) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002703:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(327) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002735:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(327) : error C2065: 'xy' : undeclared identifier
+BUILD: [01:0000002735:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(331) : error C2065: 'ey' : undeclared identifier
+BUILD: [01:0000002735:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(331) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002735:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(331) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002735:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(332) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002735:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(332) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002750:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(334) : error C2065: 'sx' : undeclared identifier
+BUILD: [01:0000002766:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(335) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002766:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(335) : error C2065: 'xy' : undeclared identifier
+BUILD: [01:0000002766:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(336) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002766:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(336) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002766:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(336) : error C2065: 'y' : undeclared identifier
+BUILD: [01:0000002766:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(338) : error C2065: 'ey' : undeclared identifier
+BUILD: [01:0000002781:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(340) : error C2065: 'sy' : undeclared identifier
+BUILD: [01:0000002781:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(341) : error C2065: 'dx' : undeclared identifier
+BUILD: [01:0000002781:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(341) : error C2065: 'xy' : undeclared identifier
+BUILD: [01:0000002781:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(342) : error C2065: 'ex' : undeclared identifier
+BUILD: [01:0000002781:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(342) : error C2065: 'dy' : undeclared identifier
+BUILD: [01:0000002781:ERRORE] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(342) : error C2065: 'x' : undeclared identifier
+BUILD: [01:0000003813:ERRORE] NMAKE : fatal error U1077: 'C:\WINCE800\sdk\bin\i386\ARM\cl.exe' : return code '0x2'
+BUILD: [01:0000003828:ERRORE] TargetCompilePass  -nologo BUILDMSG=Stop.  BUILDROOT=C:\wince800\osdesigns\qemu\qemu\pumpkinos\ NOLINK=1 NOPASS0=1 failed - rc = 2.

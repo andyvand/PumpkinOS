@@ -1,0 +1,8 @@
+root:-Directory("vfs")
+Directory("\vfs"):-Directory("app_install")
+Directory("\vfs"):-Directory("app_storage")
+Directory("\vfs"):-Directory("app_card")
+Directory("\vfs\app_card"):-Directory("PALM")
+Directory("\vfs\app_card\PALM"):-Directory("Programs")
+Directory("\vfs\app_card\PALM\Programs"):-Directory("Command")
+Directory("\vfs\app_install"):-File("Launcher.prc", "\Windows\Launcher.prc")

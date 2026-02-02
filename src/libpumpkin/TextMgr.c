@@ -89,7 +89,7 @@ WChar TxtGetChar(const Char *inText, UInt32 inOffset) {
 
 UInt16 TxtSetNextChar(Char *ioText, UInt32 inOffset, WChar inChar) {
   if (ioText) {
-    ioText[inOffset] = inChar;
+    ioText[inOffset] = (Char)inChar;
   }
   return 1;
 }

@@ -362,7 +362,7 @@ static void formPropertiesCallback(FormType *frm, dynamic_form_phase_t phase, vo
       density = BmpGetDensity(data->formP->window.bitmapP);
       depth = BmpGetBitDepth(data->formP->window.bitmapP);
       BmpDelete(data->formP->window.bitmapP);
-      data->formP->window.bitmapP = BmpCreate3(rect.extent.x, rect.extent.y, 0, density, depth, false, 0, NULL, &err);
+	  data->formP->window.bitmapP = BmpCreate3(rect.extent.x, rect.extent.y, 0, density, (UInt8)depth, false, 0, NULL, &err);
       data->changed = true;
       break;
     case finishForm:
@@ -473,7 +473,7 @@ static void controlPropertiesCallback(FormType *frm, dynamic_form_phase_t phase,
       FrmSetObjectBounds(data->formP, data->selected, &rect);
       ctl->font = getFieldNum(frm, 1006);
       ctl->group = getFieldNum(frm, 1007);
-      ctl->attr.usable = getControlValue(frm, 1008);
+	  ctl->attr.usable = (UInt8)getControlValue(frm, 1008);
       data->changed = true;
       break;
     case finishForm:
@@ -510,7 +510,7 @@ static void graphicControlPropertiesCallback(FormType *frm, dynamic_form_phase_t
       rect.extent.y = getFieldNum(frm, 1005);
       FrmSetObjectBounds(data->formP, data->selected, &rect);
       ctl->group = getFieldNum(frm, 1006);
-      ctl->attr.usable = getControlValue(frm, 1007);
+	  ctl->attr.usable = (UInt8)getControlValue(frm, 1007);
       data->changed = true;
       break;
     case finishForm:
@@ -553,7 +553,7 @@ static void sliderControlPropertiesCallback(FormType *frm, dynamic_form_phase_t 
       ctl->minValue = getFieldNum(frm, 1007);
       ctl->maxValue = getFieldNum(frm, 1008);
       ctl->pageSize = getFieldNum(frm, 1009);
-      ctl->attr.usable = getControlValue(frm, 1010);
+	  ctl->attr.usable = (UInt8)getControlValue(frm, 1010);
       data->changed = true;
       break;
     case finishForm:

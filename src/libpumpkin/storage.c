@@ -262,10 +262,19 @@ static void *StoVfsLoadlib(vfs_session_t *session, char *path, int *first_load) 
 static void storage_name(storage_t *sto, char *name, int file, int id, uint32_t type, uint8_t attr, uint32_t uniqueId, char *buf) {
   char escaped[4*dmDBNameLength], st[8];
   int n, i;
+  storage_db_t *db = NULL;
+  char screator[8] = { 0 };
+
+  for (db = sto->list; db; db = db->next) {
+    if (sys_strcmp(name, db->name) == 0) {
+      pumpkin_id2s(db->creator, screator);
+      break;
+    }
+  }
 
   StoEscapeName((uint8_t *)name, escaped, sizeof(escaped)-1);
   sys_snprintf(buf, VFS_PATH - 1, "%s%s", sto->path, escaped);
-  n = sys_strlen(buf);
+  n = (int)sys_strlen(buf);
 
   switch (file) {
     case STO_FILE_HEADER:
@@ -292,7 +301,10 @@ static void storage_name(storage_t *sto, char *name, int file, int id, uint32_t 
         for (i = 0; i < 4; i++) {
           if (!((st[i] >= 'a' && st[i] <= 'z') || (st[i] >= 'A' && st[i] <= 'Z') || (st[i] >= '0' && st[i] <= '9'))) st[i] = '_';
         }
-        sys_snprintf(&buf[n], VFS_PATH-n-1, "/%s.%08X.%d", st, type, id);
+		if (sys_strncmp(st, "dlib", 4) == 0)
+			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08X.%d.%s", st, type, id, screator);
+		else
+			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08X.%d", st, type, id);
       } else {
         sys_snprintf(&buf[n], VFS_PATH-n-1, "/%08X.%02X", uniqueId, attr);
       }
@@ -365,7 +377,7 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
     pumpkin_id2s(db->creator, screator);
     sys_snprintf(buf, sizeof(buf)-1, "ftype=%u\ntype='%4s'\ncreator='%4s'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
       db->ftype, stype, screator, db->attributes, db->uniqueIDSeed, db->version, db->crDate, db->modDate, db->bckDate, db->modNum);
-    n = sys_strlen(buf);
+    n = (int)sys_strlen(buf);
     if (vfs_write(f, (uint8_t *)buf, n) == n) {
       r = 0;
     }
@@ -442,7 +454,7 @@ static int StoPutFileLocks(storage_t *sto, storage_db_t *db, int read_locks, int
   storage_name(sto, db->name, STO_FILE_LOCK, 0, 0, 0, 0, buf);
   if ((f = StoVfsOpen(sto->session, buf, VFS_WRITE | VFS_TRUNC)) != NULL) {
     sys_snprintf(buf, sizeof(buf)-1, "read=%u\nwrite=%u\n", read_locks, write_locks);
-    n = sys_strlen(buf);
+    n = (int)sys_strlen(buf);
     if (vfs_write(f, (uint8_t *)buf, n) == n) {
       r = 0;
     }
@@ -460,7 +472,7 @@ static int StoLockForReading(storage_t *sto, storage_db_t *db) {
   int r = -1;
 
   if (StoGetFileLocks(sto, db, &read_locks, &write_locks) == 0) {
-    if (db->writeCount < write_locks) {
+    if (db->writeCount < (uint32_t)write_locks) {
       debug(DEBUG_ERROR, "STOR", "StoLockForReading file \"%s\" already locked for writing (other)", db->name);
     } else {
       if (db->writeCount > 0) {
@@ -503,9 +515,9 @@ static int StoLockForWriting(storage_t *sto, storage_db_t *db) {
   int r = -1;
 
   if (StoGetFileLocks(sto, db, &read_locks, &write_locks) == 0) {
-    if (db->readCount < read_locks) {
+    if (db->readCount < (uint32_t)read_locks) {
       debug(DEBUG_ERROR, "STOR", "StoLockForWriting file \"%s\" already locked for reading (other)", db->name);
-    } else if (db->writeCount < write_locks) {
+    } else if (db->writeCount < (uint32_t)write_locks) {
       debug(DEBUG_ERROR, "STOR", "StoLockForWriting file \"%s\" already locked for writing (other)", db->name);
     } else {
       if (db->readCount > 0) {
@@ -710,7 +722,7 @@ int StoInit(char *path, mutex_t *mutex) {
             pumpkin_heap_free(db, "storage_db");
             continue;
           }
-          dbID = (uint8_t *)db - sto->base;
+          dbID = (LocalID)((uint8_t *)db - sto->base);
           debug(DEBUG_TRACE, "STOR", "StoInit 0x%08X database \"%s\"", dbID, db->name);
           sto->list = db;
           sto->num_storage++;
@@ -759,7 +771,7 @@ int StoRefresh(void) {
             if ((db = pumpkin_heap_alloc(sizeof(storage_db_t), "storage_db")) != NULL) {
               sys_strncpy(db->name, name, dmDBNameLength-1);
               if (StoReadHeader(sto, db) == 0) {
-                dbID = (uint8_t *)db - sto->base;
+                dbID = (LocalID)((uint8_t *)db - sto->base);
                 debug(DEBUG_INFO, "STOR", "StoRefresh 0x%08X database \"%s\"", dbID, db->name);
                 db->next = sto->list;
                 sto->list = db;
@@ -1009,7 +1021,7 @@ Err DmGetNextDatabaseByTypeCreator(Boolean newSearch, DmSearchStatePtr stateInfo
       }
       stateInfoP->p = db->next;
       if (cardNoP) *cardNoP = 0;
-      if (dbIDP) *dbIDP = (uint8_t *)db - sto->base;
+      if (dbIDP) *dbIDP = (LocalID)((uint8_t *)db - sto->base);
       err = errNone;
       break;
     }
@@ -1028,7 +1040,7 @@ LocalID DmGetDatabase(UInt16 cardNo, UInt16 index) {
   for (i = 0, db = sto->list; db; db = db->next) {
     if (db->name[0]) {
       if (i == index) {
-        dbID = (uint8_t *)db - sto->base;
+        dbID = (LocalID)((uint8_t *)db - sto->base);
         err = errNone;
         break;
       }
@@ -1049,7 +1061,7 @@ LocalID DmFindDatabase(UInt16 cardNo, const Char *nameP) {
   if (nameP) {
     for (db = sto->list; db; db = db->next) {
       if (sys_strcmp(db->name, nameP) == 0) {
-        dbID = (uint8_t *)db - sto->base;
+        dbID = (LocalID)((uint8_t *)db - sto->base);
         if (dbID == sto->watchID) {
           debug(DEBUG_INFO, "STOR", "WATCH DmFindDatabase(\"%s\"): 0x%08X", nameP, dbID);
         }
@@ -1223,7 +1235,7 @@ Err DmCreateDatabaseEx(const Char *nameP, UInt32 creator, UInt32 type, UInt16 at
       if (existing) {
         if (overwrite) {
           debug(DEBUG_INFO, "STOR", "DmCreateDatabase overwriting database \"%s\"", nameP);
-          dbID = (uint8_t *)db - sto->base;
+          dbID = (LocalID)((uint8_t *)db - sto->base);
           if ((err = DmDeleteDatabase(0, dbID)) != errNone) {
             mutex_unlock(sto->mutex);
             return err;
@@ -1257,7 +1269,7 @@ Err DmCreateDatabaseEx(const Char *nameP, UInt32 creator, UInt32 type, UInt16 at
         sto->num_storage++;
 
         if (watchName && !StrCompare(watchName, nameP)) {
-          sto->watchID = (uint8_t *)db - sto->base;;
+          sto->watchID = (LocalID)((uint8_t *)db - sto->base);
           debug(DEBUG_INFO, "STOR", "WATCH DmCreateDatabase(\"%s\", 0x%08X, 0x%08X, %d)", nameP, creator, type, attr & dmHdrAttrResDB ? 1 : 0);
         }
       }
@@ -1950,7 +1962,7 @@ Err DmRecordInfo(DmOpenRef dbP, UInt16 index, UInt16 *attrP, UInt32 *uniqueIDP, 
         if (uniqueIDP) *uniqueIDP = h->d.rec.uniqueID;
         if (chunkIDP) {
           if (h->htype & STO_INFLATED) {
-            *chunkIDP = (uint8_t *)h - sto->base;
+            *chunkIDP = (LocalID)((uint8_t *)h - sto->base);
           } else {
             debug(DEBUG_ERROR, "STOR", "DmRecordInfo database \"%s\" index %d chunkID not inflated yet", db->name, index);
             *chunkIDP = 0;
@@ -2764,7 +2776,7 @@ static UInt16 DmFindSortPositionBinary(storage_db_t *db, MemHandle appInfoH, voi
 //debug(1, "check", "find level %d start %d pivot %d end %d", level, start, pivot, end);
   h = db->elements[pivot];
   if (newRecordInfo) {
-    recInfo.attributes = h->d.rec.attr;
+    recInfo.attributes = (UInt8)h->d.rec.attr;
     recInfo.uniqueID[0] = (h->d.rec.uniqueID >> 16) & 0xFF;
     recInfo.uniqueID[1] = (h->d.rec.uniqueID >>  8) & 0xFF;
     recInfo.uniqueID[2] = (h->d.rec.uniqueID >>  0) & 0xFF;
@@ -2877,21 +2889,21 @@ UInt16 DmFindSortPosition68K(DmOpenRef dbP, UInt32 newRecord, UInt32 newRecordIn
         if (db->numRecs > 0) {
           pos = 0;
           appInfoH = db->appInfoID ? MemLocalIDToHandle(db->appInfoID) : NULL;
-          appInfo = appInfoH ? (uint8_t *)appInfoH - sto->base : 0;
+          appInfo = appInfoH ? (UInt32)((uint8_t *)appInfoH - sto->base) : 0;
           recInfoP = pumpkin_heap_alloc(4, "recInfo");
           for (i = 0; i < db->numRecs; i++) {
             h = db->elements[i];
             if (StoInflateRec(sto, db, h) == -1) break;
             if (newRecordInfo) {
-              recInfoP[0] = h->d.rec.attr;
+              recInfoP[0] = (UInt8)h->d.rec.attr;
               recInfoP[1] = (h->d.rec.uniqueID >> 16) & 0xFF;
               recInfoP[2] = (h->d.rec.uniqueID >>  8) & 0xFF;
               recInfoP[3] = (h->d.rec.uniqueID >>  0) & 0xFF;
-              recInfo = recInfoP - sto->base;
+              recInfo = (UInt32)(recInfoP - sto->base);
             } else {
               recInfo = 0;
             }
-            if (CallDmCompare(compar, newRecord, h->buf - sto->base, other, newRecordInfo, recInfo, appInfo) < 0) {
+            if (CallDmCompare(compar, newRecord, (UInt32)(h->buf - sto->base), other, newRecordInfo, recInfo, appInfo) < 0) {
               pos = i;
               err = errNone;
               break;
@@ -3622,7 +3634,7 @@ Err DmResourceInfo(DmOpenRef dbP, UInt16 index, DmResType *resTypeP, DmResID *re
       h = db->elements[index];
       if (resTypeP) *resTypeP = h->d.res.type;
       if (resIDP) *resIDP = h->d.res.id;
-      if (chunkLocalIDP) *chunkLocalIDP = (uint8_t *)db->elements[index] - sto->base;
+      if (chunkLocalIDP) *chunkLocalIDP = (LocalID)((uint8_t *)db->elements[index] - sto->base);
       err = errNone;
     }
   }
@@ -4317,7 +4329,7 @@ static void StoDecodeResource(storage_handle_t *res, Boolean decoded) {
       case wrdListRscType:
         debug(DEBUG_TRACE, "STOR", "decoding wordList resource %s %d", st, res->d.res.id);
         if ((!pumpkin_is_m68k() || decoded) && (res->size & 1) == 0 && (aux = StoNewDecodedResource(res, res->size, 0, 0)) != NULL) {
-          for (i = 0; i < res->size; i += 2) {
+          for (i = 0; i < (int)res->size; i += 2) {
             aux[i] = res->buf[i+1];
             aux[i+1] = res->buf[i];
           }
@@ -4898,7 +4910,7 @@ LocalID MemHandleToLocalID(MemHandle h) {
       case STO_TYPE_MEM:
       case STO_TYPE_REC:
       case STO_TYPE_RES:
-        id = (uint8_t *)handle - sto->base;
+        id = (LocalID)((uint8_t *)handle - sto->base);
         err = errNone;
         break;
       default:
@@ -5188,12 +5200,12 @@ static int StoCompareHandle(const void *e1, const void *e2) {
     }
 
     if (sto->comparF) {
-      r1.attributes = h1->d.rec.attr;
+      r1.attributes = (UInt8)h1->d.rec.attr;
       r1.uniqueID[0] = (h1->d.rec.uniqueID >> 16) & 0xFF;
       r1.uniqueID[1] = (h1->d.rec.uniqueID >>  8) & 0xFF;
       r1.uniqueID[2] = (h1->d.rec.uniqueID >>  0) & 0xFF;
 
-      r2.attributes = h2->d.rec.attr;
+      r2.attributes = (UInt8)h2->d.rec.attr;
       r2.uniqueID[0] = (h2->d.rec.uniqueID >> 16) & 0xFF;
       r2.uniqueID[1] = (h2->d.rec.uniqueID >>  8) & 0xFF;
       r2.uniqueID[2] = (h2->d.rec.uniqueID >>  0) & 0xFF;
@@ -5201,19 +5213,19 @@ static int StoCompareHandle(const void *e1, const void *e2) {
       r = sto->comparF(b1, b2, sto->other, &r1, &r2, sto->appInfoH);
 
     } else if (sto->comparF68K) {
-      sto->recInfo[0] = h1->d.rec.attr;
+      sto->recInfo[0] = (UInt8)h1->d.rec.attr;
       sto->recInfo[1] = (h1->d.rec.uniqueID >> 16) & 0xFF;
       sto->recInfo[2] = (h1->d.rec.uniqueID >>  8) & 0xFF;
       sto->recInfo[3] = (h1->d.rec.uniqueID >>  0) & 0xFF;
 
-      sto->recInfo[4] = h2->d.rec.attr;
+      sto->recInfo[4] = (UInt8)h2->d.rec.attr;
       sto->recInfo[5] = (h2->d.rec.uniqueID >> 16) & 0xFF;
       sto->recInfo[6] = (h2->d.rec.uniqueID >>  8) & 0xFF;
       sto->recInfo[7] = (h2->d.rec.uniqueID >>  0) & 0xFF;
 
       b = sto->base;
-      a = sto->appInfoH ? (UInt8 *)sto->appInfoH - b : 0;
-      r = CallDmCompare(sto->comparF68K, b1 ? b1 - b : 0, b2 ? b2 - b : 0, sto->other, &sto->recInfo[0] - b, &sto->recInfo[4] - b, a);
+      a = sto->appInfoH ? (UInt32)((UInt8 *)sto->appInfoH - b) : 0;
+      r = CallDmCompare(sto->comparF68K, b1 ? (UInt32)(b1 - b) : 0, b2 ? (UInt32)(b2 - b) : 0, sto->other, (UInt32)(&sto->recInfo[0] - b), (UInt32)(&sto->recInfo[4] - b), a);
     }
 
     if (free1) pumpkin_heap_free(b1, "TmpHandleBuf");
@@ -5338,7 +5350,7 @@ static Boolean StoCreateDataBaseList(UInt32 type, UInt32 creator, UInt16 *dbCoun
       list = sys_realloc(list, size * sizeofSysDBListItemType);
       buf = (UInt8 *)list;
     }
-    dbID = (uint8_t *)db - sto->base;
+    dbID = (LocalID)((uint8_t *)db - sto->base);
     debug(DEBUG_INFO, "STOR", "found \"%s\" dbID 0x%08X", db->name, dbID);
 
     if (m68k) {

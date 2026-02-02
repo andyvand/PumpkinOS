@@ -366,9 +366,20 @@ void pumpkin_test_exception(int fatal) {
 
 void *pumpkin_heap_alloc(uint32_t size, char *tag) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
-  void *p;
+  void *p = NULL;
 
-  p = heap_alloc(task ? task->heap : pumpkin_module.heap, size);
+  if (task) {
+	  if (task->heap) {
+		  p = heap_alloc(task->heap, size);
+	  } else {
+		  if (pumpkin_module.heap)
+			  p = heap_alloc(pumpkin_module.heap, size);
+	  }
+  } else {
+	  if (pumpkin_module.heap)
+		  p = heap_alloc(pumpkin_module.heap, size);
+  }
+
   debug(DEBUG_TRACE, "Heap", "pumpkin_heap_alloc %s %u : %p", tag, size, p);
   if (p) {
     sys_memset(p, 0, size);
@@ -382,8 +393,19 @@ void *pumpkin_heap_realloc(void *p, uint32_t size, char *tag) {
   void *q = NULL;
 
   if (p) {
-    q = size ? heap_realloc(task ? task->heap : pumpkin_module.heap, p, size) : NULL;
+	  if (task) {
+		  if (task->heap) {
+			  q = size ? heap_realloc(task->heap, p, size) : NULL;
+		  } else {
+			  if (pumpkin_module.heap)
+				  q = size ? heap_realloc(pumpkin_module.heap, p, size) : NULL;
+		  }
+	  } else {
+		  if (pumpkin_module.heap)
+			  q = size ? heap_realloc(pumpkin_module.heap, p, size) : NULL;
+	  }
   }
+
   debug(DEBUG_TRACE, "Heap", "pumpkin_heap_realloc %s %u %p : %p", tag, size, p, q);
 
   return q;
@@ -394,7 +416,17 @@ void pumpkin_heap_free(void *p, char *tag) {
 
   debug(DEBUG_TRACE, "Heap", "pumpkin_heap_free %s %p", tag, p);
   if (p) {
-    heap_free(task ? task->heap : pumpkin_module.heap, p);
+	  if (task) {
+		  if (task->heap) {
+			  heap_free(task->heap, p);
+		  } else {
+			  if (pumpkin_module.heap)
+				  heap_free(pumpkin_module.heap, p);
+		  }
+	  } else {
+		  if (pumpkin_module.heap)
+			  heap_free(pumpkin_module.heap, p);
+	  }
   }
 }
 
@@ -412,8 +444,10 @@ void *pumpkin_heap_dup(void *p, uint32_t size, char *tag) {
 
 void pumpkin_heap_dump(void) {
   if (mutex_lock(mutex) == 0) {
-    heap_dump(pumpkin_module.heap);
-    mutex_unlock(mutex);
+	  if (pumpkin_module.heap)
+        heap_dump(pumpkin_module.heap);
+
+	  mutex_unlock(mutex);
   }
 }
 
@@ -426,7 +460,16 @@ int pumpkin_heap_debug_access(uint32_t offset, uint32_t size, int read) {
 heap_t *heap_get(void) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
-  return task ? task->heap : pumpkin_module.heap;
+  if (task) {
+	  if (task->heap) {
+		  return task->heap;
+	  }
+  }
+
+  if (pumpkin_module.heap)
+	  return pumpkin_module.heap;
+
+  return NULL;
 }
 
 static int pumpkin_register_plugin(UInt32 type, UInt32 id, pluginMainF pluginMain) {
@@ -743,7 +786,7 @@ static int drop_get_name(char *src, char *dst, int max) {
   if (sys_strchr(src, '%')) return -1;
   if (sys_strstr(src, "..")) return -1;
 
-  len = sys_strlen(src);
+  len = (int)sys_strlen(src);
   if (len < 2) return -1;
   i = len-1;
   if (src[i] == FILE_SEP) return -1;
@@ -1107,8 +1150,8 @@ static void pumpkin_image_background(RGBColorType *rgb, UInt16 id, UInt16 mode) 
                 BmpDrawSurface(bmp, 0, 0, width, height, pumpkin_module.background, (pumpkin_module.width - width) / 2, (pumpkin_module.height - height) / 2, true, false);
                 break;
               case 5: // tiled
-                for (y = 0; y < pumpkin_module.height; y += height) {
-                  for (x = 0; x < pumpkin_module.width; x += width) {
+                for (y = 0; y < (UInt32)pumpkin_module.height; y += height) {
+                  for (x = 0; x < (UInt32)pumpkin_module.width; x += width) {
                     BmpDrawSurface(bmp, 0, 0, width, height, pumpkin_module.background, x, y, true, false);
                   }
                 }
@@ -1270,7 +1313,7 @@ int pumpkin_dia_get_taskbar_dimension(int *width, int *height) {
 }
 
 void pumpkin_taskbar_create(void) {
-  if (pumpkin_module.mode == 0 && pumpkin_module.taskbar_enabled) {
+	if (pumpkin_module.mode == 0 && pumpkin_module.taskbar_enabled) {
     pumpkin_module.taskbar = taskbar_create(pumpkin_module.wp, pumpkin_module.w,
         pumpkin_module.density, 0, pumpkin_module.height - TASKBAR_HEIGHT, pumpkin_module.width, TASKBAR_HEIGHT, pumpkin_module.encoding);
   }
@@ -1608,9 +1651,10 @@ static uint32_t pumpkin_launch_sub(launch_request_t *request, int opendb) {
         DmDatabaseInfo(0, dbID, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator);
         if ((dbRef = DmOpenDatabase(0, dbID, dmModeReadOnly)) != NULL) {
           if ((lib = DmResourceLoadLib(dbRef, sysRsrcTypeDlib, &firstLoad)) != NULL) {
-            debug(DEBUG_INFO, PUMPKINOS, "dlib resource loaded (first %d)", firstLoad ? 1 : 0);
+            debug(DEBUG_INFO, PUMPKINOS, "dlib resource loaded (first %d, lib 0x%lx)", firstLoad ? 1 : 0, (unsigned long)((uint64_t)lib));
             pilot_main = sys_lib_defsymbol(lib, "PilotMain", 1);
-            if (pilot_main == NULL) {
+			debug(DEBUG_INFO, PUMPKINOS, "pilot_main: 0x%lx)", firstLoad ? 1 : 0, (unsigned long)((uint64_t)pilot_main));
+			if (pilot_main == NULL) {
               debug(DEBUG_ERROR, PUMPKINOS, "PilotMain not found in dlib");
             } else {
               pumpkin_system_call_p = sys_lib_defsymbol(lib, "pumpkin_system_call_p", 0);
@@ -1904,7 +1948,7 @@ static int pumpkin_local_init(int i, uint32_t taskId, texture_t *texture, uint32
   task->exception = pumpkin_heap_alloc(sizeof(void *), "Exception");
 
   for (j = 0; j < pumpkin_module.num_serial; j++) {
-    task->serial[j] = pumpkin_heap_alloc(sys_strlen(pumpkin_module.serial[j].descr) + 1, "serial_descr");
+    task->serial[j] = pumpkin_heap_alloc((uint32_t)(sys_strlen(pumpkin_module.serial[j].descr) + 1), "serial_descr");
     if (task->serial[j]) sys_strcpy(task->serial[j], pumpkin_module.serial[j].descr);
   }
 
@@ -2927,10 +2971,10 @@ static void pumpkin_forward_notif(Int32 taskId, UInt32 creator, SysNotifyParamTy
   UInt32 size, result, i;
 
   if (taskId == -1) {
-    for (i = 0; i < pumpkin_module.num_tasks; i++) {
+    for (i = 0; i < (UInt32)pumpkin_module.num_tasks; i++) {
       if (pumpkin_module.tasks[i].active && pumpkin_module.tasks[i].creator == creator) break;
     }
-    if (i < pumpkin_module.num_tasks) {
+    if (i < (UInt32)pumpkin_module.num_tasks) {
       taskId = pumpkin_module.tasks[i].taskId;
     } else {
       pumpkin_id2s(notify->notifyType, snotify);
@@ -2944,10 +2988,10 @@ static void pumpkin_forward_notif(Int32 taskId, UInt32 creator, SysNotifyParamTy
   }
 
   if (taskId != -1) {
-    for (i = 0; i < pumpkin_module.num_tasks; i++) {
+    for (i = 0; i < (UInt32)pumpkin_module.num_tasks; i++) {
       if (pumpkin_module.tasks[i].taskId == taskId) break;
     }
-    if (i < pumpkin_module.num_tasks) {
+    if (i < (UInt32)pumpkin_module.num_tasks) {
       MemSet(&msg, sizeof(notif_msg_t), 0);
       msg.msg = MSG_NOTIFY;
       msg.callback = callback;
@@ -3205,7 +3249,7 @@ int pumpkin_sys_event(void) {
       return -1;
     }
     paused = pumpkin_is_paused();
-    wait = paused ? 100 : 1;
+	wait = paused ? 100 : 1;
     ev = pumpkin_module.wp->event2(pumpkin_module.w, wait, &arg1, &arg2);
     if (ev == -1) return -1;
     if (!paused) break;
@@ -4002,7 +4046,7 @@ int pumpkin_script_create_obj(int pe, char *name) {
   int r = -1;
 
   if (pe > 0) {
-    r = script_create_object(pe);
+    r = (int)script_create_object(pe);
     if (name) {
       value.type = SCRIPT_ARG_OBJECT;
       value.value.r = r;
@@ -4023,21 +4067,21 @@ int pumpkin_script_create(void) {
   debug(DEBUG_TRACE, PUMPKINOS, "creating script environment");
   if ((pe = script_create(pumpkin_module.engine)) != -1) {
     value.type = SCRIPT_ARG_OBJECT;
-    if ((value.value.r = script_create_object(pe)) != -1 && script_global_set(pe, "app", &value) != -1) {
+    if ((value.value.r = (int)script_create_object((int)pe)) != -1 && script_global_set((int)pe, "app", &value) != -1) {
       obj = value.value.r;
       if (task) {
-        script_add_iconst(pe, obj, "width", task->width);
-        script_add_iconst(pe, obj, "height", task->height);
+        script_add_iconst((int)pe, obj, "width", task->width);
+        script_add_iconst((int)pe, obj, "height", task->height);
       }
     } else {
-      script_destroy(pe);
+      script_destroy((int)pe);
       pe = -1;
     }
   } else {
     pe = -1;
   }
 
-  return pe;
+  return (int)pe;
 }
 
 uint32_t pumpkin_script_engine_id(void) {
@@ -4083,7 +4127,7 @@ int pumpkin_script_destroy(int pe) {
 
 int pumpkin_getstr(char **s, uint8_t *p, int i) {
   *s = (char *)&p[i];
-  return sys_strlen(*s) + 1;
+  return (int)(sys_strlen(*s) + 1);
 }
 
 surface_t *pumpkin_screen_lock(void **scr) {
@@ -4091,9 +4135,11 @@ surface_t *pumpkin_screen_lock(void **scr) {
   task_screen_t *screen;
   surface_t *surface = NULL;
 
-  if (scr && (screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
-    surface = screen->surface;
-    *scr = screen;
+  if (task) {
+    if (scr && (screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
+      surface = screen->surface;
+      *scr = screen;
+    }
   }
 
   return surface;
@@ -4103,31 +4149,33 @@ void pumpkin_screen_unlock(void *scr, int x0, int y0, int x1, int y1) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   task_screen_t *screen = (task_screen_t *)scr;
 
-  if (x0 < screen->x0) screen->x0 = x0;
-  if (y0 < screen->y0) screen->y0 = y0;
-  if (x1 > screen->x1) screen->x1 = x1;
-  if (y1 > screen->y1) screen->y1 = y1;
+  if (screen && task) {
+    if (x0 < screen->x0) screen->x0 = x0;
+    if (y0 < screen->y0) screen->y0 = y0;
+    if (x1 > screen->x1) screen->x1 = x1;
+    if (y1 > screen->y1) screen->y1 = y1;
 
-  if (task->density == kDensityLow && pumpkin_module.density == kDensityDouble) {
-    if (screen->x0 > 0) screen->x0 <<= 1;
-    if (screen->x1 > 0) screen->x1 = (screen->x1 << 1) + 1;
-    if (screen->y0 > 0) screen->y0 <<= 1;
-    if (screen->y1 > 0) screen->y1 = (screen->y1 << 1) + 1;
+    if (task->density == kDensityLow && pumpkin_module.density == kDensityDouble) {
+      if (screen->x0 > 0) screen->x0 <<= 1;
+      if (screen->x1 > 0) screen->x1 = (screen->x1 << 1) + 1;
+      if (screen->y0 > 0) screen->y0 <<= 1;
+      if (screen->y1 > 0) screen->y1 = (screen->y1 << 1) + 1;
+    }
+
+    if (screen->x0 < 0) screen->x0 = 0;
+    else if (screen->x0 >= task->width) screen->x0 = task->width-1;
+    if (screen->x1 < 0) screen->x1 = 0;
+    else if (screen->x1 >= task->width) screen->x1 = task->width-1;
+
+    if (screen->y0 < 0) screen->y0 = 0;
+    else if (screen->y0 >= task->height) screen->y0 = task->height-1;
+    if (screen->y1 < 0) screen->y1 = 0;
+    else if (screen->y1 >= task->height) screen->y1 = task->height-1;
+
+    screen->dirty = 1;
+
+    ptr_unlock(task->screen_ptr, TAG_SCREEN);
   }
-
-  if (screen->x0 < 0) screen->x0 = 0;
-  else if (screen->x0 >= task->width) screen->x0 = task->width-1;
-  if (screen->x1 < 0) screen->x1 = 0;
-  else if (screen->x1 >= task->width) screen->x1 = task->width-1;
-
-  if (screen->y0 < 0) screen->y0 = 0;
-  else if (screen->y0 >= task->height) screen->y0 = task->height-1;
-  if (screen->y1 < 0) screen->y1 = 0;
-  else if (screen->y1 >= task->height) screen->y1 = task->height-1;
-
-  screen->dirty = 1;
-
-  ptr_unlock(task->screen_ptr, TAG_SCREEN);
 }
 
 void pumpkin_screen_copy(uint16_t *src, uint16_t y0, uint16_t y1) {
@@ -4137,17 +4185,19 @@ void pumpkin_screen_copy(uint16_t *src, uint16_t y0, uint16_t y1) {
   uint16_t *dst;
   int len;
 
-  if ((screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
-    dst = surface_buffer(screen->surface, &len);
-    offset = y0 * task->width;
-    size = (y1 - y0) * task->width * sizeof(uint16_t);
-    sys_memcpy(dst + offset, src, size);
-    screen->x0 = 0;
-    screen->x1 = task->width-1;
-    if (y0 < screen->y0) screen->y0 = y0;
-    if (y1 - 1 > screen->y1) screen->y1 = y1 - 1;
-    screen->dirty = 1;
-    ptr_unlock(task->screen_ptr, TAG_SCREEN);
+  if (task) {
+    if ((screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
+      dst = surface_buffer(screen->surface, &len);
+      offset = y0 * task->width;
+      size = (y1 - y0) * task->width * sizeof(uint16_t);
+      sys_memcpy(dst + offset, src, size);
+      screen->x0 = 0;
+      screen->x1 = task->width-1;
+      if (y0 < screen->y0) screen->y0 = y0;
+      if (y1 - 1 > screen->y1) screen->y1 = y1 - 1;
+      screen->dirty = 1;
+      ptr_unlock(task->screen_ptr, TAG_SCREEN);
+	}
   }
 }
 
@@ -4155,24 +4205,26 @@ void pumpkin_dirty_region_mode(dirty_region_e d) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   task_screen_t *screen;
 
-  switch (d) {
-    case dirtyRegionBegin:
-      task->dirty_level++;
-      break;
-    case dirtyRegionEnd:
-      if (task->dirty_level > 0) task->dirty_level--;
-      if (task->dirty_level == 0) {
-        if ((screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
-          if (screen->x0 <= screen->x1 && screen->y0 <= screen->y1) {
-            screen->dirty = 1;
+  if (task) {
+    switch (d) {
+      case dirtyRegionBegin:
+        task->dirty_level++;
+        break;
+      case dirtyRegionEnd:
+        if (task->dirty_level > 0) task->dirty_level--;
+        if (task->dirty_level == 0) {
+          if ((screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
+            if (screen->x0 <= screen->x1 && screen->y0 <= screen->y1) {
+              screen->dirty = 1;
+            }
+            ptr_unlock(task->screen_ptr, TAG_SCREEN);
           }
-          ptr_unlock(task->screen_ptr, TAG_SCREEN);
         }
-      }
-      break;
-    case dirtyRegionReset:
-      task->dirty_level = 0;
-      break;
+        break;
+      case dirtyRegionReset:
+        task->dirty_level = 0;
+        break;
+	}
   }
 }
 
@@ -4285,7 +4337,7 @@ int pumpkin_clipboard_append_text(char *text, int length) {
     if (mutex_lock(mutex) == 0) {
       len = 0;
       if ((s = pumpkin_module.wp->clipboard(pumpkin_module.w, NULL, 0)) != NULL) {
-        len = sys_strlen(s);
+        len = (int)sys_strlen(s);
         if (len > cbdMaxTextLength*2) len = cbdMaxTextLength*2;
         sys_memcpy(pumpkin_module.clipboardAux, s, len);
       }
@@ -4310,7 +4362,7 @@ int pumpkin_clipboard_get_text(char *text, int *length) {
   if (text && length && pumpkin_module.wp && pumpkin_module.wp->clipboard) {
     if (mutex_lock(mutex) == 0) {
       if ((s = pumpkin_module.wp->clipboard(pumpkin_module.w, NULL, 0)) != NULL) {
-        len = sys_strlen(s);
+        len = (int)sys_strlen(s);
         if (len > *length) len = *length;
         sys_memcpy(text, s, len);
         *length = len;
@@ -4338,39 +4390,40 @@ int pumpkin_alarm_check(void) {
   launch_request_t request;
   int r = 0;
 
-  if (task->alarm_time) {
-    // there is an alarm set
-    if (sys_time() >= task->alarm_time) {
-      debug(DEBUG_INFO, PUMPKINOS, "pumpkin_alarm_check: alarm time has arrived");
+  if (task) {
+    if (task->alarm_time) {
+      // there is an alarm set
+      if (sys_time() >= task->alarm_time) {
+        debug(DEBUG_INFO, PUMPKINOS, "pumpkin_alarm_check: alarm time has arrived");
 
-      sys_memset(&request, 0, sizeof(request));
-      request.code = sysAppLaunchCmdAlarmTriggered;
-      request.hasParam = true;
-      request.param.p1.alarmSeconds = task->alarm_time;
-      request.param.p1.ref = task->alarm_data;
+        sys_memset(&request, 0, sizeof(request));
+        request.code = sysAppLaunchCmdAlarmTriggered;
+        request.hasParam = true;
+        request.param.p1.alarmSeconds = task->alarm_time;
+        request.param.p1.ref = task->alarm_data;
 
-      if (pumpkin_launch_sub(&request, 0) == 0) {
-        if (request.param.p1.purgeAlarm) {
-          // application requested to cancel the alarm
-          debug(DEBUG_INFO, PUMPKINOS, "pumpkin_alarm_check: purge alarm");
-          task->alarm_time = 0;
-          task->alarm_data = 0;
+        if (pumpkin_launch_sub(&request, 0) == 0) {
+          if (request.param.p1.purgeAlarm) {
+            // application requested to cancel the alarm
+            debug(DEBUG_INFO, PUMPKINOS, "pumpkin_alarm_check: purge alarm");
+            task->alarm_time = 0;
+			task->alarm_data = 0;
+          } else {
+            // go ahead and send the alarm
+            task->alarm_time = 0;
+            task->alarm_data = 0;
 
-        } else {
-          // go ahead and send the alarm
-          task->alarm_time = 0;
-          task->alarm_data = 0;
+            sys_memset(&request, 0, sizeof(request));
+            request.code = sysAppLaunchCmdDisplayAlarm;
+            request.param.p2.alarmSeconds = task->alarm_time;
+            request.param.p2.ref = task->alarm_data;
+            request.param.p2.soundAlarm = false; // not used
 
-          sys_memset(&request, 0, sizeof(request));
-          request.code = sysAppLaunchCmdDisplayAlarm;
-          request.param.p2.alarmSeconds = task->alarm_time;
-          request.param.p2.ref = task->alarm_data;
-          request.param.p2.soundAlarm = false; // not used
-
-          debug(DEBUG_INFO, PUMPKINOS, "pumpkin_alarm_check: display alarm");
-          if (pumpkin_launch_sub(&request, 0) == 0) {
-            r = 1;
-          }
+            debug(DEBUG_INFO, PUMPKINOS, "pumpkin_alarm_check: display alarm");
+            if (pumpkin_launch_sub(&request, 0) == 0) {
+              r = 1;
+            }
+		  }
         }
       }
     }
@@ -4383,10 +4436,12 @@ int pumpkin_alarm_set(LocalID dbID, uint32_t t, uint32_t data) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   int r = -1;
 
-  if (dbID == task->dbID) {
-    task->alarm_time = t;
-    task->alarm_data = data;
-    r = 0;
+  if (task) {
+    if (dbID == task->dbID) {
+      task->alarm_time = t;
+      task->alarm_data = data;
+      r = 0;
+    }
   }
 
   return r;
@@ -4396,10 +4451,12 @@ int pumpkin_alarm_get(LocalID dbID, uint32_t *t, uint32_t *data) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   int r = -1;
 
-  if (dbID == task->dbID) {
-    if (t) *t = task->alarm_time;
-    if (data) *data = task->alarm_data;
-    r = 0;
+  if (task) {
+    if (dbID == task->dbID) {
+      if (t) *t = task->alarm_time;
+      if (data) *data = task->alarm_data;
+      r = 0;
+	}
   }
 
   return r;
@@ -4430,7 +4487,7 @@ int pumpkin_info_serial(uint32_t id, char *host, int hlen, uint32_t *port) {
   int r = -1;
 
   if (mutex_lock(mutex) == 0) {
-    if (id < pumpkin_module.num_serial) {
+    if (id < (uint32_t)pumpkin_module.num_serial) {
       if (host && hlen) sys_strncpy(host, pumpkin_module.serial[id].host, hlen);
       if (port) *port = pumpkin_module.serial[id].port;
       r = 0;
@@ -4445,13 +4502,15 @@ int pumpkin_get_serial(uint32_t id, char **descr, uint32_t *creator) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   int r = -1;
 
-  if (mutex_lock(mutex) == 0) {
-    if (id < pumpkin_module.num_serial) {
-      if (descr) *descr = task->serial[id];
-      if (creator) *creator = pumpkin_module.serial[id].creator;
-      r = 0;
-    }
-    mutex_unlock(mutex);
+  if (task) {
+    if (mutex_lock(mutex) == 0) {
+      if (id < (uint32_t)pumpkin_module.num_serial) {
+        if (descr) *descr = task->serial[id];
+        if (creator) *creator = pumpkin_module.serial[id].creator;
+        r = 0;
+      }
+      mutex_unlock(mutex);
+	}
   }
 
   return r;
@@ -4462,16 +4521,18 @@ int pumpkin_get_serial_by_creator(uint32_t *id, char **descr, uint32_t creator) 
   uint32_t i;
   int r = -1;
 
-  if (mutex_lock(mutex) == 0) {
-    for (i = 0; i < pumpkin_module.num_serial; i++) {
-      if (pumpkin_module.serial[i].creator == creator) {
-        if (id) *id = i;
-        if (descr) *descr = task->serial[i];
-        r = 0;
-        break;
+  if (task) {
+    if (mutex_lock(mutex) == 0) {
+      for (i = 0; i < (uint32_t)pumpkin_module.num_serial; i++) {
+        if (pumpkin_module.serial[i].creator == creator) {
+          if (id) *id = i;
+          if (descr) *descr = task->serial[i];
+          r = 0;
+          break;
+        }
       }
+      mutex_unlock(mutex);
     }
-    mutex_unlock(mutex);
   }
 
   return r;
@@ -4481,7 +4542,7 @@ int pumpkin_open_serial(uint32_t id) {
   int fd = -1;
 
   if (mutex_lock(mutex) == 0) {
-    if (id < pumpkin_module.num_serial && !pumpkin_module.serial[id].fd) {
+    if (id < (uint32_t)pumpkin_module.num_serial && !pumpkin_module.serial[id].fd) {
       fd = io_connect(pumpkin_module.serial[id].host, pumpkin_module.serial[id].port, pumpkin_module.bt);
       if (fd != -1) {
         pumpkin_module.serial[id].fd = fd;
@@ -4497,7 +4558,7 @@ int pumpkin_close_serial(uint32_t id) {
   int r = -1;
 
   if (mutex_lock(mutex) == 0) {
-    if (id < pumpkin_module.num_serial && pumpkin_module.serial[id].fd) {
+    if (id < (uint32_t)pumpkin_module.num_serial && pumpkin_module.serial[id].fd) {
       r = sys_close(pumpkin_module.serial[id].fd);
       pumpkin_module.serial[id].fd = 0;
     }
@@ -4511,7 +4572,7 @@ int pumpkin_baud_serial(uint32_t id, uint32_t baud) {
   int r = -1;
 
   if (mutex_lock(mutex) == 0) {
-    if (id < pumpkin_module.num_serial && pumpkin_module.serial[id].fd) {
+    if (id < (uint32_t)pumpkin_module.num_serial && pumpkin_module.serial[id].fd) {
       if (pumpkin_module.serial[id].host[0] == '/') {
         r = sys_serial_baud(pumpkin_module.serial[id].fd, baud);
       } else {
@@ -4528,7 +4589,7 @@ int pumpkin_word_serial(uint32_t id, char *word) {
   int r = -1;
 
   if (mutex_lock(mutex) == 0) {
-    if (id < pumpkin_module.num_serial && pumpkin_module.serial[id].fd) {
+    if (id < (uint32_t)pumpkin_module.num_serial && pumpkin_module.serial[id].fd) {
       if (pumpkin_module.serial[id].host[0] == '/') {
         r = sys_serial_word(pumpkin_module.serial[id].fd, word);
       } else {
@@ -4626,7 +4687,7 @@ char *pumpkin_script_call(int pe, char *function, char *s) {
     if (f.type == SCRIPT_ARG_FUNCTION) {
       arg.type = SCRIPT_ARG_LSTRING;
       arg.value.l.s = (char *)s;
-      arg.value.l.n = sys_strlen(s);
+      arg.value.l.n = (int)sys_strlen(s);
 
       debug(DEBUG_INFO, PUMPKINOS, "calling function %s(\"%s\")", function, s);
       if (script_call_args(pe, f.value.r, &ret, 1, &arg) == 0) {
@@ -4687,7 +4748,10 @@ void pumpkin_fatal_error(int finish) {
   }
 
   debug(DEBUG_ERROR, PUMPKINOS, "calling ErrLongJump");
-  ErrLongJump(task->jmpbuf, 1);
+
+  if (task)
+    ErrLongJump(task->jmpbuf, 1);
+
   debug(DEBUG_ERROR, PUMPKINOS, "after ErrLongJump!");
 }
 
@@ -4710,7 +4774,7 @@ void pumpkin_crash_log(UInt32 creator, int code, char *msg) {
     if ((fd = sys_open(CRASH_LOG, SYS_WRITE)) != -1) {
       sys_seek(fd, 0, SYS_SEEK_END);
       sys_snprintf(buf, sizeof(buf)-1, "%s;%d;%s\n", st, code, msg);
-      sys_write(fd, (uint8_t *)buf, sys_strlen(buf));
+      sys_write(fd, (uint8_t *)buf, (int)sys_strlen(buf));
       sys_close(fd);
     }
     mutex_unlock(mutex);
@@ -4750,25 +4814,27 @@ Boolean SysLibNewRefNum68K(UInt32 type, UInt32 creator, UInt16 *refNum) {
 
   *refNum = 0;
 
-  for (i = 0, first = 0xFFFF; i < MAX_SYSLIBS; i++) {
-    if (first == 0xFFFF && task->syslibs[i].refNum == 0) {
-      first = i;
+  if (task) {
+    for (i = 0, first = 0xFFFF; i < MAX_SYSLIBS; i++) {
+      if (first == 0xFFFF && task->syslibs[i].refNum == 0) {
+        first = i;
+      }
+      if (task->syslibs[i].refNum > 0 && task->syslibs[i].type == type && task->syslibs[i].creator == creator) {
+        *refNum = task->syslibs[i].refNum;
+        exists = true;
+        break;
+      }
     }
-    if (task->syslibs[i].refNum > 0 && task->syslibs[i].type == type && task->syslibs[i].creator == creator) {
-      *refNum = task->syslibs[i].refNum;
-      exists = true;
-      break;
-    }
-  }
 
-  if (!exists && first != 0xFFFF) {
-    task->syslibs[first].refNum = first+1;
-    task->syslibs[first].type = type;
-    task->syslibs[first].creator = creator;
-    *refNum = task->syslibs[first].refNum;
-    pumpkin_id2s(type, buf);
-    pumpkin_id2s(creator, buf2);
-    debug(DEBUG_INFO, PUMPKINOS, "reserving syslib type '%s' creator '%s' at %d", buf, buf2, *refNum);
+    if (!exists && first != 0xFFFF) {
+      task->syslibs[first].refNum = first+1;
+      task->syslibs[first].type = type;
+      task->syslibs[first].creator = creator;
+      *refNum = task->syslibs[first].refNum;
+      pumpkin_id2s(type, buf);
+      pumpkin_id2s(creator, buf2);
+      debug(DEBUG_INFO, PUMPKINOS, "reserving syslib type '%s' creator '%s' at %d", buf, buf2, *refNum);
+    }
   }
 
   return exists;
@@ -4781,29 +4847,31 @@ Err SysLibRegister68K(UInt16 refNum, LocalID dbID, uint8_t *code, UInt32 size, U
   UInt32 d, i;
   Err err = 0;
 
-  for (i = 0; i < MAX_SYSLIBS; i++) {
-    if (task->syslibs[i].refNum == refNum) {
-      if (DmDatabaseInfo(0, dbID, task->syslibs[i].name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == errNone) {
-        task->syslibs[i].code = pumpkin_heap_alloc(size, "syslib_code");
-        task->syslibs[i].tbl = pumpkin_heap_alloc(sizeof(SysLibTblEntryType), "syslib_tbl");
-        if (task->syslibs[i].code) {
-          sys_memcpy(task->syslibs[i].code, code, size);
-          d = (uint8_t *)dispatchTblP - code;
-          task->syslibs[i].dispatchTbl = (UInt16 *)(task->syslibs[i].code + d);
-          task->syslibs[i].codeSize = size;
-          task->syslibs[i].dbID = dbID;
-          task->syslibs[i].globals = globalsP;
-          get2b(&nameOffset, (uint8_t *)task->syslibs[i].dispatchTbl, 0);
-          get2b(&firstOffset, (uint8_t *)task->syslibs[i].dispatchTbl, 2);
-          numFunctions = firstOffset / 2;
-          debug(DEBUG_INFO, PUMPKINOS, "SysLibRegister68K nameOffset %d firstOffset %d numFunctions %d", nameOffset, firstOffset, numFunctions);
-          debug_bytes(DEBUG_TRACE, PUMPKINOS, (uint8_t *)task->syslibs[i].dispatchTbl, numFunctions*2);
-          pumpkin_id2s(task->syslibs[i].type, buf);
-          pumpkin_id2s(task->syslibs[i].creator, buf2);
-          debug(DEBUG_INFO, PUMPKINOS, "registering syslib \"%s\" type '%s' creator '%s' at %d", task->syslibs[i].name, buf, buf2, refNum);
+  if (task) {
+    for (i = 0; i < MAX_SYSLIBS; i++) {
+      if (task->syslibs[i].refNum == refNum) {
+        if (DmDatabaseInfo(0, dbID, task->syslibs[i].name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == errNone) {
+          task->syslibs[i].code = pumpkin_heap_alloc(size, "syslib_code");
+          task->syslibs[i].tbl = pumpkin_heap_alloc(sizeof(SysLibTblEntryType), "syslib_tbl");
+          if (task->syslibs[i].code) {
+            sys_memcpy(task->syslibs[i].code, code, size);
+            d = (UInt32)((uint8_t *)dispatchTblP - code);
+            task->syslibs[i].dispatchTbl = (UInt16 *)(task->syslibs[i].code + d);
+            task->syslibs[i].codeSize = size;
+            task->syslibs[i].dbID = dbID;
+            task->syslibs[i].globals = globalsP;
+            get2b(&nameOffset, (uint8_t *)task->syslibs[i].dispatchTbl, 0);
+            get2b(&firstOffset, (uint8_t *)task->syslibs[i].dispatchTbl, 2);
+            numFunctions = firstOffset / 2;
+            debug(DEBUG_INFO, PUMPKINOS, "SysLibRegister68K nameOffset %d firstOffset %d numFunctions %d", nameOffset, firstOffset, numFunctions);
+            debug_bytes(DEBUG_TRACE, PUMPKINOS, (uint8_t *)task->syslibs[i].dispatchTbl, numFunctions*2);
+            pumpkin_id2s(task->syslibs[i].type, buf);
+            pumpkin_id2s(task->syslibs[i].creator, buf2);
+            debug(DEBUG_INFO, PUMPKINOS, "registering syslib \"%s\" type '%s' creator '%s' at %d", task->syslibs[i].name, buf, buf2, refNum);
+          }
         }
+        break;
       }
-      break;
     }
   }
 
@@ -4815,14 +4883,16 @@ uint8_t *SysLibTblEntry68K(UInt16 refNum, SysLibTblEntryType *tbl) {
   UInt16 i;
   uint8_t *r = NULL;
 
-  for (i = 0; i < MAX_SYSLIBS; i++) {
-    if (task->syslibs[i].refNum == refNum) {
-      tbl->dispatchTblP = (MemPtr *)task->syslibs[i].dispatchTbl;
-      tbl->globalsP = task->syslibs[i].globals;
-      tbl->dbID = task->syslibs[i].dbID;
-      tbl->codeRscH = NULL;
-      r = task->syslibs[i].tbl;
-      break;
+  if (task) {
+    for (i = 0; i < MAX_SYSLIBS; i++) {
+      if (task->syslibs[i].refNum == refNum) {
+        tbl->dispatchTblP = (MemPtr *)task->syslibs[i].dispatchTbl;
+        tbl->globalsP = task->syslibs[i].globals;
+        tbl->dbID = task->syslibs[i].dbID;
+        tbl->codeRscH = NULL;
+        r = task->syslibs[i].tbl;
+        break;
+      }
     }
   }
 
@@ -4834,19 +4904,21 @@ void SysLibCancelRefNum68K(UInt16 refNum) {
   char buf[8], buf2[8];
   UInt16 i;
 
-  for (i = 0; i < MAX_SYSLIBS; i++) {
-    if (task->syslibs[i].refNum == refNum) {
-      if (task->syslibs[i].code) {
-        pumpkin_heap_free(task->syslibs[i].code, "syslib_code");
+  if (task) {
+    for (i = 0; i < MAX_SYSLIBS; i++) {
+      if (task->syslibs[i].refNum == refNum) {
+        if (task->syslibs[i].code) {
+          pumpkin_heap_free(task->syslibs[i].code, "syslib_code");
+        }
+        if (task->syslibs[i].tbl) {
+          pumpkin_heap_free(task->syslibs[i].tbl, "syslib_tbl");
+        }
+        pumpkin_id2s(task->syslibs[i].type, buf);
+        pumpkin_id2s(task->syslibs[i].creator, buf2);
+        debug(DEBUG_INFO, PUMPKINOS, "unregistering syslib \"%s\" type '%s' creator '%s' at %d", task->syslibs[i].name, buf, buf2, refNum);
+        sys_memset(&task->syslibs[i], 0, sizeof(syslib_t));
+        break;
       }
-      if (task->syslibs[i].tbl) {
-        pumpkin_heap_free(task->syslibs[i].tbl, "syslib_tbl");
-      }
-      pumpkin_id2s(task->syslibs[i].type, buf);
-      pumpkin_id2s(task->syslibs[i].creator, buf2);
-      debug(DEBUG_INFO, PUMPKINOS, "unregistering syslib \"%s\" type '%s' creator '%s' at %d", task->syslibs[i].name, buf, buf2, refNum);
-      sys_memset(&task->syslibs[i], 0, sizeof(syslib_t));
-      break;
     }
   }
 }
@@ -4856,14 +4928,16 @@ UInt16 SysLibFind68K(char *name) {
   char buf[8], buf2[8];
   UInt16 i, refNum = 0;
 
-  for (i = 0; i < MAX_SYSLIBS; i++) {
-    if (task->syslibs[i].refNum > 0 && !sys_strcmp(task->syslibs[i].name, name)) {
-      refNum = task->syslibs[i].refNum;
-      pumpkin_id2s(task->syslibs[i].type, buf);
-      pumpkin_id2s(task->syslibs[i].creator, buf2);
-      debug(DEBUG_INFO, PUMPKINOS, "found syslib \"%s\" type '%s' creator '%s' at %d", name, buf, buf2, refNum);
-      break;
-    }
+  if (task) {
+    for (i = 0; i < MAX_SYSLIBS; i++) {
+      if (task->syslibs[i].refNum > 0 && !sys_strcmp(task->syslibs[i].name, name)) {
+        refNum = task->syslibs[i].refNum;
+        pumpkin_id2s(task->syslibs[i].type, buf);
+        pumpkin_id2s(task->syslibs[i].creator, buf2);
+        debug(DEBUG_INFO, PUMPKINOS, "found syslib \"%s\" type '%s' creator '%s' at %d", name, buf, buf2, refNum);
+        break;
+      }
+	}
   }
 
   return refNum;
@@ -4873,10 +4947,12 @@ UInt16 *SysLibGetDispatch68K(UInt16 refNum) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   UInt16 i, *dispatch = NULL;
 
-  for (i = 0; i < MAX_SYSLIBS; i++) {
-    if (task->syslibs[i].refNum == refNum) {
-      dispatch = task->syslibs[i].dispatchTbl;
-      break;
+  if (task) {
+    for (i = 0; i < MAX_SYSLIBS; i++) {
+      if (task->syslibs[i].refNum == refNum) {
+        dispatch = task->syslibs[i].dispatchTbl;
+        break;
+      }
     }
   }
 
@@ -4948,11 +5024,14 @@ int pumpkin_get_osversion(void) {
 
 void pumpkin_set_m68k(int m68k) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
-  task->m68k = m68k;
+ 
+  if (task) {
+	task->m68k = m68k;
 
-  if (mutex_lock(mutex) == 0) {
-    pumpkin_module.tasks[task->task_index].m68k = m68k;
-    mutex_unlock(mutex);
+    if (mutex_lock(mutex) == 0) {
+      pumpkin_module.tasks[task->task_index].m68k = m68k;
+      mutex_unlock(mutex);
+    }
   }
 
   pumpkin_forward_msg(0, MSG_KEY, WINDOW_KEY_CUSTOM, vchrRefreshState, 0);
@@ -5249,8 +5328,8 @@ static int it_obj(int pe) {
       obj = pumpkin_script_create_obj(pe, NULL);
       n = it->num_properties(it);
       for (j = 1; j <= n; j++) {
-        name = it->property_name(it, j);
-        value = it->get_property_value(it, j);
+        name = it->property_name(it, (int)j);
+        value = it->get_property_value(it, (int)j);
         if (value) {
           for (k = 0; value[k]; k++) {
             if (value[k] < '0' || value[k] > '9') break;
@@ -5266,7 +5345,7 @@ static int it_obj(int pe) {
     }
   }
 
-  return r;
+  return (int)r;
 }
 
 static int httpd_template(int pe, http_connection_t *con, template_t *t) {
@@ -5466,8 +5545,8 @@ pumpkin_httpd_t *pumpkin_httpd_create(UInt16 port, UInt16 scriptId, char *worker
     if ((hscript = DmGet1Resource(pumpkin_script_engine_id(), scriptId)) != 0) {
       if ((s = MemHandleLock(hscript)) != NULL) {
         len = MemHandleSize(hscript);
-        if ((h->script = sys_malloc(len+1)) != NULL) {
-          MemMove(h->script, s, len);
+        if ((h->script = sys_malloc((sys_size_t)(len+1))) != NULL) {
+          MemMove(h->script, s, (Int32)len);
         }
         MemHandleUnlock(hscript);
       }
@@ -5566,10 +5645,12 @@ language_t *LanguageGet(void) {
 
 language_t *LanguageSelect(language_t *lang) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
-  language_t *old;
+  language_t *old = NULL;
 
-  old = task->lang;
-  task->lang = lang;
+  if (task) {
+    old = task->lang;
+    task->lang = lang;
+  }
 
   return old;
 }
@@ -5578,13 +5659,15 @@ UInt32 pumpkin_next_char(UInt8 *s, UInt32 i, UInt32 len, UInt32 *w) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   language_t *lang;
 
-  lang = task && task->lang ? task->lang : pumpkin_module.lang;
+  if (task) {
+    lang = task && task->lang ? task->lang : pumpkin_module.lang;
 
-  if (lang && lang->nextChar) {
-    i = lang->nextChar(s, i, len, w, lang->data);
-  } else {
-   *w = s[i];
-    i = 1;
+    if (lang && lang->nextChar) {
+      i = lang->nextChar(s, i, len, w, lang->data);
+    } else {
+     *w = s[i];
+      i = 1;
+    }
   }
 
   return i;
@@ -5594,10 +5677,12 @@ UInt8 pumpkin_map_char(UInt32 w, FontType **f) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   language_t *lang;
 
-  lang = task && task->lang ? task->lang : pumpkin_module.lang;
+  if (task) {
+    lang = task && task->lang ? task->lang : pumpkin_module.lang;
 
-  if (lang && lang->mapChar) {
-    return lang->mapChar(w, f, lang->data);
+    if (lang && lang->mapChar) {
+      return lang->mapChar(w, f, lang->data);
+    }
   }
 
   *f = FntGetFontPtr();
@@ -5637,7 +5722,7 @@ Err SysNotifyRegister(UInt16 cardNo, LocalID dbID, UInt32 notifyType, SysNotifyP
               np = sys_calloc(1, sizeof(notif_ptr_t));
               np->tag = TAG_NOTIF;
               if (pumpkin_is_m68k()) {
-                np->callback68k = callbackP ? (uint8_t *)callbackP - (uint8_t *)pumpkin_heap_base() : 0;
+                np->callback68k = callbackP ? (uint32_t)((uint8_t *)callbackP - (uint8_t *)pumpkin_heap_base()) : 0;
                 np->userData = userDataP;
                 debug(DEBUG_INFO, PUMPKINOS, "notification callback callback68k 0x%08X userData %p", np->callback68k, np->userData);
               } else {
@@ -5693,7 +5778,7 @@ Err SysNotifyUnregister(UInt16 cardNo, LocalID dbID, UInt32 notifyType, Int8 pri
       pumpkin_id2s(notifyType, stype);
 
       for (i = 0; i < pumpkin_module.num_notif; i++) {
-        if (pumpkin_module.notif[i].taskId == task->taskId && pumpkin_module.notif[i].appCreator == creator && pumpkin_module.notif[i].notifyType == notifyType) {
+        if (task && pumpkin_module.notif[i].taskId == task->taskId && pumpkin_module.notif[i].appCreator == creator && pumpkin_module.notif[i].notifyType == notifyType) {
           debug(DEBUG_INFO, PUMPKINOS, "unregister notification type '%s' creator '%s' priority %d: removed", stype, screator, pumpkin_module.notif[i].priority);
           if (pumpkin_module.notif[i].ptr) {
             ptr_free(pumpkin_module.notif[i].ptr, TAG_NOTIF);
@@ -5814,7 +5899,7 @@ Err SysNotifyBroadcastDeferred(SysNotifyParamType *notify, Int16 paramSize) {
   if (notify) {
     pumpkin_id2s(notify->notifyType, stype);
 
-    if (task->num_notifs < MAX_NOTIF_QUEUE) {
+    if (task && task->num_notifs < MAX_NOTIF_QUEUE) {
       debug(DEBUG_INFO, PUMPKINOS, "defer notification type '%s'", stype);
       MemMove(&task->notify[task->num_notifs], notify, sizeof(SysNotifyParamType));
       if (notify->notifyDetailsP && paramSize) {
@@ -5836,7 +5921,7 @@ void SysNotifyBroadcastQueued(void) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   int i;
 
-  if (task->num_notifs > 0) {
+  if (task && task->num_notifs > 0) {
     debug(DEBUG_INFO, PUMPKINOS, "flush notification queue begin");
 
     for (i = 0; i < task->num_notifs; i++) {
@@ -5867,6 +5952,9 @@ Err SysNotifyBroadcastFromInterrupt(UInt32 notifyType, UInt32 broadcaster, void 
 void *pumpkin_gettable(uint32_t n) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
+  if (task == NULL)
+	  return NULL;
+
   if (task->table == NULL) {
     task->table = sys_calloc(n, sizeof(void *));
   }
@@ -5883,16 +5971,21 @@ void pumpkin_setio(
 
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
-  task->getchar = getchar;
-  task->haschar = haschar;
-  task->putchar = putchar;
-  task->putstr = putstr;
-  task->setcolor = setcolor;
-  task->iodata = iodata;
+  if (task) {
+    task->getchar = getchar;
+    task->haschar = haschar;
+    task->putchar = putchar;
+    task->putstr = putstr;
+    task->setcolor = setcolor;
+    task->iodata = iodata;
+  }
 }
 
 int pumpkin_getchar(void) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
+
+  if (task == NULL)
+	  return 0;
 
   return task->getchar ? task->getchar(task->iodata) : 0;
 }
@@ -5900,13 +5993,16 @@ int pumpkin_getchar(void) {
 int pumpkin_haschar(void) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
+  if (task == NULL)
+	  return 0;
+
   return task->haschar ? task->haschar(task->iodata) : 0;
 } 
 
 void pumpkin_putchar(char c) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
-  if (task->putchar) {
+  if (task && task->putchar) {
     task->putchar(task->iodata, c);
   }
 }
@@ -5925,10 +6021,10 @@ void pumpkin_write(char *s, uint32_t len) {
 void pumpkin_puts(char *s) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
-  if (task->putstr) {
-    task->putstr(task->iodata, s, sys_strlen(s));
+  if (task && task->putstr) {
+    task->putstr(task->iodata, s, (uint32_t)sys_strlen(s));
   } else {
-    pumpkin_write(s, sys_strlen(s));
+    pumpkin_write(s, (uint32_t)sys_strlen(s));
   }
 }
 
@@ -5994,7 +6090,7 @@ int32_t pumpkin_gets(char *buf, uint32_t max, int echo) {
 void pumpkin_setcolor(uint32_t fg, uint32_t bg) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
 
-  if (task->setcolor) {
+  if (task && task->setcolor) {
     task->setcolor(task->iodata, fg, bg);
   }
 }
@@ -6063,6 +6159,9 @@ int32_t pumpkin_event_timeout(int32_t t) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   uint64_t now;
   uint16_t r;
+
+  if (task == NULL)
+	  return 0;
 
   if (t == 0) {
     now = sys_get_clock();

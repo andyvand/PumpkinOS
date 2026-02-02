@@ -39,7 +39,7 @@ static int pit_sprintf(int pe) {
             lfmt[ilfmt++] = 0;
             if (script_get_integer(pe, iarg++, &integer) == -1) return -1;
             sys_snprintf(buf+ibuf, sizeof(buf)-ibuf-1, lfmt, (char)integer);
-            ibuf = sys_strlen(buf);
+            ibuf = (int)sys_strlen(buf);
           }
           escape = 0;
           break;
@@ -49,7 +49,7 @@ static int pit_sprintf(int pe) {
             lfmt[ilfmt++] = 0;
             if (script_get_integer(pe, iarg++, &integer) == -1) return -1;
             sys_snprintf(buf+ibuf, sizeof(buf)-ibuf-1, lfmt, integer);
-            ibuf = sys_strlen(buf);
+            ibuf = (int)sys_strlen(buf);
           }
           escape = 0;
           break;
@@ -60,7 +60,7 @@ static int pit_sprintf(int pe) {
             lfmt[ilfmt++] = 0;
             if (script_get_real(pe, iarg++, &d) == -1) return -1;
             sys_snprintf(buf+ibuf, sizeof(buf)-ibuf-1, lfmt, d);
-            ibuf = sys_strlen(buf);
+            ibuf = (int)sys_strlen(buf);
           }
           escape = 0;
           break;
@@ -71,7 +71,7 @@ static int pit_sprintf(int pe) {
             if (script_get_string(pe, iarg++, &s) == -1) return -1;
             sys_snprintf(buf+ibuf, sizeof(buf)-ibuf-1, lfmt, s);
             xfree(s);
-            ibuf = sys_strlen(buf);
+            ibuf = (int)sys_strlen(buf);
           }
           escape = 0;
           break;
@@ -102,32 +102,38 @@ static int pit_sprintf(int pe) {
 }
 
 PIT_LIB_FUNCTION(builtin,debug)
+  PIT_LIB_PARAM_I_BEGIN(level)
+  PIT_LIB_PARAM_S_BEGIN(stext)
   PIT_LIB_PARAM_I(level)
-  PIT_LIB_PARAM_S(text)
-PIT_LIB_CODE
-  debug(level, "RUN", "%s", text);
+  PIT_LIB_PARAM_S(stext)
+  PIT_LIB_CODE
+  debug(level, "RUN", "%s", stext);
   r = 0;
-  PIT_LIB_FREE_S(text);
+  PIT_LIB_FREE_S(stext);
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,debugbytes)
+  PIT_LIB_PARAM_I_BEGIN(level)
+  PIT_LIB_PARAM_L_BEGIN(buf,blen)
   PIT_LIB_PARAM_I(level)
-  PIT_LIB_PARAM_L(buf,blen)
-PIT_LIB_CODE
+  PIT_LIB_PARAM_L(buf, blen)
+  PIT_LIB_CODE
   debug_bytes(level, "RUN", (unsigned char *)buf, blen);
   r = 0;
   PIT_LIB_FREE_S(buf);
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,istrue)
+  PIT_LIB_PARAM_B_BEGIN(cond)
   PIT_LIB_PARAM_B(cond)
 PIT_LIB_CODE
   r = cond ? 0 : 1;
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,loadlib)
-  PIT_LIB_PARAM_S(libname)
+  PIT_LIB_PARAM_S_BEGIN(libname)
   script_ref_t obj = 0;
+  PIT_LIB_PARAM_S(libname)
 PIT_LIB_CODE
   obj = script_loadlib(PIT_LIB_PE, libname);
   PIT_LIB_FREE_S(libname);
@@ -135,6 +141,7 @@ PIT_LIB_CODE
 PIT_LIB_END_O(obj)
 
 PIT_LIB_FUNCTION(builtin,include)
+  PIT_LIB_PARAM_S_BEGIN(filename)
   PIT_LIB_PARAM_S(filename)
 PIT_LIB_CODE
   r = script_run(PIT_LIB_PE, filename, -1, NULL, 0);
@@ -142,6 +149,8 @@ PIT_LIB_CODE
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,mount)
+  PIT_LIB_PARAM_S_BEGIN(local)
+  PIT_LIB_PARAM_S_BEGIN(path)
   PIT_LIB_PARAM_S(local)
   PIT_LIB_PARAM_S(path)
 PIT_LIB_CODE
@@ -151,13 +160,14 @@ PIT_LIB_CODE
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,listdir)
-  PIT_LIB_PARAM_S(path)
-  PIT_LIB_PARAM_F(callback)
-PIT_LIB_CODE
+  PIT_LIB_PARAM_S_BEGIN(path)
+  PIT_LIB_PARAM_F_BEGIN(callback)
   script_arg_t ret;
   sys_dir_t *dir;
   char name[256];
-
+  PIT_LIB_PARAM_S(path)
+  PIT_LIB_PARAM_F(callback)
+PIT_LIB_CODE
   r = -1;
   if ((dir = sys_opendir(path)) != NULL) {
     for (;;) {
@@ -186,13 +196,27 @@ PIT_LIB_CODE
 PIT_LIB_END_S(name)
 
 PIT_LIB_FUNCTION(builtin,getenv)
-  PIT_LIB_PARAM_S(name)
+  PIT_LIB_PARAM_S_BEGIN(name)
   char *value = NULL;
+  PIT_LIB_PARAM_S(name)
 PIT_LIB_CODE
   value = sys_getenv(name);
   r = 0;
   PIT_LIB_FREE_S(name);
 PIT_LIB_END_S(value)
+
+PIT_LIB_FUNCTION(builtin, setenv)
+PIT_LIB_PARAM_S_BEGIN(name)
+PIT_LIB_PARAM_S_BEGIN(param)
+int value = 0;
+PIT_LIB_PARAM_S(name)
+PIT_LIB_PARAM_S(param)
+PIT_LIB_CODE
+value = sys_setenv(name, param);
+r = 0;
+PIT_LIB_FREE_S(name);
+PIT_LIB_FREE_S(param);
+PIT_LIB_END_I((script_int_t)value)
 
 PIT_LIB_FUNCTION(builtin,clock)
   int64_t c;
@@ -204,25 +228,25 @@ PIT_LIB_CODE
       r = 0;
     }
   }
-PIT_LIB_END_I(c)
+PIT_LIB_END_I((script_int_t)c)
 
 PIT_LIB_FUNCTION(builtin,time)
   uint64_t t = sys_time();
 PIT_LIB_CODE
   r = 0;
-PIT_LIB_END_I(t)
+PIT_LIB_END_I((script_int_t)t)
 
 PIT_LIB_FUNCTION(builtin,proc_time)
   int64_t t = sys_get_process_time();
 PIT_LIB_CODE
   r = 0;
-PIT_LIB_END_R(t)
+PIT_LIB_END_R((script_real_t)t)
 
 PIT_LIB_FUNCTION(builtin,thread_time)
   int64_t t = sys_get_thread_time();
 PIT_LIB_CODE
   r = 0;
-PIT_LIB_END_R(t)
+PIT_LIB_END_R((script_real_t)t)
 
 PIT_LIB_FUNCTION(builtin,pid)
   script_int_t pid = sys_get_pid();
@@ -237,6 +261,7 @@ PIT_LIB_CODE
 PIT_LIB_END_I(tid)
 
 PIT_LIB_FUNCTION(builtin,usleep)
+  PIT_LIB_PARAM_I_BEGIN(t)
   PIT_LIB_PARAM_I(t)
 PIT_LIB_CODE
   if (t > 0) {
@@ -246,12 +271,15 @@ PIT_LIB_CODE
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,cleanup)
+  PIT_LIB_PARAM_F_BEGIN(callback)
   PIT_LIB_PARAM_F(callback)
 PIT_LIB_CODE
   r = script_set_cleanup(PIT_LIB_PE, callback);
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,idle)
+  PIT_LIB_PARAM_F_BEGIN(callback)
+  PIT_LIB_PARAM_I_BEGIN(t)
   PIT_LIB_PARAM_F(callback)
   PIT_LIB_PARAM_I(t)
 PIT_LIB_CODE
@@ -259,6 +287,7 @@ PIT_LIB_CODE
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,finish)
+  PIT_LIB_PARAM_I_BEGIN(code)
   PIT_LIB_PARAM_I(code)
 PIT_LIB_CODE
   sys_set_finish(code);
@@ -272,8 +301,9 @@ PIT_LIB_CODE
 PIT_LIB_END_B
 
 PIT_LIB_FUNCTION(builtin,getpointer)
-  PIT_LIB_PARAM_S(name)
+  PIT_LIB_PARAM_S_BEGIN(name)
   void *value = NULL;
+  PIT_LIB_PARAM_S(name)
 PIT_LIB_CODE
   value = script_get_pointer(pe, name);
   r = 0;
@@ -291,6 +321,7 @@ PIT_LIB_BEGIN(builtin)
   PIT_LIB_EXPORT_F(sysname);
   PIT_LIB_EXPORT_F(osname);
   PIT_LIB_EXPORT_F(getenv);
+  PIT_LIB_EXPORT_F(setenv);
   PIT_LIB_EXPORT_F(clock);
   PIT_LIB_EXPORT_F(time);
   PIT_LIB_EXPORT_F(proc_time);

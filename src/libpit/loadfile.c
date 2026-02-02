@@ -6,7 +6,7 @@ char *load_fd(int fd, unsigned int *len) {
   char *buf;
   int nread;
 
-  if ((*len = sys_seek(fd, 0, SYS_SEEK_END)) == -1) {
+  if ((*len = (unsigned int)sys_seek(fd, 0, SYS_SEEK_END)) == -1) {
     return NULL;
   }
 

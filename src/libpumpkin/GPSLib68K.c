@@ -372,8 +372,8 @@ Err GPSGetSatellites(const UInt16 refNum, GPSSatDataType *sat) {
       sat[i].status = gpsSatEphMask;
       if (i >= 4 && i <= 7) sat[i].status |= gpsSatUsedMask;
       sat[i].snr = 30 + i*2;
-      sat[i].azimuth = (i*20) * sys_pi() / 180.0;
-      sat[i].elevation = (30 + i*5) * sys_pi() / 180.0;
+      sat[i].azimuth = (float)((i*20) * sys_pi() / 180.0);
+      sat[i].elevation = (float)((30 + i*5) * sys_pi() / 180.0);
       debug(DEBUG_INFO, "GPSLIB", "GPSGetSatellites %d %.1f %.1f", i, sat[i].azimuth, sat[i].elevation);
     }
   }

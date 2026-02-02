@@ -40,7 +40,11 @@ int debug_init(char *filename) {
   if (filename) {
     if (!sys_strcmp(filename, "stdout")) fd = stdout;
     else if (!sys_strcmp(filename, "stderr")) fd = stderr;
+#if __STDC_WANT_SECURE_LIB__
+	else fopen_s(&fd, filename, "w");
+#else
     else fd = fopen(filename, "w");
+#endif
   } else {
     fd = stderr;
   }
@@ -193,45 +197,45 @@ void debugva_full(const char *file, const char *func, int line, int _level, cons
     utctime(&ts, &tm);
 
     s = tmp;
-    s += dec(tm.tm_year + 1900, 4, s, tmp + MAX_BUF - s);
-    s += ch('-', s, tmp + MAX_BUF - s);
-    s += dec(tm.tm_mon + 1, 2, s, tmp + MAX_BUF - s);
-    s += ch('-', s, tmp + MAX_BUF - s);
-    s += dec(tm.tm_mday, 2, s, tmp + MAX_BUF - s);
-    s += ch(' ', s, tmp + MAX_BUF - s);
-    s += dec(tm.tm_hour, 2, s, tmp + MAX_BUF - s);
-    s += ch(':', s, tmp + MAX_BUF - s);
-    s += dec(tm.tm_min, 2, s, tmp + MAX_BUF - s);
-    s += ch(':', s, tmp + MAX_BUF - s);
-    s += dec(tm.tm_sec, 2, s, tmp + MAX_BUF - s);
-    s += ch('.', s, tmp + MAX_BUF - s);
-    s += dec(us, 6, s, tmp + MAX_BUF - s);
-    s += ch(' ', s, tmp + MAX_BUF - s);
-    s += ch(level_name[_level], s, tmp + MAX_BUF - s);
-    s += ch(' ', s, tmp + MAX_BUF - s);
-    s += dec(sys_get_tid(), 5, s, tmp + MAX_BUF - s);
-    s += ch(' ', s, tmp + MAX_BUF - s);
-    s += str(thread_name, 8, s, tmp + MAX_BUF - s);
-    s += ch(' ', s, tmp + MAX_BUF - s);
-    s += str((char *)sys, -1, s, tmp + MAX_BUF - s);
-    s += ch(':', s, tmp + MAX_BUF - s);
-    s += ch(' ', s, tmp + MAX_BUF - s);
+    s += dec(tm.tm_year + 1900, 4, s, (int)(tmp + MAX_BUF - s));
+    s += ch('-', s, (int)(tmp + MAX_BUF - s));
+    s += dec(tm.tm_mon + 1, 2, s, (int)(tmp + MAX_BUF - s));
+    s += ch('-', s, (int)(tmp + MAX_BUF - s));
+    s += dec(tm.tm_mday, 2, s, (int)(tmp + MAX_BUF - s));
+    s += ch(' ', s, (int)(tmp + MAX_BUF - s));
+    s += dec(tm.tm_hour, 2, s, (int)(tmp + MAX_BUF - s));
+    s += ch(':', s, (int)(tmp + MAX_BUF - s));
+    s += dec(tm.tm_min, 2, s, (int)(tmp + MAX_BUF - s));
+    s += ch(':', s, (int)(tmp + MAX_BUF - s));
+    s += dec(tm.tm_sec, 2, s, (int)(tmp + MAX_BUF - s));
+    s += ch('.', s, (int)(tmp + MAX_BUF - s));
+	s += dec(us, 6, s, (int)(tmp + MAX_BUF - s));
+	s += ch(' ', s, (int)(tmp + MAX_BUF - s));
+	s += ch(level_name[_level], s, (int)(tmp + MAX_BUF - s));
+	s += ch(' ', s, (int)(tmp + MAX_BUF - s));
+	s += dec(sys_get_tid(), 5, s, (int)(tmp + MAX_BUF - s));
+	s += ch(' ', s, (int)(tmp + MAX_BUF - s));
+	s += str(thread_name, 8, s, (int)(tmp + MAX_BUF - s));
+	s += ch(' ', s, (int)(tmp + MAX_BUF - s));
+	s += str((char *)sys, -1, s, (int)(tmp + MAX_BUF - s));
+	s += ch(':', s, (int)(tmp + MAX_BUF - s));
+	s += ch(' ', s, (int)(tmp + MAX_BUF - s));
     for (k = 0; k < indent; k++) {
-      s += ch(' ', s, tmp + MAX_BUF - s);
+		s += ch(' ', s, (int)(tmp + MAX_BUF - s));
     }
-    s += str(buf, -1, s, tmp + MAX_BUF - s);
+	s += str(buf, -1, s, (int)(tmp + MAX_BUF - s));
     if (show_scope) {
-      s += ch(' ', s, tmp + MAX_BUF - s);
-      s += ch('[', s, tmp + MAX_BUF - s);
-      s += str((char *)file, -1, s, tmp + MAX_BUF - s);
-      s += ch(':', s, tmp + MAX_BUF - s);
-      s += str((char *)func, -1, s, tmp + MAX_BUF - s);
-      s += ch(':', s, tmp + MAX_BUF - s);
-      s += dec(line, 4, s, tmp + MAX_BUF - s);
-      s += ch(']', s, tmp + MAX_BUF - s);
+		s += ch(' ', s, (int)(tmp + MAX_BUF - s));
+		s += ch('[', s, (int)(tmp + MAX_BUF - s));
+		s += str((char *)file, -1, s, (int)(tmp + MAX_BUF - s));
+		s += ch(':', s, (int)(tmp + MAX_BUF - s));
+		s += str((char *)func, -1, s, (int)(tmp + MAX_BUF - s));
+		s += ch(':', s, (int)(tmp + MAX_BUF - s));
+		s += dec(line, 4, s, (int)(tmp + MAX_BUF - s));
+		s += ch(']', s, (int)(tmp + MAX_BUF - s));
     }
-    if (raw) s += ch('\r', s, tmp + MAX_BUF - s);
-    s += ch('\n', s, tmp + MAX_BUF - s);
+	if (raw) s += ch('\r', s, (int)(tmp + MAX_BUF - s));
+	s += ch('\n', s, (int)(tmp + MAX_BUF - s));
     *s = 0;
 
 #if defined(ANDROID)
@@ -287,11 +291,11 @@ void debug_bytes_offset_full(const char *file, const char *func, int line, int l
   if (!inited) return;
   p = sbuf;
   sys_sprintf(p, "%08X: ", offset);
-  n = sys_strlen(p);
+  n = (uint32_t)sys_strlen(p);
   p += n;
   e = p + 1024 - n - 4;
 
-  for (i = 0, j = 0; i < len && p < e; i++) {
+  for (i = 0, j = 0; i < (uint32_t)len && p < e; i++) {
     if (j) {
       *p = ' ';
       p++;
@@ -306,7 +310,7 @@ void debug_bytes_offset_full(const char *file, const char *func, int line, int l
       debug_full(file, func, line, level, sys, "%s %s", sbuf, abuf);
       p = sbuf;
       sys_sprintf(p, "%08X: ", offset+i+1);
-      n = sys_strlen(p);
+      n = (uint32_t)sys_strlen(p);
       p += n;
       e = p + 1024 - n - 4;
       j = 0;

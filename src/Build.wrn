@@ -1,0 +1,98 @@
+BUILD: [Thread:SystemTickCount:Type  ] Message
+BUILD: [00:0000000641:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000641:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000641:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000641:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.
+BUILD: [00:0000000656:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000656:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000656:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000656:WARNS ] Directory: C:\WINCE800\public\rdp\oak\inc\ does not exist.
+BUILD: [00:0000000672:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.
+BUILD: [00:0000000672:WARNS ] Directory: C:\WINCE800\public\wceshellfe\oak\inc\ does not exist.
+BUILD: [00:0000000672:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000672:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000672:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000672:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\rdp\oak\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\wceshellfe\oak\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000719:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.
+BUILD: [01:0000001641:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1265) : warning C4244: 'function' : conversion from 'int64_t' to 'LONG', possible loss of data
+BUILD: [01:0000001641:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1359) : warning C4013: 'CreatePipe' undefined; assuming extern returning int
+BUILD: [01:0000001641:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1518) : warning C4013: 'stat' undefined; assuming extern returning int
+BUILD: [01:0000001656:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1520) : warning C4013: 'S_ISREG' undefined; assuming extern returning int
+BUILD: [01:0000001656:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1521) : warning C4013: 'S_ISDIR' undefined; assuming extern returning int
+BUILD: [01:0000001656:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1549) : warning C4133: 'function' : incompatible types - from 'const char *' to 'LPCWSTR'
+BUILD: [01:0000001656:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1648) : warning C4013: 'rmdir' undefined; assuming extern returning int
+BUILD: [01:0000001656:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1671) : warning C4133: 'function' : incompatible types - from 'char [256]' to 'LPCWSTR'
+BUILD: [01:0000001672:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(1716) : warning C4133: 'function' : incompatible types - from 'char *' to 'LPCWSTR'
+BUILD: [01:0000001672:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2025) : warning C4098: 'sys_srand' : 'void' function returning a value
+BUILD: [01:0000001672:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2295) : warning C4047: 'function' : 'char *' differs in levels of indirection from 'int'
+BUILD: [01:0000001672:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2295) : warning C4024: 'normalize_path' : different types for formal and actual parameter 2
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2296) : warning C4047: 'function' : 'const char *' differs in levels of indirection from 'int'
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2296) : warning C4024: 'sys_strlen' : different types for formal and actual parameter 1
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2297) : warning C4047: 'function' : 'const char *' differs in levels of indirection from 'int'
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2297) : warning C4024: 'sys_strstr' : different types for formal and actual parameter 1
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2297) : warning C4024: 'sys_strchr' : different types for formal and actual parameter 1
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2298) : warning C4047: 'function' : 'char *' differs in levels of indirection from 'int'
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2298) : warning C4024: 'sys_strcat' : different types for formal and actual parameter 1
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : warning C4047: 'function' : 'wchar_t *' differs in levels of indirection from 'int'
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : warning C4024: 'mbstowcs' : different types for formal and actual parameter 1
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : warning C4047: 'function' : 'const char *' differs in levels of indirection from 'int'
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : warning C4024: 'mbstowcs' : different types for formal and actual parameter 2
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2301) : warning C4024: 'strlen' : different types for formal and actual parameter 1
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2304) : warning C4047: 'function' : 'LPCWSTR' differs in levels of indirection from 'int'
+BUILD: [01:0000001688:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2304) : warning C4024: 'GetModuleHandleW' : different types for formal and actual parameter 1
+BUILD: [01:0000001703:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2308) : warning C4047: 'function' : 'LPCWSTR' differs in levels of indirection from 'int'
+BUILD: [01:0000001703:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2308) : warning C4024: 'LoadLibraryW' : different types for formal and actual parameter 1
+BUILD: [01:0000001703:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2428) : warning C4018: '<' : signed/unsigned mismatch
+BUILD: [01:0000001703:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2528) : warning C4244: '=' : conversion from 'uint16_t' to 'unsigned char', possible loss of data
+BUILD: [01:0000001703:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2562) : warning C4244: '=' : conversion from 'unsigned long' to 'unsigned char', possible loss of data
+BUILD: [01:0000002297:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2847) : warning C4047: '=' : 'int' differs in levels of indirection from 'void *'
+BUILD: [01:0000002297:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2847) : warning C4047: '==' : 'int' differs in levels of indirection from 'void *'
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : warning C4047: 'function' : 'SOCKET' differs in levels of indirection from 'sockaddr *'
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : warning C4024: 'connect' : different types for formal and actual parameter 1
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : warning C4047: 'function' : 'const sockaddr *' differs in levels of indirection from 'int'
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(2856) : warning C4024: 'connect' : different types for formal and actual parameter 2
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3315) : warning C4047: '=' : 'int' differs in levels of indirection from 'void *'
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3315) : warning C4047: '==' : 'int' differs in levels of indirection from 'void *'
+BUILD: [01:0000002313:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : warning C4047: 'function' : 'int' differs in levels of indirection from 'const void *'
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : warning C4024: 'setsockopt' : different types for formal and actual parameter 3
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : warning C4047: 'function' : 'const char *' differs in levels of indirection from 'int'
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3320) : warning C4024: 'setsockopt' : different types for formal and actual parameter 4
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3409) : warning C4013: 'tmpnam' undefined; assuming extern returning int
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3420) : warning C4013: 'mkstemp' undefined; assuming extern returning int
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3457) : warning C4098: 'sys_qsort' : 'void' function returning a value
+BUILD: [01:0000002328:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\sys.c(3482) : warning C4013: 'vsscanf' undefined; assuming extern returning int
+BUILD: [01:0000002453:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\builtin.c(106) : warning C4133: 'function' : incompatible types - from 'int *' to 'script_arg_t *'
+BUILD: [01:0000002781:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(654) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002781:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(655) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002781:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(657) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002781:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(658) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002781:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(679) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002797:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(680) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002797:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(799) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002797:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(800) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002797:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\graphic.c(802) : warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+BUILD: [01:0000002985:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfs.c(615) : warning C4018: '<' : signed/unsigned mismatch
+BUILD: [01:0000003031:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfslocal.c(176) : warning C4244: '=' : conversion from 'uint64_t' to 'uint32_t', possible loss of data
+BUILD: [01:0000003047:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfslocal.c(241) : warning C4244: '=' : conversion from 'int64_t' to 'uint32_t', possible loss of data
+BUILD: [01:0000003047:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfslocal.c(243) : warning C4244: '=' : conversion from 'int64_t' to 'uint32_t', possible loss of data
+BUILD: [01:0000003047:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfslocal.c(298) : warning C4244: '=' : conversion from 'uint64_t' to 'uint32_t', possible loss of data
+BUILD: [01:0000003047:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfslocal.c(332) : warning C4244: '=' : conversion from 'uint64_t' to 'uint32_t', possible loss of data
+BUILD: [01:0000003047:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\vfslocal.c(358) : warning C4244: '=' : conversion from 'int64_t' to 'uint32_t', possible loss of data
+BUILD: [01:0000003078:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\script.c(585) : warning C4244: '=' : conversion from 'script_ref_t' to 'int', possible loss of data
+BUILD: [01:0000003078:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\script.c(645) : warning C4244: '=' : conversion from 'script_ref_t' to 'int', possible loss of data
+BUILD: [01:0000003094:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\script.c(657) : warning C4244: '=' : conversion from 'script_ref_t' to 'int', possible loss of data
+BUILD: [01:0000003094:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\script.c(669) : warning C4244: '=' : conversion from 'script_ref_t' to 'int', possible loss of data
+BUILD: [01:0000003141:WARNN ] c:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libpit\httpd.c(577) : warning C4244: '=' : conversion from 'int64_t' to 'int', possible loss of data

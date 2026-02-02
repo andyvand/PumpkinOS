@@ -3,7 +3,6 @@
 /vfs/app_storage
 /vfs/app_data
 /vfs/app_card/PALM/Programs/*
-/tools
 /registry
 /pumpkin
 /src/.vscode/*
@@ -11,10 +10,11 @@
 *.o
 *.res
 *.so
-*.dll
-*.exe
 *.wasm
 *.bin
+*.exe
+*.dll
+*.dylib
 *.dlib
 *.prc
 *.pdb
@@ -22,9 +22,6 @@
 *.pyc
 *.mod
 *.fo
-*_serde.h
-*_serde.c
-trapArgs.c
 xdg-*.c
 xdg-*.h
 syscalls_stubs.txt
@@ -47,6 +44,7 @@ src/libemulation/tools/zmac/zmac.c
 /src/emscripten/pumpkin.html
 /src/emscripten/pumpkin.js
 /src/emscripten/pumpkin.zip
+!/tools/*
 !/lib/*
 !/lib32/*
 !/vfs/app_card/PALM/Programs/Command/

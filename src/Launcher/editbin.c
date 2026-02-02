@@ -34,7 +34,7 @@ static void printAddr(bin_edit_t *data, int row) {
 
   index = row * data->cols;
 
-  if (data->index + index < data->size) {
+  if (data->index + index < (int)data->size) {
     StrNPrintF(buf, sizeof(buf)-1, "%04X", data->index + index);
     WinSetTextColorRGB(&addr, NULL);
     x = data->rect.topLeft.x + 1;
@@ -54,7 +54,7 @@ static void printByte(bin_edit_t *data, int col, int row, Boolean inverse) {
   index = row * data->cols + col;
   WinSetBackColorRGB(inverse ? &red : &white, NULL);
 
-  if (data->index + index < data->size) {
+  if (data->index + index < (int)data->size) {
     StrNPrintF(buf, sizeof(buf)-1, "%02X", data->p[data->index + index]);
     c = (char)data->p[data->index + index];
     if (c < 32 || c > 127) c = -1;
@@ -104,9 +104,9 @@ static Boolean binaryGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, v
 
   switch (cmd) {
     case formGadgetDrawCmd:
-      for (row = 0, index = 0; row < data->rows; row++) {
+      for (row = 0, index = 0; row < (int)data->rows; row++) {
         printAddr(data, row);
-        for (col = 0; col < data->cols; col++, index++) {
+        for (col = 0; col < (int)data->cols; col++, index++) {
           printByte(data, col, row, data->index + index == data->current);
         }
       }
@@ -130,9 +130,9 @@ static Boolean binaryGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, v
           col = (x - x0) / data->dw;
           row = y / data->fh;
           index = data->index + row * data->cols + col;
-          if (index >= 0 && index < data->size && index != data->current) {
+          if (index >= 0 && index < (int)data->size && index != (int)data->current) {
             printByte(data, col, row, true);
-            if (data->current >= data->index && data->current < data->index + data->cols * data->rows) {
+			if (data->current >= (int)data->index && data->current < (int)data->index + (int)data->cols * (int)data->rows) {
               row = (data->current - data->index) / data->cols;
               col = (data->current - data->index) % data->cols;
               printByte(data, col, row, false);
@@ -167,7 +167,7 @@ static void changeByte(bin_edit_t *data, UInt8 b) {
     data->nibble = 1;
   }
 
-  if (data->nibble == 0 && data->current < data->size - 1) {
+  if (data->nibble == 0 && data->current < (int)data->size - 1) {
     row = (data->current - data->index) / data->cols;
     col = (data->current - data->index) % data->cols;
     printByte(data, col, row, false);
@@ -221,7 +221,7 @@ static Boolean eventHandler(EventType *event) {
 
     case keyDownEvent:
       if (!(event->data.keyDown.modifiers & commandKeyMask)) {
-        c = event->data.keyDown.chr;
+        c = (char)event->data.keyDown.chr;
         if (c >= '0' && c <= '9') {
           changeByte(data, c - '0');
           handled = true;

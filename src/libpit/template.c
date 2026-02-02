@@ -56,7 +56,7 @@ char *template_getscript(template_t *t) {
 
 static int command_get(template_t *t, char *expr, int fd) {
   sys_write(fd, (uint8_t *)"_stream_write(", 14);
-  sys_write(fd, (uint8_t *)expr, sys_strlen(expr));
+  sys_write(fd, (uint8_t *)expr, (int)sys_strlen(expr));
   sys_write(fd, (uint8_t *)")\n", 2);
   return 0;
 }
@@ -65,9 +65,9 @@ static int command_set(template_t *t, char *name, char *expr, int fd) {
   int r = -1;
 
   if (name[0] != '_') {
-    sys_write(fd, (uint8_t *)name, sys_strlen(name));
+    sys_write(fd, (uint8_t *)name, (int)sys_strlen(name));
     sys_write(fd, (uint8_t *)" = ", 3);
-    sys_write(fd, (uint8_t *)expr, sys_strlen(expr));
+    sys_write(fd, (uint8_t *)expr, (int)sys_strlen(expr));
     sys_write(fd, (uint8_t *)"\n", 1);
     r = 0;
 
@@ -80,24 +80,24 @@ static int command_set(template_t *t, char *name, char *expr, int fd) {
 
 static int command_if(template_t *t, char *expr, int fd) {
   sys_write(fd, (uint8_t *)"if ", 3);
-  sys_write(fd, (uint8_t *)expr, sys_strlen(expr));
+  sys_write(fd, (uint8_t *)expr, (int)sys_strlen(expr));
   sys_write(fd, (uint8_t *)" then\n ", 6);
   return 0;
 }
 
 static int command_foreach(template_t *t, char *var, char *name, int fd) {
   sys_write(fd, (uint8_t *)"_it_pos(", 8);
-  sys_write(fd, (uint8_t *)name, sys_strlen(name));
+  sys_write(fd, (uint8_t *)name, (int)sys_strlen(name));
   sys_write(fd, (uint8_t *)", 0)\n", 5);
 
   sys_write(fd, (uint8_t *)"while _it_next(", 15);
-  sys_write(fd, (uint8_t *)name, sys_strlen(name));
+  sys_write(fd, (uint8_t *)name, (int)sys_strlen(name));
   sys_write(fd, (uint8_t *)") do\n", 5);
 
   sys_write(fd, (uint8_t *)"  local ", 8);
-  sys_write(fd, (uint8_t *)var, sys_strlen(var));
+  sys_write(fd, (uint8_t *)var, (int)sys_strlen(var));
   sys_write(fd, (uint8_t *)" = _it_obj(", 11);
-  sys_write(fd, (uint8_t *)name, sys_strlen(name));
+  sys_write(fd, (uint8_t *)name, (int)sys_strlen(name));
   sys_write(fd, (uint8_t *)")\n", 2);
 
   return 0;
@@ -105,14 +105,14 @@ static int command_foreach(template_t *t, char *var, char *name, int fd) {
 
 static int command_while(template_t *t, char *expr, int fd) {
   sys_write(fd, (uint8_t *)"while ", 6);
-  sys_write(fd, (uint8_t *)expr, sys_strlen(expr));
+  sys_write(fd, (uint8_t *)expr, (int)sys_strlen(expr));
   sys_write(fd, (uint8_t *)" do\n", 4);
   return 0;
 }
 
 static int command_leave(template_t *t, char *expr, int fd) {
   sys_write(fd, (uint8_t *)"if ", 3);
-  sys_write(fd, (uint8_t *)expr, sys_strlen(expr));
+  sys_write(fd, (uint8_t *)expr, (int)sys_strlen(expr));
   sys_write(fd, (uint8_t *)" then break end\n ", 16);
   return 0;
 }
@@ -168,7 +168,7 @@ static int command(template_t *t, char *begin, char *end, int fd) {
   char *cmd, *arg[2];
   int n, i;
 
-  n = end - begin - 4;
+  n = (int)(end - begin - 4);
 
   if (n > 0 && n < MAX_COMMAND-1) {
     sys_memset(buf, 0, sizeof(buf));
@@ -245,7 +245,7 @@ int template_compile(template_t *t) {
 
         if ((open_escape - p) > 0) {
           sys_write(fd, (uint8_t *)"_stream_write([[", 16);
-          sys_write(fd, (uint8_t *)p, open_escape - p);
+          sys_write(fd, (uint8_t *)p, (int)(open_escape - p));
           sys_write(fd, (uint8_t *)"]])\n", 4);
         }
 
@@ -265,7 +265,7 @@ int template_compile(template_t *t) {
 
       if (r == 0 && p < t->body + t->bodylen) {
         sys_write(fd, (uint8_t *)"_stream_write([[", 16);
-        sys_write(fd, (uint8_t *)p, t->body + t->bodylen - p);
+        sys_write(fd, (uint8_t *)p, (int)(t->body + t->bodylen - p));
         sys_write(fd, (uint8_t *)"]])\n", 4);
       }
 

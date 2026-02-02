@@ -1,0 +1,34 @@
+/* This file was generated from "notifications.struct". Do not edit. */
+void decode_sysNotifyAppLaunchingEvent(UInt32 buf, SysNotifyAppLaunchOrQuitType *param);
+void encode_sysNotifyAppLaunchingEvent(UInt32 buf, SysNotifyAppLaunchOrQuitType *param);
+void decode_sysNotifyAppQuittingEvent(UInt32 buf, SysNotifyAppLaunchOrQuitType *param);
+void encode_sysNotifyAppQuittingEvent(UInt32 buf, SysNotifyAppLaunchOrQuitType *param);
+void decode_sysNotifyAppCrashedEvent(UInt32 buf, SysNotifyAppLaunchOrQuitType *param);
+void encode_sysNotifyAppCrashedEvent(UInt32 buf, SysNotifyAppLaunchOrQuitType *param);
+void decode_sysNotifyDisplayChangeEvent(UInt32 buf, SysNotifyDisplayChangeDetailsType *param);
+void encode_sysNotifyDisplayChangeEvent(UInt32 buf, SysNotifyDisplayChangeDetailsType *param);
+void decode_sysNotifyDBCreatedEvent(UInt32 buf, SysNotifyDBCreatedType *param);
+void encode_sysNotifyDBCreatedEvent(UInt32 buf, SysNotifyDBCreatedType *param);
+void decode_sysNotifyDBDeletedEvent(UInt32 buf, SysNotifyDBDeletedType *param);
+void encode_sysNotifyDBDeletedEvent(UInt32 buf, SysNotifyDBDeletedType *param);
+void decode_sysNotifyTimeChangeEvent(UInt32 buf, Int32 *param);
+void encode_sysNotifyTimeChangeEvent(UInt32 buf, Int32 *param);
+void decode_sysNotifyGPSDataEvent(UInt32 buf, UInt16 *param);
+void encode_sysNotifyGPSDataEvent(UInt32 buf, UInt16 *param);
+void decode_sysNotifyVolumeMountedEvent(UInt32 buf, VFSAnyMountParamType *param);
+void encode_sysNotifyVolumeMountedEvent(UInt32 buf, VFSAnyMountParamType *param);
+void decode_sysNotifyCardInsertedEvent(UInt32 buf, UInt16 *param);
+void encode_sysNotifyCardInsertedEvent(UInt32 buf, UInt16 *param);
+void decode_sysNotifyCardRemovedEvent(UInt32 buf, UInt16 *param);
+void encode_sysNotifyCardRemovedEvent(UInt32 buf, UInt16 *param);
+void decode_sysNotifyVolumeUnmountedEvent(UInt32 buf, UInt16 *param);
+void encode_sysNotifyVolumeUnmountedEvent(UInt32 buf, UInt16 *param);
+void decode_sysNotifyLocaleChangedEvent(UInt32 buf, SysNotifyLocaleChangedType *param);
+void encode_sysNotifyLocaleChangedEvent(UInt32 buf, SysNotifyLocaleChangedType *param);
+void decode_sysNotifySelectDay(UInt32 buf, SysNotifySelectDayDetailsType *param);
+void encode_sysNotifySelectDay(UInt32 buf, SysNotifySelectDayDetailsType *param);
+void decode_sysNotifySyncFinishEvent(UInt32 buf, void *param);
+void encode_sysNotifySyncFinishEvent(UInt32 buf, void *param);
+
+int decode_notif(UInt32 paramType, UInt32 buf, notif_union_t *param);
+int encode_notif(UInt32 paramType, UInt32 buf, notif_union_t *param);

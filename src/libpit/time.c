@@ -1,8 +1,10 @@
 #include "sys.h"
 
 static int64_t __year_to_secs(int64_t year, int *is_leap) {
-	if (year-2 <= 136) {
-		int y = year;
+	int cycles, centuries, leaps, rem, dummy;
+
+	if (year - 2 <= 136) {
+		int y = (int)year;
 		int leaps = (y-68)>>2;
 		if (!((y-68)&3)) {
 			leaps--;
@@ -11,10 +13,8 @@ static int64_t __year_to_secs(int64_t year, int *is_leap) {
 		return 31536000*(y-70) + 86400*leaps;
 	}
 
-	int cycles, centuries, leaps, rem, dummy;
-
 	if (!is_leap) is_leap = &dummy;
-	cycles = (year-100) / 400;
+	cycles = (int)((year-100) / 400);
 	rem = (year-100) % 400;
 	if (rem < 0) {
 		cycles--;
@@ -109,7 +109,7 @@ static int __secs_to_tm(int64_t t, sys_tm_t *tm) {
 	wday = (3+days)%7;
 	if (wday < 0) wday += 7;
 
-	qc_cycles = days / DAYS_PER_400Y;
+	qc_cycles = (int)(days / DAYS_PER_400Y);
 	remdays = days % DAYS_PER_400Y;
 	if (remdays < 0) {
 		remdays += DAYS_PER_400Y;
@@ -142,7 +142,7 @@ static int __secs_to_tm(int64_t t, sys_tm_t *tm) {
 		years++;
 	}
 
-	tm->tm_year = years + 100;
+	tm->tm_year = (int)(years + 100);
 	tm->tm_mon = months + 2;
 	tm->tm_mday = remdays + 1;
 	tm->tm_wday = wday;
@@ -168,7 +168,7 @@ int sys_timeofday(sys_timeval_t *tv) {
   sys_timespec_t ts;
 
   if (tv && sys_get_clock_ts(&ts) == 0) {
-    tv->tv_sec = ts.tv_sec;
+    tv->tv_sec = (uint32_t)ts.tv_sec;
     tv->tv_usec = (int)ts.tv_nsec / 1000;
   }
 

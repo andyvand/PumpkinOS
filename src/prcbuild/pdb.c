@@ -2,9 +2,18 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
+#ifdef __GNUC__
 #include <unistd.h>
+#endif
+
 #include <time.h>
+
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#include <io.h>
+#endif
 
 #include "pdb.h"
  
@@ -97,16 +106,16 @@ struct recheader_struct {
 */
 
 static int put2b(uint16_t w, uint8_t *buf, int i) {
-  buf[i] = w >> 8;
-  buf[i+1] = w;
+  buf[i] = (uint8_t)(w >> 8);
+  buf[i+1] = (uint8_t)w;
   return 2;
 }
 
 static int put4b(uint32_t w, uint8_t *buf, int i) {
-  buf[i] = w >> 24;
-  buf[i+1] = w >> 16;
-  buf[i+2] = w >> 8;
-  buf[i+3] = w;
+  buf[i] = (uint8_t)(w >> 24);
+  buf[i+1] = (uint8_t)(w >> 16);
+  buf[i+2] = (uint8_t)(w >> 8);
+  buf[i+3] = (uint8_t)w;
   return 4;
 }
 
@@ -126,10 +135,17 @@ pdb_t *pdb_new(char *name, char *type, char *creator) {
   pdb_t *pdb = NULL;
 
   if (name && (pdb = calloc(1, sizeof(pdb_t))) != NULL) {
+#if __STDC_WANT_SECURE_LIB__
+    strncpy_s(pdb->name, 32, name, dmDBNameLength);
+    strncpy_s(pdb->type, 8, type, 4);
+    strncpy_s(pdb->creator, 8, creator, 4);
+#else
     strncpy(pdb->name, name, dmDBNameLength);
     strncpy(pdb->type, type, 4);
     strncpy(pdb->creator, creator, 4);
-    pdb->creationDate = T0 + time(NULL);
+#endif
+
+    pdb->creationDate = (uint32_t)(T0 + time(NULL));
     pdb->modificationDate = pdb->creationDate;
     pdb->numrecs = 0;
   }
@@ -161,7 +177,13 @@ int pdb_add_res(pdb_t *pdb, char *type, uint16_t id, uint32_t size, uint8_t *dat
 
   if (pdb && size && data) {
     res = calloc(1, sizeof(pdb_res_t));
+
+#if __STDC_WANT_SECURE_LIB__
+    strncpy_s(res->type, 8, type, 4);
+#else
     strncpy(res->type, type, 4);
+#endif
+
     res->id = id;
     res->size = size;
     res->data = data;
@@ -172,7 +194,7 @@ int pdb_add_res(pdb_t *pdb, char *type, uint16_t id, uint32_t size, uint8_t *dat
       pdb->lastres->next = res;
       pdb->lastres = res;
     }
-    pdb->modificationDate = T0 + time(NULL);
+    pdb->modificationDate = (uint32_t)(T0 + time(NULL));
     pdb->numrecs++;
     r = 0;
   }
@@ -190,7 +212,13 @@ int pdb_save(pdb_t *pdb, int f) {
 
   if (pdb && f) {
     i = 0;
+
+#if __STDC_WANT_SECURE_LIB__
+	strncpy_s((char *)&pdb->header[i], 78 - i, pdb->name, dmDBNameLength);
+#else
     strncpy((char *)&pdb->header[i], pdb->name, dmDBNameLength);
+#endif
+
     i += dmDBNameLength;
     attr = dmHdrAttrResDB;
     offset = PDB_HEADER + pdb->numrecs * PDB_RESHDR + 2;
@@ -204,37 +232,65 @@ int pdb_save(pdb_t *pdb, int f) {
     i += put4b(0, pdb->header, i);       // appInfoArea
     i += put4b(0, pdb->header, i);      // sortInfoArea
 
+#if __STDC_WANT_SECURE_LIB__
+	strncpy_s((char *)&pdb->header[i], 78 - i, pdb->type, 4);
+#else
     strncpy((char *)&pdb->header[i], pdb->type, 4);
+#endif
     i += 4;
+#if __STDC_WANT_SECURE_LIB__
+    strncpy_s((char *)&pdb->header[i], 78 - i, pdb->creator, 4);
+#else
     strncpy((char *)&pdb->header[i], pdb->creator, 4);
+#endif
     i += 4;
     i += put4b(pdb->unique_id_seed, pdb->header, i); // uniqueIDSeed
     i += put4b(0, pdb->header, i); // nextRecordListID
     i += put2b(pdb->numrecs, pdb->header, i); // numberOfRecords
 
+#ifdef _MSC_VER
+    if (_write(f, pdb->header, PDB_HEADER) != PDB_HEADER) {
+#else
     if (write(f, pdb->header, PDB_HEADER) != PDB_HEADER) {
+#endif
       return -1;
     }
 
     for (j = 0, res = pdb->reslist; j < pdb->numrecs && res; j++, res = res->next) {
       i = 0;
+#if __STDC_WANT_SECURE_LIB__
+      strncpy_s((char *)&buf[i], 10 - i, res->type, 4);
+#else
       strncpy((char *)&buf[i], res->type, 4);
+#endif
       i += 4;
       i += put2b(res->id, buf, i);
       i += put4b(offset, buf, i);
+#ifdef _MSC_VER
+      if (_write(f, buf, PDB_RESHDR) != PDB_RESHDR) {
+#else
       if (write(f, buf, PDB_RESHDR) != PDB_RESHDR) {
+#endif
         return -1;
       }
       offset += res->size;
     }
 
     pad[0] = pad[1] = 0;
+#ifdef _MSC_VER
+    if (_write(f, pad, 2) != 2) {
+#else
     if (write(f, pad, 2) != 2) {
+#endif
       return -1;
     }
 
     for (j = 0, res = pdb->reslist; j < pdb->numrecs && res; j++, res = res->next) {
+#ifdef _MSC_VER
+      if (_write(f, res->data, res->size) != res->size) {
+#else
       if (write(f, res->data, res->size) != res->size) {
+#endif
         return -1;
       }
     }
@@ -255,16 +311,28 @@ int pdb_list(int f) {
   uint16_t id, attr, version;
   uint8_t buf[PDB_RESHDR];
   int i, j, r = -1;
+#if __STDC_WANT_SECURE_LIB__
+  char tmstr[32];
+#endif
 
   if (f) {
     memset(&pdb, 0, sizeof(pdb_t));
+#ifdef _MSC_VER
+    if (_read(f, &pdb.header, PDB_HEADER) != PDB_HEADER) {
+#else
     if (read(f, &pdb.header, PDB_HEADER) != PDB_HEADER) {
+#endif
       fprintf(stderr, "invalid PRC 1\n");
       return -1;
     }
 
     i = 0;
+#if __STDC_WANT_SECURE_LIB__
+    strncpy_s(pdb.name, 32, (char *)&pdb.header[i], dmDBNameLength);
+#else
     strncpy(pdb.name, (char *)&pdb.header[i], dmDBNameLength);
+#endif
+
     for (j = 0; j < dmDBNameLength; j++) {
       if (pdb.name[j] < 32 && pdb.name[j] != 0) {
         fprintf(stderr, "invalid PRC 2 (0x%02X)\n", pdb.name[j]);
@@ -284,9 +352,17 @@ int pdb_list(int f) {
     i += 4; // modificationNumber
     i += 4; // appInfoArea
     i += 4; // sortInfoArea
+#if __STDC_WANT_SECURE_LIB__
+    strncpy_s(pdb.type, 8, (char *)&pdb.header[i], 4);
+#else
     strncpy(pdb.type, (char *)&pdb.header[i], 4);
+#endif
     i += 4;
+#if __STDC_WANT_SECURE_LIB__
+    strncpy_s(pdb.creator, 8, (char *)&pdb.header[i], 4);
+#else
     strncpy(pdb.creator, (char *)&pdb.header[i], 4);
+#endif
     i += 4;
     i += 4; // uniqueIDSeed
     i += 4; // nextRecordListID
@@ -297,27 +373,58 @@ int pdb_list(int f) {
     }
 
     t = pdb.creationDate - T0;
+#if __STDC_WANT_SECURE_LIB__
+    tm = (struct tm *)malloc(sizeof(struct tm));
+
+    if (tm != NULL) {
+      localtime_s(tm, &t);
+      asctime_s(tmstr, 32, tm);
+      free(tm);
+	}
+
+	printf("%s, version %u, created %s\n", pdb.name, version, tmstr);
+#else
     tm = localtime(&t);
-    printf("%s, version %u, created %s\n", pdb.name, version, asctime(tm));
+
+	printf("%s, version %u, created %s\n", pdb.name, version, asctime(tm));
+#endif
+
     offset0 = 0;
 
     for (j = 0; j < pdb.numrecs; j++) {
+#ifdef _MSC_VER
+      if (_read(f, buf, PDB_RESHDR) != PDB_RESHDR) {
+#else
       if (read(f, buf, PDB_RESHDR) != PDB_RESHDR) {
+#endif
         fprintf(stderr, "invalid PRC 5\n");
         return -1;
       }
       i = 0;
+#if __STDC_WANT_SECURE_LIB__
+      strncpy_s(type, 8, (char *)&buf[i], 4);
+#else
       strncpy(type, (char *)&buf[i], 4);
+#endif
       i += 4;
       i += get2b(&id, buf, i);
       i += get4b(&offset, buf, i);
       if (j > 0) printf("%s %5d (%d bytes)\n", res.type, res.id, offset - offset0);
       res.id = id;
+#if __STDC_WANT_SECURE_LIB__
+      strncpy_s(res.type, 8, type, 4);
+#else
       strncpy(res.type, type, 4);
+#endif
       offset0 = offset;
     }
     if (pdb.numrecs) {
+#ifdef _MSC_VER
+      offset = _lseek(f, 0, SEEK_END);
+#else
       offset = lseek(f, 0, SEEK_END);
+#endif
+
       printf("%s %5d (%d bytes)\n", res.type, res.id, offset - offset0);
     }
 

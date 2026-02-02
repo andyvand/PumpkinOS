@@ -466,7 +466,7 @@ static Boolean DeleteRecord (UInt16 recordNum)
 	Boolean archive;
 	//Boolean exception = false;
 	ApptDBRecordType apptRec;
-	ApptDBRecordFlags apptFlags = {};
+	ApptDBRecordFlags apptFlags;
 	RepeatInfoType repeatInfo;
 	DateRangeType dateRange = dateRangeAll;
 	Boolean hasAlarm;
@@ -557,7 +557,7 @@ static Boolean DeleteRecord (UInt16 recordNum)
 			FrmSetControlValue (alert, ctlIndex, SaveBackup);
 
 			alertButton = FrmDoDialog (alert);
-			archive = FrmGetControlValue (alert, ctlIndex);
+			archive = (Boolean)FrmGetControlValue (alert, ctlIndex);
 			FrmDeleteForm (alert);
 
 			if (alertButton == DeleteApptCancel)
@@ -1193,7 +1193,7 @@ Boolean MonthlyRepeatHandleEvent(EventType * event)
 			// first Friday) of the start date of the event.
 			else if (apptRec.repeat->repeatType == repeatMonthlyByDay)
 				{
-				repeat.repeatOn = DayOfMonth (date.month, date.day, date.year + firstYear);
+				repeat.repeatOn = (UInt8)DayOfMonth(date.month, date.day, date.year + firstYear);
 				changedFields.repeat = true;
 
 				// If we're in the fourth week, and the fourth week is also the last
@@ -1310,7 +1310,7 @@ static Boolean PurgeRecords (void)
 
 	buttonHit = FrmDoDialog (alert);
 
-	archive = FrmGetControlValue (alert, ctlIndex);
+	archive = (Boolean)FrmGetControlValue (alert, ctlIndex);
 
 	lst = FrmGetObjectPtr (alert, FrmGetObjectIndex (alert, PurgeRangeList));
 	rangeItem = LstGetSelection (lst);
@@ -1558,8 +1558,8 @@ static void RepeatSetDateTrigger (DateType endDate)
 	else
 		{
 		// Format the end date into a string.
-		DateToDOWDMFormat (endDate.month, 
-						 		 endDate.day, 
+		DateToDOWDMFormat((UInt8)endDate.month,
+								 (UInt8)endDate.day,
 						 		 endDate.year + firstYear, 
 						 		 ShortDateFormat, label);
 
@@ -1636,7 +1636,7 @@ static void RepeatGetUIValues (FormPtr frm, RepeatInfoPtr repeatP)
 	else freq = 0;
 	
 	if (freq)
-		repeatP->repeatFrequency = freq;
+		repeatP->repeatFrequency = (UInt8)freq;
 	else
 		repeatP->repeatFrequency = 1;
 
@@ -1650,7 +1650,7 @@ static void RepeatGetUIValues (FormPtr frm, RepeatInfoPtr repeatP)
 		if (details->repeat.repeatType == repeatWeekly)
 			repeatP->repeatStartOfWeek = details->repeat.repeatStartOfWeek;
 		else		
-			repeatP->repeatStartOfWeek = StartDayOfWeek;
+			repeatP->repeatStartOfWeek = (UInt8)StartDayOfWeek;
 		}
 
 	// For all other repeat types, the repeatStartOfWeek field is meaningless.
@@ -1679,7 +1679,7 @@ static void RepeatGetUIValues (FormPtr frm, RepeatInfoPtr repeatP)
 		if (details->repeat.repeatType == repeatMonthlyByDay)
 			repeatP->repeatOn = details->repeat.repeatOn;
 		else
-			repeatP->repeatOn = DayOfMonth (details->when.date.month,
+			repeatP->repeatOn = (UInt8)DayOfMonth(details->when.date.month,
 				details->when.date.day,
 				details->when.date.year + firstYear);
 		}
@@ -2271,7 +2271,7 @@ static void RepeatChangeType (EventType* event)
 
 		repeat.repeatFrequency = defaultRepeatFrequency;
 		
-		repeat.repeatStartOfWeek = StartDayOfWeek;
+		repeat.repeatStartOfWeek = (UInt8)StartDayOfWeek;
 		
 		if (newType == repeatWeekly)
 			{
@@ -2282,7 +2282,7 @@ static void RepeatChangeType (EventType* event)
 			}
 		else if (newType == repeatMonthlyByDay)
 			{
-			repeat.repeatOn = DayOfMonth (details->when.date.month, 
+			repeat.repeatOn = (UInt8)DayOfMonth(details->when.date.month,
 				details->when.date.day,
 				details->when.date.year + firstYear);
 			}
@@ -3034,7 +3034,7 @@ static void DetailsSelectDate (DetailsPtr details)
 		// Set the label of the date selector.
 		ctl = GetObjectPtr (DetailsDateSelector);
 		label = (Char *)CtlGetLabel (ctl);	// OK to cast; we call CtlSetLabel
-		DateToDOWDMFormat (month, day, year, ShortDateFormat, label);
+		DateToDOWDMFormat((UInt8)month, (UInt8)day, year, ShortDateFormat, label);
 		CtlSetLabel (ctl, label);
 
 		// Return the date selected.
@@ -3047,7 +3047,7 @@ static void DetailsSelectDate (DetailsPtr details)
 		// month the event repeats on.
 		if (details->repeat.repeatType == repeatMonthlyByDay)
 			{
-			details->repeat.repeatOn = DayOfMonth (month, day, year);
+			details->repeat.repeatOn = (UInt8)DayOfMonth(month, day, year);
 			}
 		}
 
@@ -3149,7 +3149,7 @@ static Boolean DetailsGet (DetailsPtr details)
 		details->alarm.advance = apptNoAlarm;		// no alarm is set
 
 	// Get the private setting.
-	details->secret = CtlGetValue (GetObjectPtr (DetailsPrivateCheckbox));
+	details->secret = (Boolean)CtlGetValue (GetObjectPtr (DetailsPrivateCheckbox));
 	
 	return(true);
 }
@@ -3540,7 +3540,7 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 			
 			}
 
-		details->repeat.repeatOn = repeatOn;
+		details->repeat.repeatOn = (UInt8)repeatOn;
 		newRec.repeat = &details->repeat;
 		changedFields.repeat = true;
 		}
@@ -3765,7 +3765,7 @@ static DetailsPtr DetailsInit (void)
 	// Set the start date selector label.
 	ctl = GetObjectPtr (DetailsDateSelector);
 	label = (Char *)CtlGetLabel (ctl);	// OK to cast; we call CtlSetLabel
-	DateToDOWDMFormat (details->when.date.month, details->when.date.day, 
+	DateToDOWDMFormat((UInt8)details->when.date.month, (UInt8)details->when.date.day,
 		details->when.date.year + firstYear, ShortDateFormat, label);
 	CtlSetLabel (ctl, label);
 
@@ -4053,7 +4053,7 @@ Boolean DetailsHandleEvent (EventType* event)
 	maxWidth = formWidth - 8;
 	
 	linefeedP = StrChr (desc, linefeedChr);
-	descLen = (linefeedP == NULL ? StrLen (desc) : linefeedP - desc);
+	descLen = (linefeedP == NULL ? (UInt16)StrLen(desc) : (UInt16)(linefeedP - desc));
 	ellipsisWidth = 0;
 			
 	#if WRISTPDA
@@ -4278,7 +4278,7 @@ static void NoteViewLoadRecord (void)
 	// The field object will edit the note in place, its is not copied
 	// to the dynamic heap.
 	ptr = MemHandleLock(recordH);
-	offset = apptRec.note - ptr;
+	offset = (UInt16)(apptRec.note - ptr);
 	FldSetText (fld, recordH, offset, StrLen(apptRec.note)+1);
 	
 	MemHandleUnlock (recordH);
@@ -5072,8 +5072,8 @@ static void DayViewSetTopAppointment (void)
 	// If the current date is today, then the top visible appointment is
 	// the appointment with the greatest end time that is before the 
 	// current time.
-	time.hours = dateTime.hour;
-	time.minutes = dateTime.minute;
+	time.hours = (UInt8)dateTime.hour;
+	time.minutes = (UInt8)dateTime.minute;
 	
 	appts = MemHandleLock (ApptsH);
 	for (i = 0; i < NumAppts; i++)
@@ -5768,7 +5768,7 @@ static Err DayViewGetDescription (void * table, Int16 row, Int16 column,
 		}
 	
 	recordP = MemHandleLock(recordH);
-	*textOffset = apptRec.description - recordP;
+	*textOffset = (Int16)(apptRec.description - recordP);
 	*textAllocSize = StrLen (apptRec.description) + 1;  // one for null terminator
 	*textH = recordH;
 	MemHandleUnlock (recordH);
@@ -6605,7 +6605,7 @@ static void DayViewLayoutDay (Boolean retieve)
 			}
 		
 		// Add empty time slots to the list of appointment until the table is full.
-		next.hours = DayStartHour;
+		next.hours = (UInt8)DayStartHour;
 		next.minutes = 0;
 		i = 0;
 
@@ -6730,7 +6730,7 @@ static Boolean DayViewNewAppointment (EventType* event)
 		// Convert lower case alpha character to upper-case.
 		else
 			{
-			desc[0] = event->data.keyDown.chr;
+			desc[0] = (Char)event->data.keyDown.chr;
 			desc[1] = 0;
 			if ((UInt8)desc[0] >= 'a' && (UInt8)desc[0] <= 'z')
 				desc[0] -= ('a' - 'A');
@@ -7343,7 +7343,7 @@ static void DayViewItemSelected (EventType* event)
 		
 		// If an empty time slot has been selected then create a 
 		// new appointment.
-		uniqueID = TblGetRowData (table, event->data.tblEnter.row);
+		uniqueID = (UInt32)TblGetRowData (table, event->data.tblEnter.row);
 		if (uniqueID == 0)
 			{
 			// If we have reached the maximum number of displayable event, then
@@ -7563,7 +7563,7 @@ static void DayViewSetTitle(FormType* frmP)
 	
 	templateH = DmGetResource(strRsc, DayViewFirstTitleTemplateStrID + dateFormatIndex);
 	templateP = (Char*)MemHandleLock(templateH);
-	DateTemplateToAscii(templateP, Date.month, Date.day, (Date.year+firstYear), title, sizeof(title) - 1);
+	DateTemplateToAscii(templateP, (UInt8)Date.month, (UInt8)Date.day, (Date.year + firstYear), title, sizeof(title) - 1);
 	MemHandleUnlock(templateH);
 
 	FrmCopyTitle (frmP, title);
@@ -7632,7 +7632,7 @@ static void DayViewShowTime (void)
 	DateTimeType 	dateTime;
 
 	TimSecondsToDateTime (TimGetSeconds (), &dateTime);
-	TimeToAscii (dateTime.hour, dateTime.minute, TimeFormat, title);
+	TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, TimeFormat, title);
 	FrmCopyTitle (FrmGetActiveForm (), title);
 	
 	TimeDisplayed = true;

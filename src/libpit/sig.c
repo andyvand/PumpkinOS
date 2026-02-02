@@ -7,6 +7,7 @@
 
 static void sig_set_finish(char *sig, int status) {
   debug(DEBUG_INFO, "SIGNAL", "received signal %s", sig);
+
   sys_set_finish(status);
 }
 
@@ -23,12 +24,16 @@ static void sig_set_fault(char *sig) {
 
 static void signal_handler(int s) {
   switch (s) {
+#ifdef SIGINT
     case SIGINT:
       sig_set_finish("SIGINT", STATUS_SUCCESS);
       break;
+#endif
+#ifdef SIGTERM
     case SIGTERM:
       sig_set_finish("SIGTERM", STATUS_SUCCESS);
       break;
+#endif
 #ifdef SIGQUIT
     case SIGQUIT:
       sig_set_finish("SIGQUIT", STATUS_FAULT);
@@ -73,7 +78,9 @@ static void signal_handler(int s) {
 }
 
 void signal_install_handlers(void) {
+#ifdef SIGINT
   sys_install_handler(SIGINT,  signal_handler);
+#endif
   sys_install_handler(SIGTERM, signal_handler);
 #ifdef SIGQUIT
   sys_install_handler(SIGQUIT, signal_handler);

@@ -48,7 +48,7 @@
 typedef intptr_t p_int;
 //#endif
 
-#ifndef strdup
+#if !defined(strdup) && !defined(_MSC_VER)
 char *strdup(const char *s);
 #endif
 

@@ -529,7 +529,7 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
       return;
     }
     case LUA_TLNGSTR: {
-      setivalue(ra, tsvalue(rb)->u.lnglen);
+      setivalue(ra, (lua_Integer)tsvalue(rb)->u.lnglen);
       return;
     }
     default: {  /* try metamethod */

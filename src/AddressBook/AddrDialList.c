@@ -204,7 +204,7 @@ Boolean DialListShowDialog( UInt16 recordIndex, UInt16 phoneIndex, UInt16 lineIn
 
 				// If a line feed is found
 				if (next)
-					length = next - text;
+					length = (Int16)(next - text);
 				else
 					length = StrLen(text);
 
@@ -531,7 +531,7 @@ Char* PrvDialListAllocStringFrom( const Char* s1, const Char* s2, const Char* s3
 		tmpStr = StrChr(string, chrLineFeed);
 		if (tmpStr)
 		{
-			length1 = tmpStr - string;
+			length1 = (Int16)(tmpStr - string);
 			string[length1] = chrNull;
 			// Shrink so it can't fail
 			MemPtrResize(string, length1 + 1);

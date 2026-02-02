@@ -121,7 +121,10 @@ static double perpendicular_distance(PointType *p, PointType *p1, PointType *p2)
 static int simplify_points(PointType *points, int n, double epsilon, PointType *dest, int destlen) {
   double max_dist = 0;
   int index = 0;
-  for (int i = 1; i + 1 < n; ++i) {
+  int i = 0;
+  int n2 = 0;
+
+  for (i = 1; i + 1 < n; ++i) {
     double dist = perpendicular_distance(&points[i], &points[0], &points[n - 1]);
     if (dist > max_dist) {
       max_dist = dist;
@@ -137,7 +140,7 @@ static int simplify_points(PointType *points, int n, double epsilon, PointType *
     } else {
       destlen = 0;
     }
-    int n2 = simplify_points(points + index, n - index, epsilon, dest, destlen);
+    n2 = simplify_points(points + index, n - index, epsilon, dest, destlen);
 
     return n1 + n2 - 1;
   }

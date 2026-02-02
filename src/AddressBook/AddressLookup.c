@@ -579,10 +579,10 @@ void PrvLookupViewInit (LookupVariablesPtr vars)
  ***********************************************************************/
 void PrvLookupDrawRecordFields(LookupVariablesPtr vars, AddrDBRecordPtr record, Int16 field, RectanglePtr bounds, Char * phoneLabelLetters)
 {
-	Char * name1;
-	Char * name2;
-	Char * field1;
-	Char * field2;
+	Char * name1 = NULL;
+	Char * name2 = NULL;
+	Char * field1 = NULL;
+	Char * field2 = NULL;
 	Int16 x;
 	Int16 y;
 	Int16 field1Length;
@@ -1651,7 +1651,7 @@ MemHandle PrvLookupCreateResultString (LookupVariablesPtr vars, UInt16 recordNum
 		// Copy the next chunk (the string until a '^' or '\0'
 		nextFieldP = StrChr(formatStringP, '^');
 		if (nextFieldP)
-			nextChunkSize = nextFieldP - formatStringP;
+			nextChunkSize = (Int16)(nextFieldP - formatStringP);
 		else
 			nextChunkSize = StrLen(formatStringP);
 

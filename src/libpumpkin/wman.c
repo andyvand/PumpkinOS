@@ -88,6 +88,16 @@ static int intersects(rect_t *a, rect_t *b) {
 
 static int difference(rect_t *a, rect_t *b, rect_t *r) {
   int rectCount = 0;
+  int raHeight = 0;
+  int rbY = 0;
+  int rbHeight = 0;
+  int rectAYH = 0;
+  int y1 = 0;
+  int y2 = 0;
+  int rcHeight = 0;
+  int rcWidth = 0;
+  int rbX = 0;
+  int rdWidth = 0;
 
   if (contains(b, a)) {
     return 0;
@@ -99,7 +109,7 @@ static int difference(rect_t *a, rect_t *b, rect_t *r) {
   }
 
   // compute the top rectangle
-  int raHeight = b->y - a->y;
+  raHeight = b->y - a->y;
   if (raHeight > 0) {
     r[rectCount].x = a->x;
     r[rectCount].y = a->y;
@@ -109,8 +119,8 @@ static int difference(rect_t *a, rect_t *b, rect_t *r) {
   }
 
   // compute the bottom rectangle
-  int rbY = b->y + b->height;
-  int rbHeight = a->height - (rbY - a->y);
+  rbY = b->y + b->height;
+  rbHeight = a->height - (rbY - a->y);
   if (rbHeight > 0 && rbY < a->y + a->height) {
     r[rectCount].x = a->x;
     r[rectCount].y = rbY;
@@ -119,13 +129,13 @@ static int difference(rect_t *a, rect_t *b, rect_t *r) {
     rectCount++;
   }
 
-  int rectAYH = a->y+a->height;
-  int y1 = b->y > a->y ? b->y : a->y;
-  int y2 = rbY < rectAYH ? rbY : rectAYH;
-  int rcHeight = y2 - y1;
+  rectAYH = a->y+a->height;
+  y1 = b->y > a->y ? b->y : a->y;
+  y2 = rbY < rectAYH ? rbY : rectAYH;
+  rcHeight = y2 - y1;
 
   // compute the left rectangle
-  int rcWidth = b->x - a->x;
+  rcWidth = b->x - a->x;
   if (rcWidth > 0 && rcHeight > 0) {
     r[rectCount].x = a->x;
     r[rectCount].y = y1;
@@ -135,8 +145,8 @@ static int difference(rect_t *a, rect_t *b, rect_t *r) {
   }
 
   // compute the right rectangle
-  int rbX = b->x + b->width;
-  int rdWidth = a->width - (rbX - a->x);
+  rbX = b->x + b->width;
+  rdWidth = a->width - (rbX - a->x);
   if (rdWidth > 0) {
     r[rectCount].x = rbX;
     r[rectCount].y = y1;

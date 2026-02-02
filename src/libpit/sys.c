@@ -9,15 +9,36 @@
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <winnls.h>
+#include <wchar.h>
+#include <io.h>
+#include <stdio.h>
+
+#ifdef _MSC_VER
+#include "../winpthreads/misc.h"
+#endif
+
+#ifndef _WIN32_WCE
 #include <dbghelp.h>
+#else
+#include <process.h>
+#endif
+
 #define _WINSOCK2API_
 #include <stdio.h>
+
+#ifdef __GNUC__
 #include <unistd.h>
+#endif
+
 #include <time.h>
 #include <pthread.h>
 #include <signal.h>
 #include <errno.h>
+
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #else
@@ -65,17 +86,37 @@
 #include "ff.h"
 #include "bcm2835.h"
 #include "qsort.h"
+#endif
+
+#if defined(KERNEL) || defined(_WIN32_WCE)
 #include "vsnprintf.h"
 #include "vsscanf.h"
 #endif
 
 #define EN_US "en_US"
 
+#ifndef S_ISREG
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#endif
+
+#ifndef S_ISDIR
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
+#ifndef S_IWUSR 
+#define S_IWUSR 0
+#endif
+
+#ifndef S_IRUSR
+#define S_IRUSR 0
+#endif
+
 struct sys_dir_t {
 #if defined(WINDOWS)
   int first;
   HANDLE handle;
-  WIN32_FIND_DATA ffd;
+  WIN32_FIND_DATAA ffd;
+  WIN32_FIND_DATAW ffdw;
   char buf[FILE_PATH];
 #elif defined(KERNEL)
   DIR dir;
@@ -425,16 +466,97 @@ static int fd_write(fd_t *f, uint8_t *buf, int n) {
 void sys_usleep(uint32_t us) {
 #if defined(KERNEL) && defined(RPI)
   bcm2835_delayMicroseconds(us);
+#elif defined(WINDOWS)
+  Sleep(us);
 #else
   usleep(us);
 #endif
 }
 
+int sys_setenv(char *name, char *value) {
+#if defined(_WIN32_WCE) // Use the registry for windows CE
+	WCHAR szBuf[MAX_PATH];
+	WCHAR nameW[MAX_PATH];
+	WCHAR valueW[MAX_PATH];
+	HKEY hKey = NULL;
+	DWORD dwType = REG_SZ;
+	DWORD dwSize = sizeof(szBuf);
+	DWORD dwDisp = 0;
+#if __STDC_WANT_SECURE_LIB__
+	size_t valuelen = 0;
+	size_t namelen = 0;
+	mbstowcs_s(&namelen, nameW, MAX_PATH, name, MAX_PATH);
+	mbstowcs_s(&valuelen, valueW, MAX_PATH, value, MAX_PATH);
+#else
+	mbstowcs(nameW, name, MAX_PATH);
+	mbstowcs(valueW, value, MAX_PATH);
+#endif
+
+	if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\PumpkinOS", 0, KEY_WRITE, &hKey) == ERROR_SUCCESS) {
+	  RegSetValueExW(HKEY_LOCAL_MACHINE, nameW, 0, dwType, (LPBYTE)valueW, dwSize);
+  	  RegCloseKey(hKey);
+	} else {
+	  if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, L"Software\\PumpkinOS", 0, NULL, 0, KEY_READ | KEY_WRITE, NULL, &hKey, &dwDisp) == ERROR_SUCCESS) {
+		RegSetValueExW(HKEY_LOCAL_MACHINE, nameW, 0, dwType, (LPBYTE)valueW, dwSize);
+		RegCloseKey(hKey);
+	  } else {
+		return -1;
+	  }
+	}
+
+	return 0;
+#elif defined(KERNEL) || defined(WINDOWS)
+	(void)name;
+	(void)value;
+
+	return 0;
+#else
+	return setenv(name, value, 1);
+#endif
+}
+
 char *sys_getenv(char *name) {
-#if defined(KERNEL)
+#if defined(_WIN32_WCE) // Use the registry for windows CE
+  WCHAR szBuf[MAX_PATH];
+  WCHAR nameW[MAX_PATH];
+  char value[MAX_PATH] = { 0 };
+  HKEY hKey = NULL;
+  DWORD dwType = REG_SZ;
+  DWORD dwSize = sizeof(szBuf);
+#if __STDC_WANT_SECURE_LIB__
+  size_t namelen = 0;
+#endif
+
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&namelen, nameW, MAX_PATH, name, strlen(name) + 1);
+#else
+  mbstowcs(nameW, name, MAX_PATH);
+#endif
+
+  if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\PumpkinOS", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+	if (RegQueryValueExW(hKey, nameW, NULL, &dwType, (LPBYTE)szBuf, &dwSize) == ERROR_SUCCESS) {
+#if __STDC_WANT_SECURE_LIB__
+      wcstombs_s(&namelen, value, MAX_PATH, szBuf, MAX_PATH);
+#else
+      wcstombs(value, szBuf, MAX_PATH);
+#endif
+	}
+
+	RegCloseKey(hKey);
+  }
+
+  return sys_strdup(value);
+#elif defined(KERNEL)
   return NULL;
 #else
+#if __STDC_WANT_SECURE_LIB__
+  char *ret = NULL;
+  size_t retsz = 0;
+  _dupenv_s(&ret, &retsz, name);
+  return ret;
+#else
   return getenv(name);
+#endif
 #endif
 }
 
@@ -449,7 +571,22 @@ Optionally, a dot . follows the name of the character encoding such as UTF-8, or
 int sys_country(char *country, int len) {
   int r = -1;
 
-#if defined(WINDOWS)
+#if defined(_WIN32_WCE)
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+  // Windows CE gebruikt GetLocaleInfoW met LCTYPE LOCALE_SISO3166CTRYNAME
+  WCHAR wBuf[4]; // ISO codes zijn 2 tekens + null
+  if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, wBuf, 4)) {
+	  // Converteer Unicode naar MultiByte (char)
+#if __STDC_WANT_SECURE_LIB__
+	  wcstombs_s(&buflen, country, len, wBuf, 4);
+#else
+	  wcstombs(country, wBuf, len);
+#endif
+	  r = 0;
+  }
+#elif defined(WINDOWS)
   char buf[32];
   GEOID myGEO = GetUserGeoID(GEOCLASS_NATION);
   if (GetGeoInfoA(myGEO, GEO_ISO2, buf, sizeof(buf), 0)) {
@@ -483,14 +620,28 @@ int sys_language(char *language, int len) {
 
 #if defined(WINDOWS)
   char buf[32];
+  WCHAR wbuf[32];
   LCID lcid = GetUserDefaultLCID();
-  if (GetLocaleInfoA(lcid, LOCALE_SISO639LANGNAME, buf, sizeof(buf))) {
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+  if (GetLocaleInfoW(lcid, LOCALE_SISO639LANGNAME, wbuf, 32)) {
     // 2 letter country code
+#if __STDC_WANT_SECURE_LIB__
+	wcstombs_s(&buflen, buf, 32, wbuf, 32);
+#else
+	wcstombs(buf, wbuf, 32);
+#endif
     sys_strncpy(language, buf, len-1);
     r = 0;
-  } else if (GetLocaleInfoA(lcid, LOCALE_SISO639LANGNAME2, buf, sizeof(buf))) {
+  } else if (GetLocaleInfoW(lcid, LOCALE_SISO639LANGNAME2, wbuf, 32)) {
     // 3 letter country code
-    sys_strncpy(language, buf, len-1);
+#if __STDC_WANT_SECURE_LIB__
+	wcstombs_s(&buflen, buf, 32, wbuf, 32);
+#else
+	wcstombs(buf, wbuf, 32);
+#endif
+	sys_strncpy(language, buf, len - 1);
     r = 0;
   }
 #else
@@ -517,8 +668,10 @@ int sys_language(char *language, int len) {
 }
 
 uint32_t sys_get_pid(void) {
-#if KERNEL
+#if defined(KERNEL)
   return 0;
+#elif defined(WINDOWS)
+  return (uint32_t)GetCurrentProcessId();
 #else
   return getpid();
 #endif
@@ -526,7 +679,7 @@ uint32_t sys_get_pid(void) {
 
 uint32_t sys_get_tid(void) {
 #if defined(WINDOWS)
-  return GetCurrentThreadId();
+  return (uint32_t)GetCurrentThreadId();
 #endif
 #if defined(LINUX)
   return syscall(SYS_gettid);
@@ -560,9 +713,20 @@ void sys_strerror(int err, char *msg, int len) {
   msg[0] = 0;
 #elif defined(WINDOWS)
   int i;
+  WCHAR *wmsg = (WCHAR *)sys_malloc((len + 1) * sizeof(WCHAR));
+#if __STDC_WANT_SECURE_LIB__
+  size_t msglen = 0;
+#endif
 
   msg[0] = 0;
-  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, msg, len-1, NULL);
+  FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, wmsg, len-1, NULL);
+
+#if __STDC_WANT_SECURE_LIB__
+  wcstombs_s(&msglen, msg, len, wmsg, len);
+#else
+  wcstombs(msg, wmsg, len);
+#endif
+
   for (i = 0; msg[i]; i++) {
     if (msg[i] == '\r' || msg[i] == '\n') msg[i] = ' ';
   }
@@ -583,13 +747,20 @@ static void normalize_path(const char *src, char *dst, int len) {
     if (src[i] == '/') dst[i] = FILE_SEP;
     else dst[i] = src[i];
   }
+
   dst[i] = 0;
 }
 #endif
 
 sys_dir_t *sys_opendir(const char *pathname) {
   sys_dir_t *dir;
-
+#ifdef WINDOWS
+  int len = 0;
+  WCHAR wbuf[FILE_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+#endif
   if ((dir = sys_calloc(1, sizeof(sys_dir_t))) == NULL) {
     return NULL;
   }
@@ -603,13 +774,25 @@ sys_dir_t *sys_opendir(const char *pathname) {
 #elif defined(WINDOWS)
   normalize_path(pathname, dir->buf, FILE_PATH);
 
-  int len = sys_strlen(dir->buf);
-  if (len && dir->buf[len-1] == FILE_SEP) {
+  len = (int)sys_strlen(dir->buf);
+
+  if (len && dir->buf[len - 2] == FILE_SEP && dir->buf[len - 1] == FILE_SEP) {
+    dir->buf[len - 1] = 0;
+	len--;
+  }
+
+  if (len && dir->buf[len - 1] == FILE_SEP) {
     dir->buf[len] = '*';
     dir->buf[len+1] = 0;
   }
   dir->first = 1;
-  dir->handle = FindFirstFile(dir->buf, &dir->ffd);
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, FILE_PATH, dir->buf, FILE_PATH);
+#else
+  mbstowcs(wbuf, dir->buf, FILE_PATH);
+#endif
+
+  dir->handle = FindFirstFileW(wbuf, &dir->ffdw);
   if (dir->handle == INVALID_HANDLE_VALUE) {
     debug_errno("SYS", "FindFirstFile(\"%s\")", dir->buf);
     sys_free(dir);
@@ -629,12 +812,19 @@ sys_dir_t *sys_opendir(const char *pathname) {
 
 int sys_readdir(sys_dir_t *dir, char *name, int len) {
 #if defined(WINDOWS)
+#if __STDC_WANT_SECURE_LIB__
+  size_t namelen = 0;
+#endif
   if (dir->first) {
     dir->first = 0;
   } else {
-    if (!FindNextFile(dir->handle, &dir->ffd)) return -1;
+    if (!FindNextFileW(dir->handle, &dir->ffdw)) return -1;
   }
-  sys_strncpy(name, dir->ffd.cFileName, len);
+#if __STDC_WANT_SECURE_LIB__
+  wcstombs_s(&namelen, name, len, dir->ffdw.cFileName, sizeof(dir->ffdw.cFileName) / sizeof(WCHAR));
+#else
+  wcstombs(name, dir->ffdw.cFileName, len);
+#endif
 #elif defined(KERNEL)
   FILINFO fno;
   if (f_readdir(&dir->dir, &fno) != FR_OK) {
@@ -661,12 +851,24 @@ int sys_readdir(sys_dir_t *dir, char *name, int len) {
 
 int sys_rewinddir(sys_dir_t *dir) {
   int r = -1;
+#if defined(WINDOWS)
+  WCHAR wbuf[FILE_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+#endif
 
   if (dir) {
 #if defined(WINDOWS)
     if (dir->handle != INVALID_HANDLE_VALUE) {
       FindClose(dir->handle);
-      dir->handle = FindFirstFile(dir->buf, &dir->ffd);
+#if __STDC_WANT_SECURE_LIB__
+	  mbstowcs_s(&buflen, wbuf, FILE_PATH, dir->buf, sizeof(dir->buf));
+#else
+	  mbstowcs(wbuf, dir->buf, sizeof(dir->buf));
+#endif
+
+      dir->handle = FindFirstFileW(wbuf, &dir->ffdw);
       if (dir->handle == INVALID_HANDLE_VALUE) {
         debug_errno("SYS", "FindFirstFile(\"%s\")", dir->buf);
       } else {
@@ -701,36 +903,111 @@ int sys_closedir(sys_dir_t *dir) {
   return r;
 }
 
-int sys_chdir(char *path) {
-  char buf[FILE_PATH];
-  int r = -1;
-
-  if (path) {
-#if defined(WINDOWS)
-    normalize_path(path, buf, FILE_PATH);
-    r = chdir(buf);
-#elif defined(KERNEL)
-    sys_strncpy(buf, path, FILE_PATH);
-    r = f_chdir(buf) == FR_OK ? 0 : -1;
-#else
-    sys_strncpy(buf, path, FILE_PATH);
-    r = chdir(buf);
+#ifdef _WIN32_WCE
+char pathdir[FILE_PATH] = { 0 };
 #endif
-  }
 
-  return r;
+int sys_chdir(char *path) {
+#ifdef _WIN32_WCE
+	sys_strncpy(pathdir, path, FILE_PATH);
+	return 0;
+#else
+	int r = -1;
+	char buf[FILE_PATH];
+#ifdef WINDOWS
+#if __STDC_WANT_SECURE_LIB__
+	size_t pathlen = FILE_PATH;
+#endif
+	WCHAR wpathdir[FILE_PATH];
+	normalize_path(path, buf, FILE_PATH);
+
+#if __STDC_WANT_SECURE_LIB__
+	mbstowcs_s(&pathlen, wpathdir, FILE_PATH, buf, FILE_PATH);
+#else
+	mbstowcs(wpathdir, buf, FILE_PATH);
+#endif
+#endif
+
+	if (path) {
+#if defined(WINDOWS)
+		r = (SetCurrentDirectoryW(wpathdir) == FALSE);
+
+#if __STDC_WANT_SECURE_LIB__
+		wcstombs_s(&pathlen, path, FILE_PATH, wpathdir, FILE_PATH);
+#else
+		wcstombs(path, wpathdir, FILE_PATH);
+#endif
+#elif defined(KERNEL)
+		sys_strncpy(buf, path, FILE_PATH);
+		r = f_chdir(buf) == FR_OK ? 0 : -1;
+#else
+		sys_strncpy(buf, path, FILE_PATH);
+		r = chdir(buf);
+#endif
+}
+
+#if defined(WINDOWS)
+	return r ? -1 : 0;
+#else
+	return r;
+#endif
+#endif
 }
 
 int sys_getcwd(char *buf, int len) {
-  int r;
-
-#if defined(KERNEL)
-  r = f_getcwd(buf, len) == FR_OK;
-#else
-  r = getcwd(buf, len) ? 0 : -1;
+#ifdef _WIN32_WCE
+	WCHAR szFullPath[FILE_PATH];
+	WCHAR *lastBackslash = NULL;
+#if __STDC_WANT_SECURE_LIB__
+	size_t pathlen = FILE_PATH;
 #endif
 
-  return r;
+	if (pathdir[0] == 0) {
+		GetModuleFileNameW(NULL, szFullPath, FILE_PATH);
+
+		// Verwijder de filenaam om de map over te houden
+		lastBackslash = wcsrchr(szFullPath, L'\\');
+		if (lastBackslash) *lastBackslash = L'\0';
+
+#if __STDC_WANT_SECURE_LIB__
+		wcstombs_s(&pathlen, pathdir, FILE_PATH, szFullPath, FILE_PATH);
+#else
+		wcstombs(buf, pathdir, FILE_PATH);
+#endif
+	}
+
+	sys_strncpy(buf, pathdir, len);
+
+	return 0;
+#else
+#ifdef WINDOWS
+	WCHAR szFullPath[FILE_PATH];
+#if __STDC_WANT_SECURE_LIB__
+	size_t pathlen = FILE_PATH;
+#endif
+	int r = 0;
+
+	r = (GetCurrentDirectoryW(FILE_PATH, szFullPath) == 0);
+
+#if __STDC_WANT_SECURE_LIB__
+	wcstombs_s(&pathlen, buf, len, szFullPath, FILE_PATH);
+#else
+	wcstombs(buf, szFullPath, len);
+#endif
+
+	return r ? -1 : 0;
+#else
+	int r;
+
+#if defined(KERNEL)
+	r = f_getcwd(buf, len) == FR_OK;
+#else
+	r = getcwd(buf, len) ? 0 : -1;
+#endif
+
+	return r;
+#endif
+#endif
 }
 
 int sys_open(const char *pathname, int flags) {
@@ -738,9 +1015,13 @@ int sys_open(const char *pathname, int flags) {
 
 #if defined(WINDOWS)
   char buf[FILE_PATH];
+  WCHAR wbuf[FILE_PATH];
   HANDLE handle;
   DWORD access = 0;
   DWORD disposition = OPEN_EXISTING;
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
 
   if (flags & SYS_READ)  access |= GENERIC_READ;
   if (flags & SYS_WRITE) access |= GENERIC_WRITE;
@@ -748,7 +1029,13 @@ int sys_open(const char *pathname, int flags) {
 
   normalize_path(pathname, buf, FILE_PATH);
 
-  handle = CreateFile(buf, access, 0, 0, disposition, FILE_ATTRIBUTE_NORMAL, 0);
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, FILE_PATH, buf, FILE_PATH);
+#else
+  mbstowcs(wbuf, buf, FILE_PATH);
+#endif
+
+  handle = CreateFileW(wbuf, access, 0, 0, disposition, FILE_ATTRIBUTE_NORMAL, 0);
   if (handle == INVALID_HANDLE_VALUE) {
     debug_errno("SYS", "sys_open CreateFile(\"%s\", 0x%08X)", buf, flags);
     return -1;
@@ -801,9 +1088,13 @@ int sys_create(const char *pathname, int flags, uint32_t mode) {
 
 #if defined(WINDOWS)
   char buf[FILE_PATH];
+  WCHAR wbuf[FILE_PATH];
   HANDLE handle;
   DWORD access = 0;
   DWORD disposition = CREATE_NEW;
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
 
   if (flags & SYS_READ)  access |= GENERIC_READ;
   if (flags & SYS_WRITE) access |= GENERIC_WRITE;
@@ -811,7 +1102,13 @@ int sys_create(const char *pathname, int flags, uint32_t mode) {
 
   normalize_path(pathname, buf, FILE_PATH);
 
-  handle = CreateFile(buf, access, 0, 0, disposition, FILE_ATTRIBUTE_NORMAL, 0);
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, FILE_PATH, buf, FILE_PATH);
+#else
+  mbstowcs(wbuf, buf, FILE_PATH);
+#endif
+
+  handle = CreateFileW(wbuf, access, 0, 0, disposition, FILE_ATTRIBUTE_NORMAL, 0);
   if (handle == INVALID_HANDLE_VALUE) {
     debug_errno("SYS", "sys_create CreateFile(\"%s\", 0x%08X)", buf, flags);
     return -1;
@@ -867,7 +1164,9 @@ int sys_select(int fd, uint32_t us) {
   return -1;
 #elif defined(WINDOWS)
   fd_t *f;
+#ifndef _WIN32_WCE
   DWORD available;
+#endif
   int r = -1;
 
   if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
@@ -880,10 +1179,19 @@ int sys_select(int fd, uint32_t us) {
       break;
 
     case FD_PIPE:
-      if (PeekNamedPipe(f->handle, NULL, 0, NULL, &available, NULL)) {
+#ifdef _WIN32_WCE
+	  /* WinCE pipes are emulated via sockets. Use socket_select. */
+	  /* Note: f->handle must contain the SOCKET handle cast to HANDLE */
+	  r = socket_select((SOCKET)f->handle, us, 0);
+#else
+	  if (PeekNamedPipe(f->handle, NULL, 0, NULL, &available, NULL)) {
         r = available > 0 ? 1 : 0;
         if (r == 0 && us > 0) {
+#ifdef WINDOWS
+	      Sleep(us);
+#else
           usleep(us); // XXX always sleeps for us microseconds
+#endif
           if (PeekNamedPipe(f->handle, NULL, 0, NULL, &available, NULL)) {
             r = available > 0 ? 1 : 0;
           } else {
@@ -894,7 +1202,8 @@ int sys_select(int fd, uint32_t us) {
       } else {
         debug_errno("SYS", "PeekNamedPipe (2)");
       }
-      break;
+#endif
+	  break;
 
     case FD_SERIAL:
       // XXX
@@ -1085,13 +1394,14 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
 // return  1, nread > 0: read nread bytes from fd
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
   int r;
+#if defined(WINDOWS)
+  DWORD nbread;
+  fd_t *f;
+#endif
 
   *nread = 0;
 
 #if defined(WINDOWS)
-  DWORD nbread;
-  fd_t *f;
-
   if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
     return -1;
   }
@@ -1155,6 +1465,9 @@ int sys_read(int fd, uint8_t *buf, int len) {
 
 int sys_write(int fd, uint8_t *buf, int len) {
   int i;
+#if defined(WINDOWS) || defined(KERNEL)
+  fd_t *f;
+#endif
 
   if (fd < 0) {
     debug(DEBUG_ERROR, "SYS", "write to fd %d", fd);
@@ -1172,8 +1485,6 @@ int sys_write(int fd, uint8_t *buf, int len) {
   }
 
 #if defined(WINDOWS) || defined(KERNEL)
-  fd_t *f;
-
   if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
     return -1;
   }
@@ -1230,7 +1541,7 @@ int64_t sys_seek(int fd, int64_t offset, sys_seek_t whence) {
 
   if (f->type == FD_FILE) {
     high = offset >> 32;
-    pos = SetFilePointer(f->handle, offset, &high, method);
+    pos = (DWORD)SetFilePointer(f->handle, (LONG)offset, &high, method);
     if (pos != INVALID_SET_FILE_POINTER) {
        r = (((int64_t)high) << 32) | pos;
     } else {
@@ -1316,11 +1627,11 @@ int sys_truncate(int fd, int64_t offset) {
   r = ftruncate(fd, offset);
 #endif
 
-  return r;
+  return (int)r;
 }
 
 int sys_pipe(int *fd) {
-#if defined(WINDOWS)
+#if defined(WINDOWS) && !defined(_WIN32_WCE)
   HANDLE r, w;
   int fd0, fd1;
 
@@ -1346,6 +1657,61 @@ int sys_pipe(int *fd) {
   fd[1] = fd1;
 
   return 0;
+#elif defined(_WIN32_WCE)
+  SOCKET listener = INVALID_SOCKET;
+  SOCKET r = INVALID_SOCKET;
+  SOCKET w = INVALID_SOCKET;
+  struct sockaddr_in addr;
+  int addrlen = sizeof(addr);
+  int fd0, fd1;
+
+  // 1. Create a listener socket on loopback
+  listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (listener == INVALID_SOCKET) return -1;
+
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  addr.sin_port = 0; // Windows CE will assign an ephemeral port
+
+  if (bind(listener, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) goto fail;
+  if (listen(listener, 1) == SOCKET_ERROR) goto fail;
+
+  // Get the port assigned by the OS
+  getsockname(listener, (struct sockaddr*)&addr, &addrlen);
+
+  // 2. Create the "Write" end and connect
+  w = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (w == INVALID_SOCKET) goto fail;
+  if (connect(w, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) goto fail;
+
+  // 3. Accept on the listener to get the "Read" end
+  r = accept(listener, (struct sockaddr*)&addr, &addrlen);
+  if (r == INVALID_SOCKET) goto fail;
+
+  // Listener is no longer needed
+  closesocket(listener);
+
+  // 4. Map sockets to your internal file descriptors
+  // Assuming FD_PIPE or FD_SOCKET is compatible with your fd_open logic
+  if ((fd0 = fd_open(FD_PIPE, (HANDLE)r, NULL, NULL, -1)) == -1) goto fail;
+
+  if ((fd1 = fd_open(FD_PIPE, (HANDLE)w, NULL, NULL, -1)) == -1) {
+    // Cleanup fd0 if fd1 fails
+    ptr_free(fd0, TAG_FD);
+    goto fail;
+  }
+
+  fd[0] = fd0;
+  fd[1] = fd1;
+  return 0;
+
+fail:
+  if (listener != INVALID_SOCKET) closesocket(listener);
+  if (r != INVALID_SOCKET) closesocket(r);
+  if (w != INVALID_SOCKET) closesocket(w);
+
+  return -1;
 #elif defined(KERNEL)
   return -1;
 #else
@@ -1453,9 +1819,13 @@ int sys_fstat(int fd, sys_stat_t *st) {
   return r;
 }
 
+#ifdef _WIN32_WCE
+int __cdecl _stat64(_In_z_ const char * _Name, _Out_ struct _stat64 * _Stat);
+#endif
+
 int sys_stat(const char *pathname, sys_stat_t *st) {
-  char buf[FILE_PATH];
   int r = -1;
+  char buf[FILE_PATH];
 
   if (pathname && st) {
 #if defined(KERNEL)
@@ -1475,15 +1845,26 @@ int sys_stat(const char *pathname, sys_stat_t *st) {
       debug(DEBUG_ERROR, "SYS", "f_stat(\"%s\") failed", buf);
     }
 #else
-    struct stat sb;
 
 #if defined(WINDOWS)
-    normalize_path(pathname, buf, FILE_PATH);
+	struct _stat64 sb;
+	  
+	normalize_path(pathname, buf, FILE_PATH);
+
+	if (buf[strlen(buf) - 1] == FILE_SEP) {
+	  buf[strlen(buf) - 1] = 0;
+	}
 #else
+	struct stat sb;
+
     sys_strncpy(buf, pathname, FILE_PATH);
 #endif
 
+#ifdef WINDOWS
+	if ((r = _stat64(buf, &sb)) == 0) {
+#else
     if ((r = stat(buf, &sb)) == 0) {
+#endif
       st->mode = 0;
       if (S_ISREG(sb.st_mode)) st->mode |= SYS_IFREG;
       if (S_ISDIR(sb.st_mode)) st->mode |= SYS_IFDIR;
@@ -1499,8 +1880,8 @@ int sys_stat(const char *pathname, sys_stat_t *st) {
         debug_errno("SYS", "stat(\"%s\")", buf);
       }
     }
-#endif
   }
+#endif
 
   return r;
 }
@@ -1510,11 +1891,22 @@ int sys_statfs(const char *pathname, sys_statfs_t *st) {
 
 #if defined(WINDOWS)
   char buf[FILE_PATH];
+  WCHAR wbuf[FILE_PATH];
   ULARGE_INTEGER lpTotalNumberOfBytes;
   ULARGE_INTEGER lpTotalNumberOfFreeBytes;
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
 
   normalize_path(pathname, buf, FILE_PATH);
-  if (GetDiskFreeSpaceEx(pathname, NULL, &lpTotalNumberOfBytes, &lpTotalNumberOfFreeBytes)) {
+
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, FILE_PATH, buf, FILE_PATH);
+#else
+  mbstowcs(wbuf, buf, FILE_PATH);
+#endif
+
+  if (GetDiskFreeSpaceExW(wbuf, NULL, &lpTotalNumberOfBytes, &lpTotalNumberOfFreeBytes)) {
     st->total = lpTotalNumberOfBytes.QuadPart;
     st->free = lpTotalNumberOfFreeBytes.QuadPart;
     r = 0;
@@ -1581,11 +1973,23 @@ int sys_rename(const char *pathname1, const char *pathname2) {
 
 int sys_unlink(const char *pathname) {
   char buf[FILE_PATH];
+#if defined(WINDOWS)
+  WCHAR wbuf[FILE_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+#endif
   int r;
 
 #if defined(WINDOWS)
   normalize_path(pathname, buf, FILE_PATH);
-  r = unlink(buf);
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, FILE_PATH, buf, FILE_PATH);
+#else
+  mbstowcs(wbuf, buf, FILE_PATH);
+#endif
+
+  r = (DeleteFileW(wbuf) == FALSE) ? -1 : 0;
   if (r == -1) {
     debug_errno("SYS", "unlink(\"%s\")", buf);
   }
@@ -1608,25 +2012,38 @@ int sys_unlink(const char *pathname) {
 }
 
 int sys_rmdir(const char *pathname) {
-  char buf[FILE_PATH];
-  int r;
+	char buf[FILE_PATH];
+#ifdef WINDOWS
+	WCHAR wbuf[FILE_PATH];
+#endif
+#if __STDC_WANT_SECURE_LIB__
+	size_t buflen = FILE_PATH;
+#endif
+	int r;
 
 #if defined(WINDOWS)
-  normalize_path(pathname, buf, FILE_PATH);
-  r = rmdir(buf);
-#elif defined(KERNEL)
-  sys_strncpy(buf, pathname, FILE_PATH);
-  r = f_rmdir(buf) == FR_OK ? 0 : -1;
+	normalize_path(pathname, buf, FILE_PATH);
+
+#if __STDC_WANT_SECURE_LIB__
+	mbstowcs_s(&buflen, wbuf, FILE_PATH, buf, FILE_PATH);
 #else
-  sys_strncpy(buf, pathname, FILE_PATH);
-  r = rmdir(buf);
+	mbstowcs(wbuf, buf, FILE_PATH);
 #endif
 
-  if (r == -1) {
-    debug_errno("SYS", "rmdir(\"%s\")", buf);
-  }
+	r = (RemoveDirectoryW(wbuf) == FALSE) ? -1 : 0;
+#elif defined(KERNEL)
+	sys_strncpy(buf, pathname, FILE_PATH);
+	r = f_rmdir(buf) == FR_OK ? 0 : -1;
+#else
+	sys_strncpy(buf, pathname, FILE_PATH);
+	r = rmdir(buf);
+#endif
 
-  return r;
+	if (r == -1) {
+		debug_errno("SYS", "rmdir(\"%s\")", buf);
+	}
+
+	return r;
 }
 
 int sys_mkdir(const char *pathname) {
@@ -1635,8 +2052,24 @@ int sys_mkdir(const char *pathname) {
 
 #if defined(WINDOWS)
   DWORD err;
+  WCHAR wbuf[FILE_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+
   normalize_path(pathname, buf, FILE_PATH);
-  if (!CreateDirectory(buf, NULL)) {
+  
+  if (buf[strlen(buf) - 1] == FILE_SEP) {
+    buf[strlen(buf) - 1] = 0;
+  }
+
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, sizeof(wbuf) / sizeof(WCHAR), buf, sizeof(buf));
+#else
+  mbstowcs(wbuf, buf, sizeof(buf));
+#endif
+
+  if (!CreateDirectoryW(wbuf, NULL)) {
     err = GetLastError();
     r = (err == ERROR_ALREADY_EXISTS) ? 0 : -1;
   } else {
@@ -1666,9 +2099,13 @@ int sys_serial_open(char *device, char *word, int baud) {
 #if defined(KERNEL)
   return -1;
 #elif defined(WINDOWS)
+  WCHAR *wbuf = (WCHAR *)sys_malloc((strlen(device) + 1) * sizeof(WCHAR));
   HANDLE handle, eventr, eventw;
   COMMTIMEOUTS timeouts;
   DCB dcb;
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
 
   if ((eventr = CreateEvent(NULL, TRUE, FALSE, NULL)) == INVALID_HANDLE_VALUE) {
     debug_errno("SYS", "CreateEvent");
@@ -1681,7 +2118,19 @@ int sys_serial_open(char *device, char *word, int baud) {
     return -1;
   }
 
-  handle = CreateFile(device, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, strlen(device), device, strlen(device) + 1);
+#else
+  mbstowcs(wbuf, device, strlen(device) + 1);
+#endif
+
+  if (wbuf != NULL) {
+    handle = CreateFileW(wbuf, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+    sys_free(wbuf);
+  } else {
+    handle = INVALID_HANDLE_VALUE;
+  }
+
   if (handle == INVALID_HANDLE_VALUE) {
     debug_errno("SYS", "CreateFile");
     CloseHandle(eventr);
@@ -1990,7 +2439,7 @@ int sys_rand(void) {
 }
 
 void sys_srand(unsigned int seed) {
-  return srand(seed);
+  /*return*/ srand(seed);
 }
 
 int sys_isatty(int fd) {
@@ -2066,12 +2515,46 @@ int sys_daemonize(void) {
 #endif
 }
 
+#ifdef _WIN32_WCE
+void GetSystemTimeAsFileTimeCE(LPFILETIME lpFileTime) {
+	SYSTEMTIME st;
+	// GetSystemTime is de standaard op CE
+	GetSystemTime(&st);
+	SystemTimeToFileTime(&st, lpFileTime);
+}
+#endif
+
 static int my_clock_gettime(clockid_t clockid, struct timespec *tp) {
 #if defined(KERNEL) && defined(RPI)
   uint64_t t = bcm2835_st_read();
   tp->tv_sec = t / 1000000;
   t = t % 1000000;;
   tp->tv_nsec = t * 1000;
+  return 0;
+#elif defined(WINDOWS)
+  FILETIME tm;
+  ULARGE_INTEGER ull;
+  const unsigned __int64 UNIX_EPOCH_BIAS = 116444736000000000ULL;
+  unsigned __int64 relative_100ns = 0;
+
+#ifdef _WIN32_WCE
+  GetSystemTimeAsFileTimeCE(&tm);
+#else
+  GetSystemTimePreciseAsFileTime(&tm);
+#endif
+
+  ull.LowPart = tm.dwLowDateTime;
+  ull.HighPart = tm.dwHighDateTime;
+
+  // 1. Adjust for the 134,774 day difference between epochs
+  // 116,444,736,000,000,000 is the number of 100ns intervals 
+  // between Jan 1, 1601 and Jan 1, 1970 UTC.
+  relative_100ns = ull.QuadPart - UNIX_EPOCH_BIAS;
+
+  // 2. Convert to seconds and nanoseconds
+  tp->tv_sec = (time_t)(relative_100ns / 10000000ULL);          // 10^7 intervals/sec
+  tp->tv_nsec = (long)((relative_100ns % 10000000ULL) * 100);  // 100ns to ns
+
   return 0;
 #else
   return clock_gettime(clockid, tp);
@@ -2250,33 +2733,44 @@ void sys_wait(int *status) {
 
 void *sys_lib_load(char *libname, int *first_load) {
   void *lib;
+#if defined(WINDOWS)
+  char buf[FILE_PATH];
+  WCHAR wbuf[FILE_PATH];
+  int len;
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+#endif
 
   *first_load = 0;
 
 #if defined(KERNEL)
   return NULL;
 #elif defined(WINDOWS)
-  char buf[FILE_PATH];
-  int len;
-
   normalize_path(libname, buf, FILE_PATH-1);
-  len = sys_strlen(buf);
+  len = (int)sys_strlen(buf);
   if (sys_strstr(buf, ".dll") == NULL && sys_strchr(buf, '.') == NULL && FILE_PATH-len > 5) {
     sys_strcat(buf, ".dll");
   }
 
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&buflen, wbuf, sizeof(wbuf) / sizeof(WCHAR), buf, sizeof(buf));
+#else
+  mbstowcs(wbuf, buf, sizeof(buf));
+#endif
+
   // check if library is already loaded
-  lib = (void *)GetModuleHandle(buf);
+  lib = (void *)GetModuleHandleW(wbuf);
 
   if (lib == NULL) {
     // not loaded yet: load it
-    lib = (void *)LoadLibrary(buf);
+    lib = (void *)LoadLibraryW(wbuf);
 
     if (lib != NULL) {
       debug(DEBUG_INFO, "SYS", "library %s loaded", buf);
       *first_load = 1;
     } else {
-      debug_errno("SYS", "LoadLibrary \"%s\"", buf);
+      debug_errno("SYS", "LoadLibrary \"%s\" failed", buf);
     }
   } else {
     // already loaded
@@ -2336,7 +2830,24 @@ void *sys_lib_defsymbol(void *lib, char *name, int mandatory) {
 #if defined(KERNEL)
   sym = NULL;
 #elif defined(WINDOWS)
+#if defined(_WIN32_WCE) && !defined(REGULAR_GETPROCADDRESS)
+  WCHAR wname[FILE_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t namelen = 0;
+#endif
+
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&namelen, wname, FILE_PATH, name, strlen(name) + 1);
+#else
+  mbstowcs(wname, name, FILE_PATH);
+#endif
+
+  sym = (void *)GetProcAddressW((HMODULE)lib, wname);
+#elif defined(REGULAR_GETPROCADDRESS) && defined(_WIN32_WCE)
+  sym = (void *)GetProcAddressA((HMODULE)lib, name);
+#else
   sym = (void *)GetProcAddress((HMODULE)lib, name);
+#endif
 
   if (sym == NULL && mandatory) {
     debug_errno("SYS", "GetProcAddress \"%s\"", name);
@@ -2384,7 +2895,7 @@ static const char *sys_inet_ntop(int af, const void *a0, char *s, uint32_t l) {
 
   switch (af) {
   case AF_INET:
-    if (sys_snprintf(s, l, "%d.%d.%d.%d", a[0],a[1],a[2],a[3]) < l)
+	if (sys_snprintf(s, (sys_size_t)l, "%d.%d.%d.%d", (int)a[0], (int)a[1], (int)a[2], (int)a[3]) < (int)l)
       return s;
     break;
   case AF_INET6:
@@ -2405,7 +2916,7 @@ static const char *sys_inet_ntop(int af, const void *a0, char *s, uint32_t l) {
     // Replace longest /(^0|:)[:0]{2,}/ with "::"
     for (i=best=0, max=2; buf[i]; i++) {
       if (i && buf[i] != ':') continue;
-      j = sys_strspn(buf+i, ":0");
+      j = (int)sys_strspn(buf+i, ":0");
       if (j>max) best=i, max=j;
     }
     if (max>3) {
@@ -2484,7 +2995,7 @@ static int sys_inet_pton(int af, const char *s, void *a0) {
   }
   for (j=0; j<8; j++) {
     *a++ = ip[j]>>8;
-    *a++ = ip[j];
+    *a++ = (unsigned char)ip[j];
   }
   if (need_v4 && sys_inet_pton(AF_INET, (void *)s, a-4) <= 0) return 0;
   return 1;
@@ -2518,7 +3029,7 @@ static int __inet_aton(const char *s0, struct in_addr *dest) {
   }
   for (i=0; i<4; i++) {
     if (a[i] > 255) return 0;
-    d[i] = a[i];
+    d[i] = (unsigned char)a[i];
   }
   return 1;
 }
@@ -2601,7 +3112,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
               addr->sin_family = AF_INET;
               addr->sin_port = sys_htobe16(port);
               debug(DEBUG_TRACE, "SYS", "host %s resolves to ipv4 address %s len %d", host, s, (int)pr->ai_addrlen);
-              *len = pr->ai_addrlen;
+              *len = (int)pr->ai_addrlen;
               r = 0;
             }
             break;
@@ -2614,7 +3125,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
                 addr6->sin6_family = AF_INET6;
                 addr6->sin6_port = sys_htobe16(port);
                 debug(DEBUG_TRACE, "SYS", "host %s resolves to ipv6 address %s len %d", host, name, (int)pr->ai_addrlen);
-                *len = pr->ai_addrlen;
+                *len = (int)pr->ai_addrlen;
                 r = 1;
               }
             }
@@ -2694,7 +3205,7 @@ static int sys_tcpip_socket(char *host, int port, int *type, struct sockaddr_sto
     }
   }
 
-  if ((sock = socket(*ipv6 ? AF_INET6 : AF_INET, *type, proto)) == -1) {
+  if ((sock = (int)socket(*ipv6 ? AF_INET6 : AF_INET, *type, proto)) == -1) {
     debug_errno("SYS", "socket");
     return -1;
   }
@@ -2790,6 +3301,10 @@ int sys_socket_open(int type, int ipv6) {
 }
 
 int sys_socket_connect(int sock, char *host, int port) {
+#if defined(WINDOWS)
+  fd_t *f;
+#endif
+
 #if defined(KERNEL)
   return -1;
 #else
@@ -2801,8 +3316,6 @@ int sys_socket_connect(int sock, char *host, int port) {
   }
 
 #if defined(WINDOWS)
-  fd_t *f;
-
   if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
     return -1;
   }
@@ -3064,7 +3577,7 @@ static int sys_tcpip_accept(int sock, char *host, int hlen, int *port, sys_timev
 
   sys_memset((char *)&addr, 0, sizeof(addr));
   addrlen = sizeof(addr);
-  csock = accept(sock, (struct sockaddr *)&addr, &addrlen);
+  csock = (int)accept(sock, (struct sockaddr *)&addr, &addrlen);
 
   if (csock == -1) {
     debug_errno("SYS", "accept");
@@ -3242,6 +3755,9 @@ int sys_setsockopt(int sock, int level, int optname, const void *optval, int opt
   return -1;
 #else
   int ilevel, ioptname, r = -1;
+#if defined(WINDOWS)
+  fd_t *f;
+#endif
 
   switch (level) {
     case SYS_LEVEL_IP:
@@ -3269,8 +3785,6 @@ int sys_setsockopt(int sock, int level, int optname, const void *optval, int opt
   }
 
 #if defined(WINDOWS)
-  fd_t *f;
-
   if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
     return -1;
   }
@@ -3356,16 +3870,60 @@ int sys_fork_exec(char *filename, char *argv[], int fd) {
 }
 
 #if defined(WINDOWS)
+#ifdef _WIN32_WCE
+char* sys_tmpnam(char* s) {
+	WCHAR wPath[MAX_PATH];
+	WCHAR wFile[MAX_PATH];
+	static char static_buf[MAX_PATH];
+	char* target = s ? s : static_buf;
+#if __STDC_WANT_SECURE_LIB__
+	size_t len = 0;
+#endif
+
+	// 1. Haal de map voor tijdelijke bestanden op (\Temp op WinCE)
+	if (GetTempPathW(MAX_PATH, wPath) == 0) {
+#if __STDC_WANT_SECURE_LIB__
+		wcscpy_s(wPath, MAX_PATH, L"\\Temp");
+#else
+		wcscpy(wPath, L"\\Temp"); // Fallback voor CE
+#endif
+	}
+
+	// 2. Genereer een unieke bestandsnaam met prefix "tmp"
+	// De '0' zorgt ervoor dat Windows zelf een uniek nummer kiest
+	if (GetTempFileNameW(wPath, L"tmp", 0, wFile) != 0) {
+		// 3. Converteer Unicode (UTF-16) naar ANSI/UTF-8 voor je char* buffer
+#if __STDC_WANT_SECURE_LIB__
+		wcstombs_s(&len, target, MAX_PATH, wFile, MAX_PATH);
+#else
+		wcstombs(target, wFile, MAX_PATH);
+#endif
+		return target;
+	}
+
+	return NULL;
+}
+#endif
+
 int sys_tmpname(char *buf, int max) {
   char *t;
   int n, r = -1;
+  char rbuf[FILE_PATH];
 
   if (max >= 256 + L_tmpnam + 1) {
     t = sys_getenv("TEMP");
-    sys_memset(buf, 0, max);
-    sys_strncpy(buf, t ? t : "\\", 255);
-    n = sys_strlen(buf);
+    sys_memset(rbuf, 0, max);
+    sys_strncpy(rbuf, t ? t : "\\", FILE_PATH);
+    n = (int)sys_strlen(rbuf);
+#ifdef _WIN32_WCE
+	if (sys_tmpnam(&buf[n])) {
+#else
+#if __STDC_WANT_SECURE_LIB__
+	if (tmpnam_s(&buf[n], max) == S_OK) {
+#else
     if (tmpnam(&buf[n])) {
+#endif
+#endif
       r = 0;
     }
   }
@@ -3375,17 +3933,83 @@ int sys_tmpname(char *buf, int max) {
 #endif
 
 #if !defined(KERNEL)
+#ifdef _WIN32_WCE
+int wce_mkstemp(char* template_path) {
+	char szTempFileName[MAX_PATH];
+	WCHAR szTempPathW[MAX_PATH];
+	WCHAR szTempFileNameW[MAX_PATH];
+	int fd = 0;
+#if __STDC_WANT_SECURE_LIB__
+	size_t templen = 0;
+#endif
+
+	// 1. Get the directory for temp files (usually \Temp)
+	if (GetTempPathW(MAX_PATH, szTempPathW) == 0) return -1;
+
+	// 2. Generate a unique name AND create the file.
+	// Setting the 3rd param to 0 creates the file and returns a unique number.
+	if (GetTempFileNameW(szTempPathW, L"tmp", 0, szTempFileNameW) == 0) {
+		return -1;
+	}
+
+#if __STDC_WANT_SECURE_LIB__
+	wcstombs_s(&templen, szTempFileName, MAX_PATH, szTempFileNameW, MAX_PATH);
+#else
+	wcstombs(szTempFileName, szTempFileNameW, MAX_PATH);
+#endif
+
+	fd = sys_open(szTempFileName, SYS_READ | SYS_WRITE);
+
+	// Copy the generated name back to the template if required
+	sys_strcpy(template_path, szTempFileName);
+
+	return fd;
+}
+#endif
+
 int sys_mkstempfile(char *buf) {
+#ifdef _WIN32_WCE
+  return wce_mkstemp(buf);
+#else
+#if defined(_MSC_VER)
+#if __STDC_WANT_SECURE_LIB__
+  char temppath[FILE_PATH];
+  sys_strncpy(temppath, buf, FILE_PATH);
+  _mktemp_s(temppath, FILE_PATH);
+  sys_strcpy(buf, temppath);
+  return sys_open(temppath, SYS_READ | SYS_WRITE);
+#else
+  return sys_open(mktemp(buf), SYS_READ | SYS_WRITE);
+#endif
+#else
   return mkstemp(buf);
+#endif
+#endif
 }
 
 int sys_mkstemp(void) {
   char buf[32];
   int fd;
+#if defined(_MSC_VER)
+#if __STDC_WANT_SECURE_LIB__
+  char temppath[FILE_PATH];
+#endif
+#endif
 
-  sys_strcpy(buf, "tmpXXXXXX");
+  sys_strncpy(buf, "tmpXXXXXX", 32);
+#if defined(_MSC_VER)
+#if __STDC_WANT_SECURE_LIB__
+  sys_strncpy(temppath, buf, FILE_PATH);
+  _mktemp_s(temppath, FILE_PATH);
+  sys_strncpy(buf, temppath, 32);
+  fd = sys_open(temppath, SYS_READ | SYS_WRITE);
+#else
+  fd = sys_open(mktemp(buf), SYS_READ | SYS_WRITE);
+#endif
+#else
   fd = mkstemp(buf);
-  unlink(buf);
+#endif
+  sys_unlink(buf);
 
   return fd;
 }
@@ -3411,9 +4035,9 @@ double sys_strtod(const char *s, char **p) {
 
 void sys_qsort(void *base, sys_size_t nmemb, sys_size_t size, int (*compar)(const void *, const void *)) {
 #if defined(KERNEL)
-  return my_qsort(base, nmemb, size, compar);
+  /*return*/ my_qsort(base, nmemb, size, compar);
 #else
-  return qsort(base, nmemb, size, compar);
+  /*return*/ qsort(base, nmemb, size, compar);
 #endif
 }
 
@@ -3423,19 +4047,22 @@ int sys_vsprintf(char *str, const char *format, sys_va_list ap) {
 }
 
 int sys_vsnprintf(char *str, sys_size_t size, const char *format, sys_va_list ap) {
-#if defined(KERNEL)
+#if defined(KERNEL) || defined(_WIN32_WCE)
   return my_vsnprintf(str, size, format, ap);
+#else
+#if __STDC_WANT_SECURE_LIB__
+  return vsprintf_s(str, size, format, ap);
 #else
   return vsnprintf(str, size, format, ap);
 #endif
+#endif
 }
-
 int sys_sscanf(const char *str, const char *format, ...) {
   sys_va_list ap;
   int r;
 
   sys_va_start(ap, format);
-#if defined(KERNEL)
+#if defined(KERNEL) || defined(_WIN32_WCE)
   r = my_vsscanf(str, format, ap);
 #else
   r = vsscanf(str, format, ap);
@@ -3511,3 +4138,15 @@ int sys_list_symbols(char *libname) {
 #endif
 }
 */
+
+
+#ifdef WINDOWS
+BOOL __stdcall DllMain(HANDLE hDLL, DWORD dwReason, LPVOID lpReserved)
+{
+	(void)hDLL;
+	(void)dwReason;
+	(void)lpReserved;
+
+	return (TRUE);
+}
+#endif

@@ -39,7 +39,15 @@
 #include <ctype.h>
 #include <errno.h>
 #include <time.h>
+
+#ifdef __GNUC__
 #include <unistd.h>
+#endif
+
+#ifdef _MSC_VER
+#include <io.h>
+#endif
+
 #include "pilrc.h"
 
 #ifdef WIN32
@@ -226,7 +234,12 @@ MakeFilename(const char *szFormat, ...)
         switch (*++s)
         {
           case 's':
+#if __STDC_WANT_SECURE_LIB__
+            strcpy_s(fn, len + 1, va_arg(args, char *));
+#else
             strcpy(fn, va_arg(args, char *));
+#endif
+
             fn = strrchr(fn, '\0');
             break;
 
@@ -269,9 +282,23 @@ MakeFilename(const char *szFormat, ...)
 
 static char *pilrc_tmpnam(void) {
   static char tmpnam_buf[TMPNAMBUFSIZE];
+#if __STDC_WANT_SECURE_LIB__
+  strcpy_s(tmpnam_buf, TMPNAMBUFSIZE, TMPNAMTEMPLATE);
+#else
   strcpy(tmpnam_buf, TMPNAMTEMPLATE);
+#endif
+
+#ifdef _MSC_VER
+#if __STDC_WANT_SECURE_LIB__
+  _mktemp_s(tmpnam_buf, TMPNAMBUFSIZE);
+#else
+  mktemp(tmpnam_buf);
+#endif
+#else
   int fd = mkstemp(tmpnam_buf);
   if (fd != -1) close(fd);
+#endif
+
   return tmpnam_buf;
 }
 
@@ -521,7 +548,12 @@ OpenResDBFile(const char *sz)
   szOutResDBFile = MakeFilename("%s", sz);
   szTempFile = MakeTempFilename();
 
+#if __STDC_WANT_SECURE_LIB__
+  fopen_s(&f, szTempFile, "wb");
+#else
   f = fopen(szTempFile, "wb");
+#endif
+
   if (f)
     fclose(f);
 
@@ -537,15 +569,30 @@ OpenResDBFile(const char *sz)
 VOID
 CloseResDBFile(void)
 {
+#if __STDC_WANT_SECURE_LIB__
+  char errorstr[256];
+#endif
+
   if (!vfInhibitOutput)
   {
       if (!vfQuiet)
         printf("Collecting *.bin files into %s\n", szOutResDBFile);
 
       Assert(vfhOut == NULL);
+
+#if __STDC_WANT_SECURE_LIB__
+	  fopen_s(&vfhOut, szOutResDBFile, "wb");
+
+	  if (vfhOut == NULL) {
+		  strerror_s(errorstr, 256, errno);
+		  Error("Unable to open output resource DB %s: %s", szOutResDBFile, errorstr);
+	  }
+#else
       vfhOut = fopen(szOutResDBFile, "wb");
-      if (vfhOut == NULL)
-        Error("Unable to open output resource DB %s: %s", szOutResDBFile, strerror(errno));
+
+	  if (vfhOut == NULL)
+		  Error("Unable to open output resource DB %s: %s", szOutResDBFile, strerror(errno));
+#endif
 
       WriteOutResourceDB();
       fclose(vfhOut);
@@ -576,10 +623,19 @@ OpenOutput(char *szBase,
   ibOut = 0;
 #else
   char szBinFileName[4 + 4 + 4 + 1];
+#if __STDC_WANT_SECURE_LIB__
+  char errorstr[256];
+#endif
 
   // save for possible errors
   memset(outputResStr, 0, 5);
+
+#if __STDC_WANT_SECURE_LIB__
+  strncpy_s(outputResStr, 13, szBase, 4);
+#else
   strncpy(outputResStr, szBase, 4);
+#endif
+
   outputResID = id;
 
   if (vfInhibitOutput || vfWinGUI)
@@ -587,7 +643,11 @@ OpenOutput(char *szBase,
 
   Assert(vfhOut == NULL);
 
-  sprintf(szBinFileName, "%.4s%04x.bin", szBase, id);
+#if __STDC_WANT_SECURE_LIB__
+  sprintf_s(szBinFileName, 13, "%.4s%04x.bin", szBase, id);
+#else
+  snprintf(szBinFileName, 13, "%.4s%04x.bin", szBase, id);
+#endif
 
   if (vfPrc)
   {
@@ -598,9 +658,20 @@ OpenOutput(char *szBase,
     entry.offset = ibTotalOut;
     PlexAddElement(&resdir, &entry);
 
+#if __STDC_WANT_SECURE_LIB__
+	fopen_s(&vfhOut, szTempFile, "ab");
+
+	if (vfhOut == NULL) {
+		strerror_s(errorstr, 256, errno);
+
+		Error("Unable to open binary file %s: %s", szTempFile, errorstr);
+	}
+#else
     vfhOut = fopen(szTempFile, "ab");
-    if (vfhOut == NULL)
-      Error("Unable to open binary file %s: %s", szTempFile, strerror(errno));
+
+	if (vfhOut == NULL)
+		Error("Unable to open binary file %s: %s", szTempFile, strerror(errno));
+#endif
 
     if (!vfQuiet)
       printf("Writing temporary %s ", szBinFileName);
@@ -616,9 +687,20 @@ OpenOutput(char *szBase,
       Error("Can't happen (OutFileDir is not set)");
     szBinPath = MakeFilename("%s/%s", szOutFileDir, szBinFileName);
 
+#if __STDC_WANT_SECURE_LIB__
+	fopen_s(&vfhOut, szBinPath, "w+b");
+
+	if (vfhOut == NULL) {
+		strerror_s(errorstr, 256, errno);
+
+		Error("Unable to open binary file %s: %s", szBinPath, errorstr);
+	}
+#else
     vfhOut = fopen(szBinPath, "w+b");
+
     if (vfhOut == NULL)
       Error("Unable to open binary file %s: %s", szBinPath, strerror(errno));
+#endif
 
     if (!vfQuiet)
       printf("Writing %s ", szBinPath);
@@ -689,16 +771,31 @@ getOpenedOutputFile(void)
 VOID
 OpenResFile(const char *sz)
 {
+#if __STDC_WANT_SECURE_LIB__
+  char errorstr[256];
+#endif
+
   if (vfInhibitOutput || vfWinGUI)
     return;
 
   if (sz == NULL)
     return;
 
+#if __STDC_WANT_SECURE_LIB__
+  fopen_s(&vfhRes, sz, "wt");
+
+  if (vfhRes == NULL) {
+	  strerror_s(errorstr, 256, errno);
+
+	  Error("Unable to open res file %s: %s", sz, errorstr);
+  }
+#else
   vfhRes = fopen(sz, "wt");
 
   if (vfhRes == NULL)
     Error("Unable to open res file %s: %s", sz, strerror(errno));
+#endif
+
   if (!vfQuiet)
     printf("Generating res file: %s\n", sz);
 }
@@ -726,7 +823,13 @@ FindAndOpenFile(const char *szIn,
 {
   char *szFullName = NULL;
 
+#if __STDC_WANT_SECURE_LIB__
+  fopen_s(returnFile, szIn, mode);
+
+  if (*returnFile != NULL)
+#else
   if ((*returnFile = fopen(szIn, mode)) != NULL)
+#endif
   {
     szFullName = MakeFilename("%s", szIn);
   }
@@ -736,7 +839,14 @@ FindAndOpenFile(const char *szIn,
     for (i = 0; i < totalIncludePaths; i++)
     {
       szFullName = MakeFilename("%s/%s", includePaths[i], szIn);
+
+#if __STDC_WANT_SECURE_LIB__
+	  fopen_s(returnFile, szFullName, mode);
+
+	  if (*returnFile != NULL)
+#else
       if ((*returnFile = fopen(szFullName, mode)) != NULL)
+#endif
         break;
 
       free(szFullName);
@@ -842,6 +952,9 @@ WriteOutResourceDB(void)
   int i;
   size_t n;
   BOOL saveLE32;
+#if __STDC_WANT_SECURE_LIB__
+  char errorstr[256];
+#endif
 
   /*
    * Even resources with LE32 contents go into a M68K-style PRC file.  
@@ -890,7 +1003,7 @@ WriteOutResourceDB(void)
   head.nrecords = PlexGetCount(&resdir);
 
   head_offset = CbEmitStruct(&head, szDBHEADER, NULL, fTrue);
-  head_offset += head.nrecords * CbStruct(szRESOURCEDIRENTRY);
+  head_offset += (int)(head.nrecords * CbStruct(szRESOURCEDIRENTRY));
   head_offset += 2;                              /* Allow for that daft gap */
 
   for (i = 0; i < head.nrecords; i++)
@@ -903,12 +1016,23 @@ WriteOutResourceDB(void)
 
   CbEmitStruct(NULL, "zb2", NULL, fTrue);        /* The dreaded gap */
 
+#if __STDC_WANT_SECURE_LIB__
+  fopen_s(&f, szTempFile, "rb");
+
+  if (f == NULL) {
+	  strerror_s(errorstr, 256, errno);
+
+	  Error("Unable to open resource DB %s: %s", szTempFile, errorstr);
+  }
+#else
   f = fopen(szTempFile, "rb");
+
   if (f == NULL)
-    Error("Unable to open resource DB %s: %s", szTempFile, strerror(errno));
+	  Error("Unable to open resource DB %s: %s", szTempFile, strerror(errno));
+#endif
 
   while ((n = fread(buf, 1, sizeof buf, f)) > 0)
-    DumpBytes(buf, n);
+    DumpBytes(buf, (int)n);
 
   fclose(f);
 
@@ -965,7 +1089,12 @@ void AddEntryToDependsList(const char *filename)
     // fill in new node
     pdNode->next = NULL;
     pdNode->name = malloc(strlen(filename) + 1);
+
+#if __STDC_WANT_SECURE_LIB__
+	strcpy_s(pdNode->name, strlen(filename) + 1, filename);
+#else
     strcpy(pdNode->name, filename);
+#endif
 }
 
 /*-----------------------------------------------------------------------------

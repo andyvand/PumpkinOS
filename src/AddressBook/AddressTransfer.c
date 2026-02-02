@@ -214,7 +214,7 @@ void TransferSendRecord (DmOpenRef dbP, Int16 recordNum, const Char * const pref
 		}
 
 		// Make a filename
-		schemeLength = StrLen(prefix);
+		schemeLength = (UInt8)StrLen(prefix);
 		if (descriptionSize > 0)
 		{
 			// Now make a filename from the description

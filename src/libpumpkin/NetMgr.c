@@ -478,7 +478,7 @@ Int32 NetUReadN(NetSocketRef fd, UInt8 *bufP, UInt32 numBytes) {
   Err err;
 
   // XXX timeout == 10
-  for (nread = 0; nread < numBytes;) {
+  for (nread = 0; nread < (Int32)numBytes;) {
     r = NetLibReceive(NetLibRefNum, fd, &bufP[nread], numBytes-nread, 0, NULL, NULL, 10, &err);
     if (r <= 0) break;
     nread += r;

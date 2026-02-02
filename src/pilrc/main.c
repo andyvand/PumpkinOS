@@ -234,7 +234,11 @@ main(int cArg,
       if (i++ == cArg)
         ArgError();
 
+#ifdef _MSC_VER
+	  szMacro = _strdup(rgszArg[i]);
+#else
       szMacro = strdup(rgszArg[i]);
+#endif
 
       // Check if there is a value defined for the macro, otherwise use '1'
       if ((szValue = strchr(szMacro, '=')) != NULL)

@@ -8,15 +8,15 @@ unsigned char jzBuffer[JZ_BUFFER_SIZE]; // limits maximum zip descriptor size
 
 // Read ZIP file end record. Will move within file.
 int jzReadEndRecord(JZFile *zip, JZEndRecord *endRecord) {
-    int32_t fileSize, readBytes, i;
-    JZEndRecord *er;
+    int32_t fileSize = 0, readBytes = 0, i = 0;
+    JZEndRecord *er = NULL;
 
     if(zip->seek(zip, 0, SYS_SEEK_END)) {
         debug(DEBUG_ERROR, "unzip", "couldn't go to end of zip file");
         return Z_ERRNO;
     }
 
-    if((fileSize = zip->tell(zip)) <= sizeof(JZEndRecord)) {
+    if((fileSize = (int32_t)zip->tell(zip)) <= sizeof(JZEndRecord)) {
         debug(DEBUG_ERROR, "unzip", "too small file to be a zip");
         return Z_ERRNO;
     }
@@ -28,7 +28,7 @@ int jzReadEndRecord(JZFile *zip, JZEndRecord *endRecord) {
         return Z_ERRNO;
     }
 
-    if(zip->read(zip, jzBuffer, readBytes) < readBytes) {
+    if(zip->read(zip, (uint8_t *)jzBuffer, (uint32_t)readBytes) < (uint32_t)readBytes) {
         debug(DEBUG_ERROR, "unzip", "couldn't read end of zip file");
         return Z_ERRNO;
     }
@@ -166,6 +166,9 @@ int jzReadLocalFileHeader(JZFile *zip, JZFileHeader *header,
 
 // Read data from file stream, described by header, to preallocated buffer
 int jzReadData(JZFile *zip, JZFileHeader *header, void *buffer) {
+	sys_size_t read = 0;
+	int ret = 0;
+
     if(header->compressionMethod == 0) { // Store - just read it
         if(zip->read(zip, buffer, header->uncompressedSize) <
                 header->uncompressedSize || zip->error(zip))
@@ -175,9 +178,9 @@ int jzReadData(JZFile *zip, JZFileHeader *header, void *buffer) {
                       sourcelen = header->compressedSize;
         uint8_t *comp = (uint8_t *)sys_malloc(sourcelen);
         if(comp == NULL) return Z_ERRNO; // couldn't allocate
-        sys_size_t read = zip->read(zip, comp, sourcelen);
+        read = zip->read(zip, comp, sourcelen);
         if(read != sourcelen) return Z_ERRNO; // TODO: more robust read loop
-        int ret = puff((uint8_t *)buffer, &destlen, comp, &sourcelen);
+        ret = puff((uint8_t *)buffer, &destlen, comp, &sourcelen);
         sys_free(comp);
         if(ret) return Z_ERRNO; // something went wrong
     } else {

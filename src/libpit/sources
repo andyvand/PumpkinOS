@@ -1,0 +1,160 @@
+TARGETNAME=libpit
+FILE_VIEW_ROOT_FOLDER=
+
+_COMMONPUBROOT=$(_PUBLICROOT)\common
+__PROJROOT = $(_PUBLICROOT)\$(WINCEPROJ)
+COMMON_OAK_LIB_PATH=$(_PUBLICROOT)\common\oak\lib\$(_CPUINDPATH)
+COMMON_SDK_LIB_PATH=$(_PUBLICROOT)\common\sdk\lib\$(_CPUINDPATH)
+_COREDLL=$(_COMMONPUBROOT)\exp\lib\$(_CPUINDPATH)\coredll.lib
+_WINSOCKDLL=$(_COMMONPUBROOT)\sdk\lib\$(_CPUINDPATH)\ws2.lib
+_WINSOCK2DLL=$(_COMMONPUBROOT)\oak\lib\$(_CPUINDPATH)\ws2k.lib
+_COMMCTRL=$(_COMMONPUBROOT)\exp\lib\$(_CPUINDPATH)\commctrl.lib
+_COMMDLG=$(_COMMONPUBROOT)\sdk\lib\$(_CPUINDPATH)\commdlg.lib
+_SHELLCB=$(_PUBLICROOT)\shell\exp\lib\$(_CPUINDPATH)\shellsdk.lib
+_CEAYGSHELL=$(_PUBLICROOT)\apps\oak\lib\$(_CPUINDPATH)\ceaygshell.lib
+_MFC=$(_COMMONPUBROOT)\oak\lib\$(_CPUINDPATH)\uafxwce.lib
+_WININET=$(_PUBLICROOT)\ie7\sdk\lib\$(_CPUINDPATH)\wininet.lib
+OS_SDK_INC_PATH=$(_PUBLICROOT)\common\sdk\inc
+_ISVINCPATH=$(_WINCEROOT)\public\shellsdk\sdk\inc;$(_WINCEROOT)\public\rdp\sdk\inc;$(_WINCEROOT)\public\servers\sdk\inc;$(_WINCEROOT)\public\ie7\sdk\inc;$(_WINCEROOT)\public\gdiex\sdk\inc;$(_WINCEROOT)\public\dcom\sdk\inc;$(_WINCEROOT)\public\common\sdk\inc;
+_OEMINCPATH=$(_WINCEROOT)\public\wceshellfe\oak\inc;$(_WINCEROOT)\public\shell\oak\inc;$(_WINCEROOT)\public\shellsdk\sdk\inc;$(_WINCEROOT)\public\rdp\oak\inc;$(_WINCEROOT)\public\rdp\sdk\inc;$(_WINCEROOT)\public\servers\oak\inc;$(_WINCEROOT)\public\servers\sdk\inc;$(_WINCEROOT)\public\ie7\sdk\inc;$(_WINCEROOT)\public\gdiex\sdk\inc;$(_WINCEROOT)\public\dcom\sdk\inc;$(_WINCEROOT)\public\common\oak\inc;$(_WINCEROOT)\public\common\sdk\inc;$(_WINCEROOT)\public\common\ddk\inc;$(_WINCEROOT)\private\winceos\inc;$(_WINCEROOT)\public\common\sdk\inc\test
+
+FILE_VIEW_RESOURCE_FOLDER= \
+
+FILE_VIEW_INCLUDES_FOLDER= \
+    audio.h \
+    average.h \
+    bmp.h \
+    bytes.h \
+    ctelnet.h \
+    custom_malloc.h \
+    debug.h \
+    display.h \
+    editor.h \
+    endianness.h \
+    filter.h \
+    findargs.h \
+    floatscan.h \
+    gpio.h \
+    gpiomonitor.h \
+    gps.h \
+    graphic.h \
+    httpc.h \
+    httpd.h \
+    i2c.h \
+    intscan.h \
+    iterator.h \
+    ldshape.h \
+    loadfile.h \
+    login.h \
+    main.h \
+    media.h \
+    meters.h \
+    mime.h \
+    mutex.h \
+    pit_io.h \
+    plist.h \
+    pscale.h \
+    pspi.h \
+    pterm.h \
+    ptr.h \
+    pwindow.h \
+    qsort.h \
+    rgb.h \
+    script.h \
+    secure.h \
+    shell.h \
+    sig.h \
+    sock.h \
+    stb_image.h \
+    stb_image_write.h \
+    surface.h \
+    sys.h \
+    telnet.h \
+    template.h \
+    thread.h \
+    timeutc.h \
+    ts.h \
+    util.h \
+    vfont.h \
+    vfs.h \
+    vfslocal.h \
+    vsnprintf.h \
+    vsscanf.h \
+    xalloc.h \
+    yuv.h \
+
+SOURCES= \
+    main.c \
+    sig.c \
+    sys.c \
+    math.c \
+    malloc.c \
+    strtol.c \
+    strtoul.c \
+    ctype.c \
+    bsearch.c \
+    printf.c \
+    string.c \
+    ptr.c \
+    debug.c \
+    builtin.c \
+    list.c \
+    sock.c \
+    io.c \
+    loadfile.c \
+    util.c \
+    bytes.c \
+    ts.c \
+    yuv.c \
+    graphic.c \
+    vfont.c \
+    surface.c \
+    time.c \
+    timeutc.c \
+    media.c \
+    xalloc.c \
+    endianness.c \
+    gps.c \
+    vfs.c \
+    vfslocal.c \
+    filter.c \
+    telnet.c \
+    ctelnet.c \
+    login.c \
+    pterm.c \
+    bmp.c \
+    findargs.c \
+    rgb.c \
+    average.c \
+    custom_malloc.c \
+    script.c \
+    threadudp.c \
+    mutex.c \
+    httpc.c \
+    httpd.c \
+    template.c \
+    vsscanf.c \
+    vsnprintf.c \
+
+
+RELEASETYPE=LOCAL
+TARGETLIBS= \
+    $(_COMMCTRL) \
+    $(_SHELLCB) \
+    $(_COREDLL) \
+    $(_WINSOCKDLL) \
+	$(_WINSOCK2DLL) \
+	..\winpthreads\obj\$(_CPUINDPATH)\winpthreads.lib
+
+DLLENTRY=_DllMainCRTStartup
+
+TARGETTYPE=DYNLINK
+DEFFILE=$(TARGETNAME)_nodebug.def
+CDEFINES=$(CDEFINES) -Dlibpit_EXPORTS -I..\..\src\libpit -I..\font -D_WIN32_WCE=800 -DUNDER_CE=0x800 -DSYSTEM_NAME="\"pit\"" -DSYSTEM_VERSION="1.0" -DSYSTEM_OS="\"WindowsCE\"" -DAPPNAME="\"\"" -DAPPID=\'\' -DSYS_CPU=1 -DSYS_SIZE=1 -DSYS_OS=2 -DSYS_ENDIAN=1 -DWINDOWS -DWINDOWS32 -DSOEXT="\".dll\"" -DLOGTRAP_SYS -DMUTE_DEBUG
+INCLUDES=.;..\winpthreads\include;$(OS_SDK_INC_PATH);$(_ISVINCPATH);$(_OEMINCPATH)
+FILE_VIEW_PARAMETER_FOLDER= \
+    libpit.bib \
+    libpit.reg \
+    libpit.dat \
+    libpit.db \
+    ProjSysgen.bat

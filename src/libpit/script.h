@@ -29,12 +29,12 @@ typedef int32_t script_int_t;
 typedef double  script_real_t;
 typedef int64_t script_ref_t;
 
-typedef struct {
+typedef struct script_lstring {
   char *s;
   int n;
 } script_lstring_t;
 
-typedef struct {
+typedef struct script_arg {
   char type;
   union {
     script_int_t i;
@@ -142,14 +142,45 @@ int ext_script_get_last_error(script_priv_t *priv, char *buf, int max);
 int ext_script_get_stack(script_priv_t *priv);
 int ext_script_set_stack(script_priv_t *priv, int index);
 
-#define PIT_LIB_FUNCTION(lname,name) static int lib_function_##name(int pe) { char *lib = #lname; char *func = #name; int iarg = 0, err = 0, r = -1;
-#define PIT_LIB_PARAM_F(name)        script_arg_t arg##name; script_ref_t name; err += script_get_named_value(pe, iarg++, SCRIPT_ARG_FUNCTION, lib, func, #name, 0, &arg##name); name = err ? 0 : arg##name.value.r;
-#define PIT_LIB_PARAM_O(name)        script_arg_t arg##name; script_ref_t name; err += script_get_named_value(pe, iarg++, SCRIPT_ARG_OBJECT, lib, func, #name, 0, &arg##name); name = err ? 0 : arg##name.value.r;
-#define PIT_LIB_PARAM_I(name)        script_arg_t arg##name; script_int_t name; err += script_get_named_value(pe, iarg++, SCRIPT_ARG_INTEGER, lib, func, #name, 0, &arg##name); name = err ? 0 : arg##name.value.i;
-#define PIT_LIB_PARAM_B(name)        script_arg_t arg##name; int name; err += script_get_named_value(pe, iarg++, SCRIPT_ARG_BOOLEAN, lib, func, #name, 0, &arg##name); name = err ? 0 : arg##name.value.i;
-#define PIT_LIB_PARAM_R(name)        script_arg_t arg##name; script_real_t name; err += script_get_named_value(pe, iarg++, SCRIPT_ARG_REAL, lib, func, #name, 0, &arg##name); name = err ? 0 : arg##name.value.r;
-#define PIT_LIB_PARAM_S(name)        script_arg_t arg##name; char *name = NULL; err += script_get_named_value(pe, iarg++,  SCRIPT_ARG_STRING, lib, func, #name, 0, &arg##name); name = err ? 0 : arg##name.value.s;
-#define PIT_LIB_PARAM_L(name,len)    script_arg_t arg##name; char *name = NULL; int len; err += script_get_named_value(pe, iarg++, SCRIPT_ARG_LSTRING, lib, func, #name, 0, &arg##name); if (err) { name = NULL; len = 0;} else { name = arg##name.value.l.s; len = arg##name.value.l.n; }
+#define PIT_LIB_FUNCTION(lname,name) static int lib_function_##name(int pe) { \
+char *lib = #lname; \
+char *func = #name; \
+int iarg = 0, err = 0, r = -1;
+#define PIT_LIB_PARAM_F_BEGIN(name)  script_arg_t arg##name; \
+script_ref_t name;
+#define PIT_LIB_PARAM_F(name) err += script_get_named_value(pe, iarg++, SCRIPT_ARG_FUNCTION, lib, func, #name, 0, &arg##name); \
+name = err ? 0 : arg##name.value.r;
+#define PIT_LIB_PARAM_O_BEGIN(name)        script_arg_t arg##name; \
+script_ref_t name;
+#define PIT_LIB_PARAM_O(name) err += script_get_named_value(pe, iarg++, SCRIPT_ARG_OBJECT, lib, func, #name, 0, &arg##name); \
+name = err ? 0 : arg##name.value.r;
+#define PIT_LIB_PARAM_I_BEGIN(name)  script_arg_t arg##name; \
+script_int_t name;
+#define PIT_LIB_PARAM_I(name) err += script_get_named_value(pe, iarg++, SCRIPT_ARG_INTEGER, lib, func, #name, 0, &arg##name); \
+name = err ? 0 : arg##name.value.i;
+#define PIT_LIB_PARAM_B_BEGIN(name)        script_arg_t arg##name; \
+int name;
+#define PIT_LIB_PARAM_B(name) err += script_get_named_value(pe, iarg++, SCRIPT_ARG_BOOLEAN, lib, func, #name, 0, &arg##name); \
+name = err ? 0 : arg##name.value.i;
+#define PIT_LIB_PARAM_R_BEGIN(name)        script_arg_t arg##name; \
+script_real_t name;
+#define PIT_LIB_PARAM_R(name) err += script_get_named_value(pe, iarg++, SCRIPT_ARG_REAL, lib, func, #name, 0, &arg##name); \
+name = err ? 0 : arg##name.value.r;
+#define PIT_LIB_PARAM_S_BEGIN(name)        script_arg_t arg##name; \
+char *name = NULL;
+#define PIT_LIB_PARAM_S(name) err += script_get_named_value(pe, iarg++,  SCRIPT_ARG_STRING, lib, func, #name, 0, &arg##name); \
+name = err ? 0 : arg##name.value.s;
+#define PIT_LIB_PARAM_L_BEGIN(name,len)    script_arg_t arg##name; \
+char *name = NULL; \
+int len;
+#define PIT_LIB_PARAM_L(name,len) err += script_get_named_value(pe, iarg++, SCRIPT_ARG_LSTRING, lib, func, #name, 0, &arg##name); \
+if (err) { \
+  name = NULL; \
+  len = 0; \
+} else { \
+  name = arg##name.value.l.s; \
+  len = arg##name.value.l.n; \
+}
 #define PIT_LIB_FREE_S(name)         if (name) xfree(name);
 #define PIT_LIB_ENTER_F              debug(DEBUG_TRACE, "SCRIPT", "enter funcion %s.%s", lib, func)
 #define PIT_LIB_CODE                 (void)iarg; if (err == 0) { PIT_LIB_ENTER_F;

@@ -32,7 +32,7 @@ int pit_findargs(char *buf, char *argv[], int nargs, char *(eval)(void *data, ch
             s = 2;
             break;
           case '`':
-            if (eval) {
+            if (eval != NULL) {
               e = 0;
               s = 4;
             } else {

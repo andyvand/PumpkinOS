@@ -789,7 +789,7 @@ static void MonthViewSetTitle (MonthPtr monthP)
 	
 	templateH = DmGetResource(strRsc, MonthViewTitleStrID);
 	templateP = (Char*)MemHandleLock(templateH);
-	DateTemplateToAscii(templateP, monthP->month, 1, monthP->year, title, sizeof(title) - 1);
+	DateTemplateToAscii(templateP, (UInt8)monthP->month, 1, monthP->year, title, sizeof(title) - 1);
 	MemHandleUnlock(templateH);
 	
 	FrmCopyTitle (FrmGetFormPtr (MonthView), title);
@@ -1055,7 +1055,7 @@ static void MonthViewShowTime (void)
 	DateTimeType 	dateTime;
 
 	TimSecondsToDateTime (TimGetSeconds (), &dateTime);
-	TimeToAscii (dateTime.hour, dateTime.minute, TimeFormat, title);
+	TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, TimeFormat, title);
 	FrmCopyTitle (FrmGetFormPtr (MonthView), title);
 	
 	TimeDisplayed = true;

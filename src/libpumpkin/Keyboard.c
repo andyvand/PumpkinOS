@@ -399,7 +399,7 @@ static Boolean SysKeyboardHandleEvent(EventType *eventP) {
                   if (pos > 0) FldDelete(kbdFldP, pos-1, pos);
                   break;
                 default:
-                  c = i;
+                  c = (char)i;
                   FldInsert(kbdFldP, &c, 1);
                   if (!module->cap && module->upper && module->kbd != kbdNumbersAndPunc) {
                     module->upper = false;

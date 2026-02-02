@@ -1,0 +1,7 @@
+LIBRARY Command
+EXPORTS
+    DllMain @5
+    PilotMain @1
+    command_app_deploy @2
+    command_drag @3
+    read_file @4

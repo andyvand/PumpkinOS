@@ -493,7 +493,7 @@ static void SearchDraw (Char* desc, Int16 x, Int16 y, Int16 width)
 	lineFeedP = StrChr(desc, chrLineFeed);
 	if (lineFeedP != NULL)
 	{
-		textLen = lineFeedP - desc;
+		textLen = (UInt16)(lineFeedP - desc);
 	}
 	else
 	{
@@ -1077,7 +1077,7 @@ static Boolean DeleteRecord (UInt16 index)
 	ctlIndex = FrmGetObjectIndex (alert, DeleteToDoSaveBackup);
 	FrmSetControlValue (alert, ctlIndex, SaveBackup);
 	buttonHit = FrmDoDialog (alert);
-	saveBackup = FrmGetControlValue (alert, ctlIndex);;
+	saveBackup = (Boolean)FrmGetControlValue (alert, ctlIndex);;
 
 	FrmDeleteForm (alert);
 
@@ -1307,7 +1307,7 @@ static void OptionsApply (void)
 	val = GetObjectValue (OptionsShowCompleted);
 	if (ShowCompletedItems != val)
 		{
-		ShowCompletedItems = val;
+		ShowCompletedItems = (Boolean)val;
 		TopVisibleRecord = 0;
 		}
 
@@ -1316,18 +1316,18 @@ static void OptionsApply (void)
 	val = GetObjectValue (OptionsShowDueItems);
 	if (ShowOnlyDueItems != val)
 		{
-		ShowOnlyDueItems = val;
+		ShowOnlyDueItems = (Boolean)val;
 		TopVisibleRecord = 0;
 		}
 
 	// Change the due date field, in the record, to the completion
 	// date when the item is mark complete.
-	ChangeDueDate	= GetObjectValue(OptionsChangeDueDate);
+	ChangeDueDate = (Boolean)GetObjectValue(OptionsChangeDueDate);
 
 	// Show or hide the due date, priorities, and categories columns
-	ShowDueDates	= GetObjectValue(OptionsShowDueDates);
-	ShowPriorities	= GetObjectValue(OptionsShowPriorities);
-	ShowCategories	= GetObjectValue(OptionsShowCategories);
+	ShowDueDates = (Boolean)GetObjectValue(OptionsShowDueDates);
+	ShowPriorities = (Boolean)GetObjectValue(OptionsShowPriorities);
+	ShowCategories = (Boolean)GetObjectValue(OptionsShowCategories);
 }
 
 
@@ -1494,7 +1494,7 @@ static void DetailsSetDateTrigger (DateType date)
 		{
 		// Format the date into a string.
 		/*dayOfWeek =*/ DayOfWeek (date.month, date.day, date.year+firstYear);
-		DateToDOWDMFormat (date.month, date.day, date.year+firstYear,
+		DateToDOWDMFormat((UInt8)date.month, (UInt8)date.day, date.year + firstYear,
 			DateFormat, label);
 
 		CtlSetLabel (ctl, label);
@@ -1696,7 +1696,7 @@ static UInt16 DetailsApply (UInt16 category, DateType * dueDateP,
 	// Get the current setting of the secret checkbox and compare it the
 	// the setting of the record.  Update the record if the values
 	// are different.
-	secret = GetObjectValue (DetailsSecretCheckbox);
+	secret = (Boolean)GetObjectValue (DetailsSecretCheckbox);
 	if (((attr & dmRecAttrSecret) == dmRecAttrSecret) != secret)
 		{
 		if (PrivateRecordVisualStatus > showPrivateRecords)
@@ -1961,7 +1961,7 @@ static Boolean DetailsHandleEvent (EventPtr event)
 	maxWidth = formWidth - 8;
 
 	eolP = StrChr (desc, linefeedChr);
-	descLen = (eolP == NULL ? StrLen (desc) : eolP - desc);
+	descLen = (eolP == NULL ? (UInt16)StrLen(desc) : (UInt16)(eolP - desc));
 	ellipsisWidth = 0;
 
 	RctSetRectangle (&eraseRect, 0, 0, formWidth, FntLineHeight()+4);
@@ -2107,7 +2107,7 @@ static void NoteViewLoadRecord (void)
 	recordP = MemHandleLock (recordH);
 	ptr = &recordP->description;
 	ptr += StrLen (ptr) + 1;
-	offset = ptr - (Char*)recordP;
+	offset =(UInt16)(ptr - (Char*)recordP);
 
 	FldSetText (fld, recordH, offset, StrLen(ptr)+1);
 	MemHandleUnlock (recordH);
@@ -2712,7 +2712,7 @@ static Err ListViewGetDescription (void * table, Int16 row, UInt16 UNUSED_PARAM(
 
 	toDoRec = (ToDoDBRecordPtr) MemHandleLock (recordH);
 
-	*textOffset = &toDoRec->description - ((Char *) toDoRec);
+	*textOffset = (UInt16)(&toDoRec->description - ((Char *) toDoRec));
 	*textAllocSize = StrLen (&toDoRec->description) + 1;  // one for null terminator
 	*textHP = recordH;
 
@@ -2966,7 +2966,7 @@ static void ListViewDrawDueDate (void * table, Int16 row, Int16 UNUSED_PARAM(col
 
 	FntSetFont (ListFont);
 
-	DateToAscii (date.month, date.day, date.year + firstYear,
+	DateToAscii((UInt8)date.month, (UInt8)date.day, date.year + firstYear,
 					DateFormat, dateBuffer);
 
 	// Remove the year from the date string.
@@ -3536,7 +3536,7 @@ static Boolean ListViewNewToDo (EventPtr event)
 	if (event)
 		{
 		// Convert lower case alpha character to upper-case.
-		desc[0] = event->data.keyDown.chr;
+		desc[0] = (Char)event->data.keyDown.chr;
 		desc[1] = 0;
 		if ((UInt8)desc[0] >= 'a' && (UInt8)desc[0] <= 'z')
 			desc[0] -= ('a' - 'A');
@@ -4751,7 +4751,7 @@ static void ListViewDeleteCompleted (void)
 	ctlIndex = FrmGetObjectIndex (alert, DeleteCompletedSaveBackup);
 	FrmSetControlValue (alert, ctlIndex, SaveBackup);
 	buttonHit = FrmDoDialog (alert);
-	saveBackup = FrmGetControlValue (alert, ctlIndex);
+	saveBackup = (Boolean)FrmGetControlValue (alert, ctlIndex);
 
 	FrmDeleteForm (alert);
 

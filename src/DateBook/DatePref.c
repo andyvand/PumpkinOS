@@ -811,17 +811,17 @@ Boolean PreferencesHandleEvent (EventType * event)
 			case PreferStartDownButton:
 				if (PrefDayStartHour > 0)
 					PrefDayStartHour--;
-				PreferencesDrawTime (PrefDayStartHour, true);
+				PreferencesDrawTime((UInt8)PrefDayStartHour, true);
 				break;
 
 			case PreferStartUpButton:
 				if (PrefDayStartHour < 23)
 					PrefDayStartHour++;
-				PreferencesDrawTime (PrefDayStartHour, true);
+				PreferencesDrawTime((UInt8)PrefDayStartHour, true);
 				if (PrefDayEndHour < PrefDayStartHour)
 					{
 					PrefDayEndHour = PrefDayStartHour;
-					PreferencesDrawTime (PrefDayEndHour, false);
+					PreferencesDrawTime((UInt8)PrefDayEndHour, false);
 					}
 				break;
 
@@ -831,15 +831,15 @@ Boolean PreferencesHandleEvent (EventType * event)
 				if (PrefDayEndHour < PrefDayStartHour)
 					{
 					PrefDayStartHour = PrefDayEndHour;
-					PreferencesDrawTime (PrefDayStartHour, true);
+					PreferencesDrawTime((UInt8)PrefDayStartHour, true);
 					}
-				PreferencesDrawTime (PrefDayEndHour, false);				
+				PreferencesDrawTime((UInt8)PrefDayEndHour, false);
 				break;
 
 			case PreferEndUpButton:
 				if (PrefDayEndHour < 23)
 					PrefDayEndHour++;
-				PreferencesDrawTime (PrefDayEndHour, false);
+				PreferencesDrawTime((UInt8)PrefDayEndHour, false);
 				break;
 			}
 		PreferencesUpdateScrollers ();
@@ -935,8 +935,8 @@ Boolean PreferencesHandleEvent (EventType * event)
 		frm = FrmGetActiveForm ();
 		PreferencesInit ();
 		FrmDrawForm (frm);
-		PreferencesDrawTime (DayStartHour, true);
-		PreferencesDrawTime (DayEndHour, false);
+		PreferencesDrawTime((UInt8)DayStartHour, true);
+		PreferencesDrawTime((UInt8)DayEndHour, false);
 
 		handled = true;
 		}
@@ -945,8 +945,8 @@ Boolean PreferencesHandleEvent (EventType * event)
 		{
 		frm = FrmGetActiveForm ();
 		FrmDrawForm (frm);
-		PreferencesDrawTime (DayStartHour, true);
-		PreferencesDrawTime (DayEndHour, false);
+		PreferencesDrawTime((UInt8)DayStartHour, true);
+		PreferencesDrawTime((UInt8)DayEndHour, false);
 		handled = true;
 		}
 		

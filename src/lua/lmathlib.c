@@ -184,8 +184,12 @@ static int math_log (lua_State *L) {
   else {
     lua_Number base = luaL_checknumber(L, 2);
 #if !defined(LUA_USE_C89)
-    if (base == l_mathop(2.0))
+	if (base == l_mathop(2.0))
+#ifdef _WIN32_WCE
+	  res = l_mathop(log(x) / log(2.0)); else
+#else
       res = l_mathop(log2)(x); else
+#endif
 #endif
     if (base == l_mathop(10.0))
       res = l_mathop(log10)(x);

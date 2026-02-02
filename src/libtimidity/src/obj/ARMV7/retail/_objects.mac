@@ -1,0 +1,12 @@
+OBJECTS=\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\common.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\instrum.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\mix.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\output.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\playmidi.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\readmidi.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\resample.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\stream.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\tables.obj\
+    C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\libtimidity\src\obj\ARMV7\retail\timidity.obj
+

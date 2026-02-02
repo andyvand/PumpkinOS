@@ -117,12 +117,12 @@ static Boolean DatetimeFormHandleEvent(EventType *event) {
       seconds = TimGetSeconds();
       TimSecondsToDateTime(seconds, &dateTime);
 
-      DateToAscii(dateTime.month, dateTime.day, dateTime.year, prefs.dateFormat, data->dateBuf);
+	  DateToAscii((UInt8)dateTime.month, (UInt8)dateTime.day, dateTime.year, prefs.dateFormat, data->dateBuf);
       index = FrmGetObjectIndex(frm, setDateTrigger);
       ctl = (ControlType *)FrmGetObjectPtr(frm, index);
       CtlSetLabel(ctl, data->dateBuf);
 
-      TimeToAscii(dateTime.hour, dateTime.minute, prefs.timeFormat, data->timeBuf);
+	  TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, prefs.timeFormat, data->timeBuf);
       index = FrmGetObjectIndex(frm, setTimeTrigger);
       ctl = (ControlType *)FrmGetObjectPtr(frm, index);
       CtlSetLabel(ctl, data->timeBuf);
@@ -260,9 +260,9 @@ static void updateLabels(prefs_data_t *data, FormType *frm) {
 
   seconds = TimGetSeconds();
   TimSecondsToDateTime(seconds, &dateTime);
-  TimeToAscii(dateTime.hour, dateTime.minute, prefs.timeFormat, data->timeBuf);
-  DateToAscii(dateTime.month, dateTime.day, dateTime.year, prefs.dateFormat, data->dateBuf);
-  DateToAscii(dateTime.month, dateTime.day, dateTime.year, prefs.longDateFormat, data->longDateBuf);
+  TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, prefs.timeFormat, data->timeBuf);
+  DateToAscii((UInt8)dateTime.month, (UInt8)dateTime.day, dateTime.year, prefs.dateFormat, data->dateBuf);
+  DateToAscii((UInt8)dateTime.month, (UInt8)dateTime.day, dateTime.year, prefs.longDateFormat, data->longDateBuf);
 
   WinPaintChars(data->timeBuf, StrLen(data->timeBuf), timeRect.topLeft.x, timeRect.topLeft.y);
   timeRect.topLeft.x += FntCharsWidth(data->timeBuf, StrLen(data->timeBuf));
@@ -601,7 +601,7 @@ static void drawImage(FormType *frm, UInt16 i, RectangleType *rect) {
     winBmp = WinGetBitmap(wh);
     density = BmpGetDensity(winBmp);
     depth = BmpGetBitDepth(winBmp);
-    bmp = BmpGetBestBitmap(bmp, density, depth);
+	bmp = BmpGetBestBitmap(bmp, density, (UInt8)depth);
 
     BmpGetDimensions(bmp, &width, &height, NULL);
     if (width <= rect->extent.x && height <= rect->extent.y) {
@@ -827,7 +827,7 @@ static Boolean DesktopFormHandleEvent(EventType *event) {
   ControlType *ctl;
   RGBColorType *rgb;
   UInt16 id, index;
-  char *title;
+  char *title = NULL;
   Boolean handled = false;
 
   switch (event->eType) {

@@ -428,7 +428,7 @@ static int SrmGetByte(int id, uint8_t *b, int64_t us) {
     // return  0: nothing to read from fd
     // return  1, nread = 0: nothing was read from fd
     // return  1, nread > 0: read nread bytes from fd
-    if ((r = sys_read_timeout(module->portId[id], module->buf[id], module->bufSize[id], &nread, us)) <= 0) {
+    if ((r = sys_read_timeout(module->portId[id], module->buf[id], module->bufSize[id], &nread, (uint32_t)us)) <= 0) {
       return r;
     }
     if (r == 1 && nread == 0) {

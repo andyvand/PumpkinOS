@@ -1,0 +1,4 @@
+LIBRARY Preferences
+EXPORTS
+    DllMain @2
+    PilotMain @1

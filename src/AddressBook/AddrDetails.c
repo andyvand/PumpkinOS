@@ -193,7 +193,7 @@ Boolean DetailsDeleteRecord (void)
 
 	buttonHit = FrmDoDialog (alert);
 
-	archive = FrmGetControlValue (alert, ctlIndex);
+	archive = (Boolean)FrmGetControlValue (alert, ctlIndex);
 
 	FrmDeleteForm (alert);
 	if (buttonHit == DeleteAddrCancel)
@@ -307,7 +307,7 @@ UInt16 PrvDetailsApply (UInt16 category, Boolean categoryEdited)
 	// are different.  If the record is being set 'secret' for the
 	//   first time, and the system 'hide secret records' setting is
 	//   off, display an informational alert to the user.
-	secret = CtlGetValue (ToolsGetObjectPtr (DetailsSecretCheckbox));
+	secret = (Boolean)CtlGetValue(ToolsGetObjectPtr(DetailsSecretCheckbox));
 	if (((attr & dmRecAttrSecret) == dmRecAttrSecret) != secret)
 	{
 		if (PrivateRecordVisualStatus > showPrivateRecords)

@@ -12,7 +12,7 @@ int get1(uint8_t *w, uint8_t *buf, int i) {
 }
 
 int put2l(uint16_t w, uint8_t *buf, int i) {
-  buf[i] = w;
+  buf[i] = (uint8_t)w;
   buf[i+1] = w >> 8;
   return 2;
 }
@@ -39,7 +39,7 @@ int get4l(uint32_t *w, uint8_t *buf, int i) {
 
 int put2b(uint16_t w, uint8_t *buf, int i) {
   buf[i] = w >> 8;
-  buf[i+1] = w;
+  buf[i+1] = (uint8_t)w;
   return 2;
 }
 

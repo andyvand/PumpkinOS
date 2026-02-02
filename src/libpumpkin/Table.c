@@ -624,7 +624,7 @@ Boolean TblRowUsable(const TableType *tableP, Int16 row) {
   Boolean usable = false;
 
   if (tableP && row >= 0 && row < tableP->numRows) {
-    usable = tableP->rowAttrs[row].usable;
+    usable = (Boolean)tableP->rowAttrs[row].usable;
   }
 
   return usable;
@@ -679,7 +679,7 @@ Boolean TblRowSelectable(const TableType *tableP, Int16 row) {
   Boolean selectable = false;
 
   if (tableP && row >= 0 && row < tableP->numRows) {
-    selectable = tableP->rowAttrs[row].selectable;
+    selectable = (Boolean)tableP->rowAttrs[row].selectable;
   }
 
   return selectable;
@@ -847,7 +847,7 @@ Boolean TblRowInvalid(const TableType *tableP, Int16 row) {
   Boolean invalid = false;
 
   if (tableP && row >= 0 && row < tableP->numRows) {
-    invalid = tableP->rowAttrs[row].invalid;
+    invalid = (Boolean)tableP->rowAttrs[row].invalid;
   }
 
   return invalid;
@@ -875,7 +875,7 @@ Boolean TblGetSelection(const TableType *tableP, Int16 *rowP, Int16 *columnP) {
   Boolean selected = false;
 
   if (tableP) {
-    selected = tableP->attr.selected;
+    selected = (Boolean)tableP->attr.selected;
     if (rowP) *rowP = tableP->currentRow;
     if (columnP) *columnP = tableP->currentColumn;
   }
@@ -1126,7 +1126,7 @@ Boolean TblRowMasked(const TableType *tableP, Int16 row) {
   Boolean masked = false;
 
   if (tableP && row >= 0 && row < tableP->numRows) {
-    masked = tableP->rowAttrs[row].masked;
+    masked = (Boolean)tableP->rowAttrs[row].masked;
   }
 
   return masked;

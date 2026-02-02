@@ -194,29 +194,33 @@ static const command_builtin_t builtinCommands[] = {
   { NULL, NULL }
 };
 
-static void command_putc(command_internal_data_t *idata, char c) {
-  plibc_putchar(c);
-}
-
-static void command_puts(command_internal_data_t *idata, char *s) {
-  plibc_fputs(s, plibc_stdout);
-}
-
 static void command_putchar(void *data, char c) {
-  command_internal_data_t *idata = (command_internal_data_t *)data;
-  uint8_t b = c;
+	command_internal_data_t *idata = (command_internal_data_t *)data;
+	uint8_t b = c;
 
-  pterm_cursor(idata->t, 0);
-  pterm_send(idata->t, &b, 1);
-  pterm_cursor(idata->t, 1);
+	pterm_cursor(idata->t, 0);
+	pterm_send(idata->t, &b, 1);
+	pterm_cursor(idata->t, 1);
 }
 
 static void command_putstr(void *data, char *s, uint32_t len) {
-  command_internal_data_t *idata = (command_internal_data_t *)data;
+	command_internal_data_t *idata = (command_internal_data_t *)data;
 
-  pterm_cursor(idata->t, 0);
-  pterm_send(idata->t, (uint8_t *)s, len);
-  pterm_cursor(idata->t, 1);
+	pterm_cursor(idata->t, 0);
+	pterm_send(idata->t, (uint8_t *)s, len);
+	pterm_cursor(idata->t, 1);
+}
+
+static void command_putc(command_internal_data_t *idata, char c) {
+  //plibc_putchar(c);
+  if (idata != NULL)
+    command_putchar(idata, c);
+}
+
+static void command_puts(command_internal_data_t *idata, char *s) {
+  //plibc_fputs(s, plibc_stdout);
+  if ((s != NULL) && (idata != NULL))
+    command_putstr(idata, s, (uint32_t)sys_strlen(s));
 }
 
 static void command_setcolor(void *data, uint32_t fg, uint32_t bg) {
@@ -617,7 +621,7 @@ void command_drag(command_internal_data_t *idata, Int16 x, Int16 y, Int16 type) 
 
   WinScreenMode(winScreenModeGet, &swidth, &sheight, NULL, NULL);
 
-  if (x >= 0 && x < swidth && y >= 0 && y < sheight) {
+  if (x >= 0 && x < (Int16)swidth && y >= 0 && y < (Int16)sheight) {
     pterm_cursor(idata->t, 0);
     col = x / idata->fwidth;
     row = y / idata->fheight;
@@ -668,13 +672,13 @@ void command_drag(command_internal_data_t *idata, Int16 x, Int16 y, Int16 type) 
 
 static Boolean MainFormHandleEvent(EventType *event) {
   command_internal_data_t *idata = command_get_data();
-  WinHandle wh;
-  FormType *formP;
+  WinHandle wh = NULL;
+  FormType *formP = NULL;
   RectangleType rect;
   RGBColorType oldb;
-  UInt32 density, swidth, sheight;
-  FontID font, old;
-  Coord x, y;
+  UInt32 density = 0, swidth = 0, sheight = 0;
+  FontID font = 0, old = 0;
+  Coord x = 0, y = 0;
   Boolean handled = false;
 
   switch (event->eType) {
@@ -727,7 +731,7 @@ static Boolean MainFormHandleEvent(EventType *event) {
 
     case keyDownEvent:
       if (!(event->data.keyDown.modifiers & commandKeyMask)) {
-        command_key(idata, event->data.keyDown.chr, true);
+        command_key(idata, (UInt8)event->data.keyDown.chr, true);
         handled = true;
       }
       break;
@@ -1534,7 +1538,7 @@ static int command_shell_filter_read(conn_filter_t *filter, uint8_t *b) {
     switch (event.eType) {
       case keyDownEvent:
         if (!(event.data.keyDown.modifiers & commandKeyMask)) {
-          *b = event.data.keyDown.chr;
+          *b = (uint8_t)event.data.keyDown.chr;
           if (*b == '\n') *b = '\r';
           stop = 1;
           r = 1;

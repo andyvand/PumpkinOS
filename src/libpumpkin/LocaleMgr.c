@@ -170,7 +170,7 @@ Err LmGetLocaleSetting(UInt16 iLocaleIndex, LmLocaleSettingChoice iChoice, void 
           case lmChoiceWeekStartDay:
             if (iValueSize >= 1) {
               value8 = (UInt8 *)oValue;
-              *value8 = p[iLocaleIndex * numCols + 5];
+              *value8 = (UInt8)p[iLocaleIndex * numCols + 5];
             } else {
               err = lmErrSettingDataOverflow;
             }
@@ -215,7 +215,7 @@ Err LmGetLocaleSetting(UInt16 iLocaleIndex, LmLocaleSettingChoice iChoice, void 
           case lmChoiceCurrencyDecimalPlaces:
             if (iValueSize >= 1) {
               value8 = (UInt8 *)oValue;
-              *value8 = p[iLocaleIndex * numCols + 8];
+              *value8 = (UInt8)p[iLocaleIndex * numCols + 8];
             } else {
               err = lmErrSettingDataOverflow;
             }

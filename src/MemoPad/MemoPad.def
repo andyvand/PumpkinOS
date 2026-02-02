@@ -1,0 +1,19 @@
+LIBRARY MemoPad
+EXPORTS
+    DllMain @17
+    AppResourceList @1
+    MemoAppInfoInit @2
+    MemoChangeSortOrder @3
+    MemoExportMime @4
+    MemoGetDatabase @5
+    MemoGetSortOrder @6
+    MemoImportMime @7
+    MemoNewRecord @8
+    MemoReceiveData @9
+    MemoSendCategory @10
+    MemoSendRecord @11
+    MemoSort @12
+    MemoSortRecord @13
+    MemoTransferPreview @14
+    PilotMain @15
+    SetDBBackupBit @16

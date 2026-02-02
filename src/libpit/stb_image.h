@@ -370,6 +370,10 @@ RECENT REVISION HISTORY:
 
 #define STBI_VERSION 1
 
+#ifdef WINDOWS
+#define STBI_NO_SIMD 1
+#endif
+
 enum
 {
    STBI_default = 0, // only used for desired_channels
@@ -381,6 +385,7 @@ enum
 };
 
 #include <stdlib.h>
+
 typedef unsigned char stbi_uc;
 typedef unsigned short stbi_us;
 
@@ -609,12 +614,16 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 
 #ifndef _MSC_VER
    #ifdef __cplusplus
-   #define stbi_inline inline
+   #define stbi_inline __inline
    #else
    #define stbi_inline
    #endif
 #else
    #define stbi_inline __forceinline
+#endif
+
+#ifdef _WIN32_WCE
+#define STBI_NO_THREAD_LOCALS
 #endif
 
 #ifndef STBI_NO_THREAD_LOCALS
@@ -961,7 +970,7 @@ static int      stbi__pnm_is16(stbi__context *s);
 #endif
 
 static
-#ifdef STBI_THREAD_LOCAL
+#if defined(STBI_THREAD_LOCAL) && !defined(_WIN32_WCE)
 STBI_THREAD_LOCAL
 #endif
 const char *stbi__g_failure_reason;

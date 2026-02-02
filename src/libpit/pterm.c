@@ -550,7 +550,7 @@ void pterm_send(pterm_t *t, uint8_t *buf, int n) {
             if (i > 0) sys_strcat(dbuf, ";");
             sys_snprintf(&dbuf[sys_strlen(dbuf)], sizeof(dbuf)-sys_strlen(dbuf)-1, "%d", t->vt100_arg[i]);
           }
-          i =sys_strlen(dbuf);
+          i = (int)sys_strlen(dbuf);
           dbuf[i++] = c;
           dbuf[i++] = 0;
           debug(DEBUG_TRACE, "TERM", "%s", dbuf);
@@ -700,7 +700,7 @@ void pterm_send(pterm_t *t, uint8_t *buf, int n) {
             if (t->vt100_num == 1 && t->vt100_arg[0] == 6) {
               // Query cursor position
               sys_snprintf(abuf, sizeof(abuf)-1, "%c[%d;%dR", ESC, t->row + 1, t->col + 1);
-              if (t->cb) t->cb->reply(abuf, sys_strlen(abuf), t->cb->data);
+              if (t->cb) t->cb->reply(abuf, (int)sys_strlen(abuf), t->cb->data);
             }
             break;
           case 'r':  // Change scrolling region (VT100)
@@ -979,7 +979,7 @@ void pterm_home(pterm_t *t) {
 }
 
 void pterm_getchar(pterm_t *t, uint32_t index, uint8_t *code, uint32_t *fg, uint32_t *bg) {
-  if (index < t->size) {
+  if (index < (uint32_t)t->size) {
     *code = t->char_buffer[index];
     if (t->rgb) {
       *fg = (t->attr_buffer[index] & ATTR_INVERSE) ? t->rgb_bg_buffer[index] : t->rgb_fg_buffer[index];
@@ -992,7 +992,7 @@ void pterm_getchar(pterm_t *t, uint32_t index, uint8_t *code, uint32_t *fg, uint
 }
 
 void pterm_putchar(pterm_t *t, uint32_t index, uint8_t code, uint32_t fg, uint32_t bg) {
-  if (index < t->size) {
+  if (index < (uint32_t)t->size) {
     t->char_buffer[index] = code;
     if (t->rgb) {
       if (t->attr_buffer[index] & ATTR_INVERSE) {

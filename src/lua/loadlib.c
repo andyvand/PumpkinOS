@@ -13,11 +13,11 @@
 
 #include "lprefix.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "../libpit/sys.h"
 #include "lua.h"
 
 #include "lauxlib.h"
@@ -149,7 +149,6 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
 
 #include <windows.h>
 
-
 /*
 ** optional flags for LoadLibraryEx
 */
@@ -169,7 +168,18 @@ static void setprogdir (lua_State *L) {
   char buff[MAX_PATH + 1];
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
-  DWORD n = GetModuleFileNameA(NULL, buff, nsize);  /* get exec. name */
+#if __STDC_WANT_SECURE_LIB__
+  size_t bufflen = 0;
+#endif
+  WCHAR buffw[MAX_PATH + 1];
+
+  DWORD n = GetModuleFileNameW(NULL, buffw, nsize);  /* get exec. name */
+#if __STDC_WANT_SECURE_LIB_
+  wcstombs_s(&bufflen, buff, MAX_PATH, buffw, MAX_PATH);
+#else
+  wcstombs(buff, buffw, MAX_PATH);
+#endif
+
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
     luaL_error(L, "unable to get ModuleFileName");
   else {
@@ -185,10 +195,20 @@ static void setprogdir (lua_State *L) {
 static void pusherror (lua_State *L) {
   int error = GetLastError();
   char buffer[128];
-  if (FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-      NULL, error, 0, buffer, sizeof(buffer)/sizeof(char), NULL))
+  WCHAR bufferw[128];
+#if __STDC_WANT_SECURE_LIB__
+  size_t bufferlen = 0;
+#endif
+
+  if (FormatMessageW(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+	  NULL, error, 0, bufferw, sizeof(bufferw) / sizeof(WCHAR), NULL)) {
+#if __STDC_WANT_SECURE_LIB__
+    wcstombs_s(&bufferlen, buffer, 128, bufferw, 128);
+#else
+    wcstombs(buffer, bufferw, 128);
+#endif
     lua_pushstring(L, buffer);
-  else
+  } else
     lua_pushfstring(L, "system error %d\n", error);
 }
 
@@ -198,7 +218,15 @@ static void lsys_unloadlib (void *lib) {
 
 
 static void *lsys_load (lua_State *L, const char *path, int seeglb) {
-  HMODULE lib = LoadLibraryExA(path, NULL, LUA_LLE_FLAGS);
+  HMODULE lib = NULL;
+  WCHAR pathw[MAX_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t pathlen = 0;
+  mbstowcs_s(&pathlen, pathw, MAX_PATH, path, strlen(path));
+#else
+  mbstowcs(pathw, path, MAX_PATH);
+#endif
+  lib = LoadLibraryExW(pathw, NULL, LUA_LLE_FLAGS);
   (void)(seeglb);  /* not used: symbols are 'global' by default */
   if (lib == NULL) pusherror(L);
   return lib;
@@ -206,7 +234,20 @@ static void *lsys_load (lua_State *L, const char *path, int seeglb) {
 
 
 static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
-  lua_CFunction f = (lua_CFunction)GetProcAddress((HMODULE)lib, sym);
+  lua_CFunction f = NULL;
+#if defined(_WIN32_WCE) && !defined(CE_EMU)
+  WCHAR symw[MAX_PATH];
+#if __STDC_WANT_SECURE_LIB__
+  size_t symlen = 0;
+  mbstowcs_s(&symlen, symw, MAX_PATH, sym, strlen(sym));
+#else
+  mbstowcs(symw, sym, MAX_PATH);
+#endif
+  f = (lua_CFunction)GetProcAddressW((HMODULE)lib, symw);
+#else
+  f = (lua_CFunction)GetProcAddress((HMODULE)lib, sym);
+#endif
+
   if (f == NULL) pusherror(L);
   return f;
 }
@@ -291,9 +332,9 @@ static void setpath (lua_State *L, const char *fieldname,
                                    const char *envname,
                                    const char *dft) {
   const char *nver = lua_pushfstring(L, "%s%s", envname, LUA_VERSUFFIX);
-  const char *path = getenv(nver);  /* use versioned name */
+  const char *path = (const char *)sys_getenv((char *)nver);  /* use versioned name */
   if (path == NULL)  /* no environment variable? */
-    path = getenv(envname);  /* try unversioned name */
+    path = (const char *)sys_getenv((char *)envname);  /* try unversioned name */
   if (path == NULL || noenv(L))  /* no environment variable? */
     lua_pushstring(L, dft);  /* use default */
   else {

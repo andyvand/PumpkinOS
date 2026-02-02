@@ -16,7 +16,7 @@ Boolean TblGlueGetColumnMasked(const TableType *tableP, Int16 column) {
   Boolean masked = false;
 
   if (tableP && column >= 0 && column < tableP->numColumns) {
-    masked = tableP->columnAttrs[column].masked;
+    masked = (Boolean)tableP->columnAttrs[column].masked;
   }
 
   return masked;

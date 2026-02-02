@@ -1,0 +1,91 @@
+BUILD: [00:0000000000:PROGC ] Build started with parameters: -c
+BUILD: [00:0000000000:PROGC ] Build started in directory: C:\WINCE800\OSDesigns\QEMU\QEMU\PumpkinOS\src\AddressBook
+BUILD: [00:0000000000:PROGC ] Running passes WCEFILES0, MIDL, MC, ASN, THUNK, RUN_WPP, XRPACK, PRECOMPHEADER, COMPILE, RENUMBERICONIDS, RES2RES, LIB, EXPLIB, LINK, LOCALIZE, MANAGEDRESX, MANAGEDMOD, MANAGEDDLL, MANAGEDEXE, MANAGEDWIN, POSTBUILD for ARM.
+BUILD: [00:0000000000:PROGC ] Ignoring build database (-c specified).
+BUILD: [00:0000000000:PROGC ] Computing include file dependencies:
+BUILD: [01:0000000046:PROGC ] Scan C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\
+BUILD: [00:0000000640:PROGC ] Warning(s) in directory "C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\".
+BUILD: [00:0000000859:PROGC ] Directory scanning complete.
+BUILD: [00:0000000859:PROGC ] Saving C:\wince800\osdesigns\qemu\qemu\pumpkinos\BuildARMV7retail.dat.
+BUILD: [00:0000000875:PROGC ] Saving Master Database complete.
+BUILD: [00:0000000875:PROGC ] Starting WCEFILES0 Pass.
+BUILD: [00:0000000890:PROGC ] Analyzing project dependency information for pass WCEFILES0.
+BUILD: [00:0000000890:PROGC ] Starting MIDL Pass.
+BUILD: [00:0000000890:PROGC ] Analyzing project dependency information for pass MIDL.
+BUILD: [00:0000000906:PROGC ] Starting MC Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass MC.
+BUILD: [00:0000000906:PROGC ] Starting ASN Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass ASN.
+BUILD: [00:0000000906:PROGC ] Starting THUNK Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass THUNK.
+BUILD: [00:0000000906:PROGC ] Starting RUN_WPP Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass RUN_WPP.
+BUILD: [00:0000000906:PROGC ] Starting XRPACK Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass XRPACK.
+BUILD: [00:0000000906:PROGC ] Starting PRECOMPHEADER Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass PRECOMPHEADER.
+BUILD: [00:0000000906:PROGC ] Starting COMPILE Pass.
+BUILD: [00:0000000906:PROGC ] Analyzing project dependency information for pass COMPILE.
+BUILD: [00:0000000937:PROGC ] Building COMPILE Pass in C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\ directory.
+BUILD: [01:0000001500:PROGC ] Compiling .\AddrCustom.c .\AddrDetails.c .\AddrDialList.c .\AddrEdit.c .\AddressAutoFill.c .\Address.c .\AddressDB.c .\AddressLookup.c .\AddressTransfer.c .\AddrList.c .\AddrNote.c .\AddrPrefs.c .\AddrTools.c .\AddrView.c .\DllMain.c
+BUILD: [01:0000001609:PROGC ] Warning(s) in directory "C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\".
+BUILD: [01:0000001609:WARNN ] cl : Command line warning D9024 : unrecognized source file type 'Book"', object file assumed {log="C:\WINCE800\OSDesigns\QEMU\QEMU\PumpkinOS\src\AddressBook\bldsys.log(47)"}
+BUILD: [01:0000001609:WARNN ] cl : Command line warning D9027 : source file 'Book"' ignored {log="C:\WINCE800\OSDesigns\QEMU\QEMU\PumpkinOS\src\AddressBook\bldsys.log(48)"}
+BUILD: [00:0000008125:PROGC ] Starting RENUMBERICONIDS Pass.
+BUILD: [00:0000008125:PROGC ] Analyzing project dependency information for pass RENUMBERICONIDS.
+BUILD: [00:0000008125:PROGC ] Starting RES2RES Pass.
+BUILD: [00:0000008125:PROGC ] Analyzing project dependency information for pass RES2RES.
+BUILD: [00:0000008125:PROGC ] Starting LIB Pass.
+BUILD: [00:0000008125:PROGC ] Analyzing project dependency information for pass LIB.
+BUILD: [00:0000008125:PROGC ] Starting EXPLIB Pass.
+BUILD: [00:0000008125:PROGC ] Analyzing project dependency information for pass EXPLIB.
+BUILD: [00:0000008125:PROGC ] Building EXPLIB Pass in C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\ directory.
+BUILD: [01:0000008296:PROGC ] Linking C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\obj\ARMV7\retail\AddressBook.lib
+BUILD: [00:0000008515:PROGC ] Starting LINK Pass.
+BUILD: [00:0000008515:PROGC ] Analyzing project dependency information for pass LINK.
+BUILD: [00:0000008656:PROGC ] Building LINK Pass in C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\ directory.
+BUILD: [01:0000008875:PROGC ] Linking C:\wince800\osdesigns\qemu\qemu\pumpkinos\src\addressbook\obj\ARMV7\retail\AddressBook.dll
+BUILD: [00:0000009562:PROGC ] Starting LOCALIZE Pass.
+BUILD: [00:0000009562:PROGC ] Analyzing project dependency information for pass LOCALIZE.
+BUILD: [00:0000009562:PROGC ] Starting MANAGEDRESX Pass.
+BUILD: [00:0000009578:PROGC ] Analyzing project dependency information for pass MANAGEDRESX.
+BUILD: [00:0000009578:PROGC ] Starting MANAGEDMOD Pass.
+BUILD: [00:0000009578:PROGC ] Analyzing project dependency information for pass MANAGEDMOD.
+BUILD: [00:0000009578:PROGC ] Starting MANAGEDDLL Pass.
+BUILD: [00:0000009578:PROGC ] Analyzing project dependency information for pass MANAGEDDLL.
+BUILD: [00:0000009578:PROGC ] Starting MANAGEDEXE Pass.
+BUILD: [00:0000009578:PROGC ] Analyzing project dependency information for pass MANAGEDEXE.
+BUILD: [00:0000009578:PROGC ] Starting MANAGEDWIN Pass.
+BUILD: [00:0000009578:PROGC ] Analyzing project dependency information for pass MANAGEDWIN.
+BUILD: [00:0000009578:PROGC ] Starting POSTBUILD Pass.
+BUILD: [00:0000009578:PROGC ] Analyzing project dependency information for pass POSTBUILD.
+BUILD: [00:0000010109:PROGC ] Saving C:\wince800\osdesigns\qemu\qemu\pumpkinos\BuildARMV7retail.dat.
+BUILD: [00:0000010156:PROGC ] Done.
+BUILD: [00:0000010156:PROGC ]                        Files  Warnings  Errors
+BUILD: [00:0000010156:PROGC ] Midl                       0         0       0
+BUILD: [00:0000010156:PROGC ] Message                    0         0       0
+BUILD: [00:0000010156:PROGC ] Precomp Header             0         0       0
+BUILD: [00:0000010156:PROGC ] Resource                   0         0       0
+BUILD: [00:0000010156:PROGC ] XRPack                     0         0       0
+BUILD: [00:0000010156:PROGC ] MASM                       0         0       0
+BUILD: [00:0000010156:PROGC ] SHASM                      0         0       0
+BUILD: [00:0000010156:PROGC ] ARMASM                     0         0       0
+BUILD: [00:0000010156:PROGC ] C++                        0         0       0
+BUILD: [00:0000010156:PROGC ] C                          1         2       0
+BUILD: [00:0000010171:PROGC ] CheckLibs                  0         0       0
+BUILD: [00:0000010171:PROGC ] Static Libraries           0         0       0
+BUILD: [00:0000010171:PROGC ] Exe's                      0         0       0
+BUILD: [00:0000010171:PROGC ] Dll's                      2         0       0
+BUILD: [00:0000010171:PROGC ] Preprocess deffile         0         0       0
+BUILD: [00:0000010171:PROGC ] Resx                       0         0       0
+BUILD: [00:0000010171:PROGC ] CSharp Compile             0         0       0
+BUILD: [00:0000010171:PROGC ] VCProj Compile             0         0       0
+BUILD: [00:0000010171:PROGC ] NETCF Build                0         0       0
+BUILD: [00:0000010171:PROGC ] Localization               0         0       0
+BUILD: [00:0000010171:PROGC ] Other                      0        14       0
+BUILD: [00:0000010171:PROGC ] 
+BUILD: [00:0000010171:PROGC ] Total                      3        16       0
+BUILD: [00:0000010171:PROGC ] 
+BUILD: [00:0000010171:PROGC ] 16 Warnings,  0 Errors
+BUILD: [00:0000010218:PROGC ] GetSystemTimes (seconds): Idle: 0     Kernel: 11    User: 8    
+BUILD: [00:0000010234:PROGC ] Elapsed  time  (seconds): 10   

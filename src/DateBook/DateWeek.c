@@ -744,7 +744,7 @@ static WinHandle WeekViewDrawDescription (TimePtr startTime, TimePtr endTime,
 	// Format and draw the appointments date.
 	if (date)
 		{
-		DateToDOWDMFormat (date->month, date->day, date->year + firstYear,
+		DateToDOWDMFormat((UInt8)date->month, (UInt8)date->day, date->year + firstYear,
 			ShortDateFormat, str);
 
 		#if WRISTPDA
@@ -856,7 +856,7 @@ static WinHandle WeekViewDrawDescription (TimePtr startTime, TimePtr endTime,
 	
 		ptr = StrChr (desc, linefeedChr);
 
-		charsToDraw = (ptr == NULL ? StrLen (desc) : ptr - desc);
+		charsToDraw = (ptr == NULL ? (UInt16)StrLen(desc) : (UInt16)(ptr - desc));
 		WinDrawTruncChars(desc, charsToDraw, x, y, maxDescWidth);
 		}
 
@@ -1385,7 +1385,7 @@ static void UpdateEndTime (TimeType *time, TimeType *endTime,
 		{
 		if (time->hours >= timeLimit)
 			{
-			endTime->hours = timeLimit;
+				endTime->hours = (UInt8)timeLimit;
 			endTime->minutes = 0;
 			}
 		else
@@ -1846,7 +1846,7 @@ static void WeekViewSetTitle (WeekType * week)
 
 	templateH = DmGetResource(strRsc, startDateID);
 	templateP = (Char*)MemHandleLock(templateH);
-	DateTemplateToAscii(templateP, week->startDate.month, week->startDate.day,
+	DateTemplateToAscii(templateP, (UInt8)week->startDate.month, (UInt8)week->startDate.day,
  			week->startDate.year + firstYear, startDate, sizeof(startDate) - 1);
  	
  	if (startDateID != endDateID)
@@ -1856,8 +1856,8 @@ static void WeekViewSetTitle (WeekType * week)
 		templateP = (Char*)MemHandleLock(templateH);
 		}
 	
-	DateTemplateToAscii(templateP, week->days[weekLastDayIndex].date.month,
-		week->days[weekLastDayIndex].date.day, week->days[weekLastDayIndex].date.year + firstYear,
+	DateTemplateToAscii(templateP, (UInt8)week->days[weekLastDayIndex].date.month,
+		(UInt8)week->days[weekLastDayIndex].date.day, week->days[weekLastDayIndex].date.year + firstYear,
 		endDate, sizeof(endDate) - 1);
 	MemPtrUnlock((MemPtr)templateP);
 
@@ -2112,7 +2112,7 @@ static void WeekViewShowTime (void)
 
 	AttnIndicatorEnable(false);
 	TimSecondsToDateTime (TimGetSeconds (), &dateTime);
-	TimeToAscii (dateTime.hour, dateTime.minute, TimeFormat, title);
+	TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, TimeFormat, title);
 	FrmCopyTitle (FrmGetActiveForm (), title);
 	
 	TimeDisplayed = true;
@@ -2296,7 +2296,7 @@ static void WeekViewDrawTimes (Int16 startYPos, UInt16 startHour, UInt16 endHour
 		  nextHour += weekViewHourDisplayInterval,
 		  hourYPos += hourHeight*weekViewHourDisplayInterval)
 		{
-		TimeToAscii (nextHour, 0, TimeFormat, hourStr);
+		TimeToAscii((UInt8)nextHour, 0, TimeFormat, hourStr);
 		if (!Use24HourFormat(TimeFormat))
 			{	//	If we are using the 12-hour/Am/Pm format, strip off the
 				//	trailing am/pm

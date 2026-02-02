@@ -1,6 +1,10 @@
 #include "sys.h"
 
 #if !defined(KERNEL)
+#ifdef __MINGW32__
+#define _abs64 absl
+#endif
+
 #include <stdlib.h>
 #endif
 #include <limits.h>

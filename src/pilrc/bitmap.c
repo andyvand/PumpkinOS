@@ -1621,7 +1621,7 @@ BMP_ConvertTextBitmap(RCBITMAP * rcbmp,
 
   // allocate image buffer
   rcbmp->cbRow = ((rcbmp->cx + 15) & ~15) / 8;
-  rcbmp->cbDst = rcbmp->cbRow * rcbmp->cy;
+  rcbmp->cbDst = (int)(rcbmp->cbRow * rcbmp->cy);
   rcbmp->pixelsize = 1;
   rcbmp->version = 1;
   if (vfLE32)
@@ -1675,9 +1675,16 @@ BMP_ConvertX11Bitmap(RCBITMAP * rcbmp,
 
     int result[2];
 
+#if __STDC_WANT_SECURE_LIB__
+	// try and get the width and height
+	result[0] = sscanf_s((const char *)data + i,
+                         "#define %79s %d", name_and_type, 80, &value);
+#else
     // try and get the width and height
     result[0] = sscanf((const char *)data + i,
                        "#define %79s %d", name_and_type, &value);
+#endif
+
     if (result[0] == 2)
     {
 
@@ -1688,11 +1695,21 @@ BMP_ConvertX11Bitmap(RCBITMAP * rcbmp,
       else if (strcmp(type, "height") == 0)
         rcbmp->cy = value;
     }
+
+#if __STDC_WANT_SECURE_LIB__
+	// look for the data token (is there data)?
+	result[0] = sscanf_s((const char *)data + i,
+                         "static unsigned char %s = {", name_and_type, 80);
+	result[1] = sscanf_s((const char *)data + i,
+                          "static char %s = {", name_and_type, 80);
+#else
     // look for the data token (is there data)?
     result[0] = sscanf((const char *)data + i,
                        "static unsigned char %s = {", name_and_type);
     result[1] = sscanf((const char *)data + i,
                        "static char %s = {", name_and_type);
+#endif
+
     if (result[0] || result[1])
     {
 
@@ -1701,7 +1718,7 @@ BMP_ConvertX11Bitmap(RCBITMAP * rcbmp,
       if (strcmp(type, "bits[]") == 0 && rcbmp->cx > 0 && rcbmp->cy > 0)
       {
         rcbmp->cbRow = ((rcbmp->cx + 15) & ~15) / 8;
-        rcbmp->cbDst = rcbmp->cbRow * rcbmp->cy;
+        rcbmp->cbDst = (int)(rcbmp->cbRow * rcbmp->cy);
         rcbmp->pbBits = malloc(rcbmp->cbDst);
 
         break;                                   // get out of the loop
@@ -1769,7 +1786,7 @@ WriteGreyTbmp(RCBITMAP * rcbmp,
               struct foreign_reader *reader)
 {
   BOOL warnColorLost = fFalse;
-  int depth = rcbmp->pixelsize;
+  int depth = (int)rcbmp->pixelsize;
   unsigned long outmaxval = (1UL << depth) - 1;
   unsigned char *outp = rcbmp->pbBits;
   int *index = malloc((reader->maxval + 1) * sizeof(int));
@@ -2021,7 +2038,7 @@ WriteTbmp(RCBITMAP * rcbmp,
   rcbmp->cy = height;
   rcbmp->pixelsize = depth;
   rcbmp->cbRow = ((width * depth + 15) & ~15) >> 3;
-  rcbmp->cbDst = rcbmp->cbRow * height;
+  rcbmp->cbDst = (int)(rcbmp->cbRow * height);
   rcbmp->pbBits = malloc(rcbmp->cbDst);
   rcbmp->version = (depth >= 8) ? 2 : 1;
   if (vfLE32)
@@ -2302,7 +2319,7 @@ BMP_CompressBitmap(RCBITMAP * rcbmp,
   if ((bmpVersion < 3) && (directColor))
     size += 8;
 
-  msize = size + ((rcbmp->cbRow + ((rcbmp->cbRow + 7) / 8)) * rcbmp->cy);
+  msize = (int)(size + ((rcbmp->cbRow + ((rcbmp->cbRow + 7) / 8)) * rcbmp->cy));
 
   // allocat memory and clear
   bits = (unsigned char *)malloc(msize * sizeof(unsigned char));
@@ -2680,7 +2697,7 @@ BMP_CompressDumpBitmap(RCBITMAP * rcbmp,
         int i, oldSize = rcbmp->cbDst;
 
         rcbmp->nextDepthOffset++;
-        rcbmp->cbDst = (rcbmp->nextDepthOffset - 4) << 2;
+        rcbmp->cbDst = (int)((rcbmp->nextDepthOffset - 4) << 2);
         rcbmp->pbBits = (PILRC_BYTE *) realloc(rcbmp->pbBits, rcbmp->cbDst);
 
         // need to clear extra memory that was allocated?
@@ -2736,7 +2753,7 @@ BMP_CompressDumpBitmap(RCBITMAP * rcbmp,
     error = fseek(outputFile, currentPosInFile + bootScreenHeaderSize, SEEK_SET);       /* jump after the header */
     if (!error)
     {
-      if ((test = fread(pData, 1, dataSize, outputFile)) != dataSize)
+      if ((test = (int)fread(pData, 1, dataSize, outputFile)) != dataSize)
       {
         fprintf(stderr, "ERROR: Read %lu bytes, expected %lu\n",
           (unsigned long)test, (unsigned long)dataSize);

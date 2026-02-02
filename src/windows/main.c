@@ -24,13 +24,73 @@
 #include "libresample.h"
 #include "debug.h"
 
+#ifdef _WIN32_WCE
+#include <timidity.h>
+#endif
+
 #define TAG_AUDIO  "audio"
 
 #define MAX_ARGS   16
 #define MAX_EVENTS 16
 
+#if defined(_WIN32_WCE) && !defined(CE_EMU)
+#ifndef LCS_GM_BUSINESS
+#define LCS_GM_BUSINESS 0x00000001L
+#endif
+
+#ifndef LCS_WINDOWS_COLOR_SPACE
+#define LCS_WINDOWS_COLOR_SPACE 'Win '  // Windows default color space
+#endif
+
+typedef struct _PAINTSTRUCT PAINTSTRUCT;
+typedef long            FXPT2DOT30, FAR *LPFXPT2DOT30;
+
+typedef struct tagCIEXYZ
+{
+	FXPT2DOT30 ciexyzX;
+	FXPT2DOT30 ciexyzY;
+	FXPT2DOT30 ciexyzZ;
+} CIEXYZ;
+
+typedef struct tagICEXYZTRIPLE
+{
+	CIEXYZ  ciexyzRed;
+	CIEXYZ  ciexyzGreen;
+	CIEXYZ  ciexyzBlue;
+} CIEXYZTRIPLE;
+
 typedef struct {
-  int ev, arg1, arg2;
+	DWORD        bV5Size;
+	LONG         bV5Width;
+	LONG         bV5Height;
+	WORD         bV5Planes;
+	WORD         bV5BitCount;
+	DWORD        bV5Compression;
+	DWORD        bV5SizeImage;
+	LONG         bV5XPelsPerMeter;
+	LONG         bV5YPelsPerMeter;
+	DWORD        bV5ClrUsed;
+	DWORD        bV5ClrImportant;
+	DWORD        bV5RedMask;
+	DWORD        bV5GreenMask;
+	DWORD        bV5BlueMask;
+	DWORD        bV5AlphaMask;
+	DWORD        bV5CSType;
+	CIEXYZTRIPLE bV5Endpoints;
+	DWORD        bV5GammaRed;
+	DWORD        bV5GammaGreen;
+	DWORD        bV5GammaBlue;
+	DWORD        bV5Intent;
+	DWORD        bV5ProfileData;
+	DWORD        bV5ProfileSize;
+	DWORD        bV5Reserved;
+} BITMAPV5HEADER, FAR *LPBITMAPV5HEADER, *PBITMAPV5HEADER;
+#endif
+
+typedef struct {
+	int ev;
+	int arg1;
+	int arg2;
 } win_event_t;
 
 typedef struct {
@@ -78,24 +138,24 @@ static window_provider_t wp;
 static audio_provider_t ap;
 
 static void putEvent(win_window_t *window, win_event_t *ev) {
-  if (window->num_ev < MAX_EVENTS) {
-    sys_memcpy(&window->events[window->ie], ev, sizeof(win_event_t));
-    window->ie++;
-    if (window->ie == MAX_EVENTS) window->ie = 0;
-    window->num_ev++;
-  }
+	if (window->num_ev < MAX_EVENTS) {
+		sys_memcpy(&window->events[window->ie], ev, sizeof(win_event_t));
+		window->ie++;
+		if (window->ie >= MAX_EVENTS) window->ie = 0;
+		window->num_ev++;
+	}
 }
 
 static int getEvent(win_window_t *window, win_event_t *ev) {
-  if (window->num_ev > 0) {
-    sys_memcpy(ev, &window->events[window->oe], sizeof(win_event_t));
-    window->oe++;
-    if (window->oe == MAX_EVENTS) window->oe = 0;
-    window->num_ev--;
-    return 1;
-  }
+	if (window->num_ev > 0) {
+		sys_memcpy(ev, &window->events[window->oe], sizeof(win_event_t));
+		window->oe++;
+		if (window->oe >= MAX_EVENTS) window->oe = 0;
+		window->num_ev--;
+		return 1;
+	}
 
-  return 0;
+	return 0;
 }
 
 static int mapKey(int code) {
@@ -127,14 +187,32 @@ static int mapKey(int code) {
 }
 
 static int mapChar(WPARAM wParam, LPARAM lParam) {
+#ifdef _WIN32_WCE
+  // 1. Windows CE 8/WEC2013: Map the virtual key to a character.
+  // MAPVK_VK_TO_CHAR (2) returns the unshifted Unicode character.
+  int code = MapVirtualKey(wParam, 2);
+
+  // 2. Manual modifier check since GetKeyboardState is missing.
+  // Use GetKeyState to check if SHIFT is pressed.
+  SHORT shiftState = GetKeyState(VK_SHIFT);
+  BOOL isShifted = (shiftState & 0x8000) != 0;
+
+  // 3. Optional: Handle basic Shift logic manually for A-Z.
+  // For complex layouts, it is better to handle the WM_CHAR message directly.
+  if (isShifted && code >= 'a' && code <= 'z') {
+    code = code - 'a' + 'A';
+  }
+
+  return code;
+#else
   UINT scandCode;
   WCHAR lBuffer[16]; 
   BYTE State[256];    
   int r, code = 0; 
 
   scandCode = (lParam >> 8) & 0xFFFFFF00; 
-  GetKeyboardState(State);    
-  if ((r = ToUnicode(wParam, scandCode, State, lBuffer, 16, 0)) == 1) {
+  GetKeyboardState(State);
+  if ((r = ToUnicode((UINT)wParam, scandCode, State, lBuffer, 16, 0)) == 1) {
     code = lBuffer[0];
   } else if (r < 0) {
     // dead key, "maybe" there is something in the buffer
@@ -143,6 +221,7 @@ static int mapChar(WPARAM wParam, LPARAM lParam) {
   }
 
   return code;
+#endif
 }
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -163,7 +242,14 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_KEYDOWN:
       debug(DEBUG_TRACE, "Windows", "keyDown %u 0x%08X", (uint32_t)wParam, (uint32_t)lParam);
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
-      code = mapKey(wParam);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_KEYDOWN: window property is NULL!");
+		  return 0;
+	  }
+
+      code = mapKey((int)wParam);
       debug(DEBUG_TRACE, "Windows", "keyDown mapKey %d", code);
       if (code == 0) {
         code = mapChar(wParam, lParam);
@@ -181,7 +267,14 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
     case WM_KEYUP:
       debug(DEBUG_TRACE, "Windows", "keyUp %u 0x%08X", (uint32_t)wParam, (uint32_t)lParam);
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
-      code = mapKey(wParam);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_KEYUP: window property is NULL!");
+		  return 0;
+	  }
+
+      code = mapKey((int)wParam);
       debug(DEBUG_TRACE, "Windows", "keyUp mapKey %d", code);
       if (code == 0) {
         code = mapChar(wParam, lParam);
@@ -198,17 +291,34 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
     case WM_MOUSEMOVE:
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_MOUSEMOVE: window property is NULL!");
+		  return 0;
+	  }
+
       ev.ev = WINDOW_MOTION;
       ev.arg1 = GET_X_LPARAM(lParam);
       ev.arg2 = GET_Y_LPARAM(lParam);
       window->x = ev.arg1;
       window->y = ev.arg2;
       putEvent(window, &ev);
+#ifdef _DEBUG
+	  debug(DEBUG_ERROR, "Windows", "WM_MOUSEMOVE: x - %d, y - %d", window->x, window->y);
+#endif
       return 0;
 
     case WM_LBUTTONDOWN:
       debug(DEBUG_TRACE, "Windows", "button 1 down %d %d", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_LBUTTONDOWN: window property is NULL!");
+		  return 0;
+	  }
+
       window->down = 1;
       ev.ev = WINDOW_MOTION;
       ev.arg1 = GET_X_LPARAM(lParam);
@@ -221,22 +331,43 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
       ev.arg1 = 1;
       ev.arg2 = 0;
       putEvent(window, &ev);
-      return 0;
+#ifdef _DEBUG
+	  debug(DEBUG_ERROR, "Windows", "WM_LBUTTONDOWN: x - %d, y - %d", window->x, window->y);
+#endif
+	  return 0;
+
 
     case WM_LBUTTONUP:
       debug(DEBUG_TRACE, "Windows", "button up %d %d", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_LBUTTONUP: window property is NULL!");
+		  return 0;
+	  }
+
       window->down = 0;
       ev.ev = WINDOW_BUTTONUP;
       ev.arg1 = 1;
       ev.arg2 = 0;
       window->buttons = 0;
       putEvent(window, &ev);
+#ifdef _DEBUG
+	  debug(DEBUG_ERROR, "Windows", "WM_LBUTTONUP: x - %d, y - %d", window->x, window->y);
+#endif
       return 0;
 
     case WM_RBUTTONDOWN:
       debug(DEBUG_TRACE, "Windows", "button 2 down %d %d", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_MOUSEMOVE: window property is NULL!");
+		  return 0;
+	  }
+
       window->down = 1;
       ev.ev = WINDOW_MOTION;
       ev.arg1 = GET_X_LPARAM(lParam);
@@ -248,30 +379,64 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
       ev.arg1 = 2;
       ev.arg2 = 0;
       putEvent(window, &ev);
+	  debug(DEBUG_ERROR, "Windows", "WM_RBUTTONDOWN: x - %d, y - %d", window->x, window->y);
       return 0;
 
     case WM_RBUTTONUP:
       debug(DEBUG_TRACE, "Windows", "button 2 up %d %d", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
+
+	  if (window == NULL) {
+		  // Dit mag niet gebeuren als SetProp correct is aangeroepen
+		  debug(DEBUG_ERROR, "Windows", "WM_RBUTTONUP: window property is NULL!");
+		  return 0;
+	  }
+
       window->down = 0;
       ev.ev = WINDOW_BUTTONUP;
       ev.arg1 = 2;
       ev.arg2 = 0;
       putEvent(window, &ev);
+#ifdef _DEBUG
+	  debug(DEBUG_ERROR, "Windows", "WM_RBUTTONUP: x - %d, y - %d", window->x, window->y);
+#endif
       return 0;
 
     case WM_PAINT:
       window = (win_window_t *)GetProp(hwnd, WINDOW_PROP);
       hdc = BeginPaint(hwnd, &ps);
       debug(DEBUG_TRACE, "Windows", "paint %d %d %d %d", (int32_t)ps.rcPaint.left, (int32_t)ps.rcPaint.right, (int32_t)ps.rcPaint.top, (int32_t)ps.rcPaint.bottom);
-      SetDIBits(hdc, window->bitmap, 0, window->height, window->bitmapBuffer, (BITMAPINFO *)&window->bmi, DIB_RGB_COLORS);
-      BitBlt(hdc, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right-ps.rcPaint.left+1, ps.rcPaint.bottom-ps.rcPaint.top+1, window->hdcBitmap, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
+	  if (window && window->bitmapBuffer) {
+#ifdef _WIN32_WCE
+	    SetDIBitsToDevice(
+		  hdc,                             // Destination Device Context
+		  0, 0,                            // Destination X and Y coordinates
+		  window->width,                   // Width of the source rectangle
+		  window->height,                  // Height of the source rectangle
+		  0, 0,                            // Source X and Y coordinates (usually 0, 0)
+		  0,                               // First scan line in the array (usually 0)
+		  window->height,                  // Number of scan lines in the array
+		  window->bitmapBuffer,            // Pointer to your raw pixel data
+		  (BITMAPINFO *)&window->bmi,      // Pointer to BITMAPINFO structure
+		  DIB_RGB_COLORS                   // Color format (DIB_RGB_COLORS or DIB_PAL_COLORS)
+		  ); 
+#else
+        if (window->bitmap) {
+          SetDIBits(hdc, window->bitmap, 0, window->height, window->bitmapBuffer, (BITMAPINFO *)&window->bmi, DIB_RGB_COLORS);
+		}
+#endif
+        BitBlt(hdc, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right-ps.rcPaint.left+1, ps.rcPaint.bottom-ps.rcPaint.top+1, window->hdcBitmap, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
+	  }
       EndPaint(hwnd, &ps);
       return 0;
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
+
+#ifndef WS_OVERLAPPEDWINDOW
+#define WS_OVERLAPPEDWINDOW (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)
+#endif
 
 static window_t *window_create(int encoding, int *width, int *height, int xfactor, int yfactor, int rotate, int fullscreen, int software, char *driver, void *data) {
   win_window_t *window;
@@ -282,13 +447,23 @@ static window_t *window_create(int encoding, int *width, int *height, int xfacto
 
   debug(DEBUG_TRACE, "Windows", "window_create(%d,%d,%d,%d,%d,%d,%d,%d)", encoding, *width, *height, xfactor, yfactor, rotate, fullscreen, software);
 
-  if ((window = sys_calloc(1, sizeof(win_window_t))) != NULL) {
+  if ((window = sys_malloc(sizeof(win_window_t))) != NULL) {
     hInstance = (HINSTANCE)data;
 
     rect.left = rect.top = 0;
     rect.right = *width;
     rect.bottom = *height;
-    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+    AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0);
+
+	window->ie = 0;
+	window->oe = 0;
+	window->num_ev = 0;
+	window->x = 0;
+	window->y = 0;
+	window->down = 0;
+	window->buttons = 0;
+
+	sys_memset(window->events, 0, sizeof(window->events));
 
     window->hwnd = CreateWindowEx(
       0,                              // Optional window styles.
@@ -306,10 +481,12 @@ static window_t *window_create(int encoding, int *width, int *height, int xfacto
 
     window->width = *width;
     window->height = *height;
+
     window->size = window->width * window->height * sizeof(uint16_t);
 
     hdc = GetDC(window->hwnd);
     window->hdcBitmap = CreateCompatibleDC(hdc);
+	window->bitmapBuffer = NULL;
 
     sys_memset(&window->bmi, 0, sizeof(V5BMPINFO));
     bmh.bV5Size = sizeof(BITMAPV5HEADER);
@@ -333,7 +510,7 @@ static window_t *window_create(int encoding, int *width, int *height, int xfacto
     SelectObject(window->hdcBitmap, window->bitmap);
     ReleaseDC(window->hwnd, hdc);
 
-    ShowWindow(window->hwnd, SW_NORMAL);
+    ShowWindow(window->hwnd, SW_SHOWNORMAL);
   }
 
   return (window_t *)window;
@@ -370,7 +547,7 @@ static texture_t *window_create_texture(window_t *_window, int width, int height
 
   debug(DEBUG_TRACE, "Windows", "window_create_texture(%d,%d)", width, height);
 
-  if ((texture = sys_calloc(1, sizeof(texture_t))) != NULL) {
+  if ((texture = sys_malloc(sizeof(texture_t))) != NULL) {
     texture->width = width;
     texture->height = height;
     texture->size = width * height * sizeof(uint16_t);
@@ -456,7 +633,9 @@ static int window_draw_texture_rect(window_t *_window, texture_t *texture, int t
       wpitch = window->width;
       tindex = ty * tpitch + tx;
       windex = (window->height - y - 1) * wpitch + x;
-      GdiFlush();
+#ifndef _WIN32_WCE
+	  GdiFlush();
+#endif
       for (i = 0; i < h; i++) {
         for (j = 0; j < w; j++) {
           window->bitmapBuffer[windex + j] = texture->buffer[tindex + j];
@@ -488,60 +667,66 @@ static int window_draw_texture(window_t *window, texture_t *texture, int x, int 
   return 0;
 }
 
+#ifdef _MSC_VER
+int __RTC_CheckEsp(void *arg) {
+	return 0;
+}
+#endif
+
 static int window_event2(window_t *_window, int wait, int *arg1, int *arg2) {
-  win_window_t *window = (win_window_t *)_window;
-  win_event_t event;
-  MSG msg;
-  int64_t t, dt, endt;
-  uint32_t waitUs, us;
-  int ev = 0;
+	win_window_t *window = (win_window_t *)_window;
+	win_event_t event;
+	MSG msg = { NULL, 0, 0, 0, 0, { 0, 0 } };
+	int64_t t, dt, endt;
+	uint32_t waitUs, us;
+	int ev = 0;
 
-  if (wait == 0) {
-    while (PeekMessage(&msg, NULL, 0, 0, 0)) {
-      if (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-      }
-    }
-  } else if (wait < 0) {
-    us = 100000;
-    for (; !thread_must_end();) {
-      while (PeekMessage(&msg, NULL, 0, 0, 0)) {
-        if (GetMessage(&msg, NULL, 0, 0)) {
-          TranslateMessage(&msg);
-          DispatchMessage(&msg);
-        }
-      }
-      if (window->num_ev) break;
-      sys_usleep(us);
-    }
-  } else {
-    waitUs = wait * 1000;
-    us = waitUs;
-    if (us > 1000) us = 1000;
-    endt = sys_get_clock() + waitUs;
-    for (;;) {
-      while (PeekMessage(&msg, NULL, 0, 0, 0)) {
-        if (GetMessage(&msg, NULL, 0, 0)) {
-          TranslateMessage(&msg);
-          DispatchMessage(&msg);
-        }
-      }
-      if (window->num_ev) break;
-      t = sys_get_clock();
-      if (t >= endt) break;
-      dt = endt - t;
-      sys_usleep(dt < us ? dt : us);
-    }
-  }
+	if (wait == 0) {
+		while (PeekMessage(&msg, NULL, 0, 0, 0)) {
+			if (GetMessage(&msg, NULL, 0, 0)) {
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+	} else if (wait < 0) {
+		us = 100000;
+		for (; !thread_must_end();) {
+			while (PeekMessage(&msg, NULL, 0, 0, 0)) {
+				if (GetMessage(&msg, NULL, 0, 0)) {
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+			if (window->num_ev) break;
+			sys_usleep(us);
+		}
+	} else {
+		waitUs = wait * 1000;
+		us = waitUs;
+		if (us > 1000) us = 1000;
+		endt = sys_get_clock() + waitUs;
+		for (;;) {
+			while (PeekMessage(&msg, NULL, 0, 0, 0)) {
+				if (GetMessage(&msg, NULL, 0, 0)) {
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+			if (window->num_ev) break;
+			t = sys_get_clock();
+			if (t >= endt) break;
+			dt = endt - t;
+			sys_usleep(dt < us ? (uint32_t)dt : us);
+		}
+	}
 
-  if (getEvent(window, &event)) {
-    ev = event.ev;
-    *arg1 = event.arg1;
-    *arg2 = event.arg2;
-  }
+	if (getEvent(window, &event)) {
+		ev = event.ev;
+		*arg1 = event.arg1;
+		*arg2 = event.arg2;
+	}
 
-  return ev;
+	return ev;
 }
 
 static void window_status(window_t *_window, int *x, int *y, int *buttons) {
@@ -611,7 +796,7 @@ static audio_t audio_create(int pcm, int channels, int rate, void *data) {
   debug(DEBUG_INFO, "Windows", "audio_create(%d,%d,%d)", pcm, channels, rate);
 
   if ((pcm == PCM_U8 || pcm == PCM_S16 || pcm == PCM_S32) && (channels == 1 || channels == 2) && rate > 0) {
-    if ((audio = sys_calloc(1, sizeof(win_audio_t))) != NULL) {
+    if ((audio = sys_malloc(sizeof(win_audio_t))) != NULL) {
       sys_memset(&audio->fmt, 0, sizeof(WAVEFORMATEX));
       audio->fmt.wFormatTag = WAVE_FORMAT_PCM;
       audio->fmt.nChannels = channels;
@@ -639,7 +824,7 @@ static audio_t audio_create(int pcm, int channels, int rate, void *data) {
       if (audio->bsize > 4096) {
         audio->bsize = 4096;
       }
-      audio->buffer = sys_calloc(1, audio->bsize);
+      audio->buffer = sys_malloc(audio->bsize);
       debug(DEBUG_INFO, "Windows", "buffer size %d", audio->bsize);
 
       audio->fmt.nBlockAlign = (audio->fmt.nChannels * audio->fmt.wBitsPerSample) / 8;
@@ -729,7 +914,7 @@ static int audio_convert(win_audio_t *audio, int pcm, int channels, int rate) {
       case PCM_S16: n <<= 1; break;
       case PCM_S32: n <<= 2; break;
     }
-    buffer = sys_calloc(1, n * channels);
+    buffer = sys_malloc(n * channels);
  
     n = audio->bsize * audio->channels;
     for (i = 0, j = 0; i < n;) {
@@ -750,20 +935,20 @@ static int audio_convert(win_audio_t *audio, int pcm, int channels, int rate) {
     factor = (double)rate / (double)audio->rate;
     debug(DEBUG_TRACE, "Windows", "converting %d samples from %d to %d (factor %f)", audio->bsize, audio->rate, rate, factor);
     n = audio->bsize * channels;
-    inBuffer = sys_calloc(n, sizeof(float));
+    inBuffer = sys_malloc(n * sizeof(float));
     n = audio->bsize * audio->channels;
     for (i = 0, j = 0; i < n;) {
       s1 = audio_get_sample(audio->buffer, i++, audio->pcm);
       s2 = (audio->channels == 2) ? audio_get_sample(audio->buffer, i++, audio->pcm) : s1;
       if (channels == 1) {
-        inBuffer[j++] = (s1 + s2) / 2;
+        inBuffer[j++] = (float)(s1 + s2) / 2;
       } else {
-        inBuffer[j++] = s1;
-        inBuffer[j++] = s2;
+        inBuffer[j++] = (float)s1;
+		inBuffer[j++] = (float)s2;
       }
     }
     n = (int)((n + 1) * factor + 0.5);
-    outBuffer = sys_calloc(n, sizeof(float));
+    outBuffer = sys_malloc(n * sizeof(float));
     rs = resample_open(1, factor, factor);
     resample_process(rs, factor, inBuffer, j, 1, &inBufferUsed, outBuffer, n);
     resample_close(rs);
@@ -774,10 +959,10 @@ static int audio_convert(win_audio_t *audio, int pcm, int channels, int rate) {
       case PCM_S16: n <<= 1; break;
       case PCM_S32: n <<= 2; break;
     }
-    buffer = sys_calloc(1, n);
+    buffer = sys_malloc(n);
 
     for (i = 0; i < inBufferUsed; i++) {
-      audio_put_sample(buffer, outBuffer[i], i, pcm);
+	  audio_put_sample(buffer, (int32_t)outBuffer[i], i, (int)pcm);
     }
     sys_free(audio->buffer);
     audio->buffer = buffer;
@@ -904,7 +1089,7 @@ static int audio_action(void *_arg) {
 }
 
 static int audio_init(int pcm, int channels, int rate) {
-  win_audio_arg_t *arg = sys_calloc(1, sizeof(win_audio_arg_t));
+  win_audio_arg_t *arg = sys_malloc(sizeof(win_audio_arg_t));
   arg->pcm = pcm;
   arg->channels = channels;
   arg->rate = rate;
@@ -946,13 +1131,34 @@ static void pit_callback(int pe, void *data) {
   script_global_set(pe, "custom_load", &value);
 } 
 
+#ifdef _WIN32_WCE
+#ifdef CE_EMU
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpWCmdLine, int nShowCmd) {
+#else
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpWCmdLine, int nShowCmd) {
+#endif
+  char lpCmdLine[MAX_PATH];
+#else
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
+#endif
   WNDCLASS wc;
   char *argv[MAX_ARGS];
   char *cmdline;
   int i, s, argc;
 
+#ifdef _WIN32_WCE
+#if __STDC_WANT_SECURE_LIB__
+  size_t cmdlen = 0;
+
+  wcstombs_s(&cmdlen, lpCmdLine, MAX_PATH, lpWCmdLine, wcslen(lpWCmdLine));
+#else
+  wcstombs(lpCmdLine, lpWCmdLine, MAX_PATH);
+#endif
+
+  mid_init(NULL);
+#else
   OleInitialize(0);
+#endif
 
   sys_memset(&wc, 0, sizeof(WNDCLASS));
   wc.lpfnWndProc = WindowProc;
@@ -1014,7 +1220,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   pit_main(argc, argv, pit_callback, NULL);
   sys_free(cmdline);
 
+#ifndef _WIN32_WCE
   OleUninitialize();
+#endif
 
   return 0;
 }

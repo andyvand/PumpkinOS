@@ -47,7 +47,7 @@ Char *StrNCat(Char *dst, const Char *src, Int16 n) {
 
 UInt16 StrLen(const Char *src) {
   if (src == NULL) ErrFatalDisplayEx("StrLen NULL", 0);
-  return src ? sys_strlen(src) : 0;
+  return src ? (UInt16)sys_strlen(src) : 0;
 }
 
 Int16 StrCompareAscii(const Char *s1, const Char *s2) {

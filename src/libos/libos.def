@@ -1,0 +1,4 @@
+LIBRARY libos
+EXPORTS
+	DllMain @2
+    libos_init @1

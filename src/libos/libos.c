@@ -201,6 +201,7 @@ static int libos_action(void *arg) {
 
   data = (libos_t *)arg;
 
+  if (data != NULL) {
   if (data->wp) {
     encoding = data->hdepth == 16 ? ENC_RGB565 : ENC_RGBA;
     height = data->dia ? ((data->height - BUTTONS_HEIGHT) * 2) / 3 : data->height;
@@ -216,43 +217,45 @@ static int libos_action(void *arg) {
     if (data->wp->title) {
       data->wp->title(data->w, data->mode == 0 ? PUMPKINOS : data->launcher);
     }
+
+    if (data->osversion > 0) {
+      pumpkin_set_osversion(data->osversion);
+    }
+    pumpkin_set_density(data->density);
+    pumpkin_set_depth(data->depth);
+
+    debug(DEBUG_INFO, PUMPKINOS, "deploying applications");
+    pumpkin_deploy_files("/app_install");
+    pumpkin_init_misc();
+    pumpkin_load_plugins();
+
+    pumpkin_set_secure(data->secure);
+    pumpkin_set_mono(data->mono);
+    pumpkin_set_abgr(data->abgr);
+    pumpkin_set_mode(data->mode, data->dia, data->hdepth);
+    pumpkin_set_spawner(thread_get_handle());
+    pumpkin_set_fullrefresh(data->fullrefresh);
+    pumpkin_set_obj(data->pe, data->obj);
+
+    if (data->mode == 0) {
+      pumpkin_set_taskbar(data->taskbar);
+    }
+
+    choose_launcher(data);
+
+    if (data->mode == 1) {
+      debug(DEBUG_INFO, PUMPKINOS, "starting \"%s\"", data->launcher);
+      pumpkin_launcher(data->launcher, data->width, height);
+    } else {
+      debug(DEBUG_INFO, PUMPKINOS, "event loop begin");
+      EventLoop(data);
+      debug(DEBUG_INFO, PUMPKINOS, "event loop end");
+    }
+
+      sys_free(data);
+    }
   }
 
-  if (data->osversion > 0) {
-    pumpkin_set_osversion(data->osversion);
-  }
-  pumpkin_set_density(data->density);
-  pumpkin_set_depth(data->depth);
-
-  debug(DEBUG_INFO, PUMPKINOS, "deploying applications");
-  pumpkin_deploy_files("/app_install");
-  pumpkin_init_misc();
-  pumpkin_load_plugins();
-
-  pumpkin_set_secure(data->secure);
-  pumpkin_set_mono(data->mono);
-  pumpkin_set_abgr(data->abgr);
-  pumpkin_set_mode(data->mode, data->dia, data->hdepth);
-  pumpkin_set_spawner(thread_get_handle());
-  pumpkin_set_fullrefresh(data->fullrefresh);
-  pumpkin_set_obj(data->pe, data->obj);
-
-  if (data->mode == 0) {
-    pumpkin_set_taskbar(data->taskbar);
-  }
-
-  choose_launcher(data);
-
-  if (data->mode == 1) {
-    debug(DEBUG_INFO, PUMPKINOS, "starting \"%s\"", data->launcher);
-    pumpkin_launcher(data->launcher, data->width, height);
-  } else {
-    debug(DEBUG_INFO, PUMPKINOS, "event loop begin");
-    EventLoop(data);
-    debug(DEBUG_INFO, PUMPKINOS, "event loop end");
-  }
-
-  sys_free(data);
   thread_end(PUMPKINOS, thread_get_handle());
   sys_set_finish(0);
 
@@ -312,7 +315,7 @@ static int libos_start(int pe) {
     return -1;
   }
 
-  if ((data = sys_calloc(1, sizeof(libos_t))) != NULL) {
+  if ((data = sys_malloc(sizeof(libos_t))) != NULL) {
     data->pe = script_create(script_get_engine(pe));
     data->obj = script_create_object(data->pe);
 

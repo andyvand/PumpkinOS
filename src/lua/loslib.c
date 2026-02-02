@@ -8,19 +8,24 @@
 #define LUA_LIB
 
 #include "lprefix.h"
-
+#include "../libpit/sys.h"
 
 #include <errno.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <time.h>
 
+#include "../libpit/sys.h"
 #include "lua.h"
 
 #include "lauxlib.h"
 #include "lualib.h"
 
+#ifdef _WIN32_WCE
+#include <windows.h>
+#endif
 
 /*
 ** {==================================================================
@@ -110,7 +115,9 @@ static time_t l_checktime (lua_State *L, int arg) {
 
 #if !defined(NOT_LUA_USE_POSIX)	/* { */
 
+#ifdef __GNUC__
 #include <unistd.h>
+#endif
 
 #define LUA_TMPNAMBUFSIZE	32
 
@@ -118,11 +125,19 @@ static time_t l_checktime (lua_State *L, int arg) {
 #define LUA_TMPNAMTEMPLATE	"/tmp/lua_XXXXXX"
 #endif
 
+#ifdef _MSC_VER
 #define lua_tmpnam(b,e) { \
         strcpy(b, LUA_TMPNAMTEMPLATE); \
-        e = mkstemp(b); \
+        e = sys_mkstempfile(b); \
+		if (e != -1) sys_close(e); \
+		e = (e == -1); }
+#else
+#define lua_tmpnam(b,e) { \
+        strcpy(b, LUA_TMPNAMTEMPLATE); \
+        e = sys_mkstempfile(b); \
         if (e != -1) close(e); \
         e = (e == -1); }
+#endif
 
 #else				/* }{ */
 
@@ -140,9 +155,44 @@ static time_t l_checktime (lua_State *L, int arg) {
 
 static int os_execute (lua_State *L) {
   const char *cmd = luaL_optstring(L, 1, NULL);
+#ifdef _WIN32_WCE
+  WCHAR wcmd[MAX_PATH];
+  PROCESS_INFORMATION pi;
+  int stat = 0;
+#if __STDC_WANT_SECURE_LIB__
+  size_t cmdlen = 0;
+
+  mbstowcs_s(&cmdlen, wcmd, MAX_PATH, cmd, MAX_PATH);
+#else
+  mbstowcs(wcmd, cmd, MAX_PATH);
+#endif
+
+  // Note: Windows CE is natively Unicode; use TEXT() for strings
+  if (CreateProcessW(wcmd,		     // Executable path
+		  NULL,                          // Command line arguments
+		  NULL,                          // Process security attributes
+		  NULL,                          // Thread security attributes
+		  FALSE,                         // Inherit handles
+		  0,                             // Creation flags
+		  NULL,                          // Environment
+		  NULL,                          // Current directory
+		  NULL,                          // Startup info
+		  &pi))                          // Process information
+  {
+    // Close handles to the child process and its primary thread immediately 
+	// if you don't need to monitor them to prevent memory leaks.
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+  } else {
+	stat = -1;
+  }
+
+#else
   int stat = system(cmd);
+#endif
+
   if (cmd != NULL)
-    return luaL_execresult(L, stat);
+	return luaL_execresult(L, stat);
   else {
     lua_pushboolean(L, stat);  /* true if there is a shell */
     return 1;
@@ -175,7 +225,7 @@ static int os_tmpname (lua_State *L) {
 
 
 static int os_getenv (lua_State *L) {
-  lua_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
+	lua_pushstring(L, (char *)sys_getenv((char *)luaL_checkstring(L, 1)));  /* if NULL push nil */
   return 1;
 }
 

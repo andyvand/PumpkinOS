@@ -1,0 +1,5 @@
+BUILD: [Thread:SystemTickCount:Type  ] Message
+BUILD: [00:0000000547:WARNS ] Directory: C:\WINCE800\public\gdiex\sdk\inc\ does not exist.
+BUILD: [00:0000000563:WARNS ] Directory: C:\WINCE800\public\ie7\sdk\inc\ does not exist.
+BUILD: [00:0000000579:WARNS ] Directory: C:\WINCE800\public\rdp\sdk\inc\ does not exist.
+BUILD: [00:0000000579:WARNS ] Directory: C:\WINCE800\public\shellsdk\sdk\inc\ does not exist.

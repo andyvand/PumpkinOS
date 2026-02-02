@@ -516,7 +516,7 @@ static int SndGetAudio(void *buffer, int len, void *data) {
           debug(DEBUG_TRACE, "Sound", "GetAudio native vfunc len=%d", len);
           nbytes = len;
           err = snd->vfunc(snd->userdata, arg->ptr, buffer, &nbytes);
-          if (nbytes > len) {
+          if (nbytes > (UInt32)len) {
             debug(DEBUG_ERROR, "Sound", "GetAudio native returned more bytes (%d) than the buffer size (%d)", nbytes, len);
           } else {
             len = nbytes;
@@ -533,7 +533,7 @@ static int SndGetAudio(void *buffer, int len, void *data) {
           nbytes = len;
           //err = CallSndVFunc(snd->func68k, snd->userdata68k, arg->ptr, snd->buffer - ram, &nbytes);
           err = 0;
-          if (nbytes > len) {
+          if (nbytes > (UInt32)len) {
             debug(DEBUG_ERROR, "Sound", "GetAudio m68k returned more bytes (%d) than the buffer size (%d)", nbytes, len);
           } else {
             len = nbytes;
@@ -552,7 +552,7 @@ static int SndGetAudio(void *buffer, int len, void *data) {
           nbytes = len;
           //err = CallSndVFuncArm(snd->funcArm, snd->userdataArm, arg->ptr, snd->buffer - ram, &nbytes);
           err = 0;
-          if (nbytes > len) {
+          if (nbytes > (UInt32)len) {
             debug(DEBUG_ERROR, "Sound", "GetAudio ARM returned more bytes (%d) than the buffer size (%d)", nbytes, len);
           } else {
             len = nbytes;
@@ -592,8 +592,8 @@ static int SndGetAudio(void *buffer, int len, void *data) {
               gain = (float)volume / (float)sndUnityGain;
               debug(DEBUG_TRACE, "Sound", "%d samples (mono gain %.3f)", nsamples, gain);
               for (i = 0, j = 0; i < nsamples; i++) {
-                sample = getSample(pcm, buffer, i);
-                putSample(pcm, buffer, i, sample * gain);
+                sample = (float)getSample(pcm, buffer, i);
+                putSample(pcm, buffer, i, (Int32)(sample * gain));
               }
             } else {
               leftGain = (float)volume / (float)sndUnityGain;
@@ -607,10 +607,10 @@ static int SndGetAudio(void *buffer, int len, void *data) {
               }
               debug(DEBUG_TRACE, "Sound", "%d samples (left gain %.3f, right gain %.3f)", nsamples, leftGain, rightGain);
               for (i = 0, j = 0; i < nsamples; i++, j += 2) {
-                sample = getSample(pcm, buffer, j);
-                putSample(pcm, buffer, j, sample * leftGain);
-                sample = getSample(pcm, buffer, j);
-                putSample(pcm, buffer, j+1, sample * rightGain);
+                sample = (float)getSample(pcm, buffer, j);
+                putSample(pcm, buffer, j, (Int32)(sample * leftGain));
+                sample = (float)getSample(pcm, buffer, j);
+                putSample(pcm, buffer, j+1, (Int32)(sample * rightGain));
               }
             }
           }
@@ -922,7 +922,7 @@ static Err playFrequency(Int32 frequency, UInt16 duration, UInt16 volume) {
     pi2 = 2.0 * sys_pi();
     for (i = 0; i < size; i++) {
       angle = (i * pi2 * frequency) / DOCMD_SAMPLE_RATE;
-      buffer[i] = (sys_sin(angle) + 1.0) * 127;
+      buffer[i] = (UInt8)((sys_sin(angle) + 1.0) * 127);
     }
     SndPlayBuffer(buffer, size, DOCMD_SAMPLE_RATE, sndInt8, sndMono, volume, sndFlagAsync);
     sys_free(buffer);
@@ -1182,9 +1182,9 @@ Err SndStreamCreateEx(
           snd->vfunc = NULL;
           snd->userdata = NULL;
           ram = pumpkin_heap_base();
-          snd->func68k = func ? (uint8_t *)func - ram : 0;
-          snd->vfunc68k = vfunc ? (uint8_t *)vfunc - ram : 0;
-          snd->userdata68k = userdata ? (uint8_t *)userdata - ram : 0;
+          snd->func68k = func ? (UInt32)((uint8_t *)func - ram) : 0;
+          snd->vfunc68k = vfunc ? (UInt32)((uint8_t *)vfunc - ram) : 0;
+          snd->userdata68k = userdata ? (UInt32)((uint8_t *)userdata - ram) : 0;
           snd->funcArm = 0;
           snd->vfuncArm = 0;
           snd->userdataArm = 0;
@@ -1193,9 +1193,9 @@ Err SndStreamCreateEx(
           snd->vfunc = NULL;
           snd->userdata = NULL;
           ram = pumpkin_heap_base();
-          snd->funcArm = func ? (uint8_t *)func - ram : 0;
-          snd->vfuncArm = vfunc ? (uint8_t *)vfunc - ram : 0;
-          snd->userdataArm = userdata ? (uint8_t *)userdata - ram : 0;
+          snd->funcArm = func ? (UInt32)((uint8_t *)func - ram) : 0;
+          snd->vfuncArm = vfunc ? (UInt32)((uint8_t *)vfunc - ram) : 0;
+          snd->userdataArm = userdata ? (UInt32)((uint8_t *)userdata - ram) : 0;
           snd->func68k = 0;
           snd->vfunc68k = 0;
           snd->userdata68k = 0;

@@ -65,8 +65,8 @@ BEGIN {
   print "#include \"armp.h\"" >> emusrc
   print "#endif" >> emusrc
   print "#include \"logtrap.h\"" >> emusrc;
-  print "#include \"m68k/m68k.h\"" >> emusrc;
-  print "#include \"m68k/m68kcpu.h\"" >> emusrc;
+  print "#include \"m68k.h\"" >> emusrc;
+  print "#include \"m68kcpu.h\"" >> emusrc;
   print "#include \"emupalmosinc.h\"" >> emusrc;
   print "#include \"emupalmos.h\"" >> emusrc;
   print "#include \"" kind "_serde.h\"" >> emusrc;

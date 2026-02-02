@@ -135,10 +135,10 @@ int ptr_new_c(void *p, void (*destructor)(void *p)) {
 static void *ptr_access(const char *file, const char *func, int line, int id, char *tag, int op, uint32_t arg) {
   int index, delete, locking, ok;
   void (*destructor)(void *p);
-  mutex_t *ptr_mutex;
-  cond_t *ptr_cond;
-  generic_t *p;
-  int64_t t;
+  mutex_t *ptr_mutex = NULL;
+  cond_t *ptr_cond = NULL;
+  generic_t *p = NULL;
+  int64_t t = 0;
 
   index = id % MAX_PTRS;
   destructor = NULL;

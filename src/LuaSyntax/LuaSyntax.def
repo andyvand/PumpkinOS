@@ -1,0 +1,4 @@
+LIBRARY LuaSyntax
+EXPORTS
+    DllMain @2
+    PluginInit @1

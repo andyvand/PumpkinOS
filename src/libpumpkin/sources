@@ -1,0 +1,238 @@
+TARGETNAME=libpumpkin
+FILE_VIEW_ROOT_FOLDER= \
+    libpumpkin.def \
+
+_COMMONPUBROOT=$(_PUBLICROOT)\common
+__PROJROOT = $(_PUBLICROOT)\$(WINCEPROJ)
+COMMON_OAK_LIB_PATH=$(_PUBLICROOT)\common\oak\lib\$(_CPUINDPATH)
+COMMON_SDK_LIB_PATH=$(_PUBLICROOT)\common\sdk\lib\$(_CPUINDPATH)
+_COREDLL=$(_COMMONPUBROOT)\exp\lib\$(_CPUINDPATH)\coredll.lib
+_WINSOCKDLL=$(_COMMONPUBROOT)\exp\lib\$(_CPUINDPATH)\winsock.lib
+_WINSOCK2DLL=$(_COMMONPUBROOT)\oak\lib\$(_CPUINDPATH)\ws2k.lib
+_COMMCTRL=$(_COMMONPUBROOT)\exp\lib\$(_CPUINDPATH)\commctrl.lib
+_COMMDLG=$(_COMMONPUBROOT)\sdk\lib\$(_CPUINDPATH)\commdlg.lib
+_SHELLCB=$(_PUBLICROOT)\shell\exp\lib\$(_CPUINDPATH)\shellsdk.lib
+_CEAYGSHELL=$(_PUBLICROOT)\apps\oak\lib\$(_CPUINDPATH)\ceaygshell.lib
+_MFC=$(_COMMONPUBROOT)\oak\lib\$(_CPUINDPATH)\uafxwce.lib
+_WININET=$(_PUBLICROOT)\ie7\sdk\lib\$(_CPUINDPATH)\wininet.lib
+OS_SDK_INC_PATH=$(_PUBLICROOT)\common\sdk\inc
+_ISVINCPATH=$(_WINCEROOT)\public\shellsdk\sdk\inc;$(_WINCEROOT)\public\rdp\sdk\inc;$(_WINCEROOT)\public\servers\sdk\inc;$(_WINCEROOT)\public\ie7\sdk\inc;$(_WINCEROOT)\public\gdiex\sdk\inc;$(_WINCEROOT)\public\dcom\sdk\inc;$(_WINCEROOT)\public\common\sdk\inc;
+_OEMINCPATH=$(_WINCEROOT)\public\wceshellfe\oak\inc;$(_WINCEROOT)\public\shell\oak\inc;$(_WINCEROOT)\public\shellsdk\sdk\inc;$(_WINCEROOT)\public\rdp\oak\inc;$(_WINCEROOT)\public\rdp\sdk\inc;$(_WINCEROOT)\public\servers\oak\inc;$(_WINCEROOT)\public\servers\sdk\inc;$(_WINCEROOT)\public\ie7\sdk\inc;$(_WINCEROOT)\public\gdiex\sdk\inc;$(_WINCEROOT)\public\dcom\sdk\inc;$(_WINCEROOT)\public\common\oak\inc;$(_WINCEROOT)\public\common\sdk\inc;$(_WINCEROOT)\public\common\ddk\inc;$(_WINCEROOT)\private\winceos\inc;$(_WINCEROOT)\public\common\sdk\inc\test
+
+FILE_VIEW_RESOURCE_FOLDER= \
+
+FILE_VIEW_INCLUDES_FOLDER= \
+
+SOURCES= \
+    launch_serde_wce.c \
+    notif_serde_wce.c \
+    build.c \
+    pumpkin.c \
+    pumpkin_syscall.c \
+    deploy.c \
+    storage.c \
+    script.c \
+    fill.c \
+    AboutBox.c \
+    AddressSortLib.c \
+    AlarmMgr.c \
+    AttentionMgr.c \
+    Bitmap.c \
+    CharAttr.c \
+    ColorTable.c \
+    BtLib.c \
+    Category.c \
+    Clipboard.c \
+    ConnectionMgr.c \
+    ConsoleMgr.c \
+    Control.c \
+    CPMLib68KInterface.c \
+    Crc.c \
+    DateTime.c \
+    Day.c \
+    DebugMgr.c \
+    DLServer.c \
+    Encrypt.c \
+    md5.c \
+    sha1.c \
+    ErrorBase.c \
+    Event.c \
+    ExgLib.c \
+    ExgMgr.c \
+    ExpansionMgr.c \
+    FatalAlert.c \
+    FeatureMgr.c \
+    Field.c \
+    FileStream.c \
+    Find.c \
+    FixedMath.c \
+    FloatMgr.c \
+    Font.c \
+    FontSelect.c \
+    Form.c \
+    FSLib.c \
+    Graffiti.c \
+    GraffitiReference.c \
+    GraffitiShift.c \
+    HAL.c \
+    HostControl.c \
+    IMCUtils.c \
+    INetMgr.c \
+    InsPoint.c \
+    IntlMgr.c \
+    IrLib.c \
+    Keyboard.c \
+    KeyMgr.c \
+    Launcher.c \
+    List.c \
+    LocaleMgr.c \
+    Localize.c \
+    Lz77Mgr.c \
+    Menu.c \
+    ModemMgr.c \
+    NetBitUtils.c \
+    NetMgr.c \
+    OverlayMgr.c \
+    Password.c \
+    PceNativeCall.c \
+    PdiLib.c \
+    PenInputMgr.c \
+    PenMgr.c \
+    PhoneLookup.c \
+    Preferences.c \
+    PrivateRecords.c \
+    Progress.c \
+    Rect.c \
+    ScrollBar.c \
+    SelTime.c \
+    SelDay.c \
+    SelTimeZone.c \
+    SerialLinkMgr.c \
+    SerialMgr.c \
+    SerialMgrOld.c \
+    SerialSdrv.c \
+    SerialVdrv.c \
+    SlotDrvrLib.c \
+    SoundMgr.c \
+    SslLib.c \
+    StringMgr.c \
+    SysEvtMgr.c \
+    SystemMgr.c \
+    SysUtils.c \
+    Table.c \
+    TelephonyMgr.c \
+    TextMgr.c \
+    TextServicesMgr.c \
+    TimeMgr.c \
+    UDAMgr.c \
+    UIColor.c \
+    UIControls.c \
+    UIResources.c \
+    VFSMgr.c \
+    VFSExplorer.c \
+    FileBrowser.c \
+    Window.c \
+    Chat.c \
+    cmheap.c \
+    grail.c \
+    wav.c \
+    dia.c \
+    taskbar.c \
+    wman.c \
+    peditor.c \
+    syntax.c \
+    edit.c \
+    RegistryMgr.c \
+    language.c \
+    calibrate.c \
+    unzip.c \
+    junzip.c \
+    puff.c \
+    plibc.c \
+    dosbox.c \
+    ssfn_font.c \
+    logtrap.c \
+    BmpGlue.c \
+    CtlGlue.c \
+    DateGlue.c \
+    FldGlue.c \
+    FntGlue.c \
+    FrmGlue.c \
+    LstGlue.c \
+    MemGlue.c \
+    TblGlue.c \
+    TxtGlue.c \
+    WinGlue.c \
+    GPSLib68K.c \
+    GPDLib.c \
+    emupalmos.c \
+    armsyscall.c \
+    omtrap.c \
+    pinstrap.c \
+    hdtrap.c \
+    serialtrap.c \
+    fstrap.c \
+    intltrap.c \
+    flpemtrap.c \
+    flptrap.c \
+    accessortrap.c \
+    expansiontrap.c \
+    tsmtrap.c \
+    lmtrap.c \
+    navtrap.c \
+    netlibtrap.c \
+    gpdlibtrap.c \
+    systrap.c \
+    m68kcpu.c \
+    softfloat.c \
+    m68kops.c \
+    disasm.c \
+    emu_notif_serde.c \
+    emu_launch_serde.c \
+    armem.c \
+    armemu.c \
+    CPU.c \
+    icache.c \
+    MMU.c \
+    RAM.c \
+    pxa_IC.c \
+    cp15.c \
+    armv7.c \
+    armv7-tbl.c \
+    darm.c \
+    darm-tbl.c \
+    thumb.c \
+    thumb2.c \
+    thumb2-decoder.c \
+    thumb2-tbl.c \
+    thumb-tbl.c \
+    emulator.c \
+    tos.c \
+    gemdos_impl.c \
+    bios_impl.c \
+    xbios_impl.c \
+    vdi.c \
+    aes.c \
+    kdtree.c \
+    DllMain.c \
+
+
+
+RELEASETYPE=LOCAL
+TARGETLIBS= \
+    $(_COMMCTRL) \
+    $(_SHELLCB) \
+    $(_COREDLL) \
+	..\libpit\obj\$(_CPUINDPATH)\libpit.lib
+
+DLLENTRY=_DllMainCRTStartup
+
+TARGETTYPE=DYNLINK
+DEFFILE=$(TARGETNAME).def
+CDEFINES=$(CDEFINES) -Dlibpumpkin_EXPORTS -I./emulation -I./emulation/arm -I../PalmOS/Core/System -I../PalmOs/PalmOne -I../PalmOs/PalmOne/Common -I../PalmOs/PalmOne/Common/System -I../PalmOs/PalmOne/68K -I../PalmOs/PalmOne/68K/System -I../PalmOS/PalmOne/Common/Libraries/filebrowser -I../PalmOS/PalmOne/68K/Libraries/filebrowser -I../PalmOS/Libraries/SSL -I../PalmOS/Libraries/CPMLib -I../PalmOS/Libraries/Pdi -I../PalmOS/Garmin -I../PalmOS/Libraries/PalmOSGlue -I../PalmOS/Libraries/INet -I../PalmOS/Core/Hardware -I../PalmOS/Extensions/ExpansionMgr -I../PalmOS/Extensions/Bluetooth -I../PalmOS -I../PalmOS/Libraries -I../PalmOS/Core -I../PalmOS/Core/UI -I../PalmOS/Core/System -I../PalmOS/Dynamic -I./emulation/darm -I./tos -I../libpit/custom_malloc/ -I../libemulation -DARMEMU -I..\..\src\libpit -I..\font -D_WIN32_WCE=800 -DUNDER_CE=0x800 -DCRDATE=1768834074 -DSYSTEM_VERSION="\"1.0\"" -DSYSTEM_NAME="\"pit\"" -DSYSTEM_OS="\"WindowsCE\"" -DAPPNAME="\"\"" -DAPPID=\'\' -DSYS_CPU=1 -DSYS_SIZE=1 -DSYS_OS=2 -DSYS_ENDIAN=1 -DWINDOWS -DWINDOWS32 -DSOEXT="\".dll\"" -DLOGTRAP_SYS -DMUTE_DEBUG
+FILE_VIEW_PARAMETER_FOLDER= \
+    libpumpkin.bib \
+    libpumpkin.reg \
+    libpumpkin.dat \
+    libpumpkin.db \
+    ProjSysgen.bat

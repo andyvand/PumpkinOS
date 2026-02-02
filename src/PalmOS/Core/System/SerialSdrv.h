@@ -69,7 +69,7 @@ typedef enum SdrvCtlOpCodeEnum {				// Control function opCodes
 
 typedef void *SdrvDataPtr;
 
-#if EMULATION_LEVEL == EMULATION_NONE && !defined(__GNUC__)
+#if EMULATION_LEVEL == EMULATION_NONE && !defined(__GNUC__) && !defined(_MSC_VER)
 
 typedef void (*SerialMgrISPProcPtr)(void *portP:__A0);
 

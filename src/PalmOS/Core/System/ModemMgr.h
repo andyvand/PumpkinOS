@@ -97,7 +97,9 @@ typedef MdmInfoType*		MdmInfoPtr;
  * Modem Manager result codes
  * (mdmErrorClass is defined in ErrorBase.h)
  *************************************************************/
+#ifndef _MSC_VER
 #pragma mark -Error Codes-
+#endif
 
 #define	mdmErrNoTone			(mdmErrorClass | 1)		// no dial tone
 #define	mdmErrNoDCD				(mdmErrorClass | 2)		// no carrier / timeout
@@ -122,7 +124,9 @@ typedef MdmInfoType*		MdmInfoPtr;
  *  under native mode from the module that actually installs the trap
  *  vectors
  ********************************************************************/
+#ifndef _MSC_VER
 #pragma mark -API Routines-
+#endif
 
 #ifdef __cplusplus
 extern "C" {

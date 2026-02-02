@@ -1,0 +1,19 @@
+LIBRARY Launcher
+EXPORTS
+    DllMain @17
+    PilotMain @1
+    editBinary @2
+    editBitmap @3
+    editForm @4
+    editRegistry @5
+    editString @6
+    editSurface @7
+    getControlValue @8
+    getField @9
+    getField4Char @10
+    getFieldNum @11
+    setControlValue @12
+    setField @13
+    setField4char @14
+    setFieldNum @15
+    showDynamicForm @16

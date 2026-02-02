@@ -114,12 +114,11 @@ typedef uint64_t UIntPtr;
 // should define them yourself, or see PalmUtils.h -- but please read the
 // comments in that file before using it in your own projects.
 
-
-//#define OffsetOf(type, member)	((UInt32) &(((type *) 0)->member))
+#ifdef _MSC_VER
+#define OffsetOf(type, member)	((UInt32) &(((type *) 0)->member))
+#else
 #define OffsetOf(type, member) __builtin_offsetof (type, member)
-
-
-
+#endif
 
 /************************************************************
  * Common constants

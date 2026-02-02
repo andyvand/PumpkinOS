@@ -23,18 +23,27 @@ double sys_atof(const char *nptr) {
 }
 
 char *sys_strdup(const char *s) {
-  sys_size_t l = sys_strlen(s);
-  char *d = sys_malloc(l+1);
+  sys_size_t l = 0;
+  char *d = NULL;
+  if (s != NULL) {
+  l = sys_strlen(s);
+  d = sys_malloc(l + 1);
   if (!d) return NULL;
   return sys_memcpy(d, s, l+1);
+  }
+  return NULL;
 }
 
 char *sys_strndup(const char *s, sys_size_t n) {
-  sys_size_t l = sys_strnlen(s, n);
-  char *d = sys_malloc(l+1);
+  sys_size_t l = 0;
+  char *d = NULL;
+  if (s != NULL) {
+  l = sys_strnlen(s, n);
+  d = sys_malloc(l + 1);
   if (!d) return NULL;
   sys_memcpy(d, s, l);
   d[l] = 0;
+  }
   return d;
 }
 
@@ -173,6 +182,8 @@ int sys_memcmp(const void *vl, const void *vr, sys_size_t n) {
 }
 
 void *sys_memcpy(void *dest, const void *src, sys_size_t n) {
+  if ((dest == NULL) || (src == NULL))
+    return NULL;
 #if defined(KERNEL)
   unsigned char *d = dest;
   const unsigned char *s = src;
@@ -184,6 +195,8 @@ void *sys_memcpy(void *dest, const void *src, sys_size_t n) {
 }
 
 void *sys_memmove(void *dest, const void *src, sys_size_t n) {
+   if ((dest == NULL) || (src == NULL))
+    return NULL;
 #if defined(KERNEL)
   char *d = dest;
   const char *s = src;
@@ -204,6 +217,8 @@ void *sys_memmove(void *dest, const void *src, sys_size_t n) {
 }
 
 void *sys_memset(void *dest, int c, sys_size_t n) {
+  if (dest == NULL)
+    return NULL;
 #if defined(KERNEL)
   unsigned char *d = dest;
   for (; n; n--) *d++ = c;
@@ -304,13 +319,13 @@ static char *twoway_strstr(const unsigned char *h, const unsigned char *n) {
   /* Search loop */
   for (;;) {
     /* Update incremental end-of-haystack pointer */
-    if (z-h < l) {
+    if ((uint32_t)(z-h) < l) {
       /* Fast estimate for MAX(l,63) */
       uint32_t grow = l | 63;
       const unsigned char *z2 = sys_memchr(z, 0, grow);
       if (z2) {
         z = z2;
-        if (z-h < l) return 0;
+        if ((uint32_t)(z-h) < l) return 0;
       } else z += grow;
     }
 

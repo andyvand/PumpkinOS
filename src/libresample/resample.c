@@ -112,12 +112,12 @@ void *resample_open(int highQuality, double minFactor, double maxFactor)
 
    hp->Imp = (float *)sys_malloc(hp->Nwing * sizeof(float));
    hp->ImpD = (float *)sys_malloc(hp->Nwing * sizeof(float));
-   for(i=0; i<hp->Nwing; i++)
-      hp->Imp[i] = Imp64[i];
+   for(i=0; i<(int)hp->Nwing; i++)
+      hp->Imp[i] = (float)Imp64[i];
 
    /* Storing deltas in ImpD makes linear interpolation
       of the filter coefficients faster */
-   for (i=0; i<hp->Nwing-1; i++)
+   for (i=0; i<(int)hp->Nwing-1; i++)
       hp->ImpD[i] = hp->Imp[i+1] - hp->Imp[i];
 
    /* Last coeff. not interpolated */
@@ -126,8 +126,8 @@ void *resample_open(int highQuality, double minFactor, double maxFactor)
    sys_free(Imp64);
 
    /* Calc reach of LP filter wing (plus some creeping room) */
-   Xoff_min = ((hp->Nmult+1)/2.0) * MAX(1.0, 1.0/minFactor) + 10;
-   Xoff_max = ((hp->Nmult+1)/2.0) * MAX(1.0, 1.0/maxFactor) + 10;
+   Xoff_min = (UWORD)(((hp->Nmult+1)/2.0) * MAX(1.0, 1.0/minFactor) + 10);
+   Xoff_max = (UWORD)(((hp->Nmult+1)/2.0) * MAX(1.0, 1.0/maxFactor) + 10);
    hp->Xoff = MAX(Xoff_min, Xoff_max);
 
    /* Make the inBuffer size at least 4096, but larger if necessary
@@ -141,7 +141,7 @@ void *resample_open(int highQuality, double minFactor, double maxFactor)
    hp->Xread = hp->Xoff;
    
    /* Need Xoff zeros at begining of X buffer */
-   for(i=0; i<hp->Xoff; i++)
+   for(i=0; i<(int)hp->Xoff; i++)
       hp->X[i]=0;
 
    /* Make the outBuffer long enough to hold the entire processed
@@ -196,11 +196,11 @@ int resample_process(void   *handle,
    /* Start by copying any samples still in the Y buffer to the output
       buffer */
    if (hp->Yp && (outBufferLen-outSampleCount)>0) {
-      len = MIN(outBufferLen-outSampleCount, hp->Yp);
+      len = MIN((int)(outBufferLen-outSampleCount), (int)hp->Yp);
       for(i=0; i<len; i++)
          outBuffer[outSampleCount+i] = hp->Y[i];
       outSampleCount += len;
-      for(i=0; i<hp->Yp-len; i++)
+      for(i=0; i<(int)hp->Yp-len; i++)
          hp->Y[i] = hp->Y[i+len];
       hp->Yp -= len;
    }
@@ -212,7 +212,7 @@ int resample_process(void   *handle,
 
    /* Account for increased filter gain when using factors less than 1 */
    if (factor < 1)
-      LpScl = LpScl*factor;
+      LpScl = (float)(LpScl*factor);
 
    for(;;) {
 
@@ -236,7 +236,7 @@ int resample_process(void   *handle,
             end of the input buffer and make sure we process
             all the way to the end */
          Nx = hp->Xread - hp->Xoff;
-         for(i=0; i<hp->Xoff; i++)
+         for(i=0; i<(int)hp->Xoff; i++)
             hp->X[hp->Xread + i] = 0;
       }
       else
@@ -270,7 +270,7 @@ int resample_process(void   *handle,
       /* Copy part of input signal that must be re-used */
       Nreuse = hp->Xread - (hp->Xp - hp->Xoff);
 
-      for (i=0; i<Nreuse; i++)
+      for (i=0; i<(int)Nreuse; i++)
          hp->X[i] = hp->X[i + (hp->Xp - hp->Xoff)];
 
       debug(DEBUG_TRACE, "resample", "new Xread=%d", Nreuse);
@@ -288,11 +288,11 @@ int resample_process(void   *handle,
 
       /* Copy as many samples as possible to the output buffer */
       if (hp->Yp && (outBufferLen-outSampleCount)>0) {
-         len = MIN(outBufferLen-outSampleCount, hp->Yp);
+         len = MIN((int)(outBufferLen-outSampleCount), (int)hp->Yp);
          for(i=0; i<len; i++)
             outBuffer[outSampleCount+i] = hp->Y[i];
          outSampleCount += len;
-         for(i=0; i<hp->Yp-len; i++)
+         for(i=0; i<(int)(hp->Yp-len); i++)
             hp->Y[i] = hp->Y[i+len];
          hp->Yp -= len;
       }

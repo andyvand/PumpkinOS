@@ -1,0 +1,3 @@
+BUILD: [Thread:SystemTickCount:Type  ] Message
+BUILD: [01:0000000953:ERRORE] NMAKE : fatal error U1073: don't know how to make '..\libpumpkin\obj\ARMV7\retail\libpumpkin.lib'
+BUILD: [01:0000000953:ERRORE] TargetExeFiles  -nologo BUILDMSG=Stop.  BUILDROOT=C:\wince800\osdesigns\qemu\qemu\pumpkinos\ LINKONLY=1 NOPASS0=1MAKEDLL=1 failed - rc = 2.

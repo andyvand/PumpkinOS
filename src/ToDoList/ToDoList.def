@@ -1,0 +1,23 @@
+LIBRARY ToDoList
+EXPORTS
+    DllMain @21
+    AppResourceList @1
+    GetToDoNotePtr @2
+    PilotMain @3
+    ToDoAppInfoInit @4
+    ToDoChangeRecord @5
+    ToDoChangeSortOrder @6
+    ToDoExportVCal @7
+    ToDoGetAppInfo @8
+    ToDoGetDatabase @9
+    ToDoGetSortOrder @10
+    ToDoImportVCal @11
+    ToDoImportVToDo @12
+    ToDoInsertNewRecord @13
+    ToDoNewRecord @14
+    ToDoReceiveData @15
+    ToDoSendCategory @16
+    ToDoSendRecord @17
+    ToDoSetDBBackupBit @18
+    ToDoSetGoToParams @19
+    ToDoSort @20

@@ -1,0 +1,6 @@
+; @XIPREGION IF PLATFORM_FILES_MISC
+; @XIPREGION ENDIF PLATFORM_FILES_MISC
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shell\Minshell\PumpkinOS]
+"App"="pumpkin.exe"
+"Param"="-d 1 -s libscriptlua \\script\\pumpkin.lua"

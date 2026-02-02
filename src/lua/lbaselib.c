@@ -147,7 +147,7 @@ static int luaB_rawlen (lua_State *L) {
   int t = lua_type(L, 1);
   luaL_argcheck(L, t == LUA_TTABLE || t == LUA_TSTRING, 1,
                    "table or string expected");
-  lua_pushinteger(L, lua_rawlen(L, 1));
+  lua_pushinteger(L, (lua_Integer)lua_rawlen(L, 1));
   return 1;
 }
 

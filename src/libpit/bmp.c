@@ -44,7 +44,7 @@ int bmp_decode(uint8_t *bmp, uint8_t *chr, uint32_t cols, uint32_t rows, uint32_
   pitch = header->width * 3; // 3=RGB
   i = header->height * pitch;
 
-  for (y = 0; y < header->height; y++) {
+  for (y = 0; y < (int)header->height; y++) {
     i -= pitch;
     row = y / height;
     for (x = 0;;) {

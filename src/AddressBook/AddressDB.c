@@ -2113,7 +2113,7 @@ Boolean PrvAddrDBSeekVisibleRecordInCategory (DmOpenRef dbR, UInt16 * indexP, UI
 	UInt16		attr;
 	Boolean result;
 
-	result = DmSeekRecordInCategory(dbR,indexP,offset,direction,category);
+	result = (Boolean)DmSeekRecordInCategory(dbR, indexP, offset, direction, category);
 
 	if (result != errNone)
 	{
@@ -2124,7 +2124,7 @@ Boolean PrvAddrDBSeekVisibleRecordInCategory (DmOpenRef dbR, UInt16 * indexP, UI
 
 	while (masked && (attr & dmRecAttrSecret))
 	{
-		result = DmSeekRecordInCategory(dbR,indexP,1,direction,category);
+		result = (Boolean)DmSeekRecordInCategory(dbR, indexP, 1, direction, category);
 
 		if (result != errNone)
 		{

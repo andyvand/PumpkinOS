@@ -534,8 +534,8 @@ static void MatchDateTimeToken( const char*	tokenP, DateType*	dateP, TimeType*	t
             date.year = dateTime.year - firstYear;
             date.month = dateTime.month;
             date.day = dateTime.day;
-            time.hours = dateTime.hour;
-            time.minutes = dateTime.minute;
+			time.hours = (UInt8)dateTime.hour;
+			time.minutes = (UInt8)dateTime.minute;
         }
     }
 
@@ -901,7 +901,7 @@ static RepeatInfoPtr DateImportRepeatingRule(Char * ruleTextP)
                         Boolean				fromEndOfMonth;
 
                         repeatInfoP->repeatType = repeatMonthlyByDay;
-                        repeatInfoP->repeatFrequency = repeatFrequency;
+						repeatInfoP->repeatFrequency = (UInt8)repeatFrequency;
                         // Read remaining tokens: weekdays, occurrences, duration, end date
                         while (fieldP != NULL)
                         {
@@ -971,7 +971,7 @@ static RepeatInfoPtr DateImportRepeatingRule(Char * ruleTextP)
                         if (repeatFrequency % monthsInYear)
                         {
                             repeatInfoP->repeatType = repeatMonthlyByDate;
-                            repeatInfoP->repeatFrequency = repeatFrequency;
+							repeatInfoP->repeatFrequency = (UInt8)repeatFrequency;
                         }
                         else
                         {
@@ -2063,13 +2063,13 @@ static void SetDescriptionAndFilename(Char * textP, Char **descriptionPP, MemHan
         // If at least two spaces were found then use only that much of the description.
         // If less than two spaces were found then use all of the description.
         if (spaceP)
-            filenameLength = spaceP - descriptionP;
+            filenameLength = (UInt8)(spaceP - descriptionP);
         else
-            filenameLength = StrLen(descriptionP);
+			filenameLength = (UInt8)StrLen(descriptionP);
 
 
         // Allocate space and form the filename
-        schemeLength = StrLen(prefix);
+		schemeLength = (UInt8)StrLen(prefix);
         *filenameHP = MemHandleNew(schemeLength + filenameLength + StrLen(dateSuffix) + sizeOf7BitChar('\0'));
         filenameP = MemHandleLock(*filenameHP);
         if (filenameP)
@@ -2086,8 +2086,8 @@ static void SetDescriptionAndFilename(Char * textP, Char **descriptionPP, MemHan
         resourceP = MemHandleLock(resourceH);
         
         // Allocate space and form the filename
-        filenameLength = StrLen(resourceP);
-        schemeLength = StrLen(prefix);
+		filenameLength = (UInt8)StrLen(resourceP);
+		schemeLength = (UInt8)StrLen(prefix);
         *filenameHP = MemHandleNew(schemeLength + filenameLength + 4 + sizeOf7BitChar('\0'));
         filenameP = MemHandleLock(*filenameHP);
         if (filenameP)
@@ -2371,11 +2371,11 @@ static Boolean DateImportVToDo(DmOpenRef dbP, UInt16 pdiRefNum, PdiReaderType* r
  ***********************************************************************/
 extern Err DateReceiveData(DmOpenRef dbP, ExgSocketPtr exgSocketP)
 {
-    volatile Err err;
+    volatile Err err = 0;
     UInt16 pdiRefNum = sysInvalidRefNum;
-    PdiReaderType* reader;
-    UDAReaderType* stream;
-    Boolean loaded;
+    PdiReaderType* reader = NULL;
+    UDAReaderType* stream = NULL;
+    Boolean loaded = 0;
 
     // accept will open a progress dialog and wait for your receive commands
     if ((err = ExgAccept(exgSocketP)) != 0)

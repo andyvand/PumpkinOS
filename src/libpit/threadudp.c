@@ -310,7 +310,7 @@ thread_ps_t *thread_ps(void) {
       r[0].name = xstrdup(ps[0].name);
       r[0].p = ps[0].p;
 
-      for (i = 1, j = 0; i < MAX_PS_THREADS && j < num_threads; i++) {
+      for (i = 1, j = 0; i < MAX_PS_THREADS && (unsigned int)j < num_threads; i++) {
         if (ps[i].tid) {
           r[j+1].tid = ps[i].tid;
           r[j+1].handle = ps[i].handle;

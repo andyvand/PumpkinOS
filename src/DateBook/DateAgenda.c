@@ -894,8 +894,8 @@ static void AgendaViewSetTopAppointment ()
 	// If the current date is today, then the top visible appointment is
 	// the appointment with the greatest end time that is before the 
 	// current time.
-	time.hours = dateTime.hour;
-	time.minutes = dateTime.minute;
+	time.hours = (UInt8)dateTime.hour;
+	time.minutes = (UInt8)dateTime.minute;
 	
 	apptsH = AgendaGetAppointments ();
 	if (apptsH)
@@ -1503,7 +1503,7 @@ AgendaViewDrawTime (
 	DateTimeType 					dateTime;
 	
 	TimSecondsToDateTime (Agenda.timeSeconds, &dateTime);
-	TimeToAscii (dateTime.hour, dateTime.minute, Agenda.timeFormat, timeStr);
+	TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, Agenda.timeFormat, timeStr);
 	
 	FrmCopyTitle (inFormP, timeStr);
 }
@@ -1610,7 +1610,7 @@ AgendaDateToDOWDM (
 							sizeof(templateBuffer) - 1);
 
 	
-	DateTemplateToAscii(templateBuffer, inDate.month, inDate.day, inDate.year + firstYear,
+	DateTemplateToAscii(templateBuffer, (UInt8)inDate.month, (UInt8)inDate.day, inDate.year + firstYear,
 								outAscii, dowLongDateStrLength);
 }
 
@@ -3972,7 +3972,7 @@ static void ListViewDrawDueDate (void* table, Int16 row, Int16 column,
 
 	FntSetFont (Agenda.todoFont);
 	
-	DateToAscii (date.month, date.day, date.year + firstYear, 
+	DateToAscii((UInt8)date.month, (UInt8)date.day, date.year + firstYear,
 					Agenda.dateFormat, dateBuffer);
 
 	// Remove the year from the date string.

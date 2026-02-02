@@ -81,13 +81,13 @@ static void TimGmTime(UInt32 seconds, sys_tm_t *tm) {
 static UInt32 TimTimeGm(sys_tm_t *tm) {
   UInt32 year, month, count;
 
-  for (year = YEAR0, count = 0; year < tm->tm_year + 1900; year++) {
+  for (year = YEAR0, count = 0; year < (UInt32)(tm->tm_year + 1900); year++) {
     for (month = 1; month <= 12; month++) {
       count += daysinmonth(year, month);
     }
   }
 
-  for (month = 1; month < tm->tm_mon + 1; month++) {
+  for (month = 1; month < (UInt32)(tm->tm_mon + 1); month++) {
     count += daysinmonth(year, month);
   }
 
@@ -105,10 +105,10 @@ static void tim_t2tm(UInt32 seconds, sys_tm_t *tm) {
 
   zone = PrefGetPreference(prefTimeZone)*60;
   dls = PrefGetPreference(prefDaylightSavingAdjustment)*60;
-  if (zone >= 0 || seconds >= -zone) {
+  if (zone >= 0 || seconds >= (UInt32)(-zone)) {
     seconds += zone;
   }
-  if (dls >= 0 || seconds >= -dls) {
+  if (dls >= 0 || seconds >= (UInt32)(-dls)) {
     seconds += dls;
   }
   TimGmTime(seconds, tm);
@@ -121,10 +121,10 @@ static uint64_t tim_tm2t(sys_tm_t *tm) {
   zone = PrefGetPreference(prefTimeZone)*60;
   dls = PrefGetPreference(prefDaylightSavingAdjustment)*60;
   seconds = TimTimeGm(tm);
-  if (zone <= 0 || seconds >= zone) {
+  if (zone <= 0 || seconds >= (UInt32)zone) {
     seconds -= zone;
   }
-  if (dls <= 0 || seconds >= dls) {
+  if (dls <= 0 || seconds >= (UInt32)dls) {
     seconds -= dls;
   }
 
@@ -156,7 +156,7 @@ UInt32 TimDateTimeToSeconds(const DateTimeType *dateTimeP) {
   tm.tm_hour = dateTimeP->hour;
   tm.tm_min = dateTimeP->minute;
   tm.tm_sec = dateTimeP->second;
-  seconds = tim_tm2t(&tm);
+  seconds = (UInt32)tim_tm2t(&tm);
 
   debug(DEBUG_TRACE, PALMOS_MODULE, "TimDateTimeToSeconds %04d-%02d-%02d  %02d:%02d:%02d = %u",
     dateTimeP->year, dateTimeP->month, dateTimeP->day, dateTimeP->hour, dateTimeP->minute, dateTimeP->second, seconds);
@@ -216,7 +216,7 @@ Int16 DayOfWeek(Int16 month, Int16 day, Int16 year) {
   tm.tm_sec = 0;
   t = tim_tm2t(&tm);
 
-  tim_t2tm(t, &tm);
+  tim_t2tm((UInt32)t, &tm);
 
   return tm.tm_wday;
 }

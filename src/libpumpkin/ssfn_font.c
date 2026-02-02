@@ -140,7 +140,7 @@ FontTypeV2 *pumpkin_create_ssfn(void *h, uint8_t *p, uint32_t size, uint32_t *ds
       n = font->totalWidth * mult * font->fRectHeight * mult;
 
       mask = 0x80;
-      for (i = 0, j = 0; i < n; i++) {
+      for (i = 0, j = 0; i < (int)n; i++) {
         if (src[i] < 0xff400000) {
           dst[j] |= mask;
         }

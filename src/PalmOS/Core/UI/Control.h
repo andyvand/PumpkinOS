@@ -48,6 +48,9 @@ enum buttonFrames {noButtonFrame, standardButtonFrame, boldButtonFrame,
 						 rectangleButtonFrame};
 typedef enum buttonFrames ButtonFrameType;
 
+#ifdef _MSC_VER
+#pragma warning(disable:4200)
+#endif
 
 typedef struct ControlType
 #ifdef ALLOW_ACCESS_TO_INTERNALS_OF_CONTROLS	// These fields will not be available in the next OS release!

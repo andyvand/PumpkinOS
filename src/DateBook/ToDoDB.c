@@ -245,11 +245,11 @@ Err	ToDoAppInfoInit(DmOpenRef dbP)
 
 	// I don't know what this field is used for.
 	wordValue = 0xFFFF;
-	DmWrite (appInfoP, (UIntPtr)&nilP->dirtyAppInfo, &wordValue,
+	DmWrite (appInfoP, (UInt32)((UIntPtr)&nilP->dirtyAppInfo), &wordValue,
 		sizeof(appInfoP->dirtyAppInfo));
 
 	// Initialize the sort order.
-	DmSet (appInfoP, (UIntPtr)&nilP->sortOrder, sizeof(appInfoP->sortOrder), 
+	DmSet(appInfoP, (UInt32)((UIntPtr)&nilP->sortOrder), sizeof(appInfoP->sortOrder),
 		soPriorityDueDate);
 
 	MemPtrUnlock (appInfoP);
@@ -530,8 +530,8 @@ Err ToDoNewRecord(DmOpenRef dbP, ToDoItemPtr item, UInt16 category, UInt16 *inde
 
 	// Pack the the data into the new record.
 	recordP = MemHandleLock (recordH);
-	DmWrite(recordP, (UIntPtr)&nilP->dueDate, &item->dueDate, sizeof(nilP->dueDate));
-	DmWrite(recordP, (UIntPtr)&nilP->priority, &item->priority, sizeof(nilP->priority));
+	DmWrite(recordP, (UInt32)((UIntPtr)&nilP->dueDate), &item->dueDate, sizeof(nilP->dueDate));
+	DmWrite(recordP, (UInt32)((UIntPtr)&nilP->priority), &item->priority, sizeof(nilP->priority));
 
 	//offset = (UInt32)&nilP->description;
 	offset = OffsetOf(ToDoDBRecordType, description);
@@ -552,7 +552,7 @@ Err ToDoNewRecord(DmOpenRef dbP, ToDoItemPtr item, UInt16 category, UInt16 *inde
 		DmWrite(recordP, offset, &zero, 1);
 	
 	
-	sortInfo.attributes = category;
+	sortInfo.attributes = (UInt8)category;
 	sortInfo.uniqueID[0] = 0;
 	sortInfo.uniqueID[1] = 0;
 	sortInfo.uniqueID[2] = 0;
@@ -636,13 +636,13 @@ Err ToDoInsertNewRecord (DmOpenRef dbP, UInt16 * index)
 	// values as the record we're inserting after.  This will insure
 	// that the records are in the proper sort order.
 	newRec = (ToDoDBRecord *) MemHandleLock (newRecH);
-	DmWrite(newRec, (UIntPtr)&nilP->dueDate, &rec->dueDate, sizeof(rec->dueDate));
+	DmWrite(newRec, (UInt32)((UIntPtr)&nilP->dueDate), &rec->dueDate, sizeof(rec->dueDate));
 
 	priority = rec->priority & priorityOnly;
-	DmWrite(newRec, (UIntPtr)&nilP->priority, &priority, sizeof(rec->priority));
+	DmWrite(newRec, (UInt32)((UIntPtr)&nilP->priority), &priority, sizeof(rec->priority));
 	
 	// Description is 1 byte, plus add extra byte for note field
-	DmWrite(newRec, (UIntPtr)&nilP->description, &zero, 2);
+	DmWrite(newRec, (UInt32)((UIntPtr)&nilP->description), &zero, 2);
 
 	MemPtrUnlock (rec);
 
@@ -701,8 +701,8 @@ Err ToDoChangeSortOrder(DmOpenRef dbP, UInt8 sortOrder)
 	if (appInfoP->sortOrder != sortOrder)
 		{
 		dirtyAppInfo = appInfoP->dirtyAppInfo | toDoSortByPriorityDirty;
-		DmWrite(appInfoP, (UIntPtr)&nilP->dirtyAppInfo, &dirtyAppInfo, sizeof(appInfoP->dirtyAppInfo)); 
-		DmWrite(appInfoP, (UIntPtr)&nilP->sortOrder, &sortOrder, sizeof(appInfoP->sortOrder));
+		DmWrite(appInfoP, (UInt32)((UIntPtr)&nilP->dirtyAppInfo), &dirtyAppInfo, sizeof(appInfoP->dirtyAppInfo));
+		DmWrite(appInfoP, (UInt32)((UIntPtr)&nilP->sortOrder), &sortOrder, sizeof(appInfoP->sortOrder));
 		
 		DmInsertionSort(dbP, (DmComparF *) &ToDoCompareRecords, (Int16) sortOrder);
 		}
@@ -791,25 +791,25 @@ Err ToDoChangeRecord(DmOpenRef dbP, UInt16 *index,
 		{
 		MemSet (&sortInfo, sizeof (sortInfo), 0);
 		DmRecordInfo (dbP, *index, &attr, NULL, NULL);
-		sortInfo.attributes = attr;
+		sortInfo.attributes = (UInt8)attr;
 
 		if (changedField == toDoPriority)
 			{
-			temp.priority = *(UInt16 *) data;
+			temp.priority = (UInt8)(*(UInt16 *)data);
 			temp.dueDate = src->dueDate;
-			sortInfo.attributes = attr;
+			sortInfo.attributes = (UInt8)attr;
 			}
 		else if (changedField == toDoDueDate) 
 			{
 			temp.priority = src->priority;
 			temp.dueDate = *((DatePtr)data);
-			sortInfo.attributes = attr;
+			sortInfo.attributes = (UInt8)attr;
 			}
 		else
 			{
 			temp.priority = src->priority;
 			temp.dueDate = src->dueDate;
-			sortInfo.attributes = *(UInt16 *) data;			
+			sortInfo.attributes = (UInt8)(*(UInt16 *)data);
 			}
 			
 		newIndex = ToDoFindSortPosition (dbP, &temp, &sortInfo);
@@ -822,20 +822,20 @@ Err ToDoChangeRecord(DmOpenRef dbP, UInt16 *index,
 	if (changedField == toDoPriority)
 		{
 		priority = *(UInt16 *) data | (src->priority & completeFlag);
-		DmWrite (src, (UIntPtr)&nilP->priority, &priority, sizeof(src->priority));
+		DmWrite(src, (UInt32)((UIntPtr)&nilP->priority), &priority, sizeof(src->priority));
 		goto exit;
 		}
 			
 	if (changedField == toDoComplete) 
 		{
 		priority = (*(UInt16 *) data << 7) |  (src->priority & priorityOnly);
-		DmWrite (src, (UIntPtr)&nilP->priority, &priority, sizeof(src->priority));
+		DmWrite(src, (UInt32)((UIntPtr)&nilP->priority), &priority, sizeof(src->priority));
 		goto exit;
 		}
 
 	if (changedField == toDoDueDate)
 		{ 
-		DmWrite (src, (UIntPtr)&nilP->dueDate, data, sizeof(src->dueDate));
+		DmWrite (src, (UInt32)((UIntPtr)&nilP->dueDate), data, sizeof(src->dueDate));
 		goto exit;
 		}
 		

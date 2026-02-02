@@ -525,7 +525,7 @@ void ToolsDrawRecordName (Char * name1, Int16 name1Length, Int16 name1Width, Cha
 			if (spaceP != NULL)
 			{
 				// Found break. Set low priority name width to break width
-				lowPriNameWidth = FntCharsWidth(lowPriName, spaceP - lowPriName);
+				lowPriNameWidth = (Int16)FntCharsWidth(lowPriName, (Int16)(spaceP - lowPriName));
 				// Reclaim width from low pri name width to low pri max width, if smaller
 				if (lowPriNameWidth < lowPriMaxWidth)
 				{
@@ -1449,7 +1449,7 @@ UInt16	ToolsGetLineIndexAtOffset( Char* textP, UInt16 offset )
 		nextP = StrChr(textP, chrLineFeed);
 		if (nextP)
 		{
-			UInt16 diff = nextP - textP;
+			UInt16 diff = (UInt16)(nextP - textP);
 			if (offset <= diff)
 				break;
 			else

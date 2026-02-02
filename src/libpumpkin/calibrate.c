@@ -81,7 +81,7 @@ void calibrate(window_provider_t *wp, window_t *w, int depth, int width, int hei
     fh = surface_font_height(NULL, font);
     ty = height / 2 + radius + fh;
 
-    fw = surface_font_chars_width(NULL, font, (char *)tapmsg, sys_strlen(tapmsg));
+    fw = surface_font_chars_width(NULL, font, (char *)tapmsg, (int)sys_strlen(tapmsg));
     tx = (width - fw) / 2;
 
     surface_rectangle(surface, 0, 0, width-1, height-1, 1, white);
@@ -90,7 +90,7 @@ void calibrate(window_provider_t *wp, window_t *w, int depth, int width, int hei
     wp->draw_texture_rect(w, texture, 0, 0, width, height, 0, 0);
     if (wp->render) wp->render(w);
 
-    fw = surface_font_chars_width(NULL, font, (char *)errmsg, sys_strlen(errmsg));
+    fw = surface_font_chars_width(NULL, font, (char *)errmsg, (int)sys_strlen(errmsg));
     tx = (width - fw) / 2;
     ty += 2*fh;
 

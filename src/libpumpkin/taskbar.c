@@ -167,7 +167,7 @@ void taskbar_update(taskbar_t *tb) {
   t = TimGetSeconds();
   TimSecondsToDateTime(t, &dt);
   tf = PrefGetPreference(prefTimeFormat);
-  TimeToAscii(dt.hour, dt.minute, tf, buf);
+  TimeToAscii((UInt8)dt.hour, (UInt8)dt.minute, tf, buf);
   len = StrLen(buf);
   x = FntCharsWidth(buf, len);
   WinSetForeColor(TEXT_COLOR);
@@ -269,7 +269,7 @@ void taskbar_add(taskbar_t *tb, Int32 taskId, LocalID dbID, UInt32 creator, char
   BitmapType *bmp;
   UInt32 size;
 
-  if (tb->num_tasks < MAX_TASKS) {
+  if (tb && (tb->num_tasks < MAX_TASKS)) {
     tb->tasks[tb->num_tasks].taskId = taskId;
     tb->tasks[tb->num_tasks].dbID = dbID;
     tb->tasks[tb->num_tasks].creator = creator;
@@ -377,7 +377,7 @@ Int32 taskbar_clicked(taskbar_t *tb, int cx) {
 
   x = 0;
   for (i = 0; i < tb->num_tasks; i++) {
-    if (cx >= x && cx < x + tb->tasks[i].width) {
+    if (cx >= (int)x && cx < (int)(x + tb->tasks[i].width)) {
       debug(DEBUG_TRACE, "taskbar", "clicked index=%d x=%d taskId=%d dbID=0x%08X name=[%s] width=%d", i, cx, tb->tasks[i].taskId, tb->tasks[i].dbID, tb->tasks[i].name, tb->tasks[i].width);
       return tb->tasks[i].taskId;
     }

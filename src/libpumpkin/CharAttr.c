@@ -47,7 +47,7 @@ int CharAttrInitModule(void) {
 
   if ((module->charSortValue = MemPtrNew(256)) != NULL) {
     for (i = 0; i < 256; i++) {
-      module->charSortValue[i] = i;
+      module->charSortValue[i] = (UInt8)i;
     }
   }
 

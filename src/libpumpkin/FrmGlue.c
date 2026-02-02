@@ -12,13 +12,13 @@ Boolean FrmGlueGetObjectUsable(const FormType *formP, UInt16 objIndex) {
     obj = formP->objects[objIndex].object;
 
     switch (formP->objects[objIndex].objectType) {
-      case frmFieldObj:     usable = obj.field->attr.usable;     break;
-      case frmControlObj:   usable = obj.control->attr.usable;   break;
-      case frmLabelObj:     usable = obj.label->attr.usable;     break;
-      case frmListObj:      usable = obj.list->attr.usable;      break;
-      case frmTableObj:     usable = obj.table->attr.usable;     break;
-      case frmGadgetObj:    usable = obj.gadget->attr.usable;    break;
-      case frmScrollBarObj: usable = obj.scrollBar->attr.usable; break;
+      case frmFieldObj:     usable = (Boolean)obj.field->attr.usable;     break;
+	  case frmControlObj:   usable = (Boolean)obj.control->attr.usable;   break;
+	  case frmLabelObj:     usable = (Boolean)obj.label->attr.usable;     break;
+	  case frmListObj:      usable = (Boolean)obj.list->attr.usable;      break;
+	  case frmTableObj:     usable = (Boolean)obj.table->attr.usable;     break;
+	  case frmGadgetObj:    usable = (Boolean)obj.gadget->attr.usable;    break;
+	  case frmScrollBarObj: usable = (Boolean)obj.scrollBar->attr.usable; break;
       default: break;
     }
   }

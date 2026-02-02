@@ -79,9 +79,9 @@ static Boolean getBitN(BitmapType *bmp, UInt32 x, UInt32 y, int n, UInt32 *index
     case 16:
       value = BmpGetPixelValue(bmp, x, y);
       *index = value;
-      rgb->r = r565(value);
-      rgb->g = g565(value);
-      rgb->b = b565(value);
+      rgb->r = (UInt8)r565(value);
+	  rgb->g = (UInt8)g565(value);
+	  rgb->b = (UInt8)b565(value);
       transp = BmpGetTransparentValue(bmp, &transparentValue) && transparentValue == value;
       break;
   }
@@ -199,9 +199,9 @@ static void paintPixel(bmp_edit_t *data, int j, int i) {
       color = data->color8;
       colorTable = BmpGetColortable(data->bmps[data->index]);
       if (colorTable == NULL) colorTable = WinGetColorTable(0);
-      numEntries = CtbGetNumEntries(colorTable);
+	  numEntries = (UInt8)CtbGetNumEntries(colorTable);
       if (color < numEntries) {
-        CtbGetEntry(colorTable, color, &rgb);
+		CtbGetEntry(colorTable, (UInt8)color, &rgb);
       } else {
         rgb.r = rgb.g = rgb.b = 0x00;
       }
@@ -469,7 +469,7 @@ static Boolean paletteGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, 
             lst = (ListType *)FrmGetObjectPtr(frm, index);
             LstSetSelection(lst, data->color1);
             i = LstPopupList(lst);
-            if (i != -1) data->color1 = i;
+            if (i != -1) data->color1 = (UInt8)i;
             paletteGadgetCallback(gad, formGadgetDrawCmd, NULL);
             data->popup = false;
             break;
@@ -479,7 +479,7 @@ static Boolean paletteGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, 
             lst = (ListType *)FrmGetObjectPtr(frm, index);
             LstSetSelection(lst, data->color2);
             i = LstPopupList(lst);
-            if (i != -1) data->color2 = i;
+			if (i != -1) data->color2 = (UInt8)i;
             paletteGadgetCallback(gad, formGadgetDrawCmd, NULL);
             data->popup = false;
             break;
@@ -489,7 +489,7 @@ static Boolean paletteGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, 
             lst = (ListType *)FrmGetObjectPtr(frm, index);
             LstSetSelection(lst, data->color4);
             i = LstPopupList(lst);
-            if (i != -1) data->color4 = i;
+			if (i != -1) data->color4 = (UInt8)i;
             paletteGadgetCallback(gad, formGadgetDrawCmd, NULL);
             data->popup = false;
             break;

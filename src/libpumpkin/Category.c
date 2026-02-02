@@ -35,7 +35,7 @@ static UInt32 sdup(char *s) {
     if ((p = pumpkin_heap_alloc(len + 1, "cat_itenstext")) != NULL) {
       MemSet(p, len, 0);
       MemMove(p, s, len);
-      w = p - emupalmos_ram();
+      w = (UInt32)(p - emupalmos_ram());
     }
   }
 
@@ -392,7 +392,7 @@ void CategoryInitialize(AppInfoPtr appInfoP, UInt16 localizedAppInfoStrID) {
       if ((s = MemHandleLock(h)) != NULL) {
         for (index = 0; s[0] && index < dmRecNumCategories; index++) {
           debug(DEBUG_TRACE, PALMOS_MODULE, "CategoryInitialize %d: \"%s\"", index, s);
-          DmStrCopy(appInfoP, OffsetOf(AppInfoType, categoryLabels[index]), s);
+		  DmStrCopy(appInfoP, OffsetOf(AppInfoType, categoryLabels[index]), s);
           s += StrLen(s)+1;
         }
         MemHandleUnlock(h);

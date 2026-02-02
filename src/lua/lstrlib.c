@@ -73,7 +73,7 @@ static int str_sub (lua_State *L) {
   lua_Integer start = posrelat(luaL_checkinteger(L, 2), l);
   lua_Integer end = posrelat(luaL_optinteger(L, 3, -1), l);
   if (start < 1) start = 1;
-  if (end > (lua_Integer)l) end = l;
+  if (end >(lua_Integer)l) end = (lua_Integer)l;
   if (start <= end)
     lua_pushlstring(L, s + start - 1, (size_t)(end - start) + 1);
   else lua_pushliteral(L, "");
@@ -152,7 +152,7 @@ static int str_byte (lua_State *L) {
   lua_Integer pose = posrelat(luaL_optinteger(L, 3, posi), l);
   int n, i;
   if (posi < 1) posi = 1;
-  if (pose > (lua_Integer)l) pose = l;
+  if (pose >(lua_Integer)l) pose = (lua_Integer)l;
   if (posi > pose) return 0;  /* empty interval; return no values */
   if (pose - posi >= INT_MAX)  /* arithmetic overflow? */
     return luaL_error(L, "string slice too long");
@@ -559,9 +559,9 @@ static void push_onecapture (MatchState *ms, int i, const char *s,
     ptrdiff_t l = ms->capture[i].len;
     if (l == CAP_UNFINISHED) luaL_error(ms->L, "unfinished capture");
     if (l == CAP_POSITION)
-      lua_pushinteger(ms->L, (ms->capture[i].init - ms->src_init) + 1);
+	  lua_pushinteger(ms->L, (lua_Integer)((ms->capture[i].init - ms->src_init) + 1));
     else
-      lua_pushlstring(ms->L, ms->capture[i].init, l);
+	  lua_pushlstring(ms->L, ms->capture[i].init, l);
   }
 }
 
@@ -619,8 +619,8 @@ static int str_find_aux (lua_State *L, int find) {
     /* do a plain search */
     const char *s2 = lmemfind(s + init - 1, ls - (size_t)init + 1, p, lp);
     if (s2) {
-      lua_pushinteger(L, (s2 - s) + 1);
-      lua_pushinteger(L, (s2 - s) + lp);
+	  lua_pushinteger(L, (lua_Integer)((s2 - s) + 1));
+	  lua_pushinteger(L, (lua_Integer)((s2 - s) + lp));
       return 2;
     }
   }
@@ -637,8 +637,8 @@ static int str_find_aux (lua_State *L, int find) {
       reprepstate(&ms);
       if ((res=match(&ms, s1, p)) != NULL) {
         if (find) {
-          lua_pushinteger(L, (s1 - s) + 1);  /* start */
-          lua_pushinteger(L, res - s);   /* end */
+		  lua_pushinteger(L, (lua_Integer)((s1 - s) + 1));  /* start */
+		  lua_pushinteger(L, (lua_Integer)(res - s));   /* end */
           return push_captures(&ms, NULL, 0) + 2;
         }
         else
@@ -765,7 +765,7 @@ static int str_gsub (lua_State *L) {
   const char *p = luaL_checklstring(L, 2, &lp);  /* pattern */
   const char *lastmatch = NULL;  /* end of last match */
   int tr = lua_type(L, 3);  /* replacement type */
-  lua_Integer max_s = luaL_optinteger(L, 4, srcl + 1);  /* max replacements */
+  lua_Integer max_s = luaL_optinteger(L, 4, (lua_Integer)(srcl + 1));  /* max replacements */
   int anchor = (*p == '^');
   lua_Integer n = 0;  /* replacement count */
   MatchState ms;
@@ -1532,7 +1532,7 @@ static int str_unpack (lua_State *L) {
     }
     pos += size;
   }
-  lua_pushinteger(L, pos + 1);  /* next position */
+  lua_pushinteger(L, (lua_Integer)(pos + 1));  /* next position */
   return n + 1;
 }
 

@@ -751,8 +751,8 @@ static void SearchDraw (ApptDBRecordPtr apptRecP, Int16 x, Int16 y,
 			WinDrawChars (timeStr, len, drawX, y);
 			}
 
-		DateToAscii (apptRecP->when->date.month, 
-				 		 apptRecP->when->date.day, 
+		DateToAscii((UInt8)apptRecP->when->date.month,
+						 (UInt8)apptRecP->when->date.day,
 				 		 apptRecP->when->date.year + firstYear, 
 				 		 dateFormat, dateStr);
 		len = StrLen (dateStr);

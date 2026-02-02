@@ -218,7 +218,9 @@ FormType *FrmInitForm(UInt16 rscID) {
   FormType *formP = NULL;
   MemHandle h;
   UInt16 size;
+#ifndef MUTE_DEBUG
   char buf[64];
+#endif
   void *p, *rsrc = NULL;
 
   // Forms live in the heap but are not chunks.
@@ -564,7 +566,7 @@ void FrmDrawObject(FormType *formP, UInt16 objIndex, Boolean setUsable) {
           old = FntSetFont(boldFont);
           oldb = WinSetBackColor(formFrame);
           oldt = WinSetTextColor(formTitle);
-          tw = obj.title->text ? FntCharsWidth(obj.title->text, sys_strlen(obj.title->text)) : 4;
+          tw = obj.title->text ? FntCharsWidth(obj.title->text, (Int16)sys_strlen(obj.title->text)) : 4;
           th = FntCharHeight();
           if (formP->window.windowFlags.modal) {
             RctSetRectangle(&rect, 0, 0, formP->window.windowBounds.extent.x, th+1);
@@ -590,7 +592,7 @@ void FrmDrawObject(FormType *formP, UInt16 objIndex, Boolean setUsable) {
           }
           if (obj.title->text) {
             WinDrawOperation prev = WinSetDrawMode(winOverlay);
-            WinPaintChars(obj.title->text, sys_strlen(obj.title->text), x, y);
+            WinPaintChars(obj.title->text, (Int16)sys_strlen(obj.title->text), x, y);
             WinSetDrawMode(prev);
           }
           if (formP->window.windowFlags.modal && formP->helpRscId) {
@@ -665,13 +667,13 @@ Boolean FrmGetUsable(FormType *formP, UInt16 objIndex) {
     obj = formP->objects[objIndex].object;
 
     switch (formP->objects[objIndex].objectType) {
-      case frmFieldObj:     usable = obj.field->attr.usable;     break;
-      case frmControlObj:   usable = obj.control->attr.usable;   break;
-      case frmLabelObj:     usable = obj.label->attr.usable;     break;
-      case frmListObj:      usable = obj.list->attr.usable;      break;
-      case frmTableObj:     usable = obj.table->attr.usable;     break;
-      case frmGadgetObj:    usable = obj.gadget->attr.usable;    break;
-      case frmScrollBarObj: usable = obj.scrollBar->attr.usable; break;
+      case frmFieldObj:     usable = (Boolean)obj.field->attr.usable;     break;
+	  case frmControlObj:   usable = (Boolean)obj.control->attr.usable;   break;
+	  case frmLabelObj:     usable = (Boolean)obj.label->attr.usable;     break;
+	  case frmListObj:      usable = (Boolean)obj.list->attr.usable;      break;
+	  case frmTableObj:     usable = (Boolean)obj.table->attr.usable;     break;
+	  case frmGadgetObj:    usable = (Boolean)obj.gadget->attr.usable;    break;
+	  case frmScrollBarObj: usable = (Boolean)obj.scrollBar->attr.usable; break;
       default: break;
     }
   }
@@ -707,14 +709,14 @@ Boolean FrmGetVisible(FormType *formP, UInt16 objIndex) {
     obj = formP->objects[objIndex].object;
 
     switch (formP->objects[objIndex].objectType) {
-      case frmFieldObj:     visible = obj.field->attr.visible;     break;
-      case frmControlObj:   visible = obj.control->attr.visible;   break;
-      case frmListObj:      visible = obj.list->attr.visible;      break;
-      case frmTableObj:     visible = obj.table->attr.visible;     break;
-      case frmGadgetObj:    visible = obj.gadget->attr.visible;    break;
-      case frmScrollBarObj: visible = obj.scrollBar->attr.visible; break;
-      case frmLabelObj:     visible = obj.label->attr.visible;     break;
-      case frmBitmapObj:    visible = obj.bitmap->attr.visible;    break;
+      case frmFieldObj:     visible = (Boolean)obj.field->attr.visible;     break;
+	  case frmControlObj:   visible = (Boolean)obj.control->attr.visible;   break;
+	  case frmListObj:      visible = (Boolean)obj.list->attr.visible;      break;
+	  case frmTableObj:     visible = (Boolean)obj.table->attr.visible;     break;
+	  case frmGadgetObj:    visible = (Boolean)obj.gadget->attr.visible;    break;
+	  case frmScrollBarObj: visible = (Boolean)obj.scrollBar->attr.visible; break;
+	  case frmLabelObj:     visible = (Boolean)obj.label->attr.visible;     break;
+	  case frmBitmapObj:    visible = (Boolean)obj.bitmap->attr.visible;    break;
       default: break;
     }
   }
@@ -1967,7 +1969,7 @@ void FrmHelp(UInt16 helpMsgId) {
           fldP = formP->objects[index].object.field;
 
           FldGetAttributes(fldP, &attr);
-          old = attr.editable;
+		  old = (Boolean)attr.editable;
           attr.editable = true;
           FldSetAttributes(fldP, &attr);
 
@@ -2838,7 +2840,7 @@ static ControlType *pumpkin_create_control(uint8_t *p, int *i) {
   } else {
     *i += pumpkin_getstr(&text, p, *i);
     *i += palign(2, *i);
-    len = sys_strlen(text);
+    len = (uint16_t)sys_strlen(text);
     if ((c = pumpkin_heap_alloc(sizeof(ControlType) + len + 1, "Control")) != NULL) {
       c->id = id;
       c->bounds.topLeft.x = x;
@@ -2957,7 +2959,7 @@ static ListType *pumpkin_create_list(uint8_t *p, int *i, FormType *form, uint32_
         for (j = 0; j < numItems; j++) {
           debug(DEBUG_TRACE, "Form", "list item %d offset %d (m68k)", j, *i);
           *i += pumpkin_getstr(&text, p, *i);
-          put4b((uint8_t *)text - emupalmos_ram(), (uint8_t *)c->aux, j*4);
+          put4b((uint32_t)((uint8_t *)text - emupalmos_ram()), (uint8_t *)c->aux, j*4);
           debug(DEBUG_TRACE, "Form", "list item %d \"%s\"", j, text);
         }
       } else {
@@ -3148,7 +3150,7 @@ static FormLabelType *pumpkin_create_label(uint8_t *p, int *i) {
   *i += get4b(&dummy32, p, *i);
   *i += pumpkin_getstr(&text, p, *i);
   *i += palign(2, *i);
-  len = sys_strlen(text);
+  len = (uint16_t)sys_strlen(text);
   if (len < 32) len = 32; // XXX I had to do this so that FrmCopyLabel in Find in Launcher works
   debug(DEBUG_TRACE, "Form", "label id %d text \"%s\" font %d at (%d,%d)", id, text, font, x, y);
 
@@ -3181,7 +3183,7 @@ static FormTitleType *pumpkin_create_title(uint8_t *p, int *i) {
   *i += get2b(&h, p, *i);
   *i += get4b(&dummy32, p, *i);
   *i += pumpkin_getstr(&title, p, *i);
-  len = sys_strlen(title);
+  len = (uint16_t)sys_strlen(title);
   debug(DEBUG_TRACE, "Form",  "title \"%s\" at (%d,%d,%d,%d)", title, x, y, w, h);
   *i += palign(2, *i);
 

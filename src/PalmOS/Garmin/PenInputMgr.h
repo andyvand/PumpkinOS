@@ -16,6 +16,7 @@
 
 #include <PalmTypes.h>
 #include <LibTraps.h>
+#include "../Core/UI/Form.h"
 #include "PenInputMgrCommon.h"
 #include "PenInputMgrSelectorNums.h"
 

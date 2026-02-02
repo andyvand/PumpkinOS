@@ -1,8 +1,9 @@
-#include "sys.h"
-#include "vsnprintf.h"
-
+#include <stdarg.h>
 #include <limits.h>
 #include <float.h>
+
+#include "sys.h"
+#include "vsnprintf.h"
 
 #include "ldshape.h"
 
@@ -36,70 +37,555 @@ typedef struct {
 
 
 enum {
-	BARE, LPRE, LLPRE, HPRE, HHPRE, BIGLPRE,
-	ZTPRE, JPRE,
+	_BARE, _LPRE, L_LPRE, _HPRE, _HHPRE, _BIGLPRE,
+	_ZTPRE, _JPRE,
 	STOP,
-	PTR, INT, UINT, ULLONG,
-	LONG, ULONG,
-	SHORT, USHORT, CHAR, UCHAR,
-	LLONG, SIZET, IMAX, UMAX, PDIFF, UIPTR,
-	DBL, LDBL,
-	NOARG,
-	MAXSTATE
+	_PTR, _INT, _UINT, _ULLONG,
+	_LONG, _ULONG,
+	_SHORT, _USHORT, _CHAR, _UCHAR,
+	_LLONG, _SIZET, _IMAX, _UMAX, _PDIFF, _UIPTR,
+	_DBL, _LDBL,
+	_NOARG,
+	_MAXSTATE
 };
 
 #define S(x) [(x)-'A']
 
-static const unsigned char states[]['z'-'A'+1] = {
-	{ /* 0: bare types */
-		S('d') = INT, S('i') = INT,
-		S('o') = UINT, S('u') = UINT, S('x') = UINT, S('X') = UINT,
-		S('e') = DBL, S('f') = DBL, S('g') = DBL, S('a') = DBL,
-		S('E') = DBL, S('F') = DBL, S('G') = DBL, S('A') = DBL,
-		S('c') = INT, S('C') = UINT,
-		S('s') = PTR, S('S') = PTR, S('p') = UIPTR, S('n') = PTR,
-		S('m') = NOARG,
-		S('l') = LPRE, S('h') = HPRE, S('L') = BIGLPRE,
-		S('z') = ZTPRE, S('j') = JPRE, S('t') = ZTPRE,
-	}, { /* 1: l-prefixed */
-		S('d') = LONG, S('i') = LONG,
-		S('o') = ULONG, S('u') = ULONG, S('x') = ULONG, S('X') = ULONG,
-		S('e') = DBL, S('f') = DBL, S('g') = DBL, S('a') = DBL,
-		S('E') = DBL, S('F') = DBL, S('G') = DBL, S('A') = DBL,
-		S('c') = UINT, S('s') = PTR, S('n') = PTR,
-		S('l') = LLPRE,
-	}, { /* 2: ll-prefixed */
-		S('d') = LLONG, S('i') = LLONG,
-		S('o') = ULLONG, S('u') = ULLONG,
-		S('x') = ULLONG, S('X') = ULLONG,
-		S('n') = PTR,
-	}, { /* 3: h-prefixed */
-		S('d') = SHORT, S('i') = SHORT,
-		S('o') = USHORT, S('u') = USHORT,
-		S('x') = USHORT, S('X') = USHORT,
-		S('n') = PTR,
-		S('h') = HHPRE,
-	}, { /* 4: hh-prefixed */
-		S('d') = CHAR, S('i') = CHAR,
-		S('o') = UCHAR, S('u') = UCHAR,
-		S('x') = UCHAR, S('X') = UCHAR,
-		S('n') = PTR,
-	}, { /* 5: L-prefixed */
-		S('e') = LDBL, S('f') = LDBL, S('g') = LDBL, S('a') = LDBL,
-		S('E') = LDBL, S('F') = LDBL, S('G') = LDBL, S('A') = LDBL,
-		S('n') = PTR,
-	}, { /* 6: z- or t-prefixed (assumed to be same size) */
-		S('d') = PDIFF, S('i') = PDIFF,
-		S('o') = SIZET, S('u') = SIZET,
-		S('x') = SIZET, S('X') = SIZET,
-		S('n') = PTR,
-	}, { /* 7: j-prefixed */
-		S('d') = IMAX, S('i') = IMAX,
-		S('o') = UMAX, S('u') = UMAX,
-		S('x') = UMAX, S('X') = UMAX,
-		S('n') = PTR,
+#ifdef _MSC_VER
+static const unsigned char states[8][0x3A] = {
+	{
+		0x19,
+		0x0,
+		0xb,
+		0x0,
+		0x19,
+		0x19,
+		0x19,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x5,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0xb,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x19,
+		0x0,
+		0xa,
+		0xa,
+		0x19,
+		0x19,
+		0x19,
+		0x3,
+		0xa,
+		0x7,
+		0x0,
+		0x1,
+		0x1b,
+		0x9,
+		0xb,
+		0x18,
+		0x0,
+		0x0,
+		0x9,
+		0x6,
+		0xb,
+		0x0,
+		0x0,
+		0xb,
+		0x0,
+		0x6
+	},
+	{
+		0x19,
+		0x0,
+		0x0,
+		0x0,
+		0x19,
+		0x19,
+		0x19,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0xe,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x19,
+		0x0,
+		0xb,
+		0xd,
+		0x19,
+		0x19,
+		0x19,
+		0x0,
+		0xd,
+		0x0,
+		0x0,
+		0x2,
+		0x0,
+		0x9,
+		0xe,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x0,
+		0xe,
+		0x0,
+		0x0,
+		0xe,
+		0x0,
+		0x0
+	},
+	{
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0xc,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x13,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x13,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0xc,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0xc,
+		0x0,
+		0x0,
+		0xc,
+		0x0,
+		0x0
+	},
+	{
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x10,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0xf,
+		0x0,
+		0x0,
+		0x0,
+		0x4,
+		0xf,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x10,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x10,
+		0x0,
+		0x0,
+		0x10,
+		0x0,
+		0x0
+	},
+	{
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x12,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x11,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x11,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x12,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x12,
+		0x0,
+		0x0,
+		0x12,
+		0x0,
+		0x0
+	},
+	{
+		0x1a,
+		0x0,
+		0x0,
+		0x0,
+		0x1a,
+		0x1a,
+		0x1a,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x1a,
+		0x0,
+		0x0,
+		0x0,
+		0x1a,
+		0x1a,
+		0x1a,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0
+	},
+	{
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x14,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x17,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x17,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x14,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x14,
+		0x0,
+		0x0,
+		0x14,
+		0x0,
+		0x0
+	},
+	{
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x16,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x15,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x15,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x9,
+		0x16,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x0,
+		0x16,
+		0x0,
+		0x0,
+		0x16,
+		0x0,
+		0x0
 	}
 };
+#else
+static const unsigned char states[8][0x3A] = {
+	{ /* 0: _BARE types */
+		S('d') = _INT, S('i') = _INT,
+		S('o') = _UINT, S('u') = _UINT, S('x') = _UINT, S('X') = _UINT,
+		S('e') = _DBL, S('f') = _DBL, S('g') = _DBL, S('a') = _DBL,
+		S('E') = _DBL, S('F') = _DBL, S('G') = _DBL, S('A') = _DBL,
+		S('c') = _INT, S('C') = _UINT,
+		S('s') = _PTR, S('S') = _PTR, S('p') = _UIPTR, S('n') = _PTR,
+		S('m') = _NOARG,
+		S('l') = _LPRE, S('h') = _HPRE, S('L') = _BIGLPRE,
+		S('z') = _ZTPRE, S('j') = _JPRE, S('t') = _ZTPRE,
+	}, { /* 1: l-prefixed */
+		S('d') = _LONG, S('i') = _LONG,
+		S('o') = _ULONG, S('u') = _ULONG, S('x') = _ULONG, S('X') = _ULONG,
+		S('e') = _DBL, S('f') = _DBL, S('g') = _DBL, S('a') = _DBL,
+		S('E') = _DBL, S('F') = _DBL, S('G') = _DBL, S('A') = _DBL,
+		S('c') = _UINT, S('s') = _PTR, S('n') = _PTR,
+		S('l') = L_LPRE,
+	}, { /* 2: ll-prefixed */
+		S('d') = _LLONG, S('i') = _LLONG,
+		S('o') = _ULLONG, S('u') = _ULLONG,
+		S('x') = _ULLONG, S('X') = _ULLONG,
+		S('n') = _PTR,
+	}, { /* 3: h-prefixed */
+		S('d') = _SHORT, S('i') = _SHORT,
+		S('o') = _USHORT, S('u') = _USHORT,
+		S('x') = _USHORT, S('X') = _USHORT,
+		S('n') = _PTR,
+		S('h') = _HHPRE,
+	}, { /* 4: hh-prefixed */
+		S('d') = _CHAR, S('i') = _CHAR,
+		S('o') = _UCHAR, S('u') = _UCHAR,
+		S('x') = _UCHAR, S('X') = _UCHAR,
+		S('n') = _PTR,
+	}, { /* 5: L-prefixed */
+		S('e') = _LDBL, S('f') = _LDBL, S('g') = _LDBL, S('a') = _LDBL,
+		S('E') = _LDBL, S('F') = _LDBL, S('G') = _LDBL, S('A') = _LDBL,
+		S('n') = _PTR,
+	}, { /* 6: z- or t-prefixed (assumed to be same size) */
+		S('d') = _PDIFF, S('i') = _PDIFF,
+		S('o') = _SIZET, S('u') = _SIZET,
+		S('x') = _SIZET, S('X') = _SIZET,
+		S('n') = _PTR,
+	}, { /* 7: j-prefixed */
+		S('d') = _IMAX, S('i') = _IMAX,
+		S('o') = _UMAX, S('u') = _UMAX,
+		S('x') = _UMAX, S('X') = _UMAX,
+		S('n') = _PTR,
+	}
+};
+#endif
 
 #define OOB(x) ((unsigned)(x)-'A' > 'z'-'A')
 
@@ -111,24 +597,24 @@ union arg {
 
 static void pop_arg(union arg *arg, int type, sys_va_list *ap) {
 	switch (type) {
-	       case PTR:	arg->p = sys_va_arg(*ap, void *);
-	break; case INT:	arg->i = sys_va_arg(*ap, int);
-	break; case UINT:	arg->i = sys_va_arg(*ap, unsigned int);
-	break; case LONG:	arg->i = sys_va_arg(*ap, long);
-	break; case ULONG:	arg->i = sys_va_arg(*ap, unsigned long);
-	break; case ULLONG:	arg->i = sys_va_arg(*ap, unsigned long long);
-	break; case SHORT:	arg->i = (short)sys_va_arg(*ap, int);
-	break; case USHORT:	arg->i = (unsigned short)sys_va_arg(*ap, int);
-	break; case CHAR:	arg->i = (signed char)sys_va_arg(*ap, int);
-	break; case UCHAR:	arg->i = (unsigned char)sys_va_arg(*ap, int);
-	break; case LLONG:	arg->i = sys_va_arg(*ap, long long);
-	break; case SIZET:	arg->i = sys_va_arg(*ap, sys_size_t);
-	break; case IMAX:	arg->i = sys_va_arg(*ap, intmax_t);
-	break; case UMAX:	arg->i = sys_va_arg(*ap, uintmax_t);
-	break; case PDIFF:	arg->i = sys_va_arg(*ap, sys_ptrdiff_t);
-	break; case UIPTR:	arg->i = (uintptr_t)sys_va_arg(*ap, void *);
-	break; case DBL:	arg->f = sys_va_arg(*ap, double);
-	break; case LDBL:	arg->f = sys_va_arg(*ap, long double);
+	       case _PTR:	arg->p = sys_va_arg(*ap, void *);
+	break; case _INT:	arg->i = sys_va_arg(*ap, int);
+	break; case _UINT:	arg->i = sys_va_arg(*ap, unsigned int);
+	break; case _LONG:	arg->i = sys_va_arg(*ap, long);
+	break; case _ULONG:	arg->i = sys_va_arg(*ap, unsigned long);
+	break; case _ULLONG:	arg->i = sys_va_arg(*ap, unsigned long long);
+	break; case _SHORT:	arg->i = (short)sys_va_arg(*ap, int);
+	break; case _USHORT:	arg->i = (unsigned short)sys_va_arg(*ap, int);
+	break; case _CHAR:	arg->i = (signed char)sys_va_arg(*ap, int);
+	break; case _UCHAR:	arg->i = (unsigned char)sys_va_arg(*ap, int);
+	break; case _LLONG:	arg->i = sys_va_arg(*ap, long long);
+	break; case _SIZET:	arg->i = sys_va_arg(*ap, sys_size_t);
+	break; case _IMAX:	arg->i = sys_va_arg(*ap, intmax_t);
+	break; case _UMAX:	arg->i = sys_va_arg(*ap, uintmax_t);
+	break; case _PDIFF:	arg->i = sys_va_arg(*ap, sys_ptrdiff_t);
+	break; case _UIPTR:	arg->i = (uintptr_t)sys_va_arg(*ap, void *);
+	break; case _DBL:	arg->f = sys_va_arg(*ap, double);
+	break; case _LDBL:	arg->f = sys_va_arg(*ap, long double);
 	}
 }
 
@@ -139,7 +625,7 @@ static double frexp(double x, int *e) {
 
   if (!ee) {
     if (x) {
-      x = frexp(x*0x1p64, e);
+	  x = frexp(x*18446744073709551616.000000, e);
       *e -= 64;
     } else *e = 0;
     return x;
@@ -213,7 +699,7 @@ static char *fmt_o(uintmax_t x, char *s) {
 static char *fmt_u(uintmax_t x, char *s) {
 	unsigned long y;
 	for (   ; x>ULONG_MAX; x/=10) *--s = '0' + x%10;
-	for (y=x;           y; y/=10) *--s = '0' + y%10;
+	for (y=(unsigned long)x;           y; y/=10) *--s = '0' + y%10;
 	return s;
 }
 
@@ -243,7 +729,11 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 		prefix+=6;
 	} else prefix++, pl=0;
 
+#ifdef _WIN32_WCE
+	if (!_finite(y)) {
+#else
 	if (!sys_isfinite(y)) {
+#endif
 		char *s = (t&32)?"inf":"INF";
 		if (y!=y) s=(t&32)?"nan":"NAN";
 		pad(f, ' ', w, 3+pl, fl&~ZERO_PAD);
@@ -287,7 +777,7 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 
 		s=buf;
 		do {
-			int x=y;
+			int x=(int)y;
 			*s++=xdigits[x]|(t&32);
 			y=16*(y-x);
 			if (s-buf==1 && (y||p>0||(fl&ALT_FORM))) *s++='.';
@@ -311,13 +801,13 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 	}
 	if (p<0) p=6;
 
-	if (y) y *= 0x1p28, e2-=28;
+	if (y) y *= 0x10000000, e2 -= 28;
 
 	if (e2<0) a=r=z=big;
 	else a=r=z=big+sizeof(big)/sizeof(*big) - LDBL_MANT_DIG - 1;
 
 	do {
-		*z = y;
+		*z = (uint32_t)y;
 		y = 1000000000*(y-*z++);
 	} while (y);
 
@@ -327,7 +817,7 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 		for (d=z-1; d>=a; d--) {
 			uint64_t x = ((uint64_t)*d<<sh)+carry;
 			*d = x % 1000000000;
-			carry = x / 1000000000;
+			carry = (uint32_t)(x / 1000000000);
 		}
 		if (carry) *--a = carry;
 		while (z>a && !z[-1]) z--;
@@ -349,7 +839,7 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 		e2+=sh;
 	}
 
-	if (a<z) for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
+	if (a<z) for (i=10, e=(int)(9*(r-a)); *a>=(uint32_t)i; i*=10, e++);
 	else e=0;
 
 	/* Perform rounding: j is precision after the radix (possibly neg) */
@@ -368,9 +858,9 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 			long double small;
 			if ((*d/i & 1) || (i==1000000000 && d>a && (d[-1]&1)))
 				round += 2;
-			if (x<i/2) small=0x0.8p0;
-			else if (x==i/2 && d+1==z) small=0x1.0p0;
-			else small=0x1.8p0;
+			if (x<((double)i) / 2) small = 0.500000;
+			else if (x == i / 2 && d + 1 == z) small = 1.000000;
+			else small = 1.500000;
 			if (pl && *prefix=='-') round*=-1, small*=-1;
 			*d -= x;
 			/* Decide whether to round by probing round+small */
@@ -381,7 +871,7 @@ static int fmt_fp(printf_buf_t *f, long double y, int w, int p, int fl, int t) {
 					if (d<a) *--a=0;
 					(*d)++;
 				}
-				for (i=10, e=9*(r-a); *a>=i; i*=10, e++);
+				for (i=10, e=(int)(9*(r-a)); *a>=(uint32_t)i; i*=10, e++);
 			}
 		}
 		if (z>d+1) z=d+1;
@@ -522,8 +1012,8 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 		if (*s=='*') {
 			if (sys_isdigit(s[1]) && s[2]=='$') {
 				l10n=1;
-				if (!f) nl_type[s[1]-'0'] = INT, w = 0;
-				else w = nl_arg[s[1]-'0'].i;
+				if (!f) nl_type[s[1]-'0'] = _INT, w = 0;
+				else w = (int)nl_arg[s[1]-'0'].i;
 				s+=3;
 			} else if (!l10n) {
 				w = f ? sys_va_arg(*ap, int) : 0;
@@ -535,8 +1025,8 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 		/* Read precision */
 		if (*s=='.' && s[1]=='*') {
 			if (sys_isdigit(s[2]) && s[3]=='$') {
-				if (!f) nl_type[s[2]-'0'] = INT, p = 0;
-				else p = nl_arg[s[2]-'0'].i;
+				if (!f) nl_type[s[2]-'0'] = _INT, p = 0;
+				else p = (int)nl_arg[s[2]-'0'].i;
 				s+=4;
 			} else if (!l10n) {
 				p = f ? sys_va_arg(*ap, int) : 0;
@@ -557,12 +1047,12 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 		do {
 			if (OOB(*s)) goto inval;
 			ps=st;
-			st=states[st]S(*s++);
+			st=(unsigned)states[st]S(*s++);
 		} while (st-1<STOP);
 		if (!st) goto inval;
 
 		/* Check validity of argument type (nl/normal) */
-		if (st==NOARG) {
+		if (st==_NOARG) {
 			if (argpos>=0) goto inval;
 		} else {
 			if (argpos>=0) {
@@ -588,13 +1078,13 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 		switch(t) {
 		case 'n':
 			switch(ps) {
-			case BARE: *(int *)arg.p = cnt; break;
-			case LPRE: *(long *)arg.p = cnt; break;
-			case LLPRE: *(long long *)arg.p = cnt; break;
-			case HPRE: *(unsigned short *)arg.p = cnt; break;
-			case HHPRE: *(unsigned char *)arg.p = cnt; break;
-			case ZTPRE: *(sys_size_t *)arg.p = cnt; break;
-			case JPRE: *(uintmax_t *)arg.p = cnt; break;
+			case _BARE: *(int *)arg.p = cnt; break;
+			case _LPRE: *(long *)arg.p = cnt; break;
+			case L_LPRE: *(long long *)arg.p = cnt; break;
+			case _HPRE: *(unsigned short *)arg.p = cnt; break;
+			case _HHPRE: *(unsigned char *)arg.p = cnt; break;
+			case _ZTPRE: *(sys_size_t *)arg.p = cnt; break;
+			case _JPRE: *(uintmax_t *)arg.p = cnt; break;
 			}
 			continue;
 		case 'p':
@@ -612,7 +1102,7 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 		case 'd': case 'i':
 			pl=1;
 			if (arg.i>INTMAX_MAX) {
-				arg.i=-arg.i;
+				arg.i = (uintmax_t)-((intmax_t)arg.i);
 			} else if (fl & MARK_POS) {
 				prefix++;
 			} else if (fl & PAD_POS) {
@@ -631,7 +1121,7 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 			break;
 		narrow_c:
 		case 'c':
-			*(a=z-(p=1))=arg.i;
+			*(a=z-(p=1))=(char)arg.i;
 			fl &= ~ZERO_PAD;
 			break;
 #if 0
@@ -647,7 +1137,7 @@ static int printf_core(printf_buf_t *f, const char *fmt, sys_va_list *ap, union 
 			break;
 		case 'C':
 			if (!arg.i) goto narrow_c;
-			wc[0] = arg.i;
+			wc[0] = (uint16_t)arg.i;
 			wc[1] = 0;
 			arg.p = wc;
 			p = -1;
@@ -706,7 +1196,7 @@ overflow:
 
 int my_vsnprintf(char *str, sys_size_t size, const char *fmt, sys_va_list ap) {
   printf_buf_t f;
-	sys_va_list ap2;
+  sys_va_list ap2 = { 0 };
 	int nl_type[NL_ARGMAX+1];
 	union arg nl_arg[NL_ARGMAX+1];
 	int i, ret;

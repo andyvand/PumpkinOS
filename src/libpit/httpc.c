@@ -31,12 +31,12 @@ static void http_parse_headers(char *buf, http_client_t *hc) {
     if (!hc->response_end_header && hc->response_num_headers < MAX_RES_HEADERS) {
       p = sys_strstr(buf, ": ");
       if (p && p > buf) {
-        len = p - buf;
+        len = (int)(p - buf);
         hc->response_header_name[hc->response_num_headers] = xcalloc(len+1, 1);
         if (hc->response_header_name[hc->response_num_headers]) {
           sys_strncpy(hc->response_header_name[hc->response_num_headers], buf, len);
           p += 2;
-          len = sys_strlen(p);
+          len = (int)sys_strlen(p);
           if (len) {
             hc->response_header_value[hc->response_num_headers] = xcalloc(len+1, 1);
             if (hc->response_header_value[hc->response_num_headers]) {
@@ -111,7 +111,7 @@ static int io_callback(io_arg_t *arg) {
 
       if (hc->s) {
         debug(DEBUG_INFO, "WEB", "sending secure header");
-        wr = hc->secure->write(hc->s, header, sys_strlen(header));
+        wr = hc->secure->write(hc->s, header, (int)sys_strlen(header));
         debug(DEBUG_INFO, "WEB", "result: %d", wr);
         if (hc->request_body) {
           debug(DEBUG_INFO, "WEB", "sending secure body");
@@ -120,7 +120,7 @@ static int io_callback(io_arg_t *arg) {
         }
       } else {
         debug(DEBUG_INFO, "WEB", "sending header");
-        sys_write(arg->fd, (uint8_t *)header, sys_strlen(header));
+        sys_write(arg->fd, (uint8_t *)header, (int)sys_strlen(header));
         if (hc->request_body) {
           sys_write(arg->fd, (uint8_t *)hc->request_body, hc->request_body_length);
         }

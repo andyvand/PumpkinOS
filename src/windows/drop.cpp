@@ -1,3 +1,4 @@
+#undef  STRICT
 #define STRICT
 
 #include <windows.h>
@@ -52,6 +53,12 @@ FileDropTarget::FileDropTarget(HWND hwnd, void (*callback)(char *filename, void 
 }
 
 HRESULT __stdcall FileDropTarget::QueryInterface(REFIID iid, void **ppvObject) {
+#ifdef _WIN32_WCE
+  (void)iid;
+  (void)ppvObject;
+
+  return S_OK;
+#else
   if (iid == IID_IDropTarget || iid == IID_IUnknown) {
     AddRef();
     *ppvObject = this;
@@ -60,6 +67,7 @@ HRESULT __stdcall FileDropTarget::QueryInterface(REFIID iid, void **ppvObject) {
     *ppvObject = 0;
     return E_NOINTERFACE;
   }
+#endif
 }
 
 ULONG __stdcall FileDropTarget::AddRef(void) {
@@ -78,6 +86,10 @@ ULONG __stdcall FileDropTarget::Release(void) {
 }
 
 bool FileDropTarget::QueryDataObject(IDataObject *pDataObject) {
+#ifdef _WIN32_WCE
+  (void)pDataObject;
+  return FALSE;
+#else
   FORMATETC fmtetc = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
   HRESULT r;
 
@@ -85,6 +97,7 @@ bool FileDropTarget::QueryDataObject(IDataObject *pDataObject) {
   debug(DEBUG_TRACE, "WIN32", "QueryGetData: 0x%08X", (uint32_t)r);
 
   return SUCCEEDED(r);
+#endif
 }
 
 HRESULT __stdcall FileDropTarget::DragEnter(IDataObject *pDataObject, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect) {
@@ -135,10 +148,21 @@ HRESULT __stdcall FileDropTarget::Drop(IDataObject * pDataObject, DWORD grfKeySt
 }
 
 bool FileDropTarget::DropData(HWND hwnd, IDataObject *pDataObject) {
+#ifdef _WIN32_WCE
+  (void)pDataObject;
+  (void)hwnd;
+  return false;
+#else
   FORMATETC fmtetc = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
   STGMEDIUM stgmed;
   HDROP hDrop;
   HRESULT r;
+#ifdef _UNICODE
+  WCHAR *wbuf;
+#if __STDC_WANT_SECURE_LIB__
+  size_t buflen = 0;
+#endif
+#endif
   char *buf;
   int i, numFiles, size;
   bool ok = false;
@@ -158,7 +182,19 @@ bool FileDropTarget::DropData(HWND hwnd, IDataObject *pDataObject) {
         size = DragQueryFile(hDrop, i, NULL, 0);
         debug(DEBUG_TRACE, "WIN32", "DropData file %d size: %d", i, size);
         buf = (char *)xcalloc(size+1, sizeof(char));
+#ifdef _UNICODE
+		wbuf = (WCHAR *)xcalloc(size + 1, sizeof(WCHAR));
+		DragQueryFile(hDrop, i, wbuf, size+1);
+
+#if __STDC_WANT_SECURE_LIB__
+		wcstombs_s(&buflen, buf, size+1, wbuf, size+1);
+#else
+		wcstombs(buf, wbuf, size+1);
+#endif
+#else
         DragQueryFile(hDrop, i, buf, size+1);
+#endif
+
         debug(DEBUG_TRACE, "WIN32", "DropData file %d name: \"%s\"", i, buf);
         drop_callback(buf, drop_data);
         xfree(buf);
@@ -172,9 +208,16 @@ bool FileDropTarget::DropData(HWND hwnd, IDataObject *pDataObject) {
   }
 
   return ok;
+#endif
 }
 
 void RegisterDropWindow(HWND hwnd, IDropTarget **ppDropTarget, void (*callback)(char *filename, void *data), void *data) {
+#ifdef _WIN32_WCE
+  (void)hwnd;
+  (void)ppDropTarget;
+  (void)callback;
+  (void)data;
+#else
   FileDropTarget *pDropTarget = new FileDropTarget(hwnd, callback, data);
 
   CoLockObjectExternal(pDropTarget, TRUE, FALSE);
@@ -183,10 +226,16 @@ void RegisterDropWindow(HWND hwnd, IDropTarget **ppDropTarget, void (*callback)(
   RegisterDragDrop(hwnd, pDropTarget);
 
   *ppDropTarget = pDropTarget;
+#endif
 }
 
 void UnregisterDropWindow(HWND hwnd, IDropTarget *pDropTarget) {
+#ifdef _WIN32_WCE
+  (void)hwnd;
+  (void)pDropTarget;
+#else
   RevokeDragDrop(hwnd);
   CoLockObjectExternal(pDropTarget, FALSE, TRUE);
   pDropTarget->Release();
+#endif
 }

@@ -56,15 +56,16 @@ Int32 _fp_get_fpscr(void) {
   return flpOverflow;
 }
 
-void _fp_set_fpscr(Int32) {
+void _fp_set_fpscr(Int32 a) {
+	(void)a;
 }
 
 FlpFloat _f_utof(UInt32 a) {
-  return a;
+  return (FlpFloat)a;
 }
 
 FlpFloat _f_itof(Int32 a) {
-  return a;
+  return (FlpFloat)a;
 }
 
 /*
@@ -100,42 +101,42 @@ FlpDouble _f_ftod(FlpFloat a) {
 }
 
 FlpFloat _d_dtof(FlpDouble a) {
-  return a;
+  return (FlpFloat)a;
 }
 
 UInt32 _f_ftou(FlpFloat a) {
-  return a;
+  return (UInt32)a;
 }
 
 Int32 _f_ftoi(FlpFloat a) {
-  return a;
+  return (Int32)a;
 }
 
 /*
 UInt64 _f_ftoull(FlpFloat a) {
-  return a;
+  return (UInt64)a;
 }
 
 Int64 _f_ftoll(FlpFloat a) {
-  return a;
+  return (Int64)a;
 }
 */
 
 UInt32 _d_dtou(FlpDouble a) {
-  return a;
+  return (UInt32)a;
 }
 
 Int32 _d_dtoi(FlpDouble a) {
-  return a;
+  return (Int32)a;
 }
 
 /*
 UInt64 _d_dtoull(FlpDouble a) {
-  return a;
+  return (UInt64)a;
 }
 
 Int64 _d_dtoll(FlpDouble a) {
-  return a;
+  return (Int64)a;
 }
 */
 
@@ -148,27 +149,27 @@ Int32 _f_cmpe(FlpFloat a, FlpFloat b) {
 */
 
 Int32 _f_feq(FlpFloat a, FlpFloat b) {
-  return a == b;
+  return (Int32)(a == b);
 }
 
 Int32 _f_fne(FlpFloat a, FlpFloat b) {
-  return a != b;
+  return (Int32)(a != b);
 }
 
 Int32 _f_flt(FlpFloat a, FlpFloat b) {
-  return a < b;
+  return (Int32)(a < b);
 }
 
 Int32 _f_fle(FlpFloat a, FlpFloat b) {
-  return a <= b;
+  return (Int32)(a <= b);
 }
 
 Int32 _f_fgt(FlpFloat a, FlpFloat b) {
-  return a > b;
+  return (Int32)(a > b);
 }
 
 Int32 _f_fge(FlpFloat a, FlpFloat b) {
-  return a >= b;
+  return (Int32)(a >= b);
 }
 
 /*
@@ -186,27 +187,27 @@ Int32 _d_cmpe(FlpDouble a, FlpDouble b) {
 */
 
 Int32 _d_feq(FlpDouble a, FlpDouble b) {
-  return a == b;
+  return (Int32)(a == b);
 }
 
 Int32 _d_fne(FlpDouble a, FlpDouble b) {
-  return a != b;
+  return (Int32)(a != b);
 }
 
 Int32 _d_flt(FlpDouble a, FlpDouble b) {
-  return a < b;
+  return (Int32)(a < b);
 }
 
 Int32 _d_fle(FlpDouble a, FlpDouble b) {
-  return a <= b;
+  return (Int32)(a <= b);
 }
 
 Int32 _d_fgt(FlpDouble a, FlpDouble b) {
-  return a > b;
+  return (Int32)(a > b);
 }
 
 Int32 _d_fge(FlpDouble a, FlpDouble b) {
-  return a >= b;
+  return (Int32)(a >= b);
 }
 
 /*

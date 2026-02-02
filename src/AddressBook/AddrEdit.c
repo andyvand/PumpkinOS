@@ -1175,7 +1175,7 @@ Err PrvEditGetRecordField (void * table, Int16 row, Int16 UNUSED_PARAM(column), 
 
 		if (record.fields[fieldNum])
 		{
-			*textOffset = record.fields[fieldNum] - recordP;
+			*textOffset = (Int16)(record.fields[fieldNum] - recordP);
 			*textAllocSize = StrLen (record.fields[fieldNum]) + 1;  // one for null terminator
 		}
 		else
@@ -1187,7 +1187,7 @@ Err PrvEditGetRecordField (void * table, Int16 row, Int16 UNUSED_PARAM(column), 
 					 record.fields[fieldNum] == NULL);
 
 			if (fieldNum < ad_addressFieldsCount)
-				*textOffset = record.fields[fieldNum] - recordP;
+				*textOffset = (Int16)(record.fields[fieldNum] - recordP);
 			else
 				// Place the new field at the end of the text.
 				*textOffset = MemHandleSize(recordH);
@@ -2113,8 +2113,8 @@ static void PrvEditUpdateCustomFieldLabels( FormType* frmP)
  ***********************************************************************/
 void PrvEditUpdateDisplay( UInt16 updateCode )
 {
-	TableType* table;
-	FormType* frmP;
+	TableType* table = NULL;
+	FormType* frmP = NULL;
 
 	// Get form by Id since it might now be the active form
 	frmP = FrmGetFormPtr(EditView);

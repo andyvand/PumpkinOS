@@ -55,8 +55,8 @@ pumpkin.init()
 
 pumpkin.start {
   density  = 144,
-  width    = 1024,
-  height   = 768,
+  width    = 640,
+  height   = 480,
   abgr     = abgr,
   depth    = 16,
   hdepth   = lib.hdepth

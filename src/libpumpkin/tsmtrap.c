@@ -1,0 +1,48 @@
+#include <PalmOS.h>
+#include <VFSMgr.h>
+    
+#include "sys.h"
+#ifdef ARMEMU
+#include "armemu.h"
+#include "armp.h"
+#endif
+#include "pumpkin.h"
+#include "logtrap.h"
+#include "m68k.h"
+#include "m68kcpu.h"
+#include "emupalmos.h"
+#include "debug.h"
+    
+void palmos_tsmtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
+  char buf[256];
+  uint32_t nullParamP = 0;
+  void *nullParam = NULL;
+  TsmFepModeType res;
+  uint16_t inNewMode = 0;
+
+  switch (sel) {
+    case tsmGetFepMode: {
+      // TsmFepModeType TsmGetFepMode(void *nullParam)
+      nullParamP = ARG32;
+      nullParam = emupalmos_trap_sel_in(nullParamP, sysTrapTsmDispatch, sel, 0);
+      res = TsmGetFepMode(nullParam);
+      debug(DEBUG_TRACE, "EmuPalmOS", "TsmGetFepMode(0x%08X): %d", nullParamP, res);
+      m68k_set_reg(M68K_REG_D0, res);
+      }
+      break;
+    case tsmSetFepMode: {
+      // TsmFepModeType TsmSetFepMode(void *nullParam, TsmFepModeType inNewMode)
+      nullParamP = ARG32;
+      inNewMode = ARG16;
+      nullParam = emupalmos_trap_sel_in(nullParamP, sysTrapTsmDispatch, sel, 0);
+      res = TsmSetFepMode(nullParam, inNewMode);
+      debug(DEBUG_TRACE, "EmuPalmOS", "TsmSetFepMode(0x%08X, %d): %d", nullParamP, inNewMode, res);
+      m68k_set_reg(M68K_REG_D0, res);
+      }
+      break;
+    default:
+      sys_snprintf(buf, sizeof(buf)-1, "TsmDispatch selector %d not mapped", sel);
+      emupalmos_panic(buf, EMUPALMOS_INVALID_TRAP);
+      break;
+  }
+}

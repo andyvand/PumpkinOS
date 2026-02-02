@@ -200,6 +200,9 @@ typedef struct FormRectangleTag
 #endif
 FormRectangleType;
 
+#ifdef _MSC_VER
+#pragma warning(disable:4200)
+#endif
 
 typedef struct FormLabelTag
 #ifdef ALLOW_ACCESS_TO_INTERNALS_OF_FORMS	// These fields will not be available in the next OS release!

@@ -203,7 +203,7 @@ Boolean SelectOneTime(Int16 *hour, Int16 *minute, const Char *titleP) {
   if (FrmDoDialog(frm) == 12112) { // "OK" button
     if ((s = (char *)CtlGetLabel(hctl)) != NULL) {
       *hour = sys_atoi(s);
-      am = CtlGetValue(amctl);
+      am = (Boolean)CtlGetValue(amctl);
       if (is24h && !am) *hour += 12;
     }
     if ((s = (char *)CtlGetLabel(m1ctl)) != NULL) {
@@ -284,11 +284,11 @@ static Boolean SelectTimeHandleEvent(EventType *eventP) {
         case 10206:
           if (module->startSelected) {
             // start time is selected
-            module->startTime.hours = eventP->data.lstSelect.selection;
+            module->startTime.hours = (UInt8)eventP->data.lstSelect.selection;
             setTime(frm, 10204, &module->startTime, is24h, module->startBuf, true);
           } else {
             // end time is selected
-            module->endTime.hours = eventP->data.lstSelect.selection;
+			module->endTime.hours = (UInt8)eventP->data.lstSelect.selection;
             setTime(frm, 10205, &module->endTime, is24h, module->endBuf, true);
           }
           break;
@@ -341,7 +341,7 @@ static Boolean SelectTimeHandleEvent(EventType *eventP) {
         case 10212: // All day
           module->startTime.hours = 8;
           module->startTime.minutes = 0;
-          module->endTime.hours = module->endOfDay;
+		  module->endTime.hours = (UInt8)module->endOfDay;
           module->endTime.minutes = 0;
           break;
       }

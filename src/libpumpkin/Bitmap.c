@@ -664,7 +664,7 @@ BitmapTypeV3 *BmpCreateBitmapV3(const BitmapType *bitmapP, UInt16 density, const
       if (hasColorTable) {
         if (indirectColorTable) {
           // indirect color table: pointer
-          index += put4b(bitmapColorTable - ram, (UInt8 *)newBmp, index);
+          index += put4b((uint32_t)(bitmapColorTable - ram), (UInt8 *)newBmp, index);
         } else {
           // direct color table: numEntries followed by entries
           index += put2b(numEntries, (UInt8 *)newBmp, index);
@@ -1008,7 +1008,7 @@ surface_t *BmpCreateSurfaceBitmap(BitmapType *bitmapP) {
           if (colorTable) {
             numEntries = CtbGetNumEntries(colorTable);
             for (i = 0; i < numEntries; i++) {
-              CtbGetEntry(colorTable, i, &rgb);
+              CtbGetEntry(colorTable, (UInt8)i, &rgb);
               surface_palette(surface, i, rgb.r, rgb.g, rgb.b);
             }
           } else {
@@ -1086,17 +1086,17 @@ void BmpGetDimensions(const BitmapType *bitmapP, Coord *widthP, Coord *heightP, 
 }
 
 BitmapType *BmpGetBestBitmapEx(BitmapPtr bitmapP, UInt16 density, UInt8 depth, Boolean checkAddr) {
-  UInt16 best_depth, best_density;
-  Boolean exact_depth;
-  Boolean exact_density;
-  WinHandle display;
-  BitmapType *displayBmp;
+  UInt16 best_depth = 0, best_density = 0;
+  Boolean exact_depth = 0;
+  Boolean exact_density = 0;
+  WinHandle display = NULL;
+  BitmapType *displayBmp = NULL;
   BitmapType *best = NULL;
-  Coord width, height;
-  UInt8 version, bitmapDepth, displayDepth;
-  UInt16 bitmapDensity, displayDensity, rowBytes;
-  UInt32 size, offset;
-  UInt8 *bmp, *last, *base, *end;
+  Coord width = 0, height = 0;
+  UInt8 version = 0, bitmapDepth = 0, displayDepth = 0;
+  UInt16 bitmapDensity = 0, displayDensity = 0, rowBytes = 0;
+  UInt32 size = 0, offset = 0;
+  UInt8 *bmp = NULL, *last = NULL, *base = NULL, *end = NULL;
 
   if (bitmapP) {
     debug(DEBUG_TRACE, "Bitmap", "BmpGetBestBitmap %p begin", bitmapP);
@@ -1236,7 +1236,7 @@ void *BmpGetBits(BitmapType *bitmapP) {
         }
         if (BmpGetCommonFlag(bitmapP, BitmapFlagIndirect)) {
           get4(&addr, (UInt8 *)bitmapP, headerSize);
-          bits = addr ? pumpkin_heap_base() + addr : NULL;
+          bits = addr ? (UInt8 *)pumpkin_heap_base() + addr : NULL;
         } else {
           bits = (UInt8 *)bitmapP + headerSize;
         }
@@ -1250,7 +1250,7 @@ void *BmpGetBits(BitmapType *bitmapP) {
         }
         if (BmpGetCommonFlag(bitmapP, BitmapFlagIndirect)) {
           get4(&addr, (UInt8 *)bitmapP, headerSize);
-          bits = addr ? pumpkin_heap_base() + addr : NULL;
+          bits = addr ? (UInt8 *)pumpkin_heap_base() + addr : NULL;
         } else {
           bits = (UInt8 *)bitmapP + headerSize;
         }
@@ -1282,7 +1282,7 @@ ColorTableType *BmpGetColortable(BitmapType *bitmapP) {
         case 3:
           if (BmpGetCommonFlag(bitmapP, BitmapFlagIndirectColorTable)) {
             get4(&addr, (UInt8 *)bitmapP, BitmapV3FieldColorTable);
-            colorTable = addr ? (ColorTableType *)(pumpkin_heap_base() + addr) : NULL;
+            colorTable = addr ? (ColorTableType *)((UInt8 *)pumpkin_heap_base() + addr) : NULL;
           } else {
             colorTable = (ColorTableType *)((UInt8 *)bitmapP + BitmapV3FieldColorTable);
           }
@@ -1691,9 +1691,9 @@ IndexedColorType BmpGetPixel(BitmapType *bitmapP, Coord x, Coord y) {
         break;
       case 16:
         value = BmpGetPixelValue(bitmapP, x, y);
-        red   = r565(value);
-        green = g565(value);
-        blue  = b565(value);
+        red   = (UInt8)r565(value);
+        green = (UInt8)g565(value);
+        blue  = (UInt8)b565(value);
         b = BmpRGBToIndex(red, green, blue, WinGetColorTable(0));
         break;
       case 24:
@@ -1804,9 +1804,9 @@ Err BmpGetPixelRGB(BitmapType *bitmapP, Coord x, Coord y, RGBColorType *rgbP) {
         break;
       case 16:
         w = BmpGetPixelValue(bitmapP, x, y);
-        rgbP->r = r565(w);
-        rgbP->g = g565(w);
-        rgbP->b = b565(w);
+        rgbP->r = (UInt8)r565(w);
+        rgbP->g = (UInt8)g565(w);
+        rgbP->b = (UInt8)b565(w);
         break;
       case 24:
         BmpGetDimensions(bitmapP, NULL, NULL, &rowBytes);
@@ -1979,9 +1979,9 @@ void BmpDrawSurface(BitmapType *bitmapP, Coord sx, Coord sy, Coord w, Coord h, s
               for (j = 0, k = 0; j < w; j++, k += 2) {
                 get2_16(&rgb, bits, offset + k);
                 if (!useTransp || !transp || rgb != transparentValue) {
-                  red   = r565(rgb);
-                  green = g565(rgb);
-                  blue  = b565(rgb);
+                  red   = (UInt8)r565(rgb);
+                  green = (UInt8)g565(rgb);
+                  blue  = (UInt8)b565(rgb);
                   c = surface_color_rgb(surface->encoding, surface->palette, surface->npalette, red, green, blue, 0xff);
                   BmpDrawSurfaceSetPixel(x0, y0, i, j, c, dbl, surface);
                 }
@@ -2151,7 +2151,7 @@ UInt32 BmpConvertFrom16Bits(UInt32 b, UInt8 depth, ColorTableType *dstColorTable
     case  1: b = rgbToGray1(r565(b), g565(b), b565(b)); break;
     case  2: b = rgbToGray2(r565(b), g565(b), b565(b)); break;
     case  4: b = rgbToGray4(r565(b), g565(b), b565(b)); break;
-    case  8: b = BmpRGBToIndex(r565(b), g565(b), b565(b), dstColorTable); break;
+	case  8: b = BmpRGBToIndex((UInt8)r565(b), (UInt8)g565(b), (UInt8)b565(b), dstColorTable); break;
     case 24: b = rgb24(r565(b), g565(b), b565(b)); break;
     case 32: b = rgba32(r565(b), g565(b), b565(b), 0xff); break;
   }
@@ -2522,12 +2522,12 @@ static void BmpCopyBit16(UInt16 b, Boolean transp, BitmapType *dst, Coord dx, Co
       break;
     case winInvert:       // bitwise XOR the color-matched source pixel onto the destination (this mode does not honor the transparent color in any way)
       get2_16(&old, bits, offset);
-      rgb.r = r565(b);
-      rgb.g = g565(b);
-      rgb.b = b565(b);
+	  rgb.r = (UInt8)r565(b);
+	  rgb.g = (UInt8)g565(b);
+	  rgb.b = (UInt8)b565(b);
       rgb.r ^= r565(old);
-      rgb.g ^= g565(old);
-      rgb.b ^= b565(old);
+	  rgb.g ^= g565(old);
+	  rgb.b ^= b565(old);
       b = rgb565(rgb.r, rgb.g, rgb.b);
       BmpSetBit16(offset, dataSize, b, dbl);
       break;
@@ -3076,7 +3076,7 @@ static int decompress_bitmap_rle(uint8_t *p, uint8_t *dp, uint32_t dsize) {
     i += get1(&b, p, i);
     debug(DEBUG_TRACE, "Bitmap", "RLE len %d code %d", len, b);
 
-    for (k = 0; k < len && j < dsize; k++) {
+    for (k = 0; k < (int)len && j < (int)dsize; k++) {
       dp[j++] = b;
     }
 
@@ -3110,7 +3110,7 @@ static int decompress_bitmap_packbits8(uint8_t *p, uint8_t *dp, uint32_t dsize) 
       i += get1(&b, p, i);
       debug(DEBUG_TRACE, "Bitmap", "PackBits8 %d bytes encoded run packet 0x%02X", len, b);
 
-      for (k = 0; k < len && j < dsize; k++) {
+      for (k = 0; k < (int)len && j < (int)dsize; k++) {
         dp[j++] = b;
       }
 
@@ -3119,7 +3119,7 @@ static int decompress_bitmap_packbits8(uint8_t *p, uint8_t *dp, uint32_t dsize) 
       len = (uint8_t)count + 1;
       debug(DEBUG_TRACE, "Bitmap", "PackBits8 %d bytes literal run packet", len);
 
-      for (k = 0; k < len && j < dsize; k++) {
+      for (k = 0; k < (int)len && j < (int)dsize; k++) {
         i += get1(&b, p, i);
         dp[j++] = b;
       }
@@ -3156,7 +3156,7 @@ static int decompress_bitmap_packbits16(uint8_t *p, uint16_t *dp, uint32_t dsize
       i += get2l(&w, p, i);
       debug(DEBUG_TRACE, "Bitmap", "PackBits16 %d bytes encoded run packet 0x%04X", len, w);
 
-      for (k = 0; k < len && j < dsize; k++) {
+      for (k = 0; k < (int)len && j < (int)dsize; k++) {
         dp[j++] = w;
       }
 
@@ -3165,7 +3165,7 @@ static int decompress_bitmap_packbits16(uint8_t *p, uint16_t *dp, uint32_t dsize
       len = (uint8_t)count + 1;
       debug(DEBUG_TRACE, "Bitmap", "PackBits16 %d bytes literal run packet", len);
 
-      for (k = 0; k < len && j < dsize; k++) {
+      for (k = 0; k < (int)len && j < (int)dsize; k++) {
         i += get2l(&w, p, i);
         dp[j++] = w;
       }
@@ -3430,13 +3430,13 @@ void BmpDecompressBitmapChain(MemHandle handle, DmResType resType, DmResID resID
 }
 
 void BmpExportFont(UInt16 id, UInt16 fw, UInt16 fh) {
-  MemHandle hbmp;
-  BitmapType *bmp;
-  FileRef fileRef;
-  UInt16 cols, col, row, x, y;
-  Coord w, h;
-  char buf[256];
-  int i, j, k;
+  MemHandle hbmp = NULL;
+  BitmapType *bmp = NULL;
+  FileRef fileRef = NULL;
+  UInt16 cols = 0, col = 0, row = 0, x = 0, y = 0;
+  Coord w = 0, h = 0;
+  char buf[256] = { 0 };
+  int i = 0, j = 0, k = 0;
 
   hbmp = DmGetResource(bitmapRsc, id);
   bmp = MemHandleLock(hbmp);
@@ -3485,7 +3485,7 @@ BitmapType *BmpRotate(BitmapType *bitmapP, Int16 angle) {
   hasTransparency = BmpGetTransparentValue(bitmapP, &transparentValue);
 
   if (angle == 0) {
-    rotated = BmpCreate3(width, height, 0, density, depth, hasTransparency, transparentValue, NULL, &error);
+	rotated = BmpCreate3(width, height, 0, density, (UInt8)depth, hasTransparency, transparentValue, NULL, &error);
     BmpSetCommonFlag(rotated, BitmapFlagLittleEndian, leBits);
 
     for (x = 0; x < width; x++) {
@@ -3503,7 +3503,7 @@ BitmapType *BmpRotate(BitmapType *bitmapP, Int16 angle) {
     newHeight = newWidth;
     cx = newWidth / 2;
     cy = newHeight / 2;
-    rotated = BmpCreate3(newWidth, newHeight, 0, density, depth, hasTransparency, transparentValue, NULL, &error);
+	rotated = BmpCreate3(newWidth, newHeight, 0, density, (UInt8)depth, hasTransparency, transparentValue, NULL, &error);
     BmpSetCommonFlag(rotated, BitmapFlagLittleEndian, leBits);
 
     for (x = 0; x < newWidth; x++) {
@@ -3538,7 +3538,7 @@ BitmapType *BmpFlip(BitmapType *bitmapP, Boolean vertical, Boolean horizontal) {
   density = BmpGetDensity(bitmapP);
   depth = BmpGetBitDepth(bitmapP);
   hasTransparency = BmpGetTransparentValue(bitmapP, &transparentValue);
-  flipped = BmpCreate3(width, height, 0, density, depth, hasTransparency, transparentValue, NULL, &error);
+  flipped = BmpCreate3(width, height, 0, density, (UInt8)depth, hasTransparency, transparentValue, NULL, &error);
   BmpSetCommonFlag(flipped, BitmapFlagLittleEndian, leBits);
 
   for (x = 0; x < width; x++) {

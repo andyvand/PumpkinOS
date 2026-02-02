@@ -2790,8 +2790,9 @@ static void d68000_moveq(m68k_disassemble_t *dis)
 
 static void d68040_move16_pi_pi(m68k_disassemble_t *dis)
 {
+  uint32_t aux = 0;
   LIMIT_CPU_TYPES(M68040_PLUS);
-  uint32_t aux = (read_imm_16()>>12)&7;
+  aux = (read_imm_16()>>12)&7;
   sprintf(dis->g_dasm_str, "move16  (A%d)+, (A%d)+; (4)", dis->g_cpu_ir&7, aux);
   USED_A(dis->g_cpu_ir&7);
   USED_A(aux);

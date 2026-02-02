@@ -13,9 +13,12 @@
 #define strncat   sys_strncat
 #define strcat    sys_strcat
 #define strdup    sys_strdup
+
+#ifndef WINDOWS
 #define va_list   sys_va_list
 #define va_start  sys_va_start
 #define va_end    sys_va_end
+#endif
 
 #else
 
@@ -2077,8 +2080,7 @@
 
 #define MAX_STACK 256
 
-#include "trapArgs.c"
-
+#include "trapArgs_wce.c"
 #include "m68kdasm.c"
 
 struct logtrap_t {
@@ -2110,6 +2112,7 @@ typedef union {
   uint8_t c[4];
 } creator_id_t;
 
+#if 0
 typedef enum {
   nilEvent = 0,        // system level
   penDownEvent,        // system level
@@ -2152,6 +2155,7 @@ typedef enum {
   attnIndicatorEnterEvent,  // for attention manager's indicator
   attnIndicatorSelectEvent,  // for attention manager's indicator
 } eventsEnum;
+#endif
 
 #define lastRegularEvent attnIndicatorSelectEvent
 

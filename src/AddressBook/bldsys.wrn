@@ -1,0 +1,2 @@
+BUILD: [01:0000001609:WARNN ] cl : Command line warning D9024 : unrecognized source file type 'Book"', object file assumed {log="C:\WINCE800\OSDesigns\QEMU\QEMU\PumpkinOS\src\AddressBook\bldsys.log(47)"}
+BUILD: [01:0000001609:WARNN ] cl : Command line warning D9027 : source file 'Book"' ignored {log="C:\WINCE800\OSDesigns\QEMU\QEMU\PumpkinOS\src\AddressBook\bldsys.log(48)"}

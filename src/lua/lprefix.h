@@ -7,6 +7,17 @@
 #ifndef lprefix_h
 #define lprefix_h
 
+#ifdef __MINGW32__
+#define _MMINTRIN_H_INCLUDED 1
+#define _XMMINTRIN_H_INCLUDED 1
+#define _EMMINTRIN_H_INCLUDED 1
+#define _TMMINTRIN_H_INCLUDED 1
+#define _WMMINTRIN_H_INCLUDED 1
+#define _SMMINTRIN_H_INCLUDED 1
+#define _PMMINTRIN_H_INCLUDED 1
+#define _IMMINTRIN_H_INCLUDED 1
+#define _X86INTRIN_H_INCLUDED 1
+#endif
 
 /*
 ** Allows POSIX/XSI stuff

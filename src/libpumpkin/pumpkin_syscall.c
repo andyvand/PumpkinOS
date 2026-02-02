@@ -1,5 +1,6 @@
 #include <PalmOS.h>
 #include <PalmCompatibility.h>
+#include <PenInputMgr.h>
 #include <VFSMgr.h>
 #include <ExpansionMgr.h>
 #include <DLServer.h>
@@ -28,6 +29,7 @@
 int pumpkin_system_call(syscall_lib_e lib, uint32_t id, uint32_t sel, uint64_t *iret, void **pret, ...) {
   sys_va_list ap;
   int r = 0;
+  Int16 ret = 0;
 
   debug(DEBUG_TRACE, PUMPKINOS, "syscall 0x%04X %d (lib %d)", id, sel, lib);
   sys_va_start(ap, pret);
@@ -42,7 +44,7 @@ int pumpkin_system_call(syscall_lib_e lib, uint32_t id, uint32_t sel, uint64_t *
         void *p = sys_va_arg(ap, void *);
         sys_va_list ap2;
         sys_memcpy(&ap2, p, sizeof(sys_va_list));
-        Int16 ret = StrVPrintF(s, formatStr, ap2);
+        ret = StrVPrintF(s, formatStr, ap2);
         *iret = ret;
         }
         break;

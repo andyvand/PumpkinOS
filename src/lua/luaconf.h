@@ -22,7 +22,7 @@
 /*
 ** {====================================================================
 ** System Configuration: macros to adapt (if needed) Lua to some
-** particular platform, for instance compiling it with 32-bit numbers or
+** particular platform, for instance it with 32-bit numbers or
 ** restricting it to C89.
 ** =====================================================================
 */
@@ -47,7 +47,7 @@
 /*
 ** By default, Lua on Windows use (some) specific Windows features
 */
-#if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
+#if !defined(LUA_USE_C89) && defined(_WIN32)
 #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
 #endif
 
@@ -603,7 +603,11 @@
 ** (All uses in Lua have only one format item.)
 */
 #if !defined(LUA_USE_C89)
+#ifdef _MSC_VER
+#define l_sprintf(s,sz,f,i)	sprintf_s(s,sz,f,i)
+#else
 #define l_sprintf(s,sz,f,i)	snprintf(s,sz,f,i)
+#endif
 #else
 #define l_sprintf(s,sz,f,i)	((void)(sz), sprintf(s,f,i))
 #endif

@@ -579,12 +579,12 @@ UInt16 SysBatteryInfoV20(Boolean set, UInt16 *warnThresholdP, UInt16 *criticalTh
 // Return the tick count since the last reset.
 UInt32 TimGetTicks(void) {
   sys_module_t *module = (sys_module_t *)pumpkin_get_local_storage(sys_key);
-  return ((uint64_t)sys_get_clock() - module->t0) / 10000; // XXX 100 ticks per second
+  return (UInt32)((uint64_t)sys_get_clock() - module->t0) / 10000; // XXX 100 ticks per second
 }
 
 UInt32 TimGetTicksMs(void) {
   sys_module_t *module = (sys_module_t *)pumpkin_get_local_storage(sys_key);
-  return ((uint64_t)sys_get_clock() - module->t0) / 1000;
+  return (UInt32)((uint64_t)sys_get_clock() - module->t0) / 1000;
 } 
 
 Err SysMailboxWait(UInt32 mbID, void *msgP, UInt32 priority, Int32 timeout) {

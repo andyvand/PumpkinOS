@@ -186,8 +186,8 @@ MemoImportMime(DmOpenRef dbR, void * inputStream, ReadFunctionF inputFunc,
 					boundaryP += StrLen(mimeBoundaryString);
 
 					// Remove the boundary stuff so we can read in more into the buffer
-					MemMove(buffer, boundaryP, &buffer[bufferLength] - boundaryP);
-					bufferLength = (&buffer[bufferLength] - boundaryP);
+					MemMove(buffer, boundaryP, (Int32)(&buffer[bufferLength] - boundaryP));
+					bufferLength = (UInt16)(&buffer[bufferLength] - boundaryP);
 
 					// Read chars into the buffer
 					charsRead = inputFunc( inputStream, &buffer[bufferLength], importBufferMaxLength - bufferLength);
@@ -210,7 +210,7 @@ MemoImportMime(DmOpenRef dbR, void * inputStream, ReadFunctionF inputFunc,
 					}
 					boundaryString[0] = '-';
 					boundaryString[1] = '-';
-					MemMove(&boundaryString[2], boundaryP, boundaryEndP - boundaryP);
+					MemMove(&boundaryString[2], boundaryP, (Int32)(boundaryEndP - boundaryP));
 					boundaryString[boundaryEndP - boundaryP + 2] = nullChr;
 
 					c = StrChr(boundaryEndP, crChr);
@@ -221,8 +221,8 @@ MemoImportMime(DmOpenRef dbR, void * inputStream, ReadFunctionF inputFunc,
 					c += sizeOf7BitChar(crChr) + sizeOf7BitChar(linefeedChr);
 
 					// Remove the boundary stuff so we can read in more into the buffer
-					MemMove(buffer, c, &buffer[bufferLength] - c);
-					bufferLength = (&buffer[bufferLength] - c);
+					MemMove(buffer, c, (Int32)(&buffer[bufferLength] - c));
+					bufferLength = (UInt16)(&buffer[bufferLength] - c);
 				}
 				else
 				{
@@ -286,7 +286,7 @@ MemoImportMime(DmOpenRef dbR, void * inputStream, ReadFunctionF inputFunc,
 				// find CR or end of buffer
 				nextCrChr = StrChr(buffer, crChr);
 				if (nextCrChr != NULL)
-					charsToWrite = nextCrChr - buffer;
+					charsToWrite = (UInt16)(nextCrChr - buffer);
 				else
 					charsToWrite = bufferLength;
 
@@ -764,7 +764,7 @@ void MemoExportMime(DmOpenRef UNUSED_PARAM(dbP), Int16 UNUSED_PARAM(index), Memo
 		eolP = StrChr(c, linefeedChr);
 		if (eolP)
 		{
-			/*len = */outputFunc( outputStream, c, eolP - c);
+			/*len = */outputFunc( outputStream, c, (Int32)(eolP - c));
 
 			outputFunc(outputStream, crlf, stringZLen);
 			c = eolP + sizeOf7BitChar(linefeedChr);
@@ -772,7 +772,7 @@ void MemoExportMime(DmOpenRef UNUSED_PARAM(dbP), Int16 UNUSED_PARAM(index), Memo
 		else if (*c != '\0')
 		{
 			eolP = StrChr(c, '\0');
-			/*len = */outputFunc( outputStream, c, eolP - c);
+			/*len = */outputFunc( outputStream, c, (Int32)(eolP - c));
 
 			c = eolP;
 		}
@@ -920,7 +920,7 @@ static UInt32 PrvStreamWrite(StreamType *streamP, const Char * stringP, Int32 le
 	UInt32 count = 0;
 	*errP = 0;
 
-	while (count < length && !*errP)
+	while (count < (UInt32)length && !*errP)
 	{
 		if (streamP->len < streamP->bufSize)
 		{
@@ -1157,13 +1157,13 @@ static void PrvSetDescriptionAndFilename(Char * textP, Char **descriptionPP,
 		// If at least two spaces were found then use only that much of the description.
 		// If less than two spaces were found then use all of the description.
 		if (spaceP)
-			filenameLength = spaceP - descriptionP;
+			filenameLength = (UInt8)(spaceP - descriptionP);
 		else
-			filenameLength = StrLen(descriptionP);
+			filenameLength = (UInt8)StrLen(descriptionP);
 
 
 		// Allocate space and form the filename
-		schemeLength = StrLen(prefix);
+		schemeLength = (UInt8)StrLen(prefix);
 		*filenameHP = MemHandleNew(schemeLength + filenameLength + StrLen(memoSuffix) + sizeOf7BitChar('\0'));
 		filenameP = MemHandleLock(*filenameHP);
 		if (filenameP)
@@ -1180,8 +1180,8 @@ static void PrvSetDescriptionAndFilename(Char * textP, Char **descriptionPP,
 		resourceP = MemHandleLock(resourceH);
 
 		// Allocate space and form the filename
-		filenameLength = StrLen(resourceP);
-		schemeLength = StrLen(prefix);
+		filenameLength = (UInt8)StrLen(resourceP);
+		schemeLength = (UInt8)StrLen(prefix);
 		*filenameHP = MemHandleNew(schemeLength + filenameLength + sizeOf7BitChar('\0'));
 		filenameP = MemHandleLock(*filenameHP);
 		if (filenameP)
@@ -1427,8 +1427,8 @@ static Err PrvReadThroughCRLF(ReadFunctionF inputFunc, void * inputStreamP, Char
 		}
 
 		// Consume everything up to the CR/NULL
-		MemMove(bufferP, c, &bufferP[*bufferLengthP] - c);
-		*bufferLengthP = &bufferP[*bufferLengthP] - c;
+		MemMove(bufferP, c, (Int32)(&bufferP[*bufferLengthP] - c));
+		*bufferLengthP = (UInt16)(&bufferP[*bufferLengthP] - c);
 
 		// Read in more chars
 		charsRead = inputFunc(inputStreamP, bufferP + *bufferLengthP, importBufferMaxLength - *bufferLengthP);

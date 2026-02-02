@@ -128,7 +128,7 @@ static void __srandom(sysu_module_t *module, uint32_t seed) {
   int k;
 
   if (module->n == 0) {
-    module->x[0] = s;
+    module->x[0] = (uint32_t)s;
     return;
   }
   module->i = module->n == 31 || module->n == 7 ? 3 : 1;

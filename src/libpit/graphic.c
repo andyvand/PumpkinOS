@@ -291,20 +291,37 @@ static int graphic_abs(int x) {
 }
 
 void graphic_curve(void *data, int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color, setpixel_f p, setarea_f a) {
+  int sx; // step direction
+  int sy;
+  double xy;
+  double y;
+  double x;
+  double cur; // curvature
+
+  // compute error increments of P0
+  double dx;
+  double dy;
+
+  // compute error increments of P2
+  double ex;
+  double ey;
   // sign of gradient must not change
   if ((x0-x1)*(x2-x1) > 0 || (y0-y1)*(y2-y1) > 0) return;
 
-  int sx = x0 < x2 ? 1 : -1, sy = y0 < y2 ? 1 : -1; // step direction
-  double x = x0 - 2*x1 + x2, y = y0 - 2*y1 + y2, xy = 2*x*y*sx*sy;
-  double cur = sx*sy*(x*(y2-y0) - y*(x2-x0))/2; // curvature
+  sx = x0 < x2 ? 1 : -1;
+  sy = y0 < y2 ? 1 : -1; // step direction
+  x = x0 - 2 * x1 + x2;
+  y = y0 - 2 * y1 + y2;
+  xy = 2 * x*y*sx*sy;
+  cur = sx*sy*(x*(y2-y0) - y*(x2-x0))/2; // curvature
 
   // compute error increments of P0
-  double dx = (1-2*graphic_abs(x0-x1))*y*y+graphic_abs(y0-y1)*xy-2*cur*graphic_abs(y0-y2);
-  double dy = (1-2*graphic_abs(y0-y1))*x*x+graphic_abs(x0-x1)*xy+2*cur*graphic_abs(x0-x2);
+  dx = (1-2*graphic_abs(x0-x1))*y*y+graphic_abs(y0-y1)*xy-2*cur*graphic_abs(y0-y2);
+  dy = (1-2*graphic_abs(y0-y1))*x*x+graphic_abs(x0-x1)*xy+2*cur*graphic_abs(x0-x2);
 
   // compute error increments of P2
-  double ex = (1-2*graphic_abs(x2-x1))*y*y+graphic_abs(y2-y1)*xy+2*cur*graphic_abs(y0-y2);
-  double ey = (1-2*graphic_abs(y2-y1))*x*x+graphic_abs(x2-x1)*xy-2*cur*graphic_abs(x0-x2);
+  ex = (1-2*graphic_abs(x2-x1))*y*y+graphic_abs(y2-y1)*xy+2*cur*graphic_abs(y0-y2);
+  ey = (1-2*graphic_abs(y2-y1))*x*x+graphic_abs(x2-x1)*xy-2*cur*graphic_abs(x0-x2);
 
   if (cur == 0) { graphic_line(data, x0, y0, x2, y2, color, p, a); return; } // straight line
 
@@ -651,11 +668,11 @@ static void graphic_vfont_draw_glyph(graphic_vfont_t *f, void *data, font_glyph_
     sx2 = seg->x2 * size;
     sy2 = seg->y2 * size;
 
-    x1 = sx1 * cos_t - sy1 * sin_t;
-    y1 = sx1 * sin_t + sy1 * cos_t;
+    x1 = (int)(sx1 * cos_t - sy1 * sin_t);
+    y1 = (int)(sx1 * sin_t + sy1 * cos_t);
 
-    x2 = sx2 * cos_t - sy2 * sin_t;
-    y2 = sx2 * sin_t + sy2 * cos_t;
+    x2 = (int)(sx2 * cos_t - sy2 * sin_t);
+    y2 = (int)(sx2 * sin_t + sy2 * cos_t);
 
     graphic_vfont_draw_line(f, data, x + x1, y - y1, x + x2, y - y2, 2, color, p, a);
   }
@@ -676,8 +693,8 @@ void graphic_vfont_size(graphic_vfont_t *f, char *s, double size, int *dx, int *
         ty = 0;
       } else {
         if (c >= 'a' && c <= 'z' && !f->font[c].nsegs) c -= 32;
-        tx = f->font[c].dx * size;
-        ty = f->font[c].dy * size;
+        tx = (int)(f->font[c].dx * size);
+        ty = (int)(f->font[c].dy * size);
       }
 
       if (ty > *dy) *dy = ty;
@@ -796,10 +813,10 @@ void graphic_vfont_draw(graphic_vfont_t *f, void *data, char *s, int x, int y, u
         dg = SPACE;
       } else {
         if (c >= 'a' && c <= 'z' && !f->font[c].nsegs) c -= 32;
-        x1 = x + dx * cos_t;
-        y1 = y - dx * sin_t;
+        x1 = (int)(x + dx * cos_t);
+        y1 = (int)(y - dx * sin_t);
         graphic_vfont_draw_glyph(f, data, &f->font[c], x1, y1, color, size, cos_t, sin_t, p, a);
-        dg = f->font[c].dx * size;
+        dg = (int)(f->font[c].dx * size);
       }
 
       dx += SPACE;

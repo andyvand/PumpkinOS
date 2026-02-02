@@ -17,6 +17,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32_WCE
+#include <windows.h>
+#include <io.h>
+#endif
+
+#include "../libpit/sys.h"
 #include "lua.h"
 
 #include "lauxlib.h"
@@ -61,8 +67,25 @@ static int l_checkmode (const char *mode) {
 
 #elif defined(LUA_USE_WINDOWS)	/* }{ */
 
+#ifdef _WIN32_WCE
+#if __STDC_WANT_SECURE_LIB__
+static __inline FILE *l_popen(lua_State *L, const char *c, const char *m) {
+	FILE *f = NULL;
+	(void)L;
+
+	fopen_s(&f, c, m);
+
+	return f;
+}
+#else
+#define l_popen(L,c,m)      (fopen(c,m))
+#endif
+
+#define l_pclose(L,file)    (fclose(file))
+#else
 #define l_popen(L,c,m)		(_popen(c,m))
 #define l_pclose(L,file)	(_pclose(file))
+#endif
 
 #else				/* }{ */
 
@@ -285,7 +308,24 @@ static int io_popen (lua_State *L) {
 
 static int io_tmpfile (lua_State *L) {
   LStream *p = newfile(L);
+#ifdef _WIN32_WCE
+  char buf[32];
+#if __STDC_WANT_SECURE_LIB__
+  char temppath[FILE_PATH];
+#endif
+  sys_strncpy(buf, "tmpXXXXXX", 32);
+
+#if __STDC_WANT_SECURE_LIB__
+  sys_strncpy(temppath, buf, FILE_PATH);
+  _mktemp_s(temppath, FILE_PATH);
+  sys_strncpy(buf, temppath, 32);
+  fopen_s(&p->f, temppath, "rwb");
+#else
+  p->f = fopen(mktemp(temppath), "rwb");
+#endif
+#else
   p->f = tmpfile();
+#endif
   return (p->f == NULL) ? luaL_fileresult(L, 0, NULL) : 1;
 }
 

@@ -1,0 +1,21 @@
+DIRS=\
+	winpthreads\
+	libpit\
+	lua\
+	libpumpkin\
+	libos\
+	libshell\
+	libresample\
+	libtimidity\
+	BOOT\
+	Launcher\
+	Preferences\
+	Command\
+	vi\
+	LuaSyntax\
+	MemoPad\
+	AddressBook\
+	ToDoList\
+	DateBook\
+	windows
+

@@ -477,13 +477,13 @@ static void show_help(struct globals *g)
 #endif
   "\r\n";
 
-  g->e->write(g->e->data, msg, sys_strlen(msg));
+  g->e->write(g->e->data, msg, (int)sys_strlen(msg));
 }
 
 static void write1(struct globals *g, const char *out)
 {
   debug(DEBUG_TRACE, "vi", "write1 [%s]", out);
-  g->e->write(g->e->data, (char *)out, sys_strlen(out));
+  g->e->write(g->e->data, (char *)out, (int)sys_strlen(out));
 }
 
 static int get_terminal_width_height(struct globals *g, unsigned int *ncolumns, unsigned int *nrows) {
@@ -547,9 +547,9 @@ static void cookmode(void)
 static void place_cursor(struct globals *g, int row, int col)
 {
   if (row < 0) row = 0;
-  if (row >= g->rows) row = g->rows - 1;
+  if (row >= (int)g->rows) row = (int)g->rows - 1;
   if (col < 0) col = 0;
-  if (col >= g->columns) col = g->columns - 1;
+  if (col >= (int)g->columns) col = (int)g->columns - 1;
   debug(DEBUG_TRACE, "vi", "cursor %2d,%2d", col, row);
   g->e->cursor(g->e->data, col, row);
 }
@@ -632,7 +632,7 @@ static char *end_screen(struct globals *g)
 
   // find new bottom line
   q = g->screenbegin;
-  for (cnt = 0; cnt < g->rows - 2; cnt++)
+  for (cnt = 0; cnt < (int)g->rows - 2; cnt++)
     q = next_line(g, q);
   q = end_line(g, q);
   return q;
@@ -717,9 +717,9 @@ static NOINLINE void sync_cursor(struct globals *g, char *d, int *row, int *col)
     cnt = count_lines(g, beg_cur, g->screenbegin);
  sc1:
     g->screenbegin = beg_cur;
-    if (cnt > (g->rows - 1) / 2) {
+	if (cnt >(int)(g->rows - 1) / 2) {
       // we moved too many lines. put "dot" in middle of screen
-      for (cnt = 0; cnt < (g->rows - 1) / 2; cnt++) {
+		for (cnt = 0; cnt < (int)(g->rows - 1) / 2; cnt++) {
         g->screenbegin = prev_line(g, g->screenbegin);
       }
     }
@@ -730,7 +730,7 @@ static NOINLINE void sync_cursor(struct globals *g, char *d, int *row, int *col)
       // "d" is after bottom line on screen
       // how many lines do we have to move
       cnt = count_lines(g, end_scr, beg_cur);
-      if (cnt > (g->rows - 1) / 2)
+	  if (cnt > (int)(g->rows - 1) / 2)
         goto sc1;  // too many lines
       for (ro = 0; ro < cnt - 1; ro++) {
         // move screen begin the same amount
@@ -743,7 +743,7 @@ static NOINLINE void sync_cursor(struct globals *g, char *d, int *row, int *col)
   }
   // "d" is on screen- find out which row
   tp = g->screenbegin;
-  for (ro = 0; ro < g->rows - 1; ro++) {  // drive "ro" to correct row
+  for (ro = 0; ro < (int)g->rows - 1; ro++) {  // drive "ro" to correct row
     if (tp == beg_cur)
       break;
     tp = next_line(g, tp);
@@ -783,7 +783,7 @@ static NOINLINE void sync_cursor(struct globals *g, char *d, int *row, int *col)
   if (co < 0 + g->offset) {
     g->offset = co;
   }
-  if (co >= g->columns + g->offset) {
+  if (co >= (int)(g->columns + g->offset)) {
     g->offset = co - g->columns + 1;
   }
   // if the first char of the line is a tab, and "dot" is sitting on it
@@ -808,7 +808,7 @@ static char* format_line(struct globals *g, char *src /*, int li*/)
   debug(DEBUG_TRACE, "vi", "format_line [%s]", src);
   c = '~'; // char in col 0 in non-existent lines is '~'
   co = 0;
-  while (co < g->columns + g->tabstop) {
+  while (co < (int)(g->columns + g->tabstop)) {
     // have we gone past the end?
     if (src < g->end) {
       c = *src++;
@@ -851,7 +851,7 @@ static char* format_line(struct globals *g, char *src /*, int li*/)
   co -= ofs;
   dest += ofs;
   // fill the rest with spaces
-  if (co < g->columns)
+  if (co < (int)g->columns)
     sys_memset(&dest[co], ' ', g->columns - co);
   return dest;
 }
@@ -911,7 +911,7 @@ static void refresh(struct globals *g, int full_screen)
 
   // compare text[] to screen[] and mark screen[] lines that need updating
   debug(DEBUG_TRACE, "vi", "refresh");
-  for (li = 0; li < g->rows - 1; li++) {
+  for (li = 0; li < (int)g->rows - 1; li++) {
     int cs, ce;        // column start & end
     char *out_buf;
 
@@ -964,7 +964,7 @@ static void refresh(struct globals *g, int full_screen)
 
     // make a sanity check of columns indexes
     if (cs < 0) cs = 0;
-    if (ce > g->columns - 1) ce = g->columns - 1;
+	if (ce >(int)g->columns - 1) ce = (int)g->columns - 1;
     if (cs > ce) { cs = 0; ce = g->columns - 1; }
     // is there a change between virtual screen and out_buf
     if (changed) {
@@ -1057,7 +1057,7 @@ static int readit(struct globals *g) // read (maybe cursor) key from stdin
   // on nonblocking stdin.
   // Note: read_key sets errno to 0 on success.
  //again:
-  c = read_key(g, g->readbuffer, /*timeout:*/ -1);
+  c = (int)read_key(g, g->readbuffer, /*timeout:*/ -1);
   if (c == -1) { // EOF/error
 /*
     if (errno == EAGAIN) // paranoia
@@ -1129,7 +1129,7 @@ static char *get_input_line(struct globals *g, const char *prompt)
   go_bottom_and_clear_to_eol(g);
   write1(g, prompt);      // write out the :, /, or ? prompt
 
-  i = sys_strlen(buf);
+  i = (int)sys_strlen(buf);
   while (i < MAX_INPUT_LEN) {
     c = get_one_char(g);
     if (c == '\n' || c == '\r' || c == 27)
@@ -1251,7 +1251,7 @@ static void show_status_line(struct globals *g)
     write1(g, g->status_buffer);
     if (g->have_status_msg) {
       if (((int)sys_strlen(g->status_buffer) - (g->have_status_msg - 1)) >
-          (g->columns - 1) ) {
+		  (int)(g->columns - 1)) {
         g->have_status_msg = 0;
         Hit_Return(g);
       }
@@ -1336,7 +1336,7 @@ static void not_implemented(struct globals *g, const char *s)
 #if ENABLE_FEATURE_VI_YANKMARK
 static char *text_yank(struct globals *g, char *p, char *q, int dest)  // copy text into a register
 {
-  int cnt = q - p;
+  int cnt = (int)(q - p);
   if (cnt < 0) {    // they are backwards- reverse them
     p = q;
     cnt = -cnt;
@@ -1411,7 +1411,7 @@ static uintptr_t text_hole_make(struct globals *g, char *p, int size)  // at "p"
   g->end += size;    // adjust the new END
   if (g->end >= (g->text + g->text_size)) {
     char *new_text;
-    g->text_size += g->end - (g->text + g->text_size) + 10240;
+    g->text_size += (int)(g->end - (g->text + g->text_size) + 10240);
     new_text = sys_realloc(g->text, g->text_size);
     bias = (new_text - g->text);
     g->screenbegin += bias;
@@ -1451,8 +1451,8 @@ static char *text_hole_delete(struct globals *g, char *p, char *q, int undo)
     src = p + 1;
     dest = q;
   }
-  hole_size = q - p + 1;
-  cnt = g->end - src;
+  hole_size = (int)(q - p + 1);
+  cnt = (int)(g->end - src);
 #if ENABLE_FEATURE_VI_UNDO
   switch (undo) {
     case NO_UNDO:
@@ -1614,7 +1614,7 @@ static void undo_push(struct globals *g, char *src, unsigned length, uint8_t u_t
   }
   u_type = (u_type & ~UNDO_USE_SPOS);
 # else
-  undo_entry->start = src - g->text;
+  undo_entry->start = (int)(src - g->text);
 # endif
   undo_entry->u_type = u_type;
 
@@ -1947,7 +1947,7 @@ static char *find_pair(struct globals *g, char *p, const char c)
   char match;
   int dir, level;
 
-  dir = sys_strchr(braces, c) - braces;
+  dir = (int)(sys_strchr(braces, c) - braces);
   dir ^= 1;
   match = braces[dir];
   dir = ((dir & 1) << 1) - 1; // 1 for ([{, -1 for )\}
@@ -2070,11 +2070,11 @@ static char *char_insert(struct globals *g, char *p, char c, int undo) // insert
       len = xstrspn(q, " \t"); // space or tab
       if (len) {
         uintptr_t bias;
-        bias = text_hole_make(g, p, len);
+        bias = text_hole_make(g, p, (int)len);
         p += bias;
         q += bias;
 #if ENABLE_FEATURE_VI_UNDO
-        undo_push_insert(g, p, len, undo);
+        undo_push_insert(g, p, (int)len, undo);
 #endif
         sys_memcpy(p, q, len);
         p += len;
@@ -2129,7 +2129,7 @@ static uintptr_t string_insert(struct globals *g, char *p, const char *s, int un
   uintptr_t bias;
   int i;
 
-  i = sys_strlen(s);
+  i = (int)sys_strlen(s);
 #if ENABLE_FEATURE_VI_UNDO
   undo_push_insert(g, p, i, undo);
 #endif
@@ -2166,7 +2166,7 @@ static int file_write(struct globals *g, char *fn, char *first, char *last)
   fd = g->e->fopen(g->e->data, fn, 1);
   if (fd == NULL)
     return -1;
-  cnt = last - first + 1;
+  cnt = (int)(last - first + 1);
   charcnt = full_write(g, fd, first, cnt);
   if (charcnt == cnt) {
     // good write
@@ -2258,7 +2258,7 @@ static char *char_search(struct globals *g, char *p, const char *pat, int dir_an
   int len;
   int range;
 
-  len = sys_strlen(pat);
+  len = (int)sys_strlen(pat);
   range = (dir_and_range & 1);
   if (dir_and_range > 0) { //FORWARD?
     stop = g->end - 1;  // assume range is p..end-1
@@ -2376,7 +2376,7 @@ static void setops(struct globals *g, const char *args, const char *opname, int 
       const char *short_opname, int opt)
 {
   const char *a = args + flg_no;
-  int l = sys_strlen(opname) - 1; // opname have + ' '
+  int l = (int)(sys_strlen(opname) - 1); // opname have + ' '
 
   // maybe strncmp? we had tons of erroneous strncasecmp's...
   if (sys_strncasecmp(a, opname, l) == 0
@@ -2532,7 +2532,7 @@ static void colon(struct globals *g, char *buf)
     li = e - b + 1;
   }
   // ------------ now look for the command ------------
-  i = sys_strlen(cmd);
+  i = (int)sys_strlen(cmd);
   if (i == 0) {    // :123CR goto line #123
     if (b >= 0) {
       g->dot = find_line(g, b);  // what line is #b
@@ -2880,7 +2880,7 @@ static void colon(struct globals *g, char *buf)
       // forced = TRUE;
     //}
     if (g->modified_count != 0 || cmd[0] != 'x') {
-      size = r - q + 1;
+      size = (int)(r - q + 1);
       l = file_write(g, fn, q, r);
     } else {
       size = 0;
@@ -3655,7 +3655,7 @@ static void do_cmd(struct globals *g, int c)
     break;
   case 'H':      // H- goto top line on screen
     g->dot = g->screenbegin;
-    if (g->cmdcnt > (g->rows - 1)) {
+	if (g->cmdcnt > (int)(g->rows - 1)) {
       g->cmdcnt = (g->rows - 1);
     }
     if (--g->cmdcnt > 0) {
@@ -3695,7 +3695,7 @@ static void do_cmd(struct globals *g, int c)
     break;
   case 'L':      // L- goto bottom line on screen
     g->dot = end_screen(g);
-    if (g->cmdcnt > (g->rows - 1)) {
+	if (g->cmdcnt > (int)(g->rows - 1)) {
       g->cmdcnt = (g->rows - 1);
     }
     if (--g->cmdcnt > 0) {
@@ -3706,7 +3706,7 @@ static void do_cmd(struct globals *g, int c)
     break;
   case 'M':      // M- goto middle line on screen
     g->dot = g->screenbegin;
-    for (cnt = 0; cnt < (g->rows-1) / 2; cnt++)
+	for (cnt = 0; cnt < (int)(g->rows - 1) / 2; cnt++)
       g->dot = next_line(g, g->dot);
     break;
   case 'O':      // O- open a empty line above
@@ -3992,7 +3992,7 @@ static void do_cmd(struct globals *g, int c)
 
   if (!sys_isdigit(c))
     g->cmdcnt = 0;    // cmd was not a number, reset cmdcnt
-  cnt = g->dot - begin_line(g, g->dot);
+  cnt = (int)(g->dot - begin_line(g, g->dot));
   // Try to stay off of the Newline
   if (*g->dot == '\n' && cnt > 0 && g->cmd_mode == 0)
     g->dot--;
@@ -4364,6 +4364,8 @@ static void bb_show_usage(void) {
 */
 
 static int vi_main(struct globals *g, int argc, char **argv) {
+  int optind = 0;
+
   g->last_modified_count = -1;
   g->last_search_pattern = xzalloc(2);
 
@@ -4429,7 +4431,6 @@ static int vi_main(struct globals *g, int argc, char **argv) {
   }
 #endif
 
-  int optind = 0;
   argv += optind;
   g->cmdline_filecnt = argc - optind;
 

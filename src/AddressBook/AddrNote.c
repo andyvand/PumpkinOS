@@ -746,7 +746,7 @@ void PrvNoteViewLoadRecord (void)
 
 	// Find out where the note field is to edit it
 	ptr = MemHandleLock (recordH);
-	offset = record.fields[ad_note] - ptr;
+	offset = (UInt16)(record.fields[ad_note] - ptr);
 	FldSetText (fld, recordH, offset, StrLen(record.fields[ad_note])+1);
 
 	// Unlock recordH twice because AddrGetRecord() locks it, and we had to lock

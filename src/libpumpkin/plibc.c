@@ -217,7 +217,7 @@ sys_ssize_t plibc_read(int fd, void *buf, sys_size_t count) {
        }
        r = i;
     } else {
-      if (VFSFileRead(table[fd]->fileRef, count, buf, &numBytesRead) == errNone) {
+      if (VFSFileRead(table[fd]->fileRef, (UInt32)count, buf, &numBytesRead) == errNone) {
         r = numBytesRead;
       }
     }
@@ -233,10 +233,10 @@ sys_ssize_t plibc_write(int fd, void *buf, sys_size_t count) {
   
   if (fd >= 0 && fd < MAX_FDS && buf && table[fd] && table[fd]->fileRef) {
     if (table[fd]->fileRef == stdoutFileRef || table[fd]->fileRef == stderrFileRef) {
-       pumpkin_write((char *)buf, count);
+       pumpkin_write((char *)buf, (uint32_t)count);
        r = count;
     } else { 
-      if (VFSFileWrite(table[fd]->fileRef, count, buf, &numBytesWritten) == errNone) {
+      if (VFSFileWrite(table[fd]->fileRef, (UInt32)count, buf, &numBytesWritten) == errNone) {
         r = numBytesWritten; 
       }
     }
@@ -260,7 +260,7 @@ sys_ssize_t plibc_lseek(int fd, sys_ssize_t offset, int whence) {
       default: return -1;
     }
   
-    err = VFSFileSeek(table[fd]->fileRef, origin, offset);
+    err = VFSFileSeek(table[fd]->fileRef, origin, (Int32)offset);
     if (err == errNone || err == vfsErrFileEOF) {
       if (VFSFileTell(table[fd]->fileRef, &pos) == errNone) {
         r = pos;
@@ -507,7 +507,6 @@ int plibc_fputs(const char *s, PLIBC_FILE *stream) {
   int len, r = PLIBC_EOF;
 
   if (s && stream) {
-
     if (stream->fd >= 0 && stream->fd < MAX_FDS && table[stream->fd] && table[stream->fd]->fileRef) {
       if (table[stream->fd]->fileRef == stdoutFileRef || table[stream->fd]->fileRef == stderrFileRef) {
         pumpkin_puts((char *)s);
@@ -516,7 +515,7 @@ int plibc_fputs(const char *s, PLIBC_FILE *stream) {
     }
 
     if (r == PLIBC_EOF) {
-      len = sys_strlen(s);
+      len = (int)sys_strlen(s);
       if (plibc_fwrite(s, 1, len, stream) == len) {
         r = 0;
       }

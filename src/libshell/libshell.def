@@ -1,0 +1,7 @@
+LIBRARY libshell
+EXPORTS
+    DllMain @5
+    libshell_init @1
+    libshell_load @2
+    libshell_run_shell @3
+    libshell_unload @4

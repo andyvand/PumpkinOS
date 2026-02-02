@@ -211,6 +211,22 @@ int sys_signbit(double x) {
 
 #include <math.h>
 
+#ifdef _WIN32_WCE
+#include <float.h>
+
+#ifndef isnan
+#define isnan(x) _isnan(x)
+#endif
+
+#ifndef isinf
+#define isinf(x) (!_finite(x) && !_isnan(x))
+#endif
+
+#ifndef signbit
+#define signbit(x) (_copysign(1.0, (x)) < 0.0)
+#endif
+#endif
+
 double sys_floor(double x) {
   return floor(x);
 }

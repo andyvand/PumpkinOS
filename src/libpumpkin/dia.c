@@ -92,9 +92,10 @@ static void update_area(dia_t *dia, RectangleType *r, UInt16 y0) {
 static void dia_invert_button(dia_t *dia, int i) {
   RectangleType rect;
   UInt16 prev;
+  WinHandle old;
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
-  WinHandle old = WinSetDrawWindow(dia->wh);
+  old = WinSetDrawWindow(dia->wh);
   RctSetRectangle(&rect, i * dia->icon_width, dia->alpha_height, dia->icon_width, dia->taskbar_height - dia->button_height);
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);
@@ -105,9 +106,10 @@ static void dia_invert_button(dia_t *dia, int i) {
 static void dia_invert_hard_button(dia_t *dia, int i) {
   RectangleType rect;
   UInt16 prev;
+  WinHandle old;
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
-  WinHandle old = WinSetDrawWindow(dia->wh);
+  old = WinSetDrawWindow(dia->wh);
   RctSetRectangle(&rect, i * dia->button_width, dia->alpha_height + dia->taskbar_height - dia->button_height, dia->button_width, dia->button_height);
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);
@@ -118,9 +120,10 @@ static void dia_invert_hard_button(dia_t *dia, int i) {
 static void dia_invert_updown_button(dia_t *dia, int i) {
   RectangleType rect;
   UInt16 prev;
+  WinHandle old;
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
-  WinHandle old = WinSetDrawWindow(dia->wh);
+  old = WinSetDrawWindow(dia->wh);
   RctSetRectangle(&rect, 3 * dia->button_width, dia->alpha_height + dia->taskbar_height - dia->button_height + i * dia->button_height / 2, dia->button_width, dia->button_height / 2);
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);
@@ -131,9 +134,10 @@ static void dia_invert_updown_button(dia_t *dia, int i) {
 static void dia_invert_key(dia_t *dia, int i) {
   RectangleType rect;
   UInt16 prev;
+  WinHandle old;
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
-  WinHandle old = WinSetDrawWindow(dia->wh);
+  old = WinSetDrawWindow(dia->wh);
   MemMove(&rect, &dia->bounds[i], sizeof(RectangleType));
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);

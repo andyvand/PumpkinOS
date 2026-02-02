@@ -298,7 +298,7 @@ static void DrawListAlarm (UInt32 eventTime, UInt16 duration, char* description,
 	if (!untimed)
 		{
 		// Draw the event's start time
-		TimeToAscii (startDateTime.hour, startDateTime.minute, timeFormat, timeStr);
+		TimeToAscii((UInt8)startDateTime.hour, (UInt8)startDateTime.minute, timeFormat, timeStr);
 	
 		WinDrawChars (timeStr, StrLen (timeStr), x, y);
 		x += FntCharsWidth (timeStr, StrLen (timeStr));
@@ -312,7 +312,7 @@ static void DrawListAlarm (UInt32 eventTime, UInt16 duration, char* description,
 			x += FntCharWidth (chr) + (FntCharWidth(spaceChr) / 2);
 		
 			TimSecondsToDateTime (eventTime + (duration * minutesInSeconds), &endDateTime);
-			TimeToAscii (endDateTime.hour, endDateTime.minute, timeFormat, timeStr);
+			TimeToAscii((UInt8)endDateTime.hour, (UInt8)endDateTime.minute, timeFormat, timeStr);
 			WinDrawChars (timeStr, StrLen (timeStr), x, y);
 			x += FntCharsWidth (timeStr, StrLen (timeStr)) + FntCharWidth(spaceChr);
 			}
@@ -334,7 +334,7 @@ static void DrawListAlarm (UInt32 eventTime, UInt16 duration, char* description,
 		}
 	else
 		{
-		DateToAscii(startDateTime.month, startDateTime.day, startDateTime.year, dateFormat, dateStr);
+		DateToAscii((UInt8)startDateTime.month, (UInt8)startDateTime.day, startDateTime.year, dateFormat, dateStr);
 		WinDrawChars (dateStr, StrLen (dateStr), x, y);
 		}
 	
@@ -474,7 +474,7 @@ static void DrawDetailAlarm (UInt32 eventTime, UInt16 duration, char* descriptio
 	TimSecondsToDateTime (eventTime, &dateTime);
 
 	// Get the day-of-week name and the system formatted date
-	DateTemplateToAscii("^1l", dateTime.month, dateTime.day, dateTime.year, dowNameStr, sizeof(dowNameStr));
+	DateTemplateToAscii("^1l", (UInt8)dateTime.month, (UInt8)dateTime.day, dateTime.year, dowNameStr, sizeof(dowNameStr));
 
 #if		WRISTPDA
 	DateToAscii(dateTime.month, dateTime.day, 99, dateFormat, dateStr);
@@ -495,7 +495,7 @@ static void DrawDetailAlarm (UInt32 eventTime, UInt16 duration, char* descriptio
 		}
 	}
 #else
-	DateToAscii(dateTime.month, dateTime.day, dateTime.year, dateFormat, dateStr);
+	DateToAscii((UInt8)dateTime.month, (UInt8)dateTime.day, dateTime.year, dateFormat, dateStr);
 #endif//	WRISTPDA
 	
 	resH = DmGetResource (strRsc, drawAlarmDateTemplateStrID);
@@ -517,7 +517,7 @@ static void DrawDetailAlarm (UInt32 eventTime, UInt16 duration, char* descriptio
 	if (!untimed)
 		{
 		// Draw the event's time and duration.
-		TimeToAscii (dateTime.hour, dateTime.minute, timeFormat, timeStr);
+		TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, timeFormat, timeStr);
 	
 		WinDrawChars (timeStr, StrLen (timeStr), x, y);
 		
@@ -528,7 +528,7 @@ static void DrawDetailAlarm (UInt32 eventTime, UInt16 duration, char* descriptio
 			WinDrawChars (&chr, 1, x, y);
 			
 			TimSecondsToDateTime (eventTime + (duration * minutesInSeconds), &dateTime);
-			TimeToAscii (dateTime.hour, dateTime.minute, timeFormat, timeStr);
+			TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, timeFormat, timeStr);
 			x += FntCharWidth (chr) + FntCharWidth (spaceChr);
 			WinDrawChars (timeStr, StrLen (timeStr), x, y);
 			}

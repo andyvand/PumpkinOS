@@ -289,9 +289,9 @@ static Err CreateDefaultDatabase(void)
 static UInt16 StartApplication (void)
 {
 	Err err = 0;
-	UInt16 attr;
-	UInt16 mode;
-	UInt32 uniqueID;
+	UInt16 attr = 0;
+	UInt16 mode = 0;
+	UInt32 uniqueID = 0;
 	UInt32 currentRecordID = 0;
 	Boolean recordFound = false;
 
@@ -419,8 +419,8 @@ static void StopApplication (void)
  ***********************************************************************/
 static void SyncNotification (void)
 {
-	DmOpenRef dbP;
-	Err err;
+	DmOpenRef dbP = NULL;
+	Err err = 0;
 
 	// Find the application's data file.
 	err = MemoGetDatabase(&dbP, dmModeReadWrite);
@@ -455,9 +455,9 @@ static void SyncNotification (void)
  ***********************************************************************/
 void RegisterLocaleChangingNotification(void)
 {
-	UInt16 cardNo;
-	LocalID dbID;
-	Err err;
+	UInt16 cardNo = 0;
+	LocalID dbID = 0;
+	Err err = 0;
 
 	err = SysCurAppDatabase(&cardNo, &dbID);
 	ErrNonFatalDisplayIf(err != errNone, "can't get app db info");
@@ -492,8 +492,8 @@ void RegisterLocaleChangingNotification(void)
  ***********************************************************************/
 static void RegisterData(void)
 {
-	MemHandle resH;
-	void *desc;
+	MemHandle resH = NULL;
+	void *desc = NULL;
 
 	resH = DmGetResource(strRsc, ExgDescriptionStr);
 	desc = MemHandleLock(resH);
@@ -523,8 +523,8 @@ static void RegisterData(void)
 void MemoLoadPrefs(UInt32*	currentRecordID)
 {
 	MemoPreferenceType prefs;
-	UInt16 prefsSize;
-	Int16 prefsVersion;
+	UInt16 prefsSize = 0;
+	Int16 prefsVersion = 0;
 	Boolean needFontInfo = false;
 
 	// Read the preferences / saved-state information.
@@ -611,7 +611,7 @@ void MemoLoadPrefs(UInt32*	currentRecordID)
 void MemoSavePrefs(UInt16 scrollPosition)
 {
 	MemoPreferenceType prefs;
-	UInt32 uniqueID;
+	UInt32 uniqueID = 0;
 
 	// Write the preferences / saved-state information.
 	prefs.topVisibleRecord = TopVisibleRecord;
@@ -667,7 +667,7 @@ void MemoSavePrefs(UInt16 scrollPosition)
  ***********************************************************************/
 static void * GetObjectPtr (UInt16 objectID)
 {
-	FormPtr frm;
+	FormPtr frm = NULL;
 
 	frm = FrmGetActiveForm ();
 	return (FrmGetObjectPtr (frm, FrmGetObjectIndex (frm, objectID)));
@@ -693,8 +693,8 @@ static void * GetObjectPtr (UInt16 objectID)
  ***********************************************************************/
 static FieldPtr GetFocusObjectPtr (void)
 {
-	FormPtr frm;
-	UInt16 focus;
+	FormPtr frm = NULL;
+	UInt16 focus = 0;
 
 	frm = FrmGetActiveForm ();
 	focus = FrmGetFocus (frm);
@@ -928,22 +928,22 @@ static void ReplaceTwoColors (const RectangleType *rP, UInt16 cornerDiam,
  ***********************************************************************/
 static void Search (FindParamsPtr findParams)
 {
-	UInt16 pos;
-	Char * header;
-	UInt16 recordNum;
-	MemHandle recordH;
-	MemHandle headerStringH;
+	UInt16 pos = 0;
+	Char * header = NULL;
+	UInt16 recordNum = 0;
+	MemHandle recordH = NULL;
+	MemHandle headerStringH = NULL;
 	RectangleType r;
-	Boolean done;
-	Boolean match;
-	DmOpenRef dbP;
+	Boolean done = 0;
+	Boolean match = 0;
+	DmOpenRef dbP = NULL;
 	DmSearchStateType searchState;
-	Err err;
+	Err err = 0;
 	UInt16 cardNo = 0;
-	LocalID dbID;
-	MemoDBRecordPtr memoRecP;
-	UInt32 longPos;
-	UInt16 matchLength;
+	LocalID dbID = 0;
+	MemoDBRecordPtr memoRecP = NULL;
+	UInt32 longPos = 0;
+	UInt16 matchLength = 0;
 
 	// Find the application's data file.
 	err = DmGetNextDatabaseByTypeCreator (true, &searchState, memoDBType,
@@ -1309,7 +1309,7 @@ static UInt16 PreferencesApply (void)
 	UInt16		updateCode = 0;
 
 	// Update the sort order.  Reset the To Do list to the top.
-	sortOrder = LstGetSelection (GetObjectPtr (PreferencesSortByList));
+	sortOrder = (UInt8)LstGetSelection (GetObjectPtr (PreferencesSortByList));
 
 	if (MemoGetSortOrder (MemoDB) != sortOrder)
 	{
@@ -2075,7 +2075,7 @@ static Boolean EditViewDeleteRecord (void)
 		ctlIndex = FrmGetObjectIndex (alert, DeleteMemoSaveBackup);
 		FrmSetControlValue (alert, ctlIndex, SaveBackup);
 		buttonHit = FrmDoDialog (alert);
-		saveBackup = FrmGetControlValue (alert, ctlIndex);;
+		saveBackup = (Boolean)FrmGetControlValue (alert, ctlIndex);;
 
 		FrmDeleteForm (alert);
 
@@ -3673,7 +3673,7 @@ static void ListViewSelectMemo (EventType * event)
 	Boolean moving = false;
 	Boolean selected = true;
 	TablePtr table;
-	WinHandle savedBits;
+	WinHandle savedBits = NULL;
 	RectangleType r;
 	UInt16 attr;
 

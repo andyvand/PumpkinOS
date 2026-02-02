@@ -93,25 +93,30 @@ typedef UInt16 PinInputAreaStateT16; enum
 /*----------------------------------------------------------
 Input trigger states
 ----------------------------------------------------------*/
-typedef UInt16 PinInputTriggerStateT16; enum
-    { pinInputTriggerEnabled    /* The status bar icon is enabled   */
-    , pinInputTriggerDisabled   /* The status bar icon is disabled  */
-    , pinInputTriggerNone       /* There is no dynamic input area   */
+typedef UInt16 PinInputTriggerStateT16;
 
-    , pinInputTriggerCount
-    };
+enum
+{
+	pinInputTriggerEnabled,    /* The status bar icon is enabled   */
+    pinInputTriggerDisabled,   /* The status bar icon is disabled  */
+    pinInputTriggerNone,       /* There is no dynamic input area   */
+    pinInputTriggerCount
+};
 
 
 /*----------------------------------------------------------
 Form Dynamic Input Area Policies
 ----------------------------------------------------------*/
-typedef UInt16 FrmDIAPolicyT16; enum
-    { frmDIAPolicyStayOpen  /* The dynamic input area stays open                        */
-    , frmDIAPolicyCustom    /* The dynamic input area is controlled by the application  */
+typedef UInt16 FrmDIAPolicyT16;
 
-    , frmDIAPolicyCount
-    };
-
+#if 0
+enum
+{
+	frmDIAPolicyStayOpen,  /* The dynamic input area stays open                        */
+    frmDIAPolicyCustom,    /* The dynamic input area is controlled by the application  */
+    frmDIAPolicyCount
+};
+#endif
 
 /*--------------------------------------------------------------------
                            PROJECT INCLUDES

@@ -16,7 +16,7 @@
 
 #include <DateTime.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(_MSC_VER)
 #include "sections.h"
 #endif
 

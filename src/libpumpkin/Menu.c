@@ -100,10 +100,11 @@ MenuBarType *MenuGetActiveMenu(void) {
 }
 
 MenuBarType *MenuSetActiveMenu(MenuBarType *menuP) {
+  MenuBarType *prev = NULL;
   menu_module_t *module = (menu_module_t *)pumpkin_get_local_storage(menu_key);
 
   debug(DEBUG_TRACE, "Menu", "MenuSetActiveMenu %p", menuP);
-  MenuBarType *prev = module->currentMenu;
+  prev = module->currentMenu;
   module->currentMenu = menuP;
 
   return prev;
@@ -159,9 +160,9 @@ static void menu_show_pd_title(MenuBarType *menu, MenuPullDownType *pd, int i) {
     WinSetBackColor(mFill);
     WinSetTextColor(mFore);
   }
-  RctSetRectangle(&rect, pd->titleBounds.topLeft.x, 1, 3+FntCharsWidth(pd->title, sys_strlen(pd->title))+3, menu->barWin->windowBounds.extent.y-2);
+  RctSetRectangle(&rect, pd->titleBounds.topLeft.x, 1, 3+FntCharsWidth(pd->title, (Int16)sys_strlen(pd->title))+3, menu->barWin->windowBounds.extent.y-2);
   WinEraseRectangle(&rect, 0);
-  WinDrawChars(pd->title, sys_strlen(pd->title), pd->titleBounds.topLeft.x+3, pd->titleBounds.topLeft.y+1);
+  WinDrawChars(pd->title, (Int16)sys_strlen(pd->title), pd->titleBounds.topLeft.x+3, pd->titleBounds.topLeft.y+1);
 
   FntSetFont(old);
   WinSetBackColor(oldb);
@@ -199,7 +200,7 @@ static void menu_draw_item(MenuPullDownType *pd, MenuItemType *item, Boolean inv
   }
 
   WinEraseRectangle(&item->localBounds, 0);
-  WinDrawChars(item->itemStr, sys_strlen(item->itemStr), 2, y);
+  WinDrawChars(item->itemStr, (Int16)sys_strlen(item->itemStr), 2, y);
   if (item->command) {
     cmd[1] = item->command;
     WinDrawChars(cmd, 2, item->localBounds.extent.x - px, y);

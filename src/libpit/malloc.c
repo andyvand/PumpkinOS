@@ -45,6 +45,9 @@ void *sys_realloc(void *ptr, sys_size_t size) {
 }
 
 #else
+#ifdef __MINGW32__
+#define _abs64 absm
+#endif
 
 #include <stdlib.h>
 

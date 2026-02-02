@@ -7,6 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <setjmp.h>
+#include <stdarg.h>
 
 typedef enum {
   SYS_SEEK_SET, SYS_SEEK_CUR, SYS_SEEK_END
@@ -114,11 +115,25 @@ typedef struct {
   uint32_t mask[32];
 } sys_fdset_t;
 
+#ifdef WINDOWS
+#define __attribute__(...)
+
+typedef va_list sys_va_list;
+#define sys_va_start(v,l) va_start(v,l)
+#define sys_va_end(v)     va_end(v)
+#define sys_va_arg(v,l)   va_arg(v,l)
+#ifdef _WIN32_WCE
+#define sys_va_copy(dest, src) ((dest) = (src))
+#else
+#define sys_va_copy(d,s)  va_copy(d,s)
+#endif
+#else
 typedef __builtin_va_list sys_va_list;
 #define sys_va_start(v,l) __builtin_va_start(v,l)
 #define sys_va_end(v)     __builtin_va_end(v)
 #define sys_va_arg(v,l)   __builtin_va_arg(v,l)
 #define sys_va_copy(d,s)  __builtin_va_copy(d,s)
+#endif
 
 typedef jmp_buf sys_jmp_buf;
 typedef struct __jmp_buf_tag *sys_jmp_bufp;
@@ -136,6 +151,7 @@ int sys_gmtime(const uint64_t *t, sys_tm_t *tm);
 int sys_timeofday(sys_timeval_t *tv);
 
 char *sys_getenv(char *name);
+int sys_setenv(char *name, char *value);
 
 int sys_country(char *country, int len);
 

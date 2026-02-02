@@ -2,10 +2,19 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
+#ifdef __GNUC__
 #include <unistd.h>
+#endif
+
 #include <fcntl.h>
 #include <time.h>
+
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#include <io.h>
+#endif
 
 #include "pdb.h"
 
@@ -17,22 +26,46 @@ static int prcbuild(char *filename, char *type, char *creator, char *name, char 
   int64_t size;
   uint8_t *data;
   char *s, stype[16];
-  int i, aux, f, fr, len, r = -1;
+  int i, aux, f, len, r = -1;
+  FILE *file = NULL;
+  FILE *rfile = NULL;
 
-  if ((f = creat(filename, 0644)) != -1) {
-    if ((pdb = pdb_new(name, type, creator)) != NULL) {
-      for (i = 0; i < num; i++) {
-        len = strlen(rsrc[i]);
-        if (len >= 12) {
-          s = &rsrc[i][len-12];
-          if (sscanf(s, "%4s%04x.bin", stype, &aux) == 2 || sscanf(s, "%4s%04x.dat", stype, &aux) == 2) {
-            id = aux;
-            if ((fr = open(rsrc[i], O_RDONLY)) != -1) {
-              if ((size = lseek(fr, 0, SEEK_END)) > 0) {
-                if (lseek(fr, 0, SEEK_SET) == 0) {
-                  if ((data = calloc(1, size)) != NULL) {
-                    if (read(fr, data, size) == size) {
-                      if (pdb_add_res(pdb, stype, id, size, data) == 0) {
+#if __STDC_WANT_SECURE_LIB__
+  fopen_s(&file, filename, "wb");
+
+  if (file != NULL) {
+#else
+  if ((file = fopen(filename, "wb")) != NULL) {
+#endif
+#ifdef _MSC_VER
+    f = _fileno(file);
+#else
+    f = fileno(file);
+#endif
+    if (f != -1) {
+      if ((pdb = pdb_new(name, type, creator)) != NULL) {
+        for (i = 0; i < num; i++) {
+          len = (int)strlen(rsrc[i]);
+          if (len >= 12) {
+            s = &rsrc[i][len-12];
+#if __STDC_WANT_SECURE_LIB__
+            if (sscanf_s(s, "%4s%04x.bin", stype, 16, &aux) == 2 || sscanf_s(s, "%4s%04x.dat", stype, 16, &aux) == 2) {
+#else
+            if (sscanf(s, "%4s%04x.bin", stype, &aux) == 2 || sscanf(s, "%4s%04x.dat", stype, &aux) == 2) {
+#endif
+              id = aux;
+#if __STDC_WANT_SECURE_LIB__
+              fopen_s(&rfile, rsrc[i], "rb");
+#else
+              rfile = fopen(rsrc[i], "rb");
+#endif
+              if (rfile != NULL) {
+                fseek(rfile, 0, SEEK_END);
+                if ((size = ftell(rfile)) > 0) {
+                  fseek(rfile, 0, SEEK_SET);
+                  if ((data = malloc((size_t)size)) != NULL) {
+                    if (fread(data, 1, (size_t)size, rfile) == size) {
+                      if (pdb_add_res(pdb, stype, id, (uint32_t)size, data) == 0) {
                         if (verbose) {
                           fprintf(stderr, "Adding resource %s %5d (%d bytes)\n", stype, id, (int)size);
                         }
@@ -44,16 +77,17 @@ static int prcbuild(char *filename, char *type, char *creator, char *name, char 
                     }
                   }
                 }
+                fclose(rfile);
               }
-              close(fr);
             }
           }
         }
+        r = pdb_save(pdb, f);
+        pdb_destroy(pdb);
       }
-      r = pdb_save(pdb, f);
-      pdb_destroy(pdb);
+      f = 0;
     }
-    close(f);
+    fclose(file);
   }
 
   return r;
@@ -83,7 +117,7 @@ int main(int argc, char *argv[]) {
               hex[0] = aux[j + 2];
               hex[1] = aux[j + 3];
               hex[2] = 0;
-              buf[k++] = strtol(hex, NULL, 16);
+              buf[k++] = (char)strtol(hex, NULL, 16);
               j += 4;
             } else {
               buf[k++] = aux[j++];

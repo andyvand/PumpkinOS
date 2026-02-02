@@ -41,7 +41,11 @@ static void script_hook(lua_State *L, lua_Debug *ar) {
             value = lua_toboolean(L, i) ? "true" : "false";
           } else if (lua_isnumber(L, i)) {
             lua_Number number = luaL_checknumber(L, i);
+#ifdef _MSC_VER
+			sprintf_s(buf, sizeof(buf), "%.6f", number);
+#else
             snprintf(buf, sizeof(buf), "%.6f", number);
+#endif
             value = buf;
           } else if (lua_isstring(L, i)) {
             value = (char *)luaL_checkstring(L, i);
@@ -373,7 +377,7 @@ int ext_script_get_value(script_priv_t *priv, int i, int type, script_arg_t *arg
         if (s) {
           arg->type = SCRIPT_ARG_LSTRING;
           arg->value.l.s = s;
-          arg->value.l.n = len;
+          arg->value.l.n = (int)len;
         } else {
           return -1;
         }
@@ -453,12 +457,12 @@ int ext_script_get_value(script_priv_t *priv, int i, int type, script_arg_t *arg
         s = lua_toboolean(priv->L, i+1) ? "true" : "false";
         arg->type = SCRIPT_ARG_LSTRING;
         arg->value.l.s = s;
-        arg->value.l.n = sys_strlen(s);
+        arg->value.l.n = (int)sys_strlen(s);
       } else {
         s = (char *)luaL_checklstring(priv->L, i+1, &len);
         arg->type = SCRIPT_ARG_LSTRING;
         arg->value.l.s = s;
-        arg->value.l.n = len;
+        arg->value.l.n = (int)len;
       }
       break;
 

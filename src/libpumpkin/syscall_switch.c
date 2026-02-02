@@ -3,7 +3,7 @@
     case 0: {
       const ControlType *ctlP = sys_va_arg(ap, void *);
       ControlStyleType ret = CtlGlueGetControlStyle(ctlP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -13,7 +13,7 @@
       UInt16 *startP = sys_va_arg(ap, void *);
       UInt16 *lengthP = sys_va_arg(ap, void *);
       Boolean ret = FldGlueGetLineInfo(fldP, lineNum, startP, lengthP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -21,14 +21,14 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 objIndex = sys_va_arg(ap, UInt32);
       Boolean ret = FrmGlueGetObjectUsable(formP, objIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case 3: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       BitmapCompressionType ret = BmpGlueGetCompressionType(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -36,7 +36,7 @@
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt32 *transparentValueP = sys_va_arg(ap, void *);
       Boolean ret = BmpGlueGetTransparentValue(bitmapP, transparentValueP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -50,7 +50,7 @@
     case 6: {
       const ControlType *ctlP = sys_va_arg(ap, void *);
       FontID ret = CtlGlueGetFont(ctlP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -98,7 +98,7 @@
     case 11: {
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGlueGetDefaultButtonID(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -112,7 +112,7 @@
     case 13: {
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGlueGetHelpID(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -126,7 +126,7 @@
     case 15: {
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGlueGetMenuBarID(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -134,7 +134,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 labelID = sys_va_arg(ap, UInt32);
       FontID ret = FrmGlueGetLabelFont(formP, labelID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -156,7 +156,7 @@
     case 19: {
       const ListType *listP = sys_va_arg(ap, void *);
       FontID ret = LstGlueGetFont(listP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -185,14 +185,14 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 column = sys_va_arg(ap, UInt32);
       Boolean ret = TblGlueGetColumnMasked(tableP, column);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case 24: {
       const WinHandle winH = sys_va_arg(ap, void *);
       FrameType ret = WinGlueGetFrameType(winH);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -207,7 +207,7 @@
       void *formObjP = sys_va_arg(ap, void *);
       FormObjectKind objKind = sys_va_arg(ap, UInt32);
       UInt16 ret = FrmGlueGetObjIDFromObjPtr(formObjP, objKind);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -221,7 +221,7 @@
     case 28: {
       ControlType *controlP = sys_va_arg(ap, void *);
       Boolean ret = CtlGlueIsGraphical(controlP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -235,7 +235,7 @@
     case 30: {
       FontDefaultType inFontType = sys_va_arg(ap, UInt32);
       FontID ret = FntGlueGetDefaultFontID(inFontType);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -246,14 +246,14 @@
       Coord iMaxWidth = sys_va_arg(ap, UInt32);
       Boolean iAddEllipsis = sys_va_arg(ap, UInt32);
       Boolean ret = FntGlueTruncateString(iDstString, iSrcString, iFont, iMaxWidth, iAddEllipsis);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case 32: {
       WChar iChar = sys_va_arg(ap, UInt32);
       Int16 ret = FntGlueWCharWidth(iChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -264,21 +264,21 @@
       Boolean *leadingEdge = sys_va_arg(ap, void *);
       Int16 *truncWidth = sys_va_arg(ap, void *);
       Int16 ret = FntGlueWidthToOffset(charsP, length, pixelWidth, leadingEdge, truncWidth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case 34: {
       WChar inChar = sys_va_arg(ap, UInt32);
       WChar ret = TxtGlueUpperChar(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case 35: {
       WChar inChar = sys_va_arg(ap, UInt32);
       WChar ret = TxtGlueLowerChar(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -290,35 +290,35 @@
     switch (sel) {
     case sysTrapCncMgrProfileCloseDB: {
       Err ret = CncProfileCloseDB();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncMgrProfileCount: {
       UInt16 *profilesCountP = sys_va_arg(ap, void *);
       Err ret = CncProfileCount(profilesCountP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncMgrProfileCreate: {
       CncProfileID *profileIdP = sys_va_arg(ap, void *);
       Err ret = CncProfileCreate(profileIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncMgrProfileDelete: {
       CncProfileID profileId = sys_va_arg(ap, UInt32);
       Err ret = CncProfileDelete(profileId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncMgrProfileGetCurrent: {
       CncProfileID *profileIdP = sys_va_arg(ap, void *);
       Err ret = CncProfileGetCurrent(profileIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -326,7 +326,7 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       CncProfileID *profileIdP = sys_va_arg(ap, void *);
       Err ret = CncProfileGetIDFromIndex(index, profileIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -334,7 +334,7 @@
       const Char *profileNameP = sys_va_arg(ap, void *);
       CncProfileID *profileIdP = sys_va_arg(ap, void *);
       Err ret = CncProfileGetIDFromName(profileNameP, profileIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -342,20 +342,20 @@
       CncProfileID profileId = sys_va_arg(ap, UInt32);
       UInt16 *indexP = sys_va_arg(ap, void *);
       Err ret = CncProfileGetIndex(profileId, indexP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncMgrProfileOpenDB: {
       Err ret = CncProfileOpenDB();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncMgrProfileSetCurrent: {
       CncProfileID profileId = sys_va_arg(ap, UInt32);
       Err ret = CncProfileSetCurrent(profileId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -365,7 +365,7 @@
       void *paramBufferP = sys_va_arg(ap, void *);
       UInt16 *ioParamSizeP = sys_va_arg(ap, void *);
       Err ret = CncProfileSettingGet(profileId, paramId, paramBufferP, ioParamSizeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -375,7 +375,7 @@
       const void *paramBufferP = sys_va_arg(ap, void *);
       UInt16 paramSize = sys_va_arg(ap, UInt32);
       Err ret = CncProfileSettingSet(iProfileId, paramId, paramBufferP, paramSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -389,7 +389,7 @@
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       UInt32 *portP = sys_va_arg(ap, void *);
       Err ret = ExpCardGetSerialPort(slotRefNum, portP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -397,34 +397,34 @@
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       ExpCardInfoType *infoP = sys_va_arg(ap, void *);
       Err ret = ExpCardInfo(slotRefNum, infoP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case expCardInserted: {
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       Err ret = ExpCardInserted(slotRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case expCardPresent: {
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       Err ret = ExpCardPresent(slotRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case expCardRemoved: {
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       Err ret = ExpCardRemoved(slotRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case expInit: {
       Err ret = ExpInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -432,14 +432,14 @@
       UInt32 dbCreator = sys_va_arg(ap, UInt32);
       UInt16 *slotLibRefNumP = sys_va_arg(ap, void *);
       Err ret = ExpSlotDriverInstall(dbCreator, slotLibRefNumP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case expSlotDriverRemove: {
       UInt16 slotLibRefNum = sys_va_arg(ap, UInt32);
       Err ret = ExpSlotDriverRemove(slotLibRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -447,7 +447,7 @@
       UInt16 *slotRefNumP = sys_va_arg(ap, void *);
       UInt32 *slotIteratorP = sys_va_arg(ap, void *);
       Err ret = ExpSlotEnumerate(slotRefNumP, slotIteratorP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -455,7 +455,7 @@
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       UInt16 *slotLibRefNum = sys_va_arg(ap, void *);
       Err ret = ExpSlotLibFind(slotRefNum, slotLibRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -463,14 +463,14 @@
       UInt16 slotLibRefNum = sys_va_arg(ap, UInt32);
       UInt16 *slotRefNum = sys_va_arg(ap, void *);
       Err ret = ExpSlotRegister(slotLibRefNum, slotRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case expSlotUnregister: {
       UInt16 slotRefNum = sys_va_arg(ap, UInt32);
       Err ret = ExpSlotUnregister(slotRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -489,18 +489,18 @@
       break;
 
     case sysFloatBase10Info: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
+	  FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
       UInt32 *mantissaP = sys_va_arg(ap, void *);
       Int16 *exponentP = sys_va_arg(ap, void *);
       Int16 *signP = sys_va_arg(ap, void *);
       Err ret = FlpBase10Info(a, mantissaP, exponentP, signP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatCorrectedAdd: {
-      FlpDouble firstOperand = sys_va_arg(ap, UInt64);
-      FlpDouble secondOperand = sys_va_arg(ap, UInt64);
+	  FlpDouble firstOperand = (FlpDouble)sys_va_arg(ap, UInt64);
+	  FlpDouble secondOperand = (FlpDouble)sys_va_arg(ap, UInt64);
       Int16 howAccurate = sys_va_arg(ap, UInt32);
       FlpDouble ret = FlpCorrectedAdd(firstOperand, secondOperand, howAccurate);
       UInt64 *d = (UInt64 *)(&ret);
@@ -509,8 +509,8 @@
       break;
 
     case sysFloatCorrectedSub: {
-      FlpDouble firstOperand = sys_va_arg(ap, UInt64);
-      FlpDouble secondOperand = sys_va_arg(ap, UInt64);
+	  FlpDouble firstOperand = (FlpDouble)sys_va_arg(ap, UInt64);
+	  FlpDouble secondOperand = (FlpDouble)sys_va_arg(ap, UInt64);
       Int16 howAccurate = sys_va_arg(ap, UInt32);
       FlpDouble ret = FlpCorrectedSub(firstOperand, secondOperand, howAccurate);
       UInt64 *d = (UInt64 *)(&ret);
@@ -519,16 +519,16 @@
       break;
 
     case sysFloatFToA: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
+	  FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
       Char *s = sys_va_arg(ap, void *);
       Err ret = FlpFToA(a, s);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatVersion: {
       UInt32 ret = FlpVersion();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -539,8 +539,8 @@
     case sysTrapFlpEmDispatch: {
     switch (sel) {
     case sysFloatEm_d_add: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+	  FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+	  FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       FlpDouble ret = _d_add(a, b);
       UInt64 *d = (UInt64 *)(&ret);
       *iret = *d;
@@ -548,8 +548,8 @@
       break;
 
     case sysFloatEm_d_div: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+	  FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+	  FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       FlpDouble ret = _d_div(a, b);
       UInt64 *d = (UInt64 *)(&ret);
       *iret = *d;
@@ -557,71 +557,71 @@
       break;
 
     case sysFloatEm_d_dtof: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
       FlpFloat ret = _d_dtof(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_dtoi: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_dtoi(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_dtou: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
       UInt32 ret = _d_dtou(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_feq: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_feq(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_fge: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_fge(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_fgt: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_fgt(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_fle: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_fle(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_flt: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_flt(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_d_fne: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       Int32 ret = _d_fne(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -634,8 +634,8 @@
       break;
 
     case sysFloatEm_d_mul: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       FlpDouble ret = _d_mul(a, b);
       UInt64 *d = (UInt64 *)(&ret);
       *iret = *d;
@@ -643,7 +643,7 @@
       break;
 
     case sysFloatEm_d_neg: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
       FlpDouble ret = _d_neg(a);
       UInt64 *d = (UInt64 *)(&ret);
       *iret = *d;
@@ -651,8 +651,8 @@
       break;
 
     case sysFloatEm_d_sub: {
-      FlpDouble a = sys_va_arg(ap, UInt64);
-      FlpDouble b = sys_va_arg(ap, UInt64);
+      FlpDouble a = (FlpDouble)sys_va_arg(ap, UInt64);
+      FlpDouble b = (FlpDouble)sys_va_arg(ap, UInt64);
       FlpDouble ret = _d_sub(a, b);
       UInt64 *d = (UInt64 *)(&ret);
       *iret = *d;
@@ -668,71 +668,71 @@
       break;
 
     case sysFloatEm_f_add: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_add(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_div: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_div(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_feq: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_feq(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_fge: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_fge(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_fgt: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_fgt(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_fle: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_fle(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_flt: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_flt(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_fne: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_fne(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_ftod: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
       FlpDouble ret = _f_ftod(a);
       UInt64 *d = (UInt64 *)(&ret);
       *iret = *d;
@@ -740,66 +740,66 @@
       break;
 
     case sysFloatEm_f_ftoi: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
       Int32 ret = _f_ftoi(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_ftou: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
       UInt32 ret = _f_ftou(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_itof: {
       Int32 a = sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_itof(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_mul: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_mul(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_neg: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_neg(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_sub: {
-      FlpFloat a = sys_va_arg(ap, UInt32);
-      FlpFloat b = sys_va_arg(ap, UInt32);
+      FlpFloat a = (FlpFloat)sys_va_arg(ap, UInt32);
+      FlpFloat b = (FlpFloat)sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_sub(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_f_utof: {
       UInt32 a = sys_va_arg(ap, UInt32);
       FlpFloat ret = _f_utof(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_fp_get_fpscr: {
       Int32 ret = _fp_get_fpscr();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysFloatEm_fp_round: {
       Int32 a = sys_va_arg(ap, UInt32);
       Int32 ret = _fp_round(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -828,14 +828,14 @@
     case HDSelectorBmpGetCompressionType: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       BitmapCompressionType ret = BmpGetCompressionType(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case HDSelectorBmpGetDensity: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt16 ret = BmpGetDensity(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -850,14 +850,14 @@
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt32 *transparentValueP = sys_va_arg(ap, void *);
       Boolean ret = BmpGetTransparentValue(bitmapP, transparentValueP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case HDSelectorBmpGetVersion: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt8 ret = BmpGetVersion(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -865,7 +865,7 @@
       BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt16 density = sys_va_arg(ap, UInt32);
       Err ret = BmpSetDensity(bitmapP, density);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -887,20 +887,20 @@
 
     case HDSelectorWinGetCoordinateSystem: {
       UInt16 ret = WinGetCoordinateSystem();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case HDSelectorWinGetScalingMode: {
       UInt32 ret = WinGetScalingMode();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case HDSelectorWinGetSupportedDensity: {
       UInt16 *densityP = sys_va_arg(ap, void *);
       Err ret = WinGetSupportedDensity(densityP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -924,7 +924,7 @@
       Coord coord = sys_va_arg(ap, UInt32);
       Boolean ceiling = sys_va_arg(ap, UInt32);
       Coord ret = WinScaleCoord(coord, ceiling);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -945,21 +945,21 @@
       WinScreenAttrType selector = sys_va_arg(ap, UInt32);
       UInt32 *attrP = sys_va_arg(ap, void *);
       Err ret = WinScreenGetAttribute(selector, attrP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case HDSelectorWinSetCoordinateSystem: {
       UInt16 coordSys = sys_va_arg(ap, UInt32);
       UInt16 ret = WinSetCoordinateSystem(coordSys);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case HDSelectorWinSetScalingMode: {
       UInt32 mode = sys_va_arg(ap, UInt32);
       UInt32 ret = WinSetScalingMode(mode);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -967,7 +967,7 @@
       Coord coord = sys_va_arg(ap, UInt32);
       Boolean ceiling = sys_va_arg(ap, UInt32);
       Coord ret = WinUnscaleCoord(coord, ceiling);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1006,20 +1006,20 @@
 
     case hostSelectorClock: {
       HostClockType ret = HostClock();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorCloseDir: {
       HostDIRType *a = sys_va_arg(ap, void *);
       long ret = HostCloseDir(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorDbgClearDataBreak: {
       HostErr ret = HostDbgClearDataBreak();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1027,13 +1027,13 @@
       UInt32 addr = sys_va_arg(ap, UInt32);
       UInt32 size = sys_va_arg(ap, UInt32);
       HostErr ret = HostDbgSetDataBreak(addr, size);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorErrNo: {
       long ret = HostErrNo();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1041,14 +1041,14 @@
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       void *exgSocketP = sys_va_arg(ap, void *);
       Err ret = HostExgLibAccept(libRefNum, exgSocketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorExgLibClose: {
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       Err ret = HostExgLibClose(libRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1056,7 +1056,7 @@
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       void *exgSocketP = sys_va_arg(ap, void *);
       Err ret = HostExgLibConnect(libRefNum, exgSocketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1066,7 +1066,7 @@
       void *valueP = sys_va_arg(ap, void *);
       UInt16 *valueLenP = sys_va_arg(ap, void *);
       Err ret = HostExgLibControl(libRefNum, op, valueP, valueLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1075,7 +1075,7 @@
       void *exgSocketP = sys_va_arg(ap, void *);
       Err error = sys_va_arg(ap, UInt32);
       Err ret = HostExgLibDisconnect(libRefNum, exgSocketP, error);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1083,7 +1083,7 @@
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       void *exgSocketP = sys_va_arg(ap, void *);
       Err ret = HostExgLibGet(libRefNum, exgSocketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1091,14 +1091,14 @@
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       void *eventP = sys_va_arg(ap, void *);
       Boolean ret = HostExgLibHandleEvent(libRefNum, eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorExgLibOpen: {
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       Err ret = HostExgLibOpen(libRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1106,7 +1106,7 @@
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       void *exgSocketP = sys_va_arg(ap, void *);
       Err ret = HostExgLibPut(libRefNum, exgSocketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1117,7 +1117,7 @@
       const UInt32 bufSize = sys_va_arg(ap, UInt32);
       Err *errP = sys_va_arg(ap, void *);
       UInt32 ret = HostExgLibReceive(libRefNum, exgSocketP, bufP, bufSize, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1125,7 +1125,7 @@
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       void *exgSocketP = sys_va_arg(ap, void *);
       Err ret = HostExgLibRequest(libRefNum, exgSocketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1136,21 +1136,21 @@
       const UInt32 bufLen = sys_va_arg(ap, UInt32);
       Err *errP = sys_va_arg(ap, void *);
       UInt32 ret = HostExgLibSend(libRefNum, exgSocketP, bufP, bufLen, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorExgLibSleep: {
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       Err ret = HostExgLibSleep(libRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorExgLibWake: {
       UInt16 libRefNum = sys_va_arg(ap, UInt32);
       Err ret = HostExgLibWake(libRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1159,42 +1159,42 @@
       long cardNum = sys_va_arg(ap, UInt32);
       const char *dbName = sys_va_arg(ap, void *);
       HostErrType ret = HostExportFile(fileName, cardNum, dbName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorFClose: {
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFClose(fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorFEOF: {
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFEOF(fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorFError: {
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFError(fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorFFlush: {
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFFlush(fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorFGetC: {
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFGetC(fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1202,7 +1202,7 @@
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long *posP = sys_va_arg(ap, void *);
       long ret = HostFGetPos(fileP, posP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1227,7 +1227,7 @@
       long c = sys_va_arg(ap, UInt32);
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFPutC(c, fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1235,7 +1235,7 @@
       const char *s = sys_va_arg(ap, void *);
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFPutS(s, fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1245,7 +1245,7 @@
       long count = sys_va_arg(ap, UInt32);
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFRead(buffer, size, count, fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1263,7 +1263,7 @@
       long offset = sys_va_arg(ap, UInt32);
       long origin = sys_va_arg(ap, UInt32);
       long ret = HostFSeek(fileP, offset, origin);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1271,14 +1271,14 @@
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long *pos = sys_va_arg(ap, void *);
       long ret = HostFSetPos(fileP, pos);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorFTell: {
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFTell(fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1288,7 +1288,7 @@
       long count = sys_va_arg(ap, UInt32);
       HostFILEType *fileP = sys_va_arg(ap, void *);
       long ret = HostFWrite(buffer, size, count, fileP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1309,7 +1309,7 @@
       long gestSel = sys_va_arg(ap, UInt32);
       long *response = sys_va_arg(ap, void *);
       HostErrType ret = HostGestalt(gestSel, response);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1340,25 +1340,25 @@
       const char *a = sys_va_arg(ap, void *);
       long *b = sys_va_arg(ap, void *);
       long ret = HostGetFileAttr(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGetHostID: {
       HostIDType ret = HostGetHostID();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGetHostPlatform: {
       HostPlatformType ret = HostGetHostPlatform();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGetHostVersion: {
       Int32 ret = HostGetHostVersion();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1366,38 +1366,38 @@
       const char *a = sys_va_arg(ap, void *);
       char *b = sys_va_arg(ap, void *);
       HostBoolType ret = HostGetPreference(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGremlinCounter: {
       long ret = HostGremlinCounter();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGremlinIsRunning: {
       HostBoolType ret = HostGremlinIsRunning();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGremlinLimit: {
       long ret = HostGremlinLimit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGremlinNew: {
       const HostGremlinInfoType *a = sys_va_arg(ap, void *);
       HostErrType ret = HostGremlinNew(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorGremlinNumber: {
       long ret = HostGremlinNumber();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1405,7 +1405,7 @@
       const char *fileName = sys_va_arg(ap, void *);
       long cardNum = sys_va_arg(ap, UInt32);
       HostErrType ret = HostImportFile(fileName, cardNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1414,20 +1414,20 @@
       long cardNum = sys_va_arg(ap, UInt32);
       LocalID *newIDP = sys_va_arg(ap, void *);
       HostErrType ret = HostImportFileWithID(fileName, cardNum, newIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorIsCallingTrap: {
       HostBoolType ret = HostIsCallingTrap();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorIsSelectorImplemented: {
       long selector = sys_va_arg(ap, UInt32);
       HostBoolType ret = HostIsSelectorImplemented(selector);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1454,14 +1454,14 @@
     case hostSelectorMkDir: {
       const char *a = sys_va_arg(ap, void *);
       long ret = HostMkDir(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorMkTime: {
       HostTmType *a = sys_va_arg(ap, void *);
       HostTimeType ret = HostMkTime(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1474,7 +1474,7 @@
 
     case hostSelectorProfileCleanup: {
       HostErrType ret = HostProfileCleanup();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1482,20 +1482,20 @@
       void *addr = sys_va_arg(ap, void *);
       HostBoolType logDetails = sys_va_arg(ap, UInt32);
       HostErrType ret = HostProfileDetailFn(addr, logDetails);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorProfileDump: {
       const char *filenameP = sys_va_arg(ap, void *);
       HostErrType ret = HostProfileDump(filenameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorProfileGetCycles: {
       long ret = HostProfileGetCycles();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1503,19 +1503,19 @@
       long maxCalls = sys_va_arg(ap, UInt32);
       long maxDepth = sys_va_arg(ap, UInt32);
       HostErrType ret = HostProfileInit(maxCalls, maxDepth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorProfileStart: {
       HostErrType ret = HostProfileStart();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorProfileStop: {
       HostErrType ret = HostProfileStop();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1546,7 +1546,7 @@
     case hostSelectorRemove: {
       const char *nameP = sys_va_arg(ap, void *);
       long ret = HostRemove(nameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1554,28 +1554,28 @@
       const char *oldNameP = sys_va_arg(ap, void *);
       const char *newNameP = sys_va_arg(ap, void *);
       long ret = HostRename(oldNameP, newNameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorRmDir: {
       const char *a = sys_va_arg(ap, void *);
       long ret = HostRmDir(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSaveScreen: {
       const char *fileName = sys_va_arg(ap, void *);
       HostErrType ret = HostSaveScreen(fileName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSessionClose: {
       const char *saveFileName = sys_va_arg(ap, void *);
       HostErrType ret = HostSessionClose(saveFileName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1584,27 +1584,27 @@
       long ramSize = sys_va_arg(ap, UInt32);
       const char *romPath = sys_va_arg(ap, void *);
       HostErrType ret = HostSessionCreate(device, ramSize, romPath);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSessionOpen: {
       const char *psfFileName = sys_va_arg(ap, void *);
       HostErrType ret = HostSessionOpen(psfFileName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSessionQuit: {
       HostErrType ret = HostSessionQuit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSessionSave: {
       const char *saveFileName = sys_va_arg(ap, void *);
       HostBoolType ret = HostSessionSave(saveFileName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1612,7 +1612,7 @@
       const char *a = sys_va_arg(ap, void *);
       long b = sys_va_arg(ap, UInt32);
       long ret = HostSetFileAttr(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1631,14 +1631,14 @@
 
     case hostSelectorSignalResume: {
       HostErrType ret = HostSignalResume();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSignalSend: {
       HostSignalType signalNumber = sys_va_arg(ap, UInt32);
       HostErrType ret = HostSignalSend(signalNumber);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1646,20 +1646,20 @@
       long timeout = sys_va_arg(ap, UInt32);
       HostSignalType *signalNumber = sys_va_arg(ap, void *);
       HostErrType ret = HostSignalWait(timeout, signalNumber);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSlotHasCard: {
       long slotNo = sys_va_arg(ap, UInt32);
       HostBoolType ret = HostSlotHasCard(slotNo);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorSlotMax: {
       long ret = HostSlotMax();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1674,7 +1674,7 @@
       const char *a = sys_va_arg(ap, void *);
       HostStatType *b = sys_va_arg(ap, void *);
       long ret = HostStat(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1684,14 +1684,14 @@
       const char *c = sys_va_arg(ap, void *);
       const HostTmType *d = sys_va_arg(ap, void *);
       HostSizeType ret = HostStrFTime(a, b, c, d);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case hostSelectorTime: {
       HostTimeType *a = sys_va_arg(ap, void *);
       HostTimeType ret = HostTime(a);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1746,7 +1746,7 @@
       const char *a = sys_va_arg(ap, void *);
       long b = sys_va_arg(ap, UInt32);
       long ret = HostTruncate(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1754,7 +1754,7 @@
       const char *a = sys_va_arg(ap, void *);
       HostUTimeType *b = sys_va_arg(ap, void *);
       long ret = HostUTime(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1775,14 +1775,14 @@
       IntlSelector iSelector = sys_va_arg(ap, UInt32);
       void *iProcPtr = sys_va_arg(ap, void *);
       Err ret = IntlSetRoutineAddress(iSelector, iProcPtr);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtByteAttr: {
       UInt8 inByte = sys_va_arg(ap, UInt32);
       UInt8 ret = TxtByteAttr(inByte);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1794,14 +1794,14 @@
       UInt16 s2Len = sys_va_arg(ap, UInt32);
       UInt16 *s2MatchLen = sys_va_arg(ap, void *);
       Int16 ret = TxtCaselessCompare(s1, s1Len, s1MatchLen, s2, s2Len, s2MatchLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtCharAttr: {
       WChar inChar = sys_va_arg(ap, UInt32);
       UInt16 ret = TxtCharAttr(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1811,42 +1811,42 @@
       UInt32 *outStart = sys_va_arg(ap, void *);
       UInt32 *outEnd = sys_va_arg(ap, void *);
       WChar ret = TxtCharBounds(inText, inOffset, outStart, outEnd);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtCharEncoding: {
       WChar inChar = sys_va_arg(ap, UInt32);
       CharEncodingType ret = TxtCharEncoding(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtCharIsValid: {
       WChar inChar = sys_va_arg(ap, UInt32);
       Boolean ret = TxtCharIsValid(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtCharSize: {
       WChar inChar = sys_va_arg(ap, UInt32);
       UInt16 ret = TxtCharSize(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtCharWidth: {
       WChar inChar = sys_va_arg(ap, UInt32);
       Int16 ret = TxtCharWidth(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtCharXAttr: {
       WChar inChar = sys_va_arg(ap, UInt32);
       UInt16 ret = TxtCharXAttr(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1858,7 +1858,7 @@
       UInt16 s2Len = sys_va_arg(ap, UInt32);
       UInt16 *s2MatchLen = sys_va_arg(ap, void *);
       Int16 ret = TxtCompare(s1, s1Len, s1MatchLen, s2, s2Len, s2MatchLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1874,7 +1874,7 @@
       const Char *substitutionStr = sys_va_arg(ap, void *);
       UInt16 substitutionLen = sys_va_arg(ap, UInt32);
       Err ret = TxtConvertEncoding(newConversion, ioStateP, srcTextP, ioSrcBytes, srcEncoding, dstTextP, ioDstBytes, dstEncoding, substitutionStr, substitutionLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1891,7 +1891,7 @@
       UInt32 *outPos = sys_va_arg(ap, void *);
       UInt16 *outLength = sys_va_arg(ap, void *);
       Boolean ret = TxtFindString(inSourceStr, inTargetStr, outPos, outLength);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1899,7 +1899,7 @@
       const Char *inText = sys_va_arg(ap, void *);
       UInt32 inOffset = sys_va_arg(ap, UInt32);
       WChar ret = TxtGetChar(inText, inOffset);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1908,7 +1908,7 @@
       UInt32 inOffset = sys_va_arg(ap, UInt32);
       WChar *outChar = sys_va_arg(ap, void *);
       UInt16 ret = TxtGetNextChar(inText, inOffset, outChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1917,7 +1917,7 @@
       UInt32 inOffset = sys_va_arg(ap, UInt32);
       WChar *outChar = sys_va_arg(ap, void *);
       UInt16 ret = TxtGetPreviousChar(inText, inOffset, outChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1925,7 +1925,7 @@
       const Char *inText = sys_va_arg(ap, void *);
       UInt32 inOffset = sys_va_arg(ap, UInt32);
       UInt32 ret = TxtGetTruncationOffset(inText, inOffset);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1933,7 +1933,7 @@
       const Char *iTextP = sys_va_arg(ap, void *);
       UInt32 iOffset = sys_va_arg(ap, UInt32);
       UInt32 ret = TxtGetWordWrapOffset(iTextP, iOffset);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1941,14 +1941,14 @@
       CharEncodingType a = sys_va_arg(ap, UInt32);
       CharEncodingType b = sys_va_arg(ap, UInt32);
       CharEncodingType ret = TxtMaxEncoding(a, b);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtNameToEncoding: {
       const Char *iEncodingName = sys_va_arg(ap, void *);
       CharEncodingType ret = TxtNameToEncoding(iEncodingName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1969,7 +1969,7 @@
       const Char *inParamStr = sys_va_arg(ap, void *);
       UInt16 inParamNum = sys_va_arg(ap, UInt32);
       UInt16 ret = TxtReplaceStr(ioStr, inMaxLen, inParamStr, inParamNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1978,14 +1978,14 @@
       UInt32 inOffset = sys_va_arg(ap, UInt32);
       WChar inChar = sys_va_arg(ap, UInt32);
       UInt16 ret = TxtSetNextChar(ioText, inOffset, inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtStrEncoding: {
       const Char *inStr = sys_va_arg(ap, void *);
       CharEncodingType ret = TxtStrEncoding(inStr);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -1996,7 +1996,7 @@
       UInt16 *ioDstLength = sys_va_arg(ap, void *);
       TranslitOpType inOp = sys_va_arg(ap, UInt32);
       Err ret = TxtTransliterate(inSrcText, inSrcLength, outDstText, ioDstLength, inOp);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2007,21 +2007,21 @@
       UInt32 *outStart = sys_va_arg(ap, void *);
       UInt32 *outEnd = sys_va_arg(ap, void *);
       Boolean ret = TxtWordBounds(inText, inLength, inOffset, outStart, outEnd);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtUpperChar: {
       WChar inChar = sys_va_arg(ap, UInt32);
       WChar ret = TxtUpperChar(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case intlTxtLowerChar: {
       WChar inChar = sys_va_arg(ap, UInt32);
       WChar ret = TxtLowerChar(inChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2037,13 +2037,13 @@
       void *oValue = sys_va_arg(ap, void *);
       UInt16 iValueSize = sys_va_arg(ap, UInt32);
       Err ret = LmGetLocaleSetting(iLocaleIndex, iChoice, oValue, iValueSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case lmGetNumLocales: {
       UInt16 ret = LmGetNumLocales();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2051,7 +2051,7 @@
       const LmLocaleType *iLocale = sys_va_arg(ap, void *);
       UInt16 *oLocaleIndex = sys_va_arg(ap, void *);
       Err ret = LmLocaleToIndex(iLocale, oLocaleIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2071,7 +2071,7 @@
       UInt16 localeIndex = sys_va_arg(ap, UInt32);
       LmLocaleType *theLocale = sys_va_arg(ap, void *);
       Err ret = OmGetIndexedLocale(localeIndex, theLocale);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2080,7 +2080,7 @@
       OmSearchStateType *ioStateInfoP = sys_va_arg(ap, void *);
       LmLocaleType *oLocaleP = sys_va_arg(ap, void *);
       Err ret = OmGetNextSystemLocale(iNewSearch, ioStateInfoP, oLocaleP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2102,7 +2102,7 @@
       const LmLocaleType *targetLocale = sys_va_arg(ap, void *);
       Char *overlayDBName = sys_va_arg(ap, void *);
       Err ret = OmLocaleToOverlayDBName(baseDBName, targetLocale, overlayDBName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2110,14 +2110,14 @@
       const Char *overlayDBName = sys_va_arg(ap, void *);
       LmLocaleType *overlayLocale = sys_va_arg(ap, void *);
       Err ret = OmOverlayDBNameToLocale(overlayDBName, overlayLocale);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case omSetSystemLocale: {
       const LmLocaleType *systemLocale = sys_va_arg(ap, void *);
       Err ret = OmSetSystemLocale(systemLocale);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2130,7 +2130,7 @@
     case pinFrmGetDIAPolicyAttr: {
       FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGetDIAPolicyAttr(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2138,33 +2138,33 @@
       FormType *formP = sys_va_arg(ap, void *);
       UInt16 diaPolicy = sys_va_arg(ap, UInt32);
       Err ret = FrmSetDIAPolicyAttr(formP, diaPolicy);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinPINGetInputAreaState: {
       UInt16 ret = PINGetInputAreaState();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinPINGetInputTriggerState: {
       UInt16 ret = PINGetInputTriggerState();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinPINSetInputAreaState: {
       UInt16 state = sys_va_arg(ap, UInt32);
       Err ret = PINSetInputAreaState(state);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinPINSetInputTriggerState: {
       UInt16 state = sys_va_arg(ap, UInt32);
       Err ret = PINSetInputTriggerState(state);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2172,45 +2172,45 @@
       UInt16 selector = sys_va_arg(ap, UInt32);
       UInt32 *dataP = sys_va_arg(ap, void *);
       Err ret = StatGetAttribute(selector, dataP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinStatHide: {
       Err ret = StatHide();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinStatShow: {
       Err ret = StatShow();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinSysGetOrientation: {
       UInt16 ret = SysGetOrientation();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinSysGetOrientationTriggerState: {
       UInt16 ret = SysGetOrientationTriggerState();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinSysSetOrientation: {
       UInt16 orientation = sys_va_arg(ap, UInt32);
       Err ret = SysSetOrientation(orientation);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case pinSysSetOrientationTriggerState: {
       UInt16 triggerState = sys_va_arg(ap, UInt32);
       Err ret = SysSetOrientationTriggerState(triggerState);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2223,7 +2223,7 @@
       Coord prefW = sys_va_arg(ap, UInt32);
       Coord maxW = sys_va_arg(ap, UInt32);
       Err ret = WinSetConstraintsSize(winH, minH, prefH, maxH, minW, prefW, maxW);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2236,14 +2236,14 @@
     case sysSerialClearErr: {
       UInt16 portId = sys_va_arg(ap, UInt32);
       Err ret = SrmClearErr(portId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialClose: {
       UInt16 portId = sys_va_arg(ap, UInt32);
       Err ret = SrmClose(portId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2253,7 +2253,7 @@
       void *valueP = sys_va_arg(ap, void *);
       UInt16 *valueLenP = sys_va_arg(ap, void *);
       Err ret = SrmControl(portId, op, valueP, valueLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2264,14 +2264,14 @@
       void *valueP = sys_va_arg(ap, void *);
       UInt16 *valueLenP = sys_va_arg(ap, void *);
       Err ret = SrmCustomControl(portId, opCode, creator, valueP, valueLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialGetDeviceCount: {
       UInt16 *numOfDevicesP = sys_va_arg(ap, void *);
       Err ret = SrmGetDeviceCount(numOfDevicesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2279,7 +2279,7 @@
       UInt32 deviceID = sys_va_arg(ap, UInt32);
       DeviceInfoType *deviceInfoP = sys_va_arg(ap, void *);
       Err ret = SrmGetDeviceInfo(deviceID, deviceInfoP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2288,13 +2288,13 @@
       UInt32 *statusFieldP = sys_va_arg(ap, void *);
       UInt16 *lineErrsP = sys_va_arg(ap, void *);
       Err ret = SrmGetStatus(portId, statusFieldP, lineErrsP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialInstall: {
       Err ret = SerialMgrInstall();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2303,7 +2303,7 @@
       UInt32 baud = sys_va_arg(ap, UInt32);
       UInt16 *newPortIdP = sys_va_arg(ap, void *);
       Err ret = SrmOpen(port, baud, newPortIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2312,7 +2312,7 @@
       UInt32 baud = sys_va_arg(ap, UInt32);
       UInt16 *newPortIdP = sys_va_arg(ap, void *);
       Err ret = SrmOpenBackground(port, baud, newPortIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2322,7 +2322,7 @@
       UInt16 configSize = sys_va_arg(ap, UInt32);
       UInt16 *newPortIdP = sys_va_arg(ap, void *);
       Err ret = SrmExtOpenBackground(port, configP, configSize, newPortIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2332,7 +2332,7 @@
       UInt16 configSize = sys_va_arg(ap, UInt32);
       UInt16 *newPortIdP = sys_va_arg(ap, void *);
       Err ret = SrmExtOpen(port, configP, configSize, newPortIdP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2340,7 +2340,7 @@
       UInt16 portId = sys_va_arg(ap, UInt32);
       UInt16 minBytes = sys_va_arg(ap, UInt32);
       Err ret = SrmPrimeWakeupHandler(portId, minBytes);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2348,7 +2348,7 @@
       UInt16 portId = sys_va_arg(ap, UInt32);
       UInt32 bytesPulled = sys_va_arg(ap, UInt32);
       Err ret = SrmReceiveWindowClose(portId, bytesPulled);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2357,7 +2357,7 @@
       UInt8 * *bufPP = sys_va_arg(ap, void *);
       UInt32 *sizeP = sys_va_arg(ap, void *);
       Err ret = SrmReceiveWindowOpen(portId, bufPP, sizeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2368,7 +2368,7 @@
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err *errP = sys_va_arg(ap, void *);
       UInt32 ret = SrmReceive(portId, rcvBufP, count, timeout, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2376,7 +2376,7 @@
       UInt16 portId = sys_va_arg(ap, UInt32);
       UInt32 *numBytesP = sys_va_arg(ap, void *);
       Err ret = SrmReceiveCheck(portId, numBytesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2384,7 +2384,7 @@
       UInt16 portId = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SrmReceiveFlush(portId, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2393,7 +2393,7 @@
       UInt32 bytes = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SrmReceiveWait(portId, bytes, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2403,7 +2403,7 @@
       UInt32 count = sys_va_arg(ap, UInt32);
       Err *errP = sys_va_arg(ap, void *);
       UInt32 ret = SrmSend(portId, bufP, count, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2411,21 +2411,21 @@
       UInt16 portId = sys_va_arg(ap, UInt32);
       UInt32 *numBytesP = sys_va_arg(ap, void *);
       Err ret = SrmSendCheck(portId, numBytesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialSendFlush: {
       UInt16 portId = sys_va_arg(ap, UInt32);
       Err ret = SrmSendFlush(portId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialSendWait: {
       UInt16 portId = sys_va_arg(ap, UInt32);
       Err ret = SrmSendWait(portId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2434,7 +2434,7 @@
       void *bufP = sys_va_arg(ap, void *);
       UInt16 bufSize = sys_va_arg(ap, UInt32);
       Err ret = SrmSetReceiveBuffer(portId, bufP, bufSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2443,19 +2443,19 @@
       WakeupHandlerProcPtr procP = sys_va_arg(ap, void *);
       UInt32 refCon = sys_va_arg(ap, UInt32);
       Err ret = SrmSetWakeupHandler(portId, procP, refCon);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialSleep: {
       Err ret = SrmSleep();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysSerialWake: {
       Err ret = SrmWake();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2468,7 +2468,7 @@
     case tsmGetFepMode: {
       void *nullParam = sys_va_arg(ap, void *);
       TsmFepModeType ret = TsmGetFepMode(nullParam);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2476,7 +2476,7 @@
       void *nullParam = sys_va_arg(ap, void *);
       TsmFepModeType inNewMode = sys_va_arg(ap, UInt32);
       TsmFepModeType ret = TsmSetFepMode(nullParam, inNewMode);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2522,7 +2522,7 @@
       void *valueP = sys_va_arg(ap, void *);
       UInt16 *valueLenP = sys_va_arg(ap, void *);
       Err ret = VFSCustomControl(fsCreator, apiCreator, apiSelector, valueP, valueLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2530,7 +2530,7 @@
       UInt16 volRefNum = sys_va_arg(ap, UInt32);
       const Char *dirNameP = sys_va_arg(ap, void *);
       Err ret = VFSDirCreate(volRefNum, dirNameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2539,7 +2539,7 @@
       UInt32 *dirEntryIteratorP = sys_va_arg(ap, void *);
       FileInfoType *infoP = sys_va_arg(ap, void *);
       Err ret = VFSDirEntryEnumerate(dirRef, dirEntryIteratorP, infoP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2549,7 +2549,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       LocalID dbID = sys_va_arg(ap, UInt32);
       Err ret = VFSExportDatabaseToFile(volRefNum, pathNameP, cardNo, dbID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2561,14 +2561,14 @@
       VFSExportProcPtr exportProcP = sys_va_arg(ap, void *);
       void *userDataP = sys_va_arg(ap, void *);
       Err ret = VFSExportDatabaseToFileCustom(volRefNum, pathNameP, cardNo, dbID, exportProcP, userDataP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case vfsTrapFileClose: {
       FileRef fileRef = sys_va_arg(ap, void *);
       Err ret = VFSFileClose(fileRef);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2576,7 +2576,7 @@
       UInt16 volRefNum = sys_va_arg(ap, UInt32);
       const Char *pathNameP = sys_va_arg(ap, void *);
       Err ret = VFSFileCreate(volRefNum, pathNameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2587,7 +2587,7 @@
       UInt8 *recAttrP = sys_va_arg(ap, void *);
       UInt32 *uniqueIDP = sys_va_arg(ap, void *);
       Err ret = VFSFileDBGetRecord(ref, recIndex, recHP, recAttrP, uniqueIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2597,7 +2597,7 @@
       DmResID resID = sys_va_arg(ap, UInt32);
       MemHandle *resHP = sys_va_arg(ap, void *);
       Err ret = VFSFileDBGetResource(ref, type, resID, resHP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2616,7 +2616,7 @@
       UInt32 *creatorP = sys_va_arg(ap, void *);
       UInt16 *numRecordsP = sys_va_arg(ap, void *);
       Err ret = VFSFileDBInfo(ref, nameP, attributesP, versionP, crDateP, modDateP, bckUpDateP, modNumP, appInfoHP, sortInfoHP, typeP, creatorP, numRecordsP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2624,14 +2624,14 @@
       UInt16 volRefNum = sys_va_arg(ap, UInt32);
       const Char *pathNameP = sys_va_arg(ap, void *);
       Err ret = VFSFileDelete(volRefNum, pathNameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case vfsTrapFileEOF: {
       FileRef fileRef = sys_va_arg(ap, void *);
       Err ret = VFSFileEOF(fileRef);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2639,7 +2639,7 @@
       FileRef fileRef = sys_va_arg(ap, void *);
       UInt32 *attributesP = sys_va_arg(ap, void *);
       Err ret = VFSFileGetAttributes(fileRef, attributesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2648,7 +2648,7 @@
       UInt16 whichDate = sys_va_arg(ap, UInt32);
       UInt32 *dateP = sys_va_arg(ap, void *);
       Err ret = VFSFileGetDate(fileRef, whichDate, dateP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2658,7 +2658,7 @@
       UInt16 openMode = sys_va_arg(ap, UInt32);
       FileRef *fileRefP = sys_va_arg(ap, void *);
       Err ret = VFSFileOpen(volRefNum, pathNameP, openMode, fileRefP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2668,7 +2668,7 @@
       void *bufP = sys_va_arg(ap, void *);
       UInt32 *numBytesReadP = sys_va_arg(ap, void *);
       Err ret = VFSFileRead(fileRef, numBytes, bufP, numBytesReadP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2679,7 +2679,7 @@
       UInt32 offset = sys_va_arg(ap, UInt32);
       UInt32 *numBytesReadP = sys_va_arg(ap, void *);
       Err ret = VFSFileReadData(fileRef, numBytes, bufBaseP, offset, numBytesReadP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2688,7 +2688,7 @@
       const Char *pathNameP = sys_va_arg(ap, void *);
       const Char *newNameP = sys_va_arg(ap, void *);
       Err ret = VFSFileRename(volRefNum, pathNameP, newNameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2696,7 +2696,7 @@
       FileRef fileRef = sys_va_arg(ap, void *);
       UInt32 newSize = sys_va_arg(ap, UInt32);
       Err ret = VFSFileResize(fileRef, newSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2705,7 +2705,7 @@
       FileOrigin origin = sys_va_arg(ap, UInt32);
       Int32 offset = sys_va_arg(ap, UInt32);
       Err ret = VFSFileSeek(fileRef, origin, offset);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2713,7 +2713,7 @@
       FileRef fileRef = sys_va_arg(ap, void *);
       UInt32 attributes = sys_va_arg(ap, UInt32);
       Err ret = VFSFileSetAttributes(fileRef, attributes);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2722,7 +2722,7 @@
       UInt16 whichDate = sys_va_arg(ap, UInt32);
       UInt32 date = sys_va_arg(ap, UInt32);
       Err ret = VFSFileSetDate(fileRef, whichDate, date);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2730,7 +2730,7 @@
       FileRef fileRef = sys_va_arg(ap, void *);
       UInt32 *fileSizeP = sys_va_arg(ap, void *);
       Err ret = VFSFileSize(fileRef, fileSizeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2738,7 +2738,7 @@
       FileRef fileRef = sys_va_arg(ap, void *);
       UInt32 *filePosP = sys_va_arg(ap, void *);
       Err ret = VFSFileTell(fileRef, filePosP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2748,7 +2748,7 @@
       const void *dataP = sys_va_arg(ap, void *);
       UInt32 *numBytesWrittenP = sys_va_arg(ap, void *);
       Err ret = VFSFileWrite(fileRef, numBytes, dataP, numBytesWrittenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2758,7 +2758,7 @@
       Char *pathStr = sys_va_arg(ap, void *);
       UInt16 *bufLenP = sys_va_arg(ap, void *);
       Err ret = VFSGetDefaultDirectory(volRefNum, fileTypeStr, pathStr, bufLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2768,7 +2768,7 @@
       UInt16 *cardNoP = sys_va_arg(ap, void *);
       LocalID *dbIDP = sys_va_arg(ap, void *);
       Err ret = VFSImportDatabaseFromFile(volRefNum, pathNameP, cardNoP, dbIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2780,13 +2780,13 @@
       VFSImportProcPtr importProcP = sys_va_arg(ap, void *);
       void *userDataP = sys_va_arg(ap, void *);
       Err ret = VFSImportDatabaseFromFileCustom(volRefNum, pathNameP, cardNoP, dbIDP, importProcP, userDataP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case vfsTrapInit: {
       Err ret = VFSInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2794,7 +2794,7 @@
       UInt32 creator = sys_va_arg(ap, UInt32);
       UInt16 *fsLibRefNumP = sys_va_arg(ap, void *);
       Err ret = VFSInstallFSLib(creator, fsLibRefNumP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2803,14 +2803,14 @@
       UInt32 mediaType = sys_va_arg(ap, UInt32);
       const Char *pathStr = sys_va_arg(ap, void *);
       Err ret = VFSRegisterDefaultDirectory(fileTypeStr, mediaType, pathStr);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case vfsTrapRemoveFSLib: {
       UInt16 fsLibRefNum = sys_va_arg(ap, UInt32);
       Err ret = VFSRemoveFSLib(fsLibRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2818,7 +2818,7 @@
       const Char *fileTypeStr = sys_va_arg(ap, void *);
       UInt32 mediaType = sys_va_arg(ap, UInt32);
       Err ret = VFSUnregisterDefaultDirectory(fileTypeStr, mediaType);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2826,7 +2826,7 @@
       UInt16 *volRefNumP = sys_va_arg(ap, void *);
       UInt32 *volIteratorP = sys_va_arg(ap, void *);
       Err ret = VFSVolumeEnumerate(volRefNumP, volIteratorP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2835,7 +2835,7 @@
       UInt16 fsLibRefNum = sys_va_arg(ap, UInt32);
       VFSAnyMountParamPtr vfsMountParamP = sys_va_arg(ap, void *);
       Err ret = VFSVolumeFormat(flags, fsLibRefNum, vfsMountParamP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2844,7 +2844,7 @@
       Char *labelP = sys_va_arg(ap, void *);
       UInt16 bufLen = sys_va_arg(ap, UInt32);
       Err ret = VFSVolumeGetLabel(volRefNum, labelP, bufLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2852,7 +2852,7 @@
       UInt16 volRefNum = sys_va_arg(ap, UInt32);
       VolumeInfoType *volInfoP = sys_va_arg(ap, void *);
       Err ret = VFSVolumeInfo(volRefNum, volInfoP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2861,7 +2861,7 @@
       UInt16 fsLibRefNum = sys_va_arg(ap, UInt32);
       VFSAnyMountParamPtr vfsMountParamP = sys_va_arg(ap, void *);
       Err ret = VFSVolumeMount(flags, fsLibRefNum, vfsMountParamP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2869,7 +2869,7 @@
       UInt16 volRefNum = sys_va_arg(ap, UInt32);
       const Char *labelP = sys_va_arg(ap, void *);
       Err ret = VFSVolumeSetLabel(volRefNum, labelP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2878,14 +2878,14 @@
       UInt32 *volumeUsedP = sys_va_arg(ap, void *);
       UInt32 *volumeTotalP = sys_va_arg(ap, void *);
       Err ret = VFSVolumeSize(volRefNum, volumeUsedP, volumeTotalP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case vfsTrapVolumeUnmount: {
       UInt16 volRefNum = sys_va_arg(ap, UInt32);
       Err ret = VFSVolumeUnmount(volRefNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2896,28 +2896,28 @@
     case sysLibTrapClose: {
       UInt16 refNum = sys_va_arg(ap, UInt32);
       Err ret = SysLibClose(refNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysLibTrapOpen: {
       UInt16 refNum = sys_va_arg(ap, UInt32);
       Err ret = SysLibOpen(refNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysLibTrapSleep: {
       UInt16 refNum = sys_va_arg(ap, UInt32);
       Err ret = SysLibSleep(refNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysLibTrapWake: {
       UInt16 refNum = sys_va_arg(ap, UInt32);
       Err ret = SysLibWake(refNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2940,7 +2940,7 @@
     case sysTrapAlmDisplayAlarm: {
       Boolean okToDisplay = sys_va_arg(ap, UInt32);
       Boolean ret = AlmDisplayAlarm(okToDisplay);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2955,13 +2955,13 @@
       LocalID dbID = sys_va_arg(ap, UInt32);
       UInt32 *refP = sys_va_arg(ap, void *);
       UInt32 ret = AlmGetAlarm(cardNo, dbID, refP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapAlmInit: {
       Err ret = AlmInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2972,7 +2972,7 @@
       UInt32 alarmSeconds = sys_va_arg(ap, UInt32);
       Boolean quiet = sys_va_arg(ap, UInt32);
       Err ret = AlmSetAlarm(cardNo, dbID, ref, alarmSeconds, quiet);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2984,7 +2984,7 @@
     case sysTrapAttnDoSpecialEffects: {
       AttnFlagsType flags = sys_va_arg(ap, UInt32);
       Err ret = AttnDoSpecialEffects(flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -2993,7 +2993,7 @@
       LocalID dbID = sys_va_arg(ap, UInt32);
       UInt32 userData = sys_va_arg(ap, UInt32);
       Boolean ret = AttnForgetIt(cardNo, dbID, userData);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3007,7 +3007,7 @@
       UInt16 nagRateInSeconds = sys_va_arg(ap, UInt32);
       UInt16 nagRepeatLimit = sys_va_arg(ap, UInt32);
       Err ret = AttnGetAttention(cardNo, dbID, userData, callbackFnP, level, flags, nagRateInSeconds, nagRepeatLimit);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3017,7 +3017,7 @@
       UInt16 *insistentCountP = sys_va_arg(ap, void *);
       UInt16 *subtleCountP = sys_va_arg(ap, void *);
       UInt16 ret = AttnGetCounts(cardNo, dbID, insistentCountP, subtleCountP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3029,7 +3029,7 @@
 
     case sysTrapAttnIndicatorEnabled: {
       Boolean ret = AttnIndicatorEnabled();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3055,21 +3055,21 @@
       UInt16 *nagRateInSecondsP = sys_va_arg(ap, void *);
       UInt16 *nagRepeatLimitP = sys_va_arg(ap, void *);
       Boolean ret = AttnUpdate(cardNo, dbID, userData, callbackFnP, flagsP, nagRateInSecondsP, nagRepeatLimitP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapBmpBitsSize: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt16 ret = BmpBitsSize(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapBmpColortableSize: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt16 ret = BmpColortableSize(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3077,7 +3077,7 @@
       BitmapType *bitmapP = sys_va_arg(ap, void *);
       BitmapCompressionType compType = sys_va_arg(ap, UInt32);
       Err ret = BmpCompress(bitmapP, compType);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3095,14 +3095,14 @@
     case sysTrapBmpDelete: {
       BitmapType *bitmapP = sys_va_arg(ap, void *);
       Err ret = BmpDelete(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapBmpGetBitDepth: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt8 ret = BmpGetBitDepth(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3147,7 +3147,7 @@
     case sysTrapBmpSize: {
       const BitmapType *bitmapP = sys_va_arg(ap, void *);
       UInt16 ret = BmpSize(bitmapP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3179,7 +3179,7 @@
       UInt32 titleStrID = sys_va_arg(ap, UInt32);
       UInt8 numUneditableCategories = sys_va_arg(ap, UInt32);
       Boolean ret = CategoryEdit(db, category, titleStrID, numUneditableCategories);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3187,7 +3187,7 @@
       DmOpenRef db = sys_va_arg(ap, void *);
       UInt16 *category = sys_va_arg(ap, void *);
       Boolean ret = CategoryEditV10(db, category);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3196,7 +3196,7 @@
       UInt16 *category = sys_va_arg(ap, void *);
       UInt32 titleStrID = sys_va_arg(ap, UInt32);
       Boolean ret = CategoryEditV20(db, category, titleStrID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3204,7 +3204,7 @@
       DmOpenRef db = sys_va_arg(ap, void *);
       const Char *name = sys_va_arg(ap, void *);
       UInt16 ret = CategoryFind(db, name);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3236,7 +3236,7 @@
       DmOpenRef db = sys_va_arg(ap, void *);
       UInt16 index = sys_va_arg(ap, UInt32);
       UInt16 ret = CategoryGetNext(db, index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3258,7 +3258,7 @@
       UInt8 numUneditableCategories = sys_va_arg(ap, UInt32);
       UInt32 editingStrID = sys_va_arg(ap, UInt32);
       Boolean ret = CategorySelect(db, frm, ctlID, lstID, title, categoryP, categoryName, numUneditableCategories, editingStrID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3271,7 +3271,7 @@
       UInt16 *categoryP = sys_va_arg(ap, void *);
       Char *categoryName = sys_va_arg(ap, void *);
       Boolean ret = CategorySelectV10(db, frm, ctlID, lstID, title, categoryP, categoryName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3310,7 +3310,7 @@
       const void *ptr = sys_va_arg(ap, void *);
       UInt16 length = sys_va_arg(ap, UInt32);
       Err ret = ClipboardAppendItem(format, ptr, length);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3333,14 +3333,14 @@
       Boolean isModem = sys_va_arg(ap, UInt32);
       Boolean isPulse = sys_va_arg(ap, UInt32);
       Err ret = CncAddProfile(name, port, baud, volume, handShake, initString, resetString, isModem, isPulse);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapCncDeleteProfile: {
       const Char *name = sys_va_arg(ap, void *);
       Err ret = CncDeleteProfile(name);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3355,7 +3355,7 @@
       Boolean *isModem = sys_va_arg(ap, void *);
       Boolean *isPulse = sys_va_arg(ap, void *);
       Err ret = CncGetProfileInfo(name, port, baud, volume, handShake, initString, resetString, isModem, isPulse);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3363,7 +3363,7 @@
       Char * * *nameListPPP = sys_va_arg(ap, void *);
       UInt16 *countP = sys_va_arg(ap, void *);
       Err ret = CncGetProfileList(nameListPPP, countP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3372,7 +3372,7 @@
       UInt16 count = sys_va_arg(ap, UInt32);
       UInt16 crc = sys_va_arg(ap, UInt32);
       UInt16 ret = Crc16CalcBlock(bufP, count, crc);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3385,7 +3385,7 @@
     case sysTrapCtlEnabled: {
       const ControlType *controlP = sys_va_arg(ap, void *);
       Boolean ret = CtlEnabled(controlP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3415,7 +3415,7 @@
     case sysTrapCtlGetValue: {
       const ControlType *controlP = sys_va_arg(ap, void *);
       Int16 ret = CtlGetValue(controlP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3423,7 +3423,7 @@
       ControlType *controlP = sys_va_arg(ap, void *);
       EventType *pEvent = sys_va_arg(ap, void *);
       Boolean ret = CtlHandleEvent(controlP, pEvent);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3547,7 +3547,7 @@
     case sysTrapCtlValidatePointer: {
       const ControlType *controlP = sys_va_arg(ap, void *);
       Boolean ret = CtlValidatePointer(controlP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3580,7 +3580,7 @@
       Char *stringP = sys_va_arg(ap, void *);
       Int16 stringLen = sys_va_arg(ap, UInt32);
       UInt16 ret = DateTemplateToAscii(templateP, months, days, years, stringP, stringLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3607,7 +3607,7 @@
     case sysTrapDateToDays: {
       DateType date = sys_va_arg(ap, DateType);
       UInt32 ret = DateToDays(date);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3627,7 +3627,7 @@
       DaySelectorType *selectorP = sys_va_arg(ap, void *);
       const EventType *pEvent = sys_va_arg(ap, void *);
       Boolean ret = DayHandleEvent(selectorP, pEvent);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3636,7 +3636,7 @@
       Int16 day = sys_va_arg(ap, UInt32);
       Int16 year = sys_va_arg(ap, UInt32);
       Int16 ret = DayOfMonth(month, day, year);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3645,7 +3645,7 @@
       Int16 day = sys_va_arg(ap, UInt32);
       Int16 year = sys_va_arg(ap, UInt32);
       Int16 ret = DayOfWeek(month, day, year);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3653,7 +3653,7 @@
       Int16 month = sys_va_arg(ap, UInt32);
       Int16 year = sys_va_arg(ap, UInt32);
       Int16 ret = DaysInMonth(month, year);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3662,14 +3662,14 @@
       void *param1P = sys_va_arg(ap, void *);
       void *param2P = sys_va_arg(ap, void *);
       Err ret = DlkControl(op, param1P, param2P);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDlkDispatchRequest: {
       DlkServerSessionPtr sessP = sys_va_arg(ap, void *);
       Err ret = DlkDispatchRequest(sessP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3681,7 +3681,7 @@
       Char *logBufP = sys_va_arg(ap, void *);
       Int32 *logLenP = sys_va_arg(ap, void *);
       Err ret = DlkGetSyncInfo(succSyncDateP, lastSyncDateP, syncStateP, nameBufP, logBufP, logLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3696,7 +3696,7 @@
     case sysTrapDlkStartServer: {
       DlkServerParamPtr paramP = sys_va_arg(ap, void *);
       Err ret = DlkStartServer(paramP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3704,7 +3704,7 @@
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 index = sys_va_arg(ap, UInt32);
       Err ret = DmArchiveRecord(dbP, index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3714,7 +3714,7 @@
       MemHandle newH = sys_va_arg(ap, void *);
       MemHandle *oldHP = sys_va_arg(ap, void *);
       Err ret = DmAttachRecord(dbP, atP, newH, oldHP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3724,14 +3724,14 @@
       DmResType resType = sys_va_arg(ap, UInt32);
       DmResID resID = sys_va_arg(ap, UInt32);
       Err ret = DmAttachResource(dbP, newH, resType, resID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmCloseDatabase: {
       DmOpenRef dbP = sys_va_arg(ap, void *);
       Err ret = DmCloseDatabase(dbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3742,14 +3742,14 @@
       UInt32 type = sys_va_arg(ap, UInt32);
       Boolean resDB = sys_va_arg(ap, UInt32);
       Err ret = DmCreateDatabase(cardNo, nameP, creator, type, resDB);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmCreateDatabaseFromImage: {
       MemPtr bufferP = sys_va_arg(ap, void *);
       Err ret = DmCreateDatabaseFromImage(bufferP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3768,7 +3768,7 @@
       UInt32 *typeP = sys_va_arg(ap, void *);
       UInt32 *creatorP = sys_va_arg(ap, void *);
       Err ret = DmDatabaseInfo(cardNo, dbID, nameP, attributesP, versionP, crDateP, modDateP, bckUpDateP, modNumP, appInfoIDP, sortInfoIDP, typeP, creatorP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3777,7 +3777,7 @@
       LocalID dbID = sys_va_arg(ap, UInt32);
       Boolean protect = sys_va_arg(ap, UInt32);
       Err ret = DmDatabaseProtect(cardNo, dbID, protect);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3788,7 +3788,7 @@
       UInt32 *totalBytesP = sys_va_arg(ap, void *);
       UInt32 *dataBytesP = sys_va_arg(ap, void *);
       Err ret = DmDatabaseSize(cardNo, dbID, numRecordsP, totalBytesP, dataBytesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3796,7 +3796,7 @@
       DmOpenRef dbR = sys_va_arg(ap, void *);
       UInt16 categoryNum = sys_va_arg(ap, UInt32);
       Err ret = DmDeleteCategory(dbR, categoryNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3804,7 +3804,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       LocalID dbID = sys_va_arg(ap, UInt32);
       Err ret = DmDeleteDatabase(cardNo, dbID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3812,7 +3812,7 @@
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 index = sys_va_arg(ap, UInt32);
       Err ret = DmDeleteRecord(dbP, index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3821,7 +3821,7 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       MemHandle *oldHP = sys_va_arg(ap, void *);
       Err ret = DmDetachRecord(dbP, index, oldHP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3830,7 +3830,7 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       MemHandle *oldHP = sys_va_arg(ap, void *);
       Err ret = DmDetachResource(dbP, index, oldHP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3838,7 +3838,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       const Char *nameP = sys_va_arg(ap, void *);
       LocalID ret = DmFindDatabase(cardNo, nameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3847,7 +3847,7 @@
       UInt32 uniqueID = sys_va_arg(ap, UInt32);
       UInt16 *indexP = sys_va_arg(ap, void *);
       Err ret = DmFindRecordByID(dbP, uniqueID, indexP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3857,7 +3857,7 @@
       DmResID resID = sys_va_arg(ap, UInt32);
       MemHandle resH = sys_va_arg(ap, void *);
       UInt16 ret = DmFindResource(dbP, resType, resID, resH);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3866,7 +3866,7 @@
       DmResType resType = sys_va_arg(ap, UInt32);
       UInt16 typeIndex = sys_va_arg(ap, UInt32);
       UInt16 ret = DmFindResourceType(dbP, resType, typeIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3877,7 +3877,7 @@
       DmComparF *compar = sys_va_arg(ap, void *);
       Int16 other = sys_va_arg(ap, UInt32);
       UInt16 ret = DmFindSortPosition(dbP, newRecord, newRecordInfo, compar, other);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3887,7 +3887,7 @@
       DmComparF *compar = sys_va_arg(ap, void *);
       Int16 other = sys_va_arg(ap, UInt32);
       UInt16 ret = DmFindSortPositionV10(dbP, newRecord, compar, other);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3902,7 +3902,7 @@
     case sysTrapDmGetAppInfoID: {
       DmOpenRef dbP = sys_va_arg(ap, void *);
       LocalID ret = DmGetAppInfoID(dbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3910,7 +3910,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       UInt16 index = sys_va_arg(ap, UInt32);
       LocalID ret = DmGetDatabase(cardNo, index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3925,7 +3925,7 @@
 
     case sysTrapDmGetLastErr: {
       Err ret = DmGetLastErr();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3938,7 +3938,7 @@
       UInt16 *cardNoP = sys_va_arg(ap, void *);
       LocalID *dbIDP = sys_va_arg(ap, void *);
       Err ret = DmGetNextDatabaseByTypeCreator(newSearch, stateInfoP, type, creator, onlyLatestVers, cardNoP, dbIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3968,7 +3968,7 @@
 
     case sysTrapDmInit: {
       Err ret = DmInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3977,7 +3977,7 @@
       DmComparF *compar = sys_va_arg(ap, void *);
       Int16 other = sys_va_arg(ap, UInt32);
       Err ret = DmInsertionSort(dbR, compar, other);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3987,7 +3987,7 @@
       UInt16 fromCategory = sys_va_arg(ap, UInt32);
       Boolean dirty = sys_va_arg(ap, UInt32);
       Err ret = DmMoveCategory(dbP, toCategory, fromCategory, dirty);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -3996,7 +3996,7 @@
       UInt16 from = sys_va_arg(ap, UInt32);
       UInt16 to = sys_va_arg(ap, UInt32);
       Err ret = DmMoveRecord(dbP, from, to);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4044,14 +4044,14 @@
     case sysTrapDmNumDatabases: {
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       UInt16 ret = DmNumDatabases(cardNo);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmNumRecords: {
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 ret = DmNumRecords(dbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4059,14 +4059,14 @@
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 category = sys_va_arg(ap, UInt32);
       UInt16 ret = DmNumRecordsInCategory(dbP, category);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmNumResources: {
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 ret = DmNumResources(dbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4105,7 +4105,7 @@
       UInt16 *cardNoP = sys_va_arg(ap, void *);
       Boolean *resDBP = sys_va_arg(ap, void *);
       Err ret = DmOpenDatabaseInfo(dbP, dbIDP, openCountP, modeP, cardNoP, resDBP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4114,7 +4114,7 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       UInt16 category = sys_va_arg(ap, UInt32);
       UInt16 ret = DmPositionInCategory(dbP, index, category);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4140,7 +4140,7 @@
       DmComparF *compar = sys_va_arg(ap, void *);
       Int16 other = sys_va_arg(ap, UInt32);
       Err ret = DmQuickSort(dbP, compar, other);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4151,7 +4151,7 @@
       UInt32 *uniqueIDP = sys_va_arg(ap, void *);
       LocalID *chunkIDP = sys_va_arg(ap, void *);
       Err ret = DmRecordInfo(dbP, index, attrP, uniqueIDP, chunkIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4160,14 +4160,14 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       Boolean dirty = sys_va_arg(ap, UInt32);
       Err ret = DmReleaseRecord(dbP, index, dirty);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmReleaseResource: {
       MemHandle resourceH = sys_va_arg(ap, void *);
       Err ret = DmReleaseResource(resourceH);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4175,7 +4175,7 @@
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 index = sys_va_arg(ap, UInt32);
       Err ret = DmRemoveRecord(dbP, index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4183,21 +4183,21 @@
       DmOpenRef dbP = sys_va_arg(ap, void *);
       UInt16 index = sys_va_arg(ap, UInt32);
       Err ret = DmRemoveResource(dbP, index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmRemoveSecretRecords: {
       DmOpenRef dbP = sys_va_arg(ap, void *);
       Err ret = DmRemoveSecretRecords(dbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapDmResetRecordStates: {
       DmOpenRef dbP = sys_va_arg(ap, void *);
       Err ret = DmResetRecordStates(dbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4225,7 +4225,7 @@
       DmResID *resIDP = sys_va_arg(ap, void *);
       LocalID *chunkLocalIDP = sys_va_arg(ap, void *);
       Err ret = DmResourceInfo(dbP, index, resTypeP, resIDP, chunkLocalIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4233,7 +4233,7 @@
       MemHandle recH = sys_va_arg(ap, void *);
       DmOpenRef *dbPP = sys_va_arg(ap, void *);
       UInt16 ret = DmSearchRecord(recH, dbPP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4243,7 +4243,7 @@
       MemHandle resH = sys_va_arg(ap, void *);
       DmOpenRef *dbPP = sys_va_arg(ap, void *);
       UInt16 ret = DmSearchResource(resType, resID, resH, dbPP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4254,7 +4254,7 @@
       Int16 direction = sys_va_arg(ap, UInt32);
       UInt16 category = sys_va_arg(ap, UInt32);
       Err ret = DmSeekRecordInCategory(dbP, indexP, offset, direction, category);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4264,7 +4264,7 @@
       UInt32 bytes = sys_va_arg(ap, UInt32);
       UInt8 value = sys_va_arg(ap, UInt32);
       Err ret = DmSet(recordP, offset, bytes, value);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4283,7 +4283,7 @@
       UInt32 *typeP = sys_va_arg(ap, void *);
       UInt32 *creatorP = sys_va_arg(ap, void *);
       Err ret = DmSetDatabaseInfo(cardNo, dbID, nameP, attributesP, versionP, crDateP, modDateP, bckUpDateP, modNumP, appInfoIDP, sortInfoIDP, typeP, creatorP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4293,7 +4293,7 @@
       UInt16 *attrP = sys_va_arg(ap, void *);
       UInt32 *uniqueIDP = sys_va_arg(ap, void *);
       Err ret = DmSetRecordInfo(dbP, index, attrP, uniqueIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4303,7 +4303,7 @@
       DmResType *resTypeP = sys_va_arg(ap, void *);
       DmResID *resIDP = sys_va_arg(ap, void *);
       Err ret = DmSetResourceInfo(dbP, index, resTypeP, resIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4312,7 +4312,7 @@
       UInt32 offset = sys_va_arg(ap, UInt32);
       const Char *srcP = sys_va_arg(ap, void *);
       Err ret = DmStrCopy(recordP, offset, srcP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4322,7 +4322,7 @@
       const void *srcP = sys_va_arg(ap, void *);
       UInt32 bytes = sys_va_arg(ap, UInt32);
       Err ret = DmWrite(recordP, offset, srcP, bytes);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4331,7 +4331,7 @@
       UInt32 offset = sys_va_arg(ap, UInt32);
       UInt32 bytes = sys_va_arg(ap, UInt32);
       Err ret = DmWriteCheck(recordP, offset, bytes);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4339,7 +4339,7 @@
       Int32 lhs = sys_va_arg(ap, UInt32);
       Int32 rhs = sys_va_arg(ap, UInt32);
       FixedType ret = ECFixedDiv(lhs, rhs);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4347,7 +4347,7 @@
       Int32 lhs = sys_va_arg(ap, UInt32);
       Int32 rhs = sys_va_arg(ap, UInt32);
       FixedType ret = ECFixedMul(lhs, rhs);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4357,7 +4357,7 @@
       UInt8 *dstP = sys_va_arg(ap, void *);
       Boolean encrypt = sys_va_arg(ap, UInt32);
       Err ret = EncDES(srcP, keyP, dstP, encrypt);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4366,7 +4366,7 @@
       UInt16 strLen = sys_va_arg(ap, UInt32);
       UInt8 *digestP = sys_va_arg(ap, void *);
       Err ret = EncDigestMD4(strP, strLen, digestP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4375,7 +4375,7 @@
       UInt16 strLen = sys_va_arg(ap, UInt32);
       UInt8 *digestP = sys_va_arg(ap, void *);
       Err ret = EncDigestMD5(strP, strLen, digestP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4385,7 +4385,7 @@
       Char *preMsgP = sys_va_arg(ap, void *);
       Char *postMsgP = sys_va_arg(ap, void *);
       UInt16 ret = ErrAlertCustom(errCode, errMsgP, preMsgP, postMsgP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4414,7 +4414,7 @@
     case sysTrapErrSetJump: {
       ErrJumpBufP buf = sys_va_arg(ap, void *);
       Int16 ret = ErrSetJump(buf);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4450,14 +4450,14 @@
       SysEventType *eventP = sys_va_arg(ap, void *);
       UInt16 peek = sys_va_arg(ap, UInt32);
       Err ret = EvtDequeueKeyEvent(eventP, peek);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtDequeuePenPoint: {
       PointType *retP = sys_va_arg(ap, void *);
       Err ret = EvtDequeuePenPoint(retP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4465,7 +4465,7 @@
       PointType *startPtP = sys_va_arg(ap, void *);
       PointType *endPtP = sys_va_arg(ap, void *);
       Err ret = EvtDequeuePenStrokeInfo(startPtP, endPtP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4480,38 +4480,38 @@
       UInt16 keycode = sys_va_arg(ap, UInt32);
       UInt16 modifiers = sys_va_arg(ap, UInt32);
       Err ret = EvtEnqueueKey(ascii, keycode, modifiers);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtEnqueuePenPoint: {
       PointType *ptP = sys_va_arg(ap, void *);
       Err ret = EvtEnqueuePenPoint(ptP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtEventAvail: {
       Boolean ret = EvtEventAvail();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtFlushKeyQueue: {
       Err ret = EvtFlushKeyQueue();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtFlushNextPenStroke: {
       Err ret = EvtFlushNextPenStroke();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtFlushPenQueue: {
       Err ret = EvtFlushPenQueue();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4553,19 +4553,19 @@
 
     case sysTrapEvtKeyQueueEmpty: {
       Boolean ret = EvtKeyQueueEmpty();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtKeyQueueSize: {
       UInt32 ret = EvtKeyQueueSize();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtPenQueueSize: {
       UInt32 ret = EvtPenQueueSize();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4573,13 +4573,13 @@
       PointType *startPtP = sys_va_arg(ap, void *);
       PointType *endPtP = sys_va_arg(ap, void *);
       Err ret = EvtProcessSoftKeyStroke(startPtP, endPtP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtResetAutoOffTimer: {
       Err ret = EvtResetAutoOffTimer();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4587,7 +4587,7 @@
       EvtSetAutoOffCmd cmd = sys_va_arg(ap, UInt32);
       UInt16 timeout = sys_va_arg(ap, UInt32);
       Err ret = EvtSetAutoOffTimer(cmd, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4595,14 +4595,14 @@
       MemPtr keyQueueP = sys_va_arg(ap, void *);
       UInt32 size = sys_va_arg(ap, UInt32);
       Err ret = EvtSetKeyQueuePtr(keyQueueP, size);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtSetNullEventTick: {
       UInt32 tick = sys_va_arg(ap, UInt32);
       Boolean ret = EvtSetNullEventTick(tick);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4610,46 +4610,46 @@
       MemPtr penQueueP = sys_va_arg(ap, void *);
       UInt32 size = sys_va_arg(ap, UInt32);
       Err ret = EvtSetPenQueuePtr(penQueueP, size);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtSysEventAvail: {
       Boolean ignorePenUps = sys_va_arg(ap, UInt32);
       Boolean ret = EvtSysEventAvail(ignorePenUps);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtSysInit: {
       Err ret = EvtSysInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtWakeup: {
       Err ret = EvtWakeup();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapEvtWakeupWithoutNilEvent: {
       Err ret = EvtWakeupWithoutNilEvent();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgAccept: {
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err ret = ExgAccept(socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgConnect: {
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err ret = ExgConnect(socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4659,7 +4659,7 @@
       void *valueP = sys_va_arg(ap, void *);
       UInt16 *valueLenP = sys_va_arg(ap, void *);
       Err ret = ExgControl(socketP, op, valueP, valueLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4672,7 +4672,7 @@
       Boolean *needResetP = sys_va_arg(ap, void *);
       Boolean keepDates = sys_va_arg(ap, UInt32);
       Err ret = ExgDBRead(readProcP, deleteProcP, userDataP, dbIDP, cardNo, needResetP, keepDates);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4683,7 +4683,7 @@
       LocalID dbID = sys_va_arg(ap, UInt32);
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       Err ret = ExgDBWrite(writeProcP, userDataP, nameP, dbID, cardNo);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4691,7 +4691,7 @@
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err error = sys_va_arg(ap, UInt32);
       Err ret = ExgDisconnect(socketP, error);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4700,14 +4700,14 @@
       ExgDialogInfoType *infoP = sys_va_arg(ap, void *);
       Err *errP = sys_va_arg(ap, void *);
       Boolean ret = ExgDoDialog(socketP, infoP, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgGet: {
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err ret = ExgGet(socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4716,7 +4716,7 @@
       UInt16 id = sys_va_arg(ap, UInt32);
       const Char *dataTypeP = sys_va_arg(ap, void *);
       Err ret = ExgGetDefaultApplication(creatorIDP, id, dataTypeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4728,7 +4728,7 @@
       UInt16 id = sys_va_arg(ap, UInt32);
       const Char *dataTypeP = sys_va_arg(ap, void *);
       Err ret = ExgGetRegisteredApplications(creatorIDsP, numAppsP, namesP, descriptionsP, id, dataTypeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4737,7 +4737,7 @@
       UInt32 *sizeP = sys_va_arg(ap, void *);
       UInt16 id = sys_va_arg(ap, UInt32);
       Err ret = ExgGetRegisteredTypes(dataTypesP, sizeP, id);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4748,13 +4748,13 @@
       Char *descriptionP = sys_va_arg(ap, void *);
       UInt32 descriptionSize = sys_va_arg(ap, UInt32);
       Err ret = ExgGetTargetApplication(socketP, unwrap, creatorIDP, descriptionP, descriptionSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgInit: {
       Err ret = ExgInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4762,14 +4762,14 @@
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       UInt16 flags = sys_va_arg(ap, UInt32);
       Err ret = ExgNotifyGoto(socketP, flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgNotifyPreview: {
       ExgPreviewInfoType *infoP = sys_va_arg(ap, void *);
       Err ret = ExgNotifyPreview(infoP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4777,21 +4777,21 @@
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       UInt16 flags = sys_va_arg(ap, UInt32);
       Err ret = ExgNotifyReceive(socketP, flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgNotifyReceiveV35: {
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err ret = ExgNotifyReceiveV35(socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgPut: {
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err ret = ExgPut(socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4801,7 +4801,7 @@
       UInt32 bufLen = sys_va_arg(ap, UInt32);
       Err *err = sys_va_arg(ap, void *);
       UInt32 ret = ExgReceive(socketP, bufP, bufLen, err);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4810,7 +4810,7 @@
       UInt16 id = sys_va_arg(ap, UInt32);
       const Char *dataTypesP = sys_va_arg(ap, void *);
       Err ret = ExgRegisterData(creatorID, id, dataTypesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4821,14 +4821,14 @@
       const Char *descriptionsP = sys_va_arg(ap, void *);
       UInt16 flags = sys_va_arg(ap, UInt32);
       Err ret = ExgRegisterDatatype(creatorID, id, dataTypesP, descriptionsP, flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapExgRequest: {
       ExgSocketType *socketP = sys_va_arg(ap, void *);
       Err ret = ExgRequest(socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4838,7 +4838,7 @@
       UInt32 bufLen = sys_va_arg(ap, UInt32);
       Err *err = sys_va_arg(ap, void *);
       UInt32 ret = ExgSend(socketP, bufP, bufLen, err);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4847,14 +4847,14 @@
       UInt16 id = sys_va_arg(ap, UInt32);
       const Char *dataTypeP = sys_va_arg(ap, void *);
       Err ret = ExgSetDefaultApplication(creatorID, id, dataTypeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFileClose: {
       FileHand stream = sys_va_arg(ap, void *);
       Err ret = FileClose(stream);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4864,7 +4864,7 @@
       void *valueP = sys_va_arg(ap, void *);
       Int32 *valueLenP = sys_va_arg(ap, void *);
       Err ret = FileControl(op, stream, valueP, valueLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4872,7 +4872,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       const Char *nameP = sys_va_arg(ap, void *);
       Err ret = FileDelete(cardNo, nameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4897,7 +4897,7 @@
       Int32 numObj = sys_va_arg(ap, UInt32);
       Err *errP = sys_va_arg(ap, void *);
       Int32 ret = FileReadLow(stream, baseP, offset, dataStoreBased, objSize, numObj, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4906,7 +4906,7 @@
       Int32 offset = sys_va_arg(ap, UInt32);
       FileOriginEnum origin = sys_va_arg(ap, UInt32);
       Err ret = FileSeek(stream, offset, origin);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4915,7 +4915,7 @@
       Int32 *fileSizeP = sys_va_arg(ap, void *);
       Err *errP = sys_va_arg(ap, void *);
       Int32 ret = FileTell(stream, fileSizeP, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4923,7 +4923,7 @@
       FileHand stream = sys_va_arg(ap, void *);
       Int32 newSize = sys_va_arg(ap, UInt32);
       Err ret = FileTruncate(stream, newSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4934,7 +4934,7 @@
       Int32 numObj = sys_va_arg(ap, UInt32);
       Err *errP = sys_va_arg(ap, void *);
       Int32 ret = FileWrite(stream, dataP, objSize, numObj, errP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4948,7 +4948,7 @@
       FindParamsPtr findParams = sys_va_arg(ap, void *);
       const Char *title = sys_va_arg(ap, void *);
       Boolean ret = FindDrawHeader(findParams, title);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4968,7 +4968,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       LocalID dbID = sys_va_arg(ap, UInt32);
       Boolean ret = FindSaveMatch(findParams, recordNum, pos, fieldNum, appCustom, cardNo, dbID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4977,7 +4977,7 @@
       const Char *strToFind = sys_va_arg(ap, void *);
       UInt16 *posP = sys_va_arg(ap, void *);
       Boolean ret = FindStrInStr(strToSearch, strToFind, posP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -4985,7 +4985,7 @@
       const Char *chars = sys_va_arg(ap, void *);
       UInt16 maxWidth = sys_va_arg(ap, UInt32);
       UInt16 ret = FldCalcFieldHeight(chars, maxWidth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5018,7 +5018,7 @@
     case sysTrapFldDirty: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       Boolean ret = FldDirty(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5057,35 +5057,35 @@
     case sysTrapFldGetFont: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       FontID ret = FldGetFont(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFldGetInsPtPosition: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetInsPtPosition(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFldGetMaxChars: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetMaxChars(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFldGetNumberOfBlankLines: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetNumberOfBlankLines(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFldGetScrollPosition: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetScrollPosition(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5109,7 +5109,7 @@
     case sysTrapFldGetTextAllocatedSize: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetTextAllocatedSize(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5123,14 +5123,14 @@
     case sysTrapFldGetTextHeight: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetTextHeight(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFldGetTextLength: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetTextLength(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5144,7 +5144,7 @@
     case sysTrapFldGetVisibleLines: {
       const FieldType *fldP = sys_va_arg(ap, void *);
       UInt16 ret = FldGetVisibleLines(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5158,7 +5158,7 @@
       FieldType *fldP = sys_va_arg(ap, void *);
       EventType *eventP = sys_va_arg(ap, void *);
       Boolean ret = FldHandleEvent(fldP, eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5167,14 +5167,14 @@
       const Char *insertChars = sys_va_arg(ap, void *);
       UInt16 insertLen = sys_va_arg(ap, UInt32);
       Boolean ret = FldInsert(fldP, insertChars, insertLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFldMakeFullyVisible: {
       FieldType *fldP = sys_va_arg(ap, void *);
       Boolean ret = FldMakeFullyVisible(fldP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5231,7 +5231,7 @@
       const FieldType *fldP = sys_va_arg(ap, void *);
       WinDirectionType direction = sys_va_arg(ap, UInt32);
       Boolean ret = FldScrollable(fldP, direction);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5367,32 +5367,32 @@
       const Char *chars = sys_va_arg(ap, void *);
       Int16 maxWidth = sys_va_arg(ap, UInt32);
       UInt16 ret = FldWordWrap(chars, maxWidth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntAverageCharWidth: {
       Int16 ret = FntAverageCharWidth();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntBaseLine: {
       Int16 ret = FntBaseLine();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntCharHeight: {
       Int16 ret = FntCharHeight();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntCharWidth: {
       Char ch = sys_va_arg(ap, UInt32);
       Int16 ret = FntCharWidth(ch);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5409,7 +5409,7 @@
       const Char *chars = sys_va_arg(ap, void *);
       Int16 len = sys_va_arg(ap, UInt32);
       Int16 ret = FntCharsWidth(chars, len);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5417,19 +5417,19 @@
       FontID font = sys_va_arg(ap, UInt32);
       FontType *fontP = sys_va_arg(ap, void *);
       Err ret = FntDefineFont(font, fontP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntDescenderHeight: {
       Int16 ret = FntDescenderHeight();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntGetFont: {
       FontID ret = FntGetFont();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5451,7 +5451,7 @@
 
     case sysTrapFntLineHeight: {
       Int16 ret = FntLineHeight();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5459,21 +5459,21 @@
       const Char *pChars = sys_va_arg(ap, void *);
       UInt16 length = sys_va_arg(ap, UInt32);
       Int16 ret = FntLineWidth(pChars, length);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntSetFont: {
       FontID font = sys_va_arg(ap, UInt32);
       FontID ret = FntSetFont(font);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFntWCharWidth: {
       WChar iChar = sys_va_arg(ap, UInt32);
       Int16 ret = FntWCharWidth(iChar);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5484,7 +5484,7 @@
       Boolean *leadingEdge = sys_va_arg(ap, void *);
       Int16 *truncWidth = sys_va_arg(ap, void *);
       Int16 ret = FntWidthToOffset(pChars, length, pixelWidth, leadingEdge, truncWidth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5492,7 +5492,7 @@
       const Char *chars = sys_va_arg(ap, void *);
       UInt16 maxWidth = sys_va_arg(ap, UInt32);
       UInt16 ret = FntWordWrap(chars, maxWidth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5508,7 +5508,7 @@
     case sysTrapFontSelect: {
       FontID fontID = sys_va_arg(ap, UInt32);
       FontID ret = FontSelect(fontID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5516,7 +5516,7 @@
       FormActiveStateType *stateP = sys_va_arg(ap, void *);
       Boolean save = sys_va_arg(ap, UInt32);
       Err ret = FrmActiveState(stateP, save);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5526,14 +5526,14 @@
       FormObjectKind objectKind = sys_va_arg(ap, UInt32);
       UInt16 objectSize = sys_va_arg(ap, UInt32);
       Err ret = FrmAddSpaceForObject(formPP, objectPP, objectKind, objectSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFrmAlert: {
       UInt16 alertId = sys_va_arg(ap, UInt32);
       UInt16 ret = FrmAlert(alertId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5563,7 +5563,7 @@
       const Char *s2 = sys_va_arg(ap, void *);
       const Char *s3 = sys_va_arg(ap, void *);
       UInt16 ret = FrmCustomAlert(alertId, s1, s2, s3);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5576,7 +5576,7 @@
       Int16 entryStringBufLength = sys_va_arg(ap, UInt32);
       FormCheckResponseFuncPtr callback = sys_va_arg(ap, void *);
       UInt16 ret = FrmCustomResponseAlert(alertId, s1, s2, s3, entryStringBuf, entryStringBufLength, callback);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5589,14 +5589,14 @@
     case sysTrapFrmDispatchEvent: {
       EventType *eventP = sys_va_arg(ap, void *);
       Boolean ret = FrmDispatchEvent(eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFrmDoDialog: {
       FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmDoDialog(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5627,7 +5627,7 @@
 
     case sysTrapFrmGetActiveFormID: {
       UInt16 ret = FrmGetActiveFormID();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5635,7 +5635,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt8 groupNum = sys_va_arg(ap, UInt32);
       UInt16 ret = FrmGetControlGroupSelection(formP, groupNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5643,7 +5643,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 objIndex = sys_va_arg(ap, UInt32);
       Int16 ret = FrmGetControlValue(formP, objIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5656,7 +5656,7 @@
     case sysTrapFrmGetFocus: {
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGetFocus(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5670,7 +5670,7 @@
     case sysTrapFrmGetFormId: {
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGetFormId(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5700,7 +5700,7 @@
     case sysTrapFrmGetNumberOfObjects: {
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGetNumberOfObjects(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5716,7 +5716,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 objIndex = sys_va_arg(ap, UInt32);
       UInt16 ret = FrmGetObjectId(formP, objIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5724,7 +5724,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 objID = sys_va_arg(ap, UInt32);
       UInt16 ret = FrmGetObjectIndex(formP, objID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5732,7 +5732,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       void *objP = sys_va_arg(ap, void *);
       UInt16 ret = FrmGetObjectIndexFromPtr(formP, objP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5757,7 +5757,7 @@
       const FormType *formP = sys_va_arg(ap, void *);
       UInt16 objIndex = sys_va_arg(ap, UInt32);
       FormObjectKind ret = FrmGetObjectType(formP, objIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5771,7 +5771,7 @@
     case sysTrapFrmGetUserModifiedState: {
       const FormType *formP = sys_va_arg(ap, void *);
       Boolean ret = FrmGetUserModifiedState(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5792,7 +5792,7 @@
       FormType *formP = sys_va_arg(ap, void *);
       EventType *eventP = sys_va_arg(ap, void *);
       Boolean ret = FrmHandleEvent(formP, eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5881,7 +5881,7 @@
       Coord x = sys_va_arg(ap, UInt32);
       Coord y = sys_va_arg(ap, UInt32);
       Boolean ret = FrmPointInTitle(formP, x, y);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -5895,7 +5895,7 @@
       FormType * *formPP = sys_va_arg(ap, void *);
       UInt16 objIndex = sys_va_arg(ap, UInt32);
       Err ret = FrmRemoveObject(formPP, objIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6034,14 +6034,14 @@
     case sysTrapFrmValidatePtr: {
       const FormType *formP = sys_va_arg(ap, void *);
       Boolean ret = FrmValidatePtr(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFrmVisible: {
       const FormType *formP = sys_va_arg(ap, void *);
       Boolean ret = FrmVisible(formP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6050,7 +6050,7 @@
       UInt16 featureNum = sys_va_arg(ap, UInt32);
       UInt32 *valueP = sys_va_arg(ap, void *);
       Err ret = FtrGet(creator, featureNum, valueP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6061,13 +6061,13 @@
       UInt16 *numP = sys_va_arg(ap, void *);
       UInt32 *valueP = sys_va_arg(ap, void *);
       Err ret = FtrGetByIndex(index, romTable, creatorP, numP, valueP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapFtrInit: {
       Err ret = FtrInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6075,7 +6075,7 @@
       UInt32 creator = sys_va_arg(ap, UInt32);
       UInt16 featureNum = sys_va_arg(ap, UInt32);
       Err ret = FtrPtrFree(creator, featureNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6085,7 +6085,7 @@
       UInt32 size = sys_va_arg(ap, UInt32);
       void * *newPtrP = sys_va_arg(ap, void *);
       Err ret = FtrPtrNew(creator, featureNum, size, newPtrP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6095,7 +6095,7 @@
       UInt32 newSize = sys_va_arg(ap, UInt32);
       void * *newPtrP = sys_va_arg(ap, void *);
       Err ret = FtrPtrResize(creator, featureNum, newSize, newPtrP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6104,7 +6104,7 @@
       UInt16 featureNum = sys_va_arg(ap, UInt32);
       UInt32 newValue = sys_va_arg(ap, UInt32);
       Err ret = FtrSet(creator, featureNum, newValue);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6112,7 +6112,7 @@
       UInt32 creator = sys_va_arg(ap, UInt32);
       UInt16 featureNum = sys_va_arg(ap, UInt32);
       Err ret = FtrUnregister(creator, featureNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6121,14 +6121,14 @@
       UInt8 *macroDataP = sys_va_arg(ap, void *);
       UInt16 dataLen = sys_va_arg(ap, UInt32);
       Err ret = GrfAddMacro(nameP, macroDataP, dataLen);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfAddPoint: {
       PointType *pt = sys_va_arg(ap, void *);
       Err ret = GrfAddPoint(pt);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6137,20 +6137,20 @@
       const RectangleType *boundsP = sys_va_arg(ap, void *);
       Boolean liveInk = sys_va_arg(ap, UInt32);
       Err ret = GrfBeginStroke(startPtP, boundsP, liveInk);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfCleanState: {
       Err ret = GrfCleanState();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfDeleteMacro: {
       UInt16 index = sys_va_arg(ap, UInt32);
       Err ret = GrfDeleteMacro(index);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6158,32 +6158,32 @@
       Boolean resetState = sys_va_arg(ap, UInt32);
       UInt16 *characterToDelete = sys_va_arg(ap, void *);
       Err ret = GrfFieldChange(resetState, characterToDelete);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfFilterPoints: {
       Err ret = GrfFilterPoints();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfFindBranch: {
       UInt16 flags = sys_va_arg(ap, UInt32);
       Err ret = GrfFindBranch(flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfFlushPoints: {
       Err ret = GrfFlushPoints();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfFree: {
       Err ret = GrfFree();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6192,7 +6192,7 @@
       UInt8 *macroDataP = sys_va_arg(ap, void *);
       UInt16 *dataLenP = sys_va_arg(ap, void *);
       Err ret = GrfGetAndExpandMacro(nameP, macroDataP, dataLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6203,7 +6203,7 @@
       UInt16 *dataLenP = sys_va_arg(ap, void *);
       UInt16 *uncertainLenP = sys_va_arg(ap, void *);
       Err ret = GrfGetGlyphMapping(glyphID, flagsP, dataPtrP, dataLenP, uncertainLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6212,7 +6212,7 @@
       UInt8 *macroDataP = sys_va_arg(ap, void *);
       UInt16 *dataLenP = sys_va_arg(ap, void *);
       Err ret = GrfGetMacro(nameP, macroDataP, dataLenP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6220,14 +6220,14 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       Char *nameP = sys_va_arg(ap, void *);
       Err ret = GrfGetMacroName(index, nameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfGetNumPoints: {
       UInt16 *numPtsP = sys_va_arg(ap, void *);
       Err ret = GrfGetNumPoints(numPtsP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6235,7 +6235,7 @@
       UInt16 index = sys_va_arg(ap, UInt32);
       PointType *pointP = sys_va_arg(ap, void *);
       Err ret = GrfGetPoint(index, pointP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6245,19 +6245,19 @@
       UInt16 *tempShiftP = sys_va_arg(ap, void *);
       Boolean *autoShiftedP = sys_va_arg(ap, void *);
       Err ret = GrfGetState(capsLockP, numLockP, tempShiftP, autoShiftedP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfInit: {
       Err ret = GrfInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapGrfInitState: {
       Err ret = GrfInitState();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6268,7 +6268,7 @@
       UInt16 *uncertainLenP = sys_va_arg(ap, void *);
       GrfMatchInfoPtr matchInfoP = sys_va_arg(ap, void *);
       Err ret = GrfMatch(flagsP, dataPtrP, dataLenP, uncertainLenP, matchInfoP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6277,7 +6277,7 @@
       Int16 maxUnCertainty = sys_va_arg(ap, UInt32);
       UInt16 maxMatches = sys_va_arg(ap, UInt32);
       Err ret = GrfMatchGlyph(matchInfoP, maxUnCertainty, maxMatches);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6286,7 +6286,7 @@
       const PointType *endPtP = sys_va_arg(ap, void *);
       Boolean upShift = sys_va_arg(ap, UInt32);
       Err ret = GrfProcessStroke(startPtP, endPtP, upShift);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6295,7 +6295,7 @@
       Boolean numLock = sys_va_arg(ap, UInt32);
       Boolean upperShift = sys_va_arg(ap, UInt32);
       Err ret = GrfSetState(capsLock, numLock, upperShift);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6307,7 +6307,7 @@
 
     case sysTrapGsiEnabled: {
       Boolean ret = GsiEnabled();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6336,7 +6336,7 @@
       UInt8 * *dataP = sys_va_arg(ap, void *);
       UInt16 *sizeP = sys_va_arg(ap, void *);
       Err ret = SysGetROMToken(cardNo, token, dataP, sizeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6353,13 +6353,13 @@
 
     case sysTrapInsPtEnabled: {
       Boolean ret = InsPtEnabled();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapInsPtGetHeight: {
       Int16 ret = InsPtGetHeight();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6405,7 +6405,7 @@
     case sysTrapKbdGetLayout: {
       const KeyboardStatus *ks = sys_va_arg(ap, void *);
       UInt16 ret = KbdGetLayout(ks);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6419,7 +6419,7 @@
     case sysTrapKbdGetShiftState: {
       const KeyboardStatus *ks = sys_va_arg(ap, void *);
       UInt16 ret = KbdGetShiftState(ks);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6427,7 +6427,7 @@
       KeyboardStatus *ks = sys_va_arg(ap, void *);
       EventType *pEvent = sys_va_arg(ap, void *);
       Boolean ret = KbdHandleEvent(ks, pEvent);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6454,7 +6454,7 @@
 
     case sysTrapKeyCurrentState: {
       UInt32 ret = KeyCurrentState();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6465,14 +6465,14 @@
       UInt16 *doubleTapDelayP = sys_va_arg(ap, void *);
       Boolean *queueAheadP = sys_va_arg(ap, void *);
       Err ret = KeyRates(set, initDelayP, periodP, doubleTapDelayP, queueAheadP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapKeySetMask: {
       UInt32 keyMask = sys_va_arg(ap, UInt32);
       UInt32 ret = KeySetMask(keyMask);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6512,14 +6512,14 @@
     case sysTrapLstGetNumberOfItems: {
       const ListType *listP = sys_va_arg(ap, void *);
       Int16 ret = LstGetNumberOfItems(listP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapLstGetSelection: {
       const ListType *listP = sys_va_arg(ap, void *);
       Int16 ret = LstGetSelection(listP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6534,14 +6534,14 @@
     case sysTrapLstGetTopItem: {
       const ListType *listP = sys_va_arg(ap, void *);
       Int16 ret = LstGetTopItem(listP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapLstGetVisibleItems: {
       const ListType *listP = sys_va_arg(ap, void *);
       Int16 ret = LstGetVisibleItems(listP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6549,7 +6549,7 @@
       ListType *listP = sys_va_arg(ap, void *);
       const EventType *eventP = sys_va_arg(ap, void *);
       Boolean ret = LstHandleEvent(listP, eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6571,14 +6571,14 @@
       Int16 visibleItems = sys_va_arg(ap, UInt32);
       Int16 triggerId = sys_va_arg(ap, UInt32);
       Err ret = LstNewList(formPP, id, x, y, width, height, font, visibleItems, triggerId);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapLstPopupList: {
       ListType *listP = sys_va_arg(ap, void *);
       Int16 ret = LstPopupList(listP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6587,7 +6587,7 @@
       WinDirectionType direction = sys_va_arg(ap, UInt32);
       Int16 itemCount = sys_va_arg(ap, UInt32);
       Boolean ret = LstScrollList(listP, direction, itemCount);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6641,14 +6641,14 @@
       Char *userInitP = sys_va_arg(ap, void *);
       Char *phoneNumP = sys_va_arg(ap, void *);
       Err ret = MdmDial(modemP, okDialP, userInitP, phoneNumP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMdmHangUp: {
       MdmInfoPtr modemP = sys_va_arg(ap, void *);
       Err ret = MdmHangUp(modemP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6658,7 +6658,7 @@
       const Char *manufNameP = sys_va_arg(ap, void *);
       const Char *ramStoreNameP = sys_va_arg(ap, void *);
       Err ret = MemCardFormat(cardNo, cardNameP, manufNameP, ramStoreNameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6672,14 +6672,14 @@
       UInt32 *ramSizeP = sys_va_arg(ap, void *);
       UInt32 *freeBytesP = sys_va_arg(ap, void *);
       Err ret = MemCardInfo(cardNo, cardNameP, manufNameP, versionP, crDateP, romSizeP, ramSizeP, freeBytesP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemChunkFree: {
       MemPtr chunkDataP = sys_va_arg(ap, void *);
       Err ret = MemChunkFree(chunkDataP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6697,48 +6697,48 @@
       const void *s2 = sys_va_arg(ap, void *);
       Int32 numBytes = sys_va_arg(ap, UInt32);
       Int16 ret = MemCmp(s1, s2, numBytes);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemDebugMode: {
       UInt16 ret = MemDebugMode();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleCardNo: {
       MemHandle h = sys_va_arg(ap, void *);
       UInt16 ret = MemHandleCardNo(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleDataStorage: {
       MemHandle h = sys_va_arg(ap, void *);
       Boolean ret = MemHandleDataStorage(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleFlags: {
       MemHandle h = sys_va_arg(ap, void *);
       UInt16 ret = MemHandleFlags(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleFree: {
       MemHandle h = sys_va_arg(ap, void *);
       Err ret = MemHandleFree(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleHeapID: {
       MemHandle h = sys_va_arg(ap, void *);
       UInt16 ret = MemHandleHeapID(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6752,7 +6752,7 @@
     case sysTrapMemHandleLockCount: {
       MemHandle h = sys_va_arg(ap, void *);
       UInt16 ret = MemHandleLockCount(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6766,14 +6766,14 @@
     case sysTrapMemHandleOwner: {
       MemHandle h = sys_va_arg(ap, void *);
       UInt16 ret = MemHandleOwner(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleResetLock: {
       MemHandle h = sys_va_arg(ap, void *);
       Err ret = MemHandleResetLock(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6781,7 +6781,7 @@
       MemHandle h = sys_va_arg(ap, void *);
       UInt32 newSize = sys_va_arg(ap, UInt32);
       Err ret = MemHandleResize(h, newSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6789,56 +6789,56 @@
       MemHandle h = sys_va_arg(ap, void *);
       UInt16 owner = sys_va_arg(ap, UInt32);
       Err ret = MemHandleSetOwner(h, owner);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleSize: {
       MemHandle h = sys_va_arg(ap, void *);
       UInt32 ret = MemHandleSize(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleToLocalID: {
       MemHandle h = sys_va_arg(ap, void *);
       LocalID ret = MemHandleToLocalID(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHandleUnlock: {
       MemHandle h = sys_va_arg(ap, void *);
       Err ret = MemHandleUnlock(h);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHeapCheck: {
       UInt16 heapID = sys_va_arg(ap, UInt32);
       Err ret = MemHeapCheck(heapID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHeapCompact: {
       UInt16 heapID = sys_va_arg(ap, UInt32);
       Err ret = MemHeapCompact(heapID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHeapDynamic: {
       UInt16 heapID = sys_va_arg(ap, UInt32);
       Boolean ret = MemHeapDynamic(heapID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHeapFlags: {
       UInt16 heapID = sys_va_arg(ap, UInt32);
       UInt16 ret = MemHeapFlags(heapID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6846,7 +6846,7 @@
       UInt16 heapID = sys_va_arg(ap, UInt32);
       UInt16 ownerID = sys_va_arg(ap, UInt32);
       Err ret = MemHeapFreeByOwnerID(heapID, ownerID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6855,7 +6855,7 @@
       UInt32 *freeP = sys_va_arg(ap, void *);
       UInt32 *maxP = sys_va_arg(ap, void *);
       Err ret = MemHeapFreeBytes(heapID, freeP, maxP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6863,7 +6863,7 @@
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       UInt16 heapIndex = sys_va_arg(ap, UInt32);
       UInt16 ret = MemHeapID(cardNo, heapIndex);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6872,47 +6872,47 @@
       Int16 numHandles = sys_va_arg(ap, UInt32);
       Boolean initContents = sys_va_arg(ap, UInt32);
       Err ret = MemHeapInit(heapID, numHandles, initContents);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHeapScramble: {
       UInt16 heapID = sys_va_arg(ap, UInt32);
       Err ret = MemHeapScramble(heapID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemHeapSize: {
       UInt16 heapID = sys_va_arg(ap, UInt32);
       UInt32 ret = MemHeapSize(heapID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemInit: {
       Err ret = MemInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemInitHeapTable: {
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       Err ret = MemInitHeapTable(cardNo);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemKernelInit: {
       Err ret = MemKernelInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemLocalIDKind: {
       LocalID local = sys_va_arg(ap, UInt32);
       LocalIDKind ret = MemLocalIDKind(local);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -6945,55 +6945,55 @@
       const void *sP = sys_va_arg(ap, void *);
       Int32 numBytes = sys_va_arg(ap, UInt32);
       Err ret = MemMove(dstP, sP, numBytes);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemNumCards: {
       UInt16 ret = MemNumCards();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemNumHeaps: {
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       UInt16 ret = MemNumHeaps(cardNo);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemNumRAMHeaps: {
       UInt16 cardNo = sys_va_arg(ap, UInt32);
       UInt16 ret = MemNumRAMHeaps(cardNo);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrCardNo: {
       MemPtr p = sys_va_arg(ap, void *);
       UInt16 ret = MemPtrCardNo(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrDataStorage: {
       MemPtr p = sys_va_arg(ap, void *);
       Boolean ret = MemPtrDataStorage(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrFlags: {
       MemPtr p = sys_va_arg(ap, void *);
       UInt16 ret = MemPtrFlags(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrHeapID: {
       MemPtr p = sys_va_arg(ap, void *);
       UInt16 ret = MemPtrHeapID(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7007,7 +7007,7 @@
     case sysTrapMemPtrOwner: {
       MemPtr p = sys_va_arg(ap, void *);
       UInt16 ret = MemPtrOwner(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7021,7 +7021,7 @@
     case sysTrapMemPtrResetLock: {
       MemPtr p = sys_va_arg(ap, void *);
       Err ret = MemPtrResetLock(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7029,7 +7029,7 @@
       MemPtr p = sys_va_arg(ap, void *);
       UInt32 newSize = sys_va_arg(ap, UInt32);
       Err ret = MemPtrResize(p, newSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7037,42 +7037,42 @@
       MemPtr p = sys_va_arg(ap, void *);
       UInt16 owner = sys_va_arg(ap, UInt32);
       Err ret = MemPtrSetOwner(p, owner);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrSize: {
       MemPtr p = sys_va_arg(ap, void *);
       UInt32 ret = MemPtrSize(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrToLocalID: {
       MemPtr p = sys_va_arg(ap, void *);
       LocalID ret = MemPtrToLocalID(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemPtrUnlock: {
       MemPtr p = sys_va_arg(ap, void *);
       Err ret = MemPtrUnlock(p);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemSemaphoreRelease: {
       Boolean writeAccess = sys_va_arg(ap, UInt32);
       Err ret = MemSemaphoreRelease(writeAccess);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemSemaphoreReserve: {
       Boolean writeAccess = sys_va_arg(ap, UInt32);
       Err ret = MemSemaphoreReserve(writeAccess);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7081,14 +7081,14 @@
       Int32 numBytes = sys_va_arg(ap, UInt32);
       UInt8 value = sys_va_arg(ap, UInt32);
       Err ret = MemSet(dstP, numBytes, value);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMemSetDebugMode: {
       UInt16 flags = sys_va_arg(ap, UInt32);
       Err ret = MemSetDebugMode(flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7105,7 +7105,7 @@
       UInt32 *initCodeOffset2P = sys_va_arg(ap, void *);
       LocalID *databaseDirIDP = sys_va_arg(ap, void *);
       Err ret = MemStoreInfo(cardNo, storeNumber, versionP, flagsP, nameP, crDateP, bckUpDateP, heapListOffsetP, initCodeOffset1P, initCodeOffset2P, databaseDirIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7122,7 +7122,7 @@
       UInt32 *initCodeOffset2P = sys_va_arg(ap, void *);
       LocalID *databaseDirIDP = sys_va_arg(ap, void *);
       Err ret = MemStoreSetInfo(cardNo, storeNumber, versionP, flagsP, nameP, crDateP, bckUpDateP, heapListOffsetP, initCodeOffset1P, initCodeOffset2P, databaseDirIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7132,7 +7132,7 @@
       Char cmd = sys_va_arg(ap, UInt32);
       const Char *textP = sys_va_arg(ap, void *);
       Err ret = MenuAddItem(positionId, id, cmd, textP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7143,7 +7143,7 @@
       UInt32 result = sys_va_arg(ap, UInt32);
       Char *nameP = sys_va_arg(ap, void *);
       Err ret = MenuCmdBarAddButton(where, bitmapId, resultType, result, nameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7159,7 +7159,7 @@
       UInt32 *resultP = sys_va_arg(ap, void *);
       Char *nameP = sys_va_arg(ap, void *);
       Boolean ret = MenuCmdBarGetButtonData(buttonIndex, bitmapIdP, resultTypeP, resultP, nameP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7192,14 +7192,14 @@
       EventType *event = sys_va_arg(ap, void *);
       UInt16 *error = sys_va_arg(ap, void *);
       Boolean ret = MenuHandleEvent(menuP, event, error);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapMenuHideItem: {
       UInt16 id = sys_va_arg(ap, UInt32);
       Boolean ret = MenuHideItem(id);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7226,7 +7226,7 @@
     case sysTrapMenuShowItem: {
       UInt16 id = sys_va_arg(ap, UInt32);
       Boolean ret = MenuShowItem(id);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7234,7 +7234,7 @@
       NativeFuncType *nativeFuncP = sys_va_arg(ap, void *);
       void *userDataP = sys_va_arg(ap, void *);
       UInt32 ret = PceNativeCall(nativeFuncP, userDataP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7244,58 +7244,58 @@
       PointType *scrTopLeftP = sys_va_arg(ap, void *);
       PointType *scrBotRightP = sys_va_arg(ap, void *);
       Err ret = PenCalibrate(digTopLeftP, digBotRightP, scrTopLeftP, scrBotRightP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenClose: {
       Err ret = PenClose();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenGetRawPen: {
       PointType *penP = sys_va_arg(ap, void *);
       Err ret = PenGetRawPen(penP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenOpen: {
       Err ret = PenOpen();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenRawToScreen: {
       PointType *penP = sys_va_arg(ap, void *);
       Err ret = PenRawToScreen(penP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenResetCalibration: {
       Err ret = PenResetCalibration();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenScreenToRaw: {
       PointType *penP = sys_va_arg(ap, void *);
       Err ret = PenScreenToRaw(penP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenSleep: {
       Err ret = PenSleep();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPenWake: {
       Err ret = PenWake();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7320,7 +7320,7 @@
       UInt16 *prefsSize = sys_va_arg(ap, void *);
       Boolean saved = sys_va_arg(ap, UInt32);
       Int16 ret = PrefGetAppPreferences(creator, id, prefs, prefsSize, saved);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7330,14 +7330,14 @@
       void *prefs = sys_va_arg(ap, void *);
       UInt16 prefsSize = sys_va_arg(ap, UInt32);
       Boolean ret = PrefGetAppPreferencesV10(type, version, prefs, prefsSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapPrefGetPreference: {
       SystemPreferencesChoice choice = sys_va_arg(ap, UInt32);
       UInt32 ret = PrefGetPreference(choice);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7397,7 +7397,7 @@
       ProgressType *prgGP = sys_va_arg(ap, void *);
       EventType *eventP = sys_va_arg(ap, void *);
       Boolean ret = PrgHandleEvent(prgGP, eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7437,7 +7437,7 @@
 
     case sysTrapPwdExists: {
       Boolean ret = PwdExists();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7456,7 +7456,7 @@
     case sysTrapPwdVerify: {
       Char *string = sys_va_arg(ap, void *);
       Boolean ret = PwdVerify(string);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7495,7 +7495,7 @@
       Coord y = sys_va_arg(ap, UInt32);
       const RectangleType *rP = sys_va_arg(ap, void *);
       Boolean ret = RctPtInRectangle(x, y, rP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7512,7 +7512,7 @@
     case sysTrapResLoadConstant: {
       UInt16 rscID = sys_va_arg(ap, UInt32);
       UInt32 ret = ResLoadConstant(rscID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7550,7 +7550,7 @@
       ScrollBarType *bar = sys_va_arg(ap, void *);
       const EventType *event = sys_va_arg(ap, void *);
       Boolean ret = SclHandleEvent(bar, event);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7566,14 +7566,14 @@
 
     case sysTrapSecSelectViewStatus: {
       privateRecordViewEnum ret = SecSelectViewStatus();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSecVerifyPW: {
       privateRecordViewEnum newSecLevel = sys_va_arg(ap, UInt32);
       Boolean ret = SecVerifyPW(newSecLevel);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7584,7 +7584,7 @@
       Int16 *year = sys_va_arg(ap, void *);
       const Char *title = sys_va_arg(ap, void *);
       Boolean ret = SelectDay(selectDayBy, month, day, year, title);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7594,7 +7594,7 @@
       Int16 *year = sys_va_arg(ap, void *);
       const Char *title = sys_va_arg(ap, void *);
       Boolean ret = SelectDayV10(month, day, year, title);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7603,7 +7603,7 @@
       Int16 *minute = sys_va_arg(ap, void *);
       const Char *titleP = sys_va_arg(ap, void *);
       Boolean ret = SelectOneTime(hour, minute, titleP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7616,7 +7616,7 @@
       Int16 endOfDay = sys_va_arg(ap, UInt32);
       Int16 startOfDisplay = sys_va_arg(ap, UInt32);
       Boolean ret = SelectTime(startTimeP, EndTimeP, untimed, titleP, startOfDay, endOfDay, startOfDisplay);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7627,7 +7627,7 @@
       const Char *titleP = sys_va_arg(ap, void *);
       Int16 startOfDay = sys_va_arg(ap, UInt32);
       Boolean ret = SelectTimeV33(startTimeP, EndTimeP, untimed, titleP, startOfDay);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7638,26 +7638,26 @@
       Boolean showTimes = sys_va_arg(ap, UInt32);
       Boolean anyLocale = sys_va_arg(ap, UInt32);
       Boolean ret = SelectTimeZone(ioTimeZoneP, ioLocaleInTimeZoneP, titleP, showTimes, anyLocale);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSerReceiveISP: {
       Boolean ret = SerReceiveISP();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSlkClose: {
       Err ret = SlkClose();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSlkCloseSocket: {
       UInt16 socket = sys_va_arg(ap, UInt32);
       Err ret = SlkCloseSocket(socket);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7665,13 +7665,13 @@
       UInt16 socket = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SlkFlushSocket(socket, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSlkOpen: {
       Err ret = SlkOpen();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7680,7 +7680,7 @@
       UInt16 *socketP = sys_va_arg(ap, void *);
       Boolean staticSocket = sys_va_arg(ap, UInt32);
       Err ret = SlkOpenSocket(portID, socketP, staticSocket);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7688,7 +7688,7 @@
       SlkPktHeaderPtr headerP = sys_va_arg(ap, void *);
       void *bodyP = sys_va_arg(ap, void *);
       Err ret = SlkProcessRPC(headerP, bodyP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7700,7 +7700,7 @@
       UInt16 bodySize = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SlkReceivePacket(socket, andOtherSockets, headerP, bodyP, bodySize, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7708,7 +7708,7 @@
       SlkPktHeaderPtr headerP = sys_va_arg(ap, void *);
       SlkWriteDataPtr writeList = sys_va_arg(ap, void *);
       Err ret = SlkSendPacket(headerP, writeList);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7716,7 +7716,7 @@
       UInt16 socket = sys_va_arg(ap, UInt32);
       SlkSocketListenPtr socketP = sys_va_arg(ap, void *);
       Err ret = SlkSetSocketListener(socket, socketP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7724,7 +7724,7 @@
       UInt16 socket = sys_va_arg(ap, UInt32);
       UInt16 *portIDP = sys_va_arg(ap, void *);
       Err ret = SlkSocketPortID(socket, portIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7732,7 +7732,7 @@
       UInt16 socket = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SlkSocketSetTimeout(socket, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7740,7 +7740,7 @@
       SlkPktHeaderPtr headerP = sys_va_arg(ap, void *);
       void *bodyP = sys_va_arg(ap, void *);
       Err ret = SlkSysPktDefaultResponse(headerP, bodyP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7750,7 +7750,7 @@
       UInt16 *wCountP = sys_va_arg(ap, void *);
       MemHandle *entHP = sys_va_arg(ap, void *);
       Boolean ret = SndCreateMidiList(creator, multipleDBs, wCountP, entHP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7759,7 +7759,7 @@
       SndCommandPtr cmdP = sys_va_arg(ap, void *);
       Boolean noWait = sys_va_arg(ap, UInt32);
       Err ret = SndDoCmd(channelP, cmdP, noWait);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7773,13 +7773,13 @@
 
     case sysTrapSndInit: {
       Err ret = SndInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSndInterruptSmfIrregardless: {
       Err ret = SndInterruptSmfIrregardless();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7788,7 +7788,7 @@
       Int32 volume = sys_va_arg(ap, UInt32);
       UInt32 flags = sys_va_arg(ap, UInt32);
       Err ret = SndPlayResource(sndP, volume, flags);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7801,7 +7801,7 @@
       SndSmfCallbacksType *callbacksP = sys_va_arg(ap, void *);
       Boolean bNoWait = sys_va_arg(ap, UInt32);
       Err ret = SndPlaySmf(chanP, cmd, smfP, selP, chanRangeP, callbacksP, bNoWait);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7814,7 +7814,7 @@
       SndSmfCallbacksType *callbacksP = sys_va_arg(ap, void *);
       Boolean bNoWait = sys_va_arg(ap, UInt32);
       Err ret = SndPlaySmfIrregardless(chanP, cmd, smfP, selP, chanRangeP, callbacksP, bNoWait);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7823,7 +7823,7 @@
       Int16 resID = sys_va_arg(ap, UInt32);
       SystemPreferencesChoice volumeSelector = sys_va_arg(ap, UInt32);
       Err ret = SndPlaySmfResource(resType, resID, volumeSelector);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7832,7 +7832,7 @@
       Int16 resID = sys_va_arg(ap, UInt32);
       SystemPreferencesChoice volumeSelector = sys_va_arg(ap, UInt32);
       Err ret = SndPlaySmfResourceIrregardless(resType, resID, volumeSelector);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7861,7 +7861,7 @@
       UInt32 buffsize = sys_va_arg(ap, UInt32);
       Boolean armNative = sys_va_arg(ap, UInt32);
       Err ret = SndStreamCreate(channel, mode, samplerate, type, width, func, userdata, buffsize, armNative);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7877,14 +7877,14 @@
       UInt32 buffsize = sys_va_arg(ap, UInt32);
       Boolean armNative = sys_va_arg(ap, UInt32);
       Err ret = SndStreamCreateExtended(channel, mode, format, samplerate, type, width, func, userdata, buffsize, armNative);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSndStreamDelete: {
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Err ret = SndStreamDelete(channel);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7894,7 +7894,7 @@
       void *param = sys_va_arg(ap, void *);
       Int32 size = sys_va_arg(ap, UInt32);
       Err ret = SndStreamDeviceControl(channel, cmd, param, size);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7902,7 +7902,7 @@
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Int32 *panposition = sys_va_arg(ap, void *);
       Err ret = SndStreamGetPan(channel, panposition);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7910,7 +7910,7 @@
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Int32 *volume = sys_va_arg(ap, void *);
       Err ret = SndStreamGetVolume(channel, volume);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7918,7 +7918,7 @@
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Boolean pause = sys_va_arg(ap, UInt32);
       Err ret = SndStreamPause(channel, pause);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7926,7 +7926,7 @@
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Int32 panposition = sys_va_arg(ap, UInt32);
       Err ret = SndStreamSetPan(channel, panposition);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7934,28 +7934,28 @@
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Int32 volume = sys_va_arg(ap, UInt32);
       Err ret = SndStreamSetVolume(channel, volume);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSndStreamStart: {
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Err ret = SndStreamStart(channel);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSndStreamStop: {
       SndStreamRef channel = sys_va_arg(ap, UInt32);
       Err ret = SndStreamStop(channel);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapStrAToI: {
       const Char *str = sys_va_arg(ap, void *);
       Int32 ret = StrAToI(str);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7963,7 +7963,7 @@
       const Char *s1 = sys_va_arg(ap, void *);
       const Char *s2 = sys_va_arg(ap, void *);
       Int16 ret = StrCaselessCompare(s1, s2);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7987,7 +7987,7 @@
       const Char *s1 = sys_va_arg(ap, void *);
       const Char *s2 = sys_va_arg(ap, void *);
       Int16 ret = StrCompare(s1, s2);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -7995,7 +7995,7 @@
       const Char *s1 = sys_va_arg(ap, void *);
       const Char *s2 = sys_va_arg(ap, void *);
       Int16 ret = StrCompareAscii(s1, s2);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8035,7 +8035,7 @@
     case sysTrapStrLen: {
       const Char *src = sys_va_arg(ap, void *);
       UInt16 ret = StrLen(src);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8053,7 +8053,7 @@
       const Char *s2 = sys_va_arg(ap, void *);
       Int32 n = sys_va_arg(ap, UInt32);
       Int16 ret = StrNCaselessCompare(s1, s2, n);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8071,7 +8071,7 @@
       const Char *s2 = sys_va_arg(ap, void *);
       Int32 n = sys_va_arg(ap, UInt32);
       Int16 ret = StrNCompare(s1, s2, n);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8080,7 +8080,7 @@
       const Char *s2 = sys_va_arg(ap, void *);
       Int32 n = sys_va_arg(ap, UInt32);
       Int16 ret = StrNCompareAscii(s1, s2, n);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8114,7 +8114,7 @@
       MemPtr prevGlobalsP = sys_va_arg(ap, void *);
       MemPtr globalsP = sys_va_arg(ap, void *);
       Err ret = SysAppExit(appInfoP, prevGlobalsP, globalsP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8126,7 +8126,7 @@
       MemPtr cmdPBP = sys_va_arg(ap, void *);
       UInt32 *resultP = sys_va_arg(ap, void *);
       Err ret = SysAppLaunch(cardNo, dbID, launchFlags, cmd, cmdPBP, resultP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8140,7 +8140,7 @@
       MemPtr *prevGlobalsP = sys_va_arg(ap, void *);
       MemPtr *globalsPtrP = sys_va_arg(ap, void *);
       Err ret = SysAppStartup(appInfoPP, prevGlobalsP, globalsPtrP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8158,7 +8158,7 @@
       Boolean *pluggedIn = sys_va_arg(ap, void *);
       UInt8 *percentP = sys_va_arg(ap, void *);
       UInt16 ret = SysBatteryInfo(set, warnThresholdP, criticalThresholdP, maxTicksP, kindP, pluggedIn, percentP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8170,7 +8170,7 @@
       SysBatteryKind *kindP = sys_va_arg(ap, void *);
       Boolean *pluggedIn = sys_va_arg(ap, void *);
       UInt16 ret = SysBatteryInfoV20(set, warnThresholdP, criticalThresholdP, maxTicksP, kindP, pluggedIn);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8184,7 +8184,7 @@
       Int32 *position = sys_va_arg(ap, void *);
       Boolean findFirst = sys_va_arg(ap, UInt32);
       Boolean ret = SysBinarySearch(baseP, numOfElements, width, searchF, searchData, other, position, findFirst);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8192,7 +8192,7 @@
       UInt16 cmd = sys_va_arg(ap, UInt32);
       MemPtr cmdPBP = sys_va_arg(ap, void *);
       Err ret = SysBroadcastActionCode(cmd, cmdPBP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8220,7 +8220,7 @@
       MemHandle *dbIDs = sys_va_arg(ap, void *);
       Boolean lookupName = sys_va_arg(ap, UInt32);
       Boolean ret = SysCreateDataBaseList(type, creator, dbCount, dbIDs, lookupName);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8228,7 +8228,7 @@
       UInt16 *panelCount = sys_va_arg(ap, void *);
       MemHandle *panelIDs = sys_va_arg(ap, void *);
       Boolean ret = SysCreatePanelList(panelCount, panelIDs);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8236,13 +8236,13 @@
       UInt16 *cardNoP = sys_va_arg(ap, void *);
       LocalID *dbIDP = sys_va_arg(ap, void *);
       Err ret = SysCurAppDatabase(cardNoP, dbIDP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysDisableInts: {
       UInt16 ret = SysDisableInts();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8266,7 +8266,7 @@
       UInt32 *tagP = sys_va_arg(ap, void *);
       UInt32 init = sys_va_arg(ap, UInt32);
       Err ret = SysEvGroupCreate(evIDP, tagP, init);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8274,7 +8274,7 @@
       UInt32 evID = sys_va_arg(ap, UInt32);
       UInt32 *valueP = sys_va_arg(ap, void *);
       Err ret = SysEvGroupRead(evID, valueP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8284,7 +8284,7 @@
       UInt32 value = sys_va_arg(ap, UInt32);
       Int32 type = sys_va_arg(ap, UInt32);
       Err ret = SysEvGroupSignal(evID, mask, value, type);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8295,14 +8295,14 @@
       Int32 matchType = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SysEvGroupWait(evID, mask, value, matchType, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysFatalAlert: {
       const Char *msg = sys_va_arg(ap, void *);
       UInt16 ret = SysFatalAlert(msg);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8329,7 +8329,7 @@
       MemPtr *startPP = sys_va_arg(ap, void *);
       MemPtr *endPP = sys_va_arg(ap, void *);
       Boolean ret = SysGetStackInfo(startPP, endPP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8349,7 +8349,7 @@
     case sysTrapSysHandleEvent: {
       EventPtr eventP = sys_va_arg(ap, void *);
       Boolean ret = SysHandleEvent(eventP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8371,7 +8371,7 @@
     case sysTrapSysKernelInfo: {
       void *paramP = sys_va_arg(ap, void *);
       Err ret = SysKernelInfo(paramP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8390,7 +8390,7 @@
       Boolean set = sys_va_arg(ap, UInt32);
       UInt8 newBrightnessLevel = sys_va_arg(ap, UInt32);
       UInt8 ret = SysLCDBrightness(set, newBrightnessLevel);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8398,13 +8398,13 @@
       Boolean set = sys_va_arg(ap, UInt32);
       UInt8 newContrastLevel = sys_va_arg(ap, UInt32);
       UInt8 ret = SysLCDContrast(set, newContrastLevel);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysLaunchConsole: {
       Err ret = SysLaunchConsole();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8412,7 +8412,7 @@
       const Char *nameP = sys_va_arg(ap, void *);
       UInt16 *refNumP = sys_va_arg(ap, void *);
       Err ret = SysLibFind(nameP, refNumP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8420,7 +8420,7 @@
       SysLibEntryProcPtr libraryP = sys_va_arg(ap, void *);
       UInt16 *refNumP = sys_va_arg(ap, void *);
       Err ret = SysLibInstall(libraryP, refNumP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8429,14 +8429,14 @@
       UInt32 libCreator = sys_va_arg(ap, UInt32);
       UInt16 *refNumP = sys_va_arg(ap, void *);
       Err ret = SysLibLoad(libType, libCreator, refNumP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysLibRemove: {
       UInt16 refNum = sys_va_arg(ap, UInt32);
       Err ret = SysLibRemove(refNum);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8452,21 +8452,21 @@
       UInt32 *tagP = sys_va_arg(ap, void *);
       UInt32 depth = sys_va_arg(ap, UInt32);
       Err ret = SysMailboxCreate(mbIDP, tagP, depth);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysMailboxDelete: {
       UInt32 mbID = sys_va_arg(ap, UInt32);
       Err ret = SysMailboxDelete(mbID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysMailboxFlush: {
       UInt32 mbID = sys_va_arg(ap, UInt32);
       Err ret = SysMailboxFlush(mbID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8475,7 +8475,7 @@
       void *msgP = sys_va_arg(ap, void *);
       UInt32 wAck = sys_va_arg(ap, UInt32);
       Err ret = SysMailboxSend(mbID, msgP, wAck);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8485,13 +8485,13 @@
       UInt32 priority = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SysMailboxWait(mbID, msgP, priority, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysNewOwnerID: {
       UInt16 ret = SysNewOwnerID();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8503,14 +8503,14 @@
       Int8 priority = sys_va_arg(ap, UInt32);
       void *userDataP = sys_va_arg(ap, void *);
       Err ret = SysNotifyRegister(cardNo, dbID, notifyType, callbackP, priority, userDataP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysNotifyBroadcast: {
       SysNotifyParamType *notify = sys_va_arg(ap, void *);
       Err ret = SysNotifyBroadcast(notify);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8518,7 +8518,7 @@
       SysNotifyParamType *notify = sys_va_arg(ap, void *);
       Int16 paramSize = sys_va_arg(ap, UInt32);
       Err ret = SysNotifyBroadcastDeferred(notify, paramSize);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8527,7 +8527,7 @@
       UInt32 broadcaster = sys_va_arg(ap, UInt32);
       void *notifyDetailsP = sys_va_arg(ap, void *);
       Err ret = SysNotifyBroadcastFromInterrupt(notifyType, broadcaster, notifyDetailsP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8537,7 +8537,7 @@
       UInt32 notifyType = sys_va_arg(ap, UInt32);
       Int8 priority = sys_va_arg(ap, UInt32);
       Err ret = SysNotifyUnregister(cardNo, dbID, notifyType, priority);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8554,7 +8554,7 @@
     case sysTrapSysRandom: {
       Int32 newSeed = sys_va_arg(ap, UInt32);
       Int16 ret = SysRandom(newSeed);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8562,21 +8562,21 @@
       UInt32 *smIDP = sys_va_arg(ap, void *);
       UInt32 *tagP = sys_va_arg(ap, void *);
       Err ret = SysResSemaphoreCreate(smIDP, tagP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysResSemaphoreDelete: {
       UInt32 smID = sys_va_arg(ap, UInt32);
       Err ret = SysResSemaphoreDelete(smID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysResSemaphoreRelease: {
       UInt32 smID = sys_va_arg(ap, UInt32);
       Err ret = SysResSemaphoreRelease(smID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8585,7 +8585,7 @@
       UInt32 priority = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SysResSemaphoreReserve(smID, priority, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8605,28 +8605,28 @@
       UInt32 *tagP = sys_va_arg(ap, void *);
       Int32 initValue = sys_va_arg(ap, UInt32);
       Err ret = SysSemaphoreCreate(smIDP, tagP, initValue);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysSemaphoreDelete: {
       UInt32 smID = sys_va_arg(ap, UInt32);
       Err ret = SysSemaphoreDelete(smID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysSemaphoreSet: {
       UInt32 smID = sys_va_arg(ap, UInt32);
       Err ret = SysSemaphoreSet(smID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysSemaphoreSignal: {
       UInt32 smID = sys_va_arg(ap, UInt32);
       Err ret = SysSemaphoreSignal(smID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8635,21 +8635,21 @@
       UInt32 priority = sys_va_arg(ap, UInt32);
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SysSemaphoreWait(smID, priority, timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysSetA5: {
       UInt32 newValue = sys_va_arg(ap, UInt32);
       UInt32 ret = SysSetA5(newValue);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysSetAutoOffTime: {
       UInt16 seconds = sys_va_arg(ap, UInt32);
       UInt16 ret = SysSetAutoOffTime(seconds);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8657,7 +8657,7 @@
       UInt32 *sysClockP = sys_va_arg(ap, void *);
       UInt16 *cpuDutyP = sys_va_arg(ap, void *);
       Err ret = SysSetPerformance(sysClockP, cpuDutyP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8665,7 +8665,7 @@
       UInt16 trapNum = sys_va_arg(ap, UInt32);
       void *procP = sys_va_arg(ap, void *);
       Err ret = SysSetTrapAddress(trapNum, procP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8696,14 +8696,14 @@
       UInt32 priority = sys_va_arg(ap, UInt32);
       UInt32 tSlice = sys_va_arg(ap, UInt32);
       Err ret = SysTaskCreate(taskIDP, creator, codeP, stackP, stackSize, attr, priority, tSlice);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskDelay: {
       Int32 delay = sys_va_arg(ap, UInt32);
       Err ret = SysTaskDelay(delay);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8711,20 +8711,20 @@
       UInt32 taskID = sys_va_arg(ap, UInt32);
       UInt32 priority = sys_va_arg(ap, UInt32);
       Err ret = SysTaskDelete(taskID, priority);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskID: {
       UInt32 ret = SysTaskID();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskResume: {
       UInt32 taskID = sys_va_arg(ap, UInt32);
       Err ret = SysTaskResume(taskID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8732,35 +8732,35 @@
       UInt32 taskID = sys_va_arg(ap, UInt32);
       SysTermProcPtr termProcP = sys_va_arg(ap, void *);
       Err ret = SysTaskSetTermProc(taskID, termProcP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskSuspend: {
       UInt32 taskID = sys_va_arg(ap, UInt32);
       Err ret = SysTaskSuspend(taskID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskSwitching: {
       Boolean enable = sys_va_arg(ap, UInt32);
       Err ret = SysTaskSwitching(enable);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskTrigger: {
       UInt32 taskID = sys_va_arg(ap, UInt32);
       Err ret = SysTaskTrigger(taskID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTaskWait: {
       Int32 timeout = sys_va_arg(ap, UInt32);
       Err ret = SysTaskWait(timeout);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8772,13 +8772,13 @@
     case sysTrapSysTaskWake: {
       UInt32 taskID = sys_va_arg(ap, UInt32);
       Err ret = SysTaskWake(taskID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTicksPerSecond: {
       UInt16 ret = SysTicksPerSecond();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8789,14 +8789,14 @@
       UInt32 periodicDelay = sys_va_arg(ap, UInt32);
       UInt32 param = sys_va_arg(ap, UInt32);
       Err ret = SysTimerCreate(timerIDP, tagP, timerProc, periodicDelay, param);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTimerDelete: {
       UInt32 timerID = sys_va_arg(ap, UInt32);
       Err ret = SysTimerDelete(timerID);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8804,7 +8804,7 @@
       UInt32 timerID = sys_va_arg(ap, UInt32);
       UInt32 *valueP = sys_va_arg(ap, void *);
       Err ret = SysTimerRead(timerID, valueP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8812,14 +8812,14 @@
       UInt32 timerID = sys_va_arg(ap, UInt32);
       UInt32 value = sys_va_arg(ap, UInt32);
       Err ret = SysTimerWrite(timerID, value);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapSysTranslateKernelErr: {
       Err err = sys_va_arg(ap, UInt32);
       Err ret = SysTranslateKernelErr(err);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8829,7 +8829,7 @@
       UInt16 cmd = sys_va_arg(ap, UInt32);
       MemPtr cmdPBP = sys_va_arg(ap, void *);
       Err ret = SysUIAppSwitch(cardNo, dbID, cmd, cmdPBP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8837,7 +8837,7 @@
       Boolean set = sys_va_arg(ap, UInt32);
       Boolean value = sys_va_arg(ap, UInt32);
       UInt16 ret = SysUIBusy(set, value);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8860,7 +8860,7 @@
     case sysTrapTblEditing: {
       const TableType *tableP = sys_va_arg(ap, void *);
       Boolean ret = TblEditing(tableP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8875,7 +8875,7 @@
       UIntPtr data = sys_va_arg(ap, UIntPtr);
       Int16 *rowP = sys_va_arg(ap, void *);
       Boolean ret = TblFindRowData(tableP, data, rowP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8884,7 +8884,7 @@
       UInt16 id = sys_va_arg(ap, UInt32);
       Int16 *rowP = sys_va_arg(ap, void *);
       Boolean ret = TblFindRowID(tableP, id, rowP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8899,7 +8899,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 column = sys_va_arg(ap, UInt32);
       Coord ret = TblGetColumnSpacing(tableP, column);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8907,7 +8907,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 column = sys_va_arg(ap, UInt32);
       Coord ret = TblGetColumnWidth(tableP, column);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8932,7 +8932,7 @@
       Int16 row = sys_va_arg(ap, UInt32);
       Int16 column = sys_va_arg(ap, UInt32);
       FontID ret = TblGetItemFont(tableP, row, column);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8941,7 +8941,7 @@
       Int16 row = sys_va_arg(ap, UInt32);
       Int16 column = sys_va_arg(ap, UInt32);
       Int16 ret = TblGetItemInt(tableP, row, column);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8957,21 +8957,21 @@
     case sysTrapTblGetLastUsableRow: {
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 ret = TblGetLastUsableRow(tableP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapTblGetNumberOfColumns: {
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 ret = TblGetNumberOfColumns(tableP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapTblGetNumberOfRows: {
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 ret = TblGetNumberOfRows(tableP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8979,7 +8979,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       UIntPtr ret = TblGetRowData(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8987,7 +8987,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       Coord ret = TblGetRowHeight(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -8995,7 +8995,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       UInt16 ret = TblGetRowID(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9004,14 +9004,14 @@
       Int16 *rowP = sys_va_arg(ap, void *);
       Int16 *columnP = sys_va_arg(ap, void *);
       Boolean ret = TblGetSelection(tableP, rowP, columnP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapTblGetTopRow: {
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 ret = TblGetTopRow(tableP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9027,7 +9027,7 @@
       TableType *tableP = sys_va_arg(ap, void *);
       EventType *event = sys_va_arg(ap, void *);
       Boolean ret = TblHandleEvent(tableP, event);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9081,7 +9081,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       Boolean ret = TblRowInvalid(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9089,7 +9089,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       Boolean ret = TblRowMasked(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9097,7 +9097,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       Boolean ret = TblRowSelectable(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9105,7 +9105,7 @@
       const TableType *tableP = sys_va_arg(ap, void *);
       Int16 row = sys_va_arg(ap, UInt32);
       Boolean ret = TblRowUsable(tableP, row);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9304,25 +9304,25 @@
     case sysTrapTimDateTimeToSeconds: {
       const DateTimeType *dateTimeP = sys_va_arg(ap, void *);
       UInt32 ret = TimDateTimeToSeconds(dateTimeP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapTimGetSeconds: {
       UInt32 ret = TimGetSeconds();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapTimGetTicks: {
       UInt32 ret = TimGetTicks();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapTimInit: {
       Err ret = TimInit();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9344,7 +9344,7 @@
       Int16 timeZone = sys_va_arg(ap, UInt32);
       Int16 daylightSavingAdjustment = sys_va_arg(ap, UInt32);
       UInt32 ret = TimTimeZoneToUTC(seconds, timeZone, daylightSavingAdjustment);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9353,7 +9353,7 @@
       Int16 timeZone = sys_va_arg(ap, UInt32);
       Int16 daylightSavingAdjustment = sys_va_arg(ap, UInt32);
       UInt32 ret = TimUTCToTimeZone(seconds, timeZone, daylightSavingAdjustment);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9382,7 +9382,7 @@
     case sysTrapUIColorGetTableEntryIndex: {
       UIColorTableEntries which = sys_va_arg(ap, UInt32);
       IndexedColorType ret = UIColorGetTableEntryIndex(which);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9395,13 +9395,13 @@
 
     case sysTrapUIColorPopTable: {
       Err ret = UIColorPopTable();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapUIColorPushTable: {
       Err ret = UIColorPushTable();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9409,7 +9409,7 @@
       UIColorTableEntries which = sys_va_arg(ap, UInt32);
       const RGBColorType *rgbP = sys_va_arg(ap, void *);
       Err ret = UIColorSetTableEntry(which, rgbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9425,7 +9425,7 @@
       const Char *titleP = sys_va_arg(ap, void *);
       const Char *tipP = sys_va_arg(ap, void *);
       Boolean ret = UIPickColor(indexP, rgbP, start, titleP, tipP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9735,7 +9735,7 @@
 
     case sysTrapWinGetPatternType: {
       PatternType ret = WinGetPatternType();
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9743,7 +9743,7 @@
       Coord x = sys_va_arg(ap, UInt32);
       Coord y = sys_va_arg(ap, UInt32);
       IndexedColorType ret = WinGetPixel(x, y);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9752,7 +9752,7 @@
       Coord y = sys_va_arg(ap, UInt32);
       RGBColorType *rgbP = sys_va_arg(ap, void *);
       Err ret = WinGetPixelRGB(x, y, rgbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9825,7 +9825,7 @@
     case sysTrapWinModal: {
       WinHandle winHandle = sys_va_arg(ap, void *);
       Boolean ret = WinModal(winHandle);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9911,7 +9911,7 @@
       UInt16 paletteEntries = sys_va_arg(ap, UInt32);
       RGBColorType *tableP = sys_va_arg(ap, void *);
       Err ret = WinPalette(operation, startIndex, paletteEntries, tableP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9928,7 +9928,7 @@
     case sysTrapWinRGBToIndex: {
       const RGBColorType *rgbP = sys_va_arg(ap, void *);
       IndexedColorType ret = WinRGBToIndex(rgbP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -9978,7 +9978,7 @@
       UInt32 *depthP = sys_va_arg(ap, void *);
       Boolean *enableColorP = sys_va_arg(ap, void *);
       Err ret = WinScreenMode(operation, widthP, heightP, depthP, enableColorP);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -10005,7 +10005,7 @@
     case sysTrapWinSetBackColor: {
       IndexedColorType backColor = sys_va_arg(ap, UInt32);
       IndexedColorType ret = WinSetBackColor(backColor);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -10041,7 +10041,7 @@
     case sysTrapWinSetDrawMode: {
       WinDrawOperation newMode = sys_va_arg(ap, UInt32);
       WinDrawOperation ret = WinSetDrawMode(newMode);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -10055,7 +10055,7 @@
     case sysTrapWinSetForeColor: {
       IndexedColorType foreColor = sys_va_arg(ap, UInt32);
       IndexedColorType ret = WinSetForeColor(foreColor);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -10081,7 +10081,7 @@
     case sysTrapWinSetTextColor: {
       IndexedColorType textColor = sys_va_arg(ap, UInt32);
       IndexedColorType ret = WinSetTextColor(textColor);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
@@ -10095,14 +10095,14 @@
     case sysTrapWinSetUnderlineMode: {
       UnderlineModeType mode = sys_va_arg(ap, UInt32);
       UnderlineModeType ret = WinSetUnderlineMode(mode);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 
     case sysTrapWinValidateHandle: {
       WinHandle winHandle = sys_va_arg(ap, void *);
       Boolean ret = WinValidateHandle(winHandle);
-      *iret = ret;
+      *iret = (uint64_t)ret;
       }
       break;
 

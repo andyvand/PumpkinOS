@@ -1,5 +1,6 @@
 #include <PalmOS.h>
 #include <VFSMgr.h>
+#include <PenInputMgr.h>
 
 #include "RegistryMgr.h"
 #include "debug.h"
@@ -394,7 +395,7 @@ Err FtrPtrNew(UInt32 creator, UInt16 featureNum, UInt32 size, void **newPtrP) {
 
   if ((p = MemPtrNew(size)) != NULL) {
     ram = pumpkin_heap_base();
-    value = p - ram;
+    value = (UInt32)(p - ram);
     if ((err = FtrSetEx(creator, featureNum, value, true)) == errNone) {
       *newPtrP = p;
       err = errNone;

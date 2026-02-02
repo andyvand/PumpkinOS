@@ -162,7 +162,7 @@ static void writeFile(UInt16 volRefNum, char *filename, void *data, sys_size_t b
   if (VFSFileCreate(volRefNum, filename) == errNone) {
     if (bytes > 0) {
       if (VFSFileOpen(volRefNum, filename, vfsModeWrite, &f) == errNone && f != NULL) {
-        VFSFileWrite(f, bytes, data, &numBytesWritten);
+        VFSFileWrite(f, (UInt32)bytes, data, &numBytesWritten);
         VFSFileClose(f);
       } else {
         debug(DEBUG_ERROR, "unzip", "couldn't open \"%s\" for writing", filename);

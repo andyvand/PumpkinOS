@@ -1703,7 +1703,7 @@ Boolean PrvListDeleteRecord (void)
 
 	buttonHit = FrmDoDialog (alert);
 
-	archive = FrmGetControlValue (alert, ctlIndex);
+	archive = (Boolean)FrmGetControlValue (alert, ctlIndex);
 
 	FrmDeleteForm (alert);
 	if (buttonHit == DeleteAddrCancel)
@@ -1972,7 +1972,7 @@ Boolean PrvListHandleRecordSelection( EventType* event )
 
 	// Extract the x coordinate of the start of the phone number for this row.
 	// This was computed and stored in the row data when the row was drawn.
-	phoneX = TblGetRowData(table, row);
+	phoneX = (Int16)TblGetRowData(table, row);
 
 	// If the user tapped on the name rather than the number, or on the space between them,
 	// let the table handle selection so the user gets to view the record.

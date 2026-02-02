@@ -267,7 +267,7 @@ int EvtPumpEvents(Int32 timeoutUs) {
   t0 = sys_get_clock();
   MemSet(&event, sizeof(EventType), 0);
 
-  if (module->needNullTickCount > 0 && TimGetTicks() > module->needNullTickCount) {
+  if (module->needNullTickCount > 0 && TimGetTicks() > (UInt32)module->needNullTickCount) {
     debug(DEBUG_TRACE, PALMOS_MODULE, "EvtPumpEvents needNullTickCount reached");
     module->needNullTickCount = 0;
     event.eType = nilEvent;
@@ -304,7 +304,7 @@ int EvtPumpEvents(Int32 timeoutUs) {
 
     if (ev == 0 && module->insideRepeatingButtonCtl) {
       ticks = TimGetTicks();
-      if ((ticks - module->repeatingButtonTime) >= SysTicksPerSecond() / 2) {
+      if ((ticks - module->repeatingButtonTime) >= (UInt32)(SysTicksPerSecond() / 2)) {
         module->repeatingButtonTime = ticks;
         event.eType = ctlRepeatEvent;
         event.data.ctlRepeat.controlID = module->repeatingButtonID;
@@ -357,7 +357,7 @@ int EvtPumpEvents(Int32 timeoutUs) {
     t = sys_get_clock();
     dt = t - t0;
     if (timeoutUs <= dt) break;
-    timeoutUs -= dt;
+    timeoutUs -= (Int32)dt;
     t0 = t;
     wait = (timeoutUs < TIMEOUT) ? timeoutUs : TIMEOUT;
   }

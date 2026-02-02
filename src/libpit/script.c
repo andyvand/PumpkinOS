@@ -582,7 +582,7 @@ script_ref_t script_create_object(int pe) {
   int r = -1;
 
   if ((env = ptr_lock(pe, TAG_ENV)) != NULL) {
-    r = env->engine->dl_ext_script_create_object(env->priv);
+    r = (int)env->engine->dl_ext_script_create_object(env->priv);
     ptr_unlock(pe, TAG_ENV);
   }
 
@@ -642,7 +642,7 @@ script_ref_t script_create_function(int pe, int (*f)(int pe)) {
   int r = -1;
 
   if ((env = ptr_lock(pe, TAG_ENV)) != NULL) {
-    r =  env->engine->dl_ext_script_create_function(env->priv, pe, f);
+    r =  (int)env->engine->dl_ext_script_create_function(env->priv, pe, f);
     ptr_unlock(pe, TAG_ENV);
   }
 
@@ -654,7 +654,7 @@ script_ref_t script_create_function_data(int pe, int (*f)(int pe, void *data), v
   int r = -1;
 
   if ((env = ptr_lock(pe, TAG_ENV)) != NULL) {
-    r =  env->engine->dl_ext_script_create_function_data(env->priv, pe, f, data);
+    r =  (int)env->engine->dl_ext_script_create_function_data(env->priv, pe, f, data);
     ptr_unlock(pe, TAG_ENV);
   }
 
@@ -666,7 +666,7 @@ script_ref_t script_dup_ref(int pe, script_ref_t ref) {
   int r = -1;
 
   if ((env = ptr_lock(pe, TAG_ENV)) != NULL) {
-    r =  env->engine->dl_ext_script_dup_ref(env->priv, ref);
+    r =  (int)env->engine->dl_ext_script_dup_ref(env->priv, ref);
     ptr_unlock(pe, TAG_ENV);
   }
 
@@ -830,7 +830,7 @@ script_ref_t script_loadlib(int pe, char *libname) {
 
   debug(DEBUG_INFO, "SCRIPT", "loading library %s", libname);
 
-  len = sys_strlen(libname);
+  len = (int)sys_strlen(libname);
   idot = islash = -1;
   for (i = len-1; i > 0; i--) {
     if (libname[i] == '.') {
@@ -860,7 +860,7 @@ script_ref_t script_loadlib(int pe, char *libname) {
   debug(DEBUG_TRACE, "SCRIPT", "module name %s", module);
 
 #if defined(EMSCRIPTEN)
-  if (!sys_strcmp(libname, "libos")) {
+  if (!sys_strncmp(libname, "", 1)) {
     extern int libos_init(int pe, script_ref_t obj);
     load_f = NULL;
     unload_f = NULL;

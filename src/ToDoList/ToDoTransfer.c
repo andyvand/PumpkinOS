@@ -275,13 +275,13 @@ static void SetDescriptionAndFilename(Char * textP, Char **descriptionPP,
         // If at least two spaces were found then use only that much of the description.
         // If less than two spaces were found then use all of the description.
         if (spaceP)
-            filenameLength = spaceP - descriptionP;
+            filenameLength = (UInt8)(spaceP - descriptionP);
         else
-            filenameLength = StrLen(descriptionP);
+			filenameLength = (UInt8)StrLen(descriptionP);
 
 
         // Allocate space and form the filename
-		schemeLength = StrLen(prefix);
+		schemeLength = (UInt8)StrLen(prefix);
         *filenameHP = MemHandleNew(schemeLength + filenameLength + StrLen(todoSuffix) + sizeOf7BitChar('\0'));
         filenameP = MemHandleLock(*filenameHP);
         if (filenameP)
@@ -298,8 +298,8 @@ static void SetDescriptionAndFilename(Char * textP, Char **descriptionPP,
 		resourceP = MemHandleLock(resourceH);
 		
 		// Allocate space and form the filename
-		filenameLength = StrLen(resourceP);
-		schemeLength = StrLen(prefix);
+		filenameLength = (UInt8)StrLen(resourceP);
+		schemeLength = (UInt8)StrLen(prefix);
 		*filenameHP = MemHandleNew(schemeLength + filenameLength + sizeOf7BitChar('\0'));
 		filenameP = MemHandleLock(*filenameHP);
 		if (filenameP)

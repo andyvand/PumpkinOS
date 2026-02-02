@@ -500,7 +500,7 @@ DumpFont(const char *pchFileName,
       {
         if (row == 0)
         {
-          width = strlen(s1);
+          width = (int)strlen(s1);
           if (fntOW[fntNo][curChar].width == (char)-1)
             fntOW[fntNo][curChar].width = width;
         }
@@ -557,7 +557,7 @@ DumpFont(const char *pchFileName,
    */
   coltable[curChar + 1] = coltable[curChar] + fntOW[fntNo][curChar].width;
   CloseGlyph(header, width, &row, &col, autoWidth, autoRectWidth);
-  fntH[fntNo] = header[h_fRectHeight];
+  fntH[fntNo] = (int)header[h_fRectHeight];
 
   header[h_rowWords] = (col + 15) / 16;
   header[h_owTLoc] =
@@ -590,7 +590,7 @@ DumpFont(const char *pchFileName,
   // dump Glyph
   for (x = 0; x < (size_t) header[h_fRectHeight]; x++)
   {
-    DumpBytes(bitmap[x], header[h_rowWords] * 2);
+    DumpBytes(bitmap[x], (int)(header[h_rowWords] * 2));
     free(bitmap[x]);
   }
 
@@ -601,7 +601,7 @@ DumpFont(const char *pchFileName,
 
   // dump CharInfoTag
   DumpBytes(&fntOW[fntNo][header[h_firstChar]],
-            (header[h_lastChar] - header[h_firstChar] + 1 + missingChar) * 2);
+            (int)((header[h_lastChar] - header[h_firstChar] + 1 + missingChar) * 2));
 
 /*
   for (x = 0; x < header[h_lastChar] - header[h_firstChar] + 1 + missingChar; x++) {
@@ -757,7 +757,7 @@ DumpFontFamily( int fntNo, int version, unsigned int densityCount, FNTFAMDEF * f
         {
           if (row == 0)
           {
-            width = strlen(s1);
+            width = (int)strlen(s1);
             if (fntOW[fntNo][curChar].width == (char)-1)
             {
               fntOW[fntNo][curChar].width = width;
@@ -816,7 +816,7 @@ DumpFontFamily( int fntNo, int version, unsigned int densityCount, FNTFAMDEF * f
 
     coltable[curChar + 1] = coltable[curChar] + fntOW[fntNo][curChar].width;
     CloseGlyph(header, width, &row, &col, autoWidth, autoRectWidth);
-    fntH[fntNo] = header[h_fRectHeight];
+    fntH[fntNo] = (unsigned int)header[h_fRectHeight];
     if (singleOW &&
         fntH[fntNo]*firstEntry->density != singleH*fontFamilyEntries->density)
       WarningLine("Font heights not in proportion across different densities");
@@ -879,11 +879,11 @@ DumpFontFamily( int fntNo, int version, unsigned int densityCount, FNTFAMDEF * f
 
         SETBAFIELD(aTest, density, tmpFontFamilyEntries->density);
         if (!x)
-          aGlyphBitsOffset = headerSize + 2 +
+          aGlyphBitsOffset = (unsigned int)(headerSize + 2 +
             (((header[h_lastChar] + 1 + missingChar) - (header[h_firstChar] - 1)) * 2) +
-            ((header[h_lastChar] - header[h_firstChar] + 1 + missingChar) * 2);
+            ((header[h_lastChar] - header[h_firstChar] + 1 + missingChar) * 2));
         else
-          aGlyphBitsOffset += header[h_fRectHeight] * (header[h_rowWords] * 2);
+          aGlyphBitsOffset += (unsigned int)(header[h_fRectHeight] * (header[h_rowWords] * 2));
         SETBAFIELD(aTest, glyphBitsOffset, aGlyphBitsOffset);
 
         if (vfLE32)
@@ -900,7 +900,7 @@ DumpFontFamily( int fntNo, int version, unsigned int densityCount, FNTFAMDEF * f
 
       // dump CharInfoTag
       DumpBytes(&fntOW[fntNo][header[h_firstChar]],
-          (header[h_lastChar] - header[h_firstChar] + 1 + missingChar) * 2);
+          (int)((header[h_lastChar] - header[h_firstChar] + 1 + missingChar) * 2));
 /*
       for (x = 0; x < header[h_lastChar] - header[h_firstChar] + 1 + missingChar; x++) {
         uint16_t w = fntOW[fntNo][header[h_firstChar] + x].offset;
@@ -920,7 +920,7 @@ DumpFontFamily( int fntNo, int version, unsigned int densityCount, FNTFAMDEF * f
     // dump Glyph
     for (x = 0; x < (size_t) header[h_fRectHeight]; x++)
     {
-      DumpBytes(bitmap[x], header[h_rowWords] * 2);
+      DumpBytes(bitmap[x], (int)(header[h_rowWords] * 2));
       if ((fontFamilyEntries->density != 72) && (header[h_rowWords] & 0x0001))
         EmitW(0x0000);
       free(bitmap[x]);

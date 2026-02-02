@@ -7,6 +7,10 @@
 #include "debug.h"
 #include "xalloc.h"
 
+#ifdef WINDOWS
+#include "..\winpthreads\misc.h"
+#endif
+
 struct mutex_t {
   pthread_mutex_t mutex;
   char name[16];
@@ -217,7 +221,7 @@ int cond_timedwait(cond_t *c, mutex_t *m, int us) {
     }
 
     t.tv_sec = ts.tv_sec;
-    t.tv_nsec = ts.tv_nsec;
+    t.tv_nsec = (long)ts.tv_nsec;
     r = pthread_cond_timedwait(&c->cond, &m->mutex, &t);
     if (r != 0) {
       if (r != ETIMEDOUT) {
@@ -374,7 +378,7 @@ int semaphore_timedwait(sema_t *sem, int us) {
     t += us;
     ts.tv_sec = t / 1000000;
     t -= ts.tv_sec * 1000000;
-    ts.tv_nsec = t * 1000;
+    ts.tv_nsec = (long)(t * 1000);
 
     r = sem_timedwait(sem->s, &ts);
 

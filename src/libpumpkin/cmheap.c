@@ -93,11 +93,21 @@ void heap_finish(heap_t *heap) {
 }
 
 void *heap_base(heap_t *heap) {
-  return heap->small_start;
+  if (heap) {
+	  if (heap->small_start) {
+		  return heap->small_start;
+	  }
+  }
+
+  return NULL;
 }
 
 uint32_t heap_size(heap_t *heap) {
-  return heap->small_size + heap->size;
+	if (heap) {
+		return heap->small_size + heap->size;
+	}
+
+	return 0;
 }
 
 #if defined(HEAP_DEBUG)
@@ -196,7 +206,7 @@ void *heap_alloc(heap_t *heap, sys_size_t size) {
     return NULL;
   }
 
-  p = CustomMalloc(&heap->state, size);
+  p = CustomMalloc(&heap->state, (uint32_t)size);
   if (p) {
     realsize = CustomBlockSize(&heap->state, p);
 #if defined(HEAP_DEBUG)

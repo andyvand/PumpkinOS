@@ -72,14 +72,14 @@ static Boolean SelTimeZoneEventHandler(EventType *event) {
         t = TimGetSeconds();
 
         TimSecondsToDateTime(t, &dateTime);
-        TimeToAscii(dateTime.hour, dateTime.minute, prefs.timeFormat, currentTime);
+		TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, prefs.timeFormat, currentTime);
         index = FrmGetObjectIndex(frm, 13401);
         fld = (FieldType *)FrmGetObjectPtr(frm, index);
         FldDelete(fld, 0, 100);
         FldInsert(fld, currentTime, StrLen(currentTime));
 
         TimSecondsToDateTime(t - prefs.timeZone * 60 + newTimeZone * 60, &dateTime);
-        TimeToAscii(dateTime.hour, dateTime.minute, prefs.timeFormat, newTime);
+		TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, prefs.timeFormat, newTime);
         index = FrmGetObjectIndex(frm, 13402);
         fld = (FieldType *)FrmGetObjectPtr(frm, index);
         FldDelete(fld, 0, 100);
@@ -225,7 +225,7 @@ Boolean SelectTimeZone(Int16 *ioTimeZoneP, LmLocaleType *ioLocaleInTimeZoneP, co
     PrefGetPreferences(&prefs);
     t = TimGetSeconds();
     TimSecondsToDateTime(t, &dateTime);
-    TimeToAscii(dateTime.hour, dateTime.minute, prefs.timeFormat, currentTime);
+	TimeToAscii((UInt8)dateTime.hour, (UInt8)dateTime.minute, prefs.timeFormat, currentTime);
     StrCopy(newTime, currentTime);
 
     index = FrmGetObjectIndex(frm, 13401);

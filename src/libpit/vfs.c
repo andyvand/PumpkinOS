@@ -125,18 +125,23 @@ char *vfs_abspath(char *cwd, char *relpath) {
   int s, i, j;
 
   if (!relpath || !relpath[0]) {
+#ifdef _DEBUG
     debug(DEBUG_ERROR, "VFS", "invalid relpath");
+#endif
     return NULL;
   }
 
   if ((abspath = xcalloc(1, VFS_PATH)) == NULL) {
-    return NULL;
+#ifdef _DEBUG
+	  debug(DEBUG_ERROR, "VFS", "allocation of %d bytes failed", VFS_PATH);
+#endif
+	  return NULL;
   }
 
   i = j = 0;
   if (relpath[i] != '/') {
     sys_strncpy(abspath, cwd, VFS_PATH-1);
-    j = sys_strlen(abspath);
+    j = (int)sys_strlen(abspath);
   }
 
   for (s = 0; relpath[i] && j < VFS_PATH-1; i++) {
@@ -197,6 +202,10 @@ char *vfs_abspath(char *cwd, char *relpath) {
   }
   abspath[j] = 0;
 
+#ifdef _DEBUG
+  debug(DEBUG_ERROR, "VFS", "absolute path: %s", abspath);
+#endif
+
   return abspath;
 }
 
@@ -208,7 +217,7 @@ static vfs_mount_t *vfs_find(char *path, int *pos) {
   }
 
   for (i = 0, imax = -1, max = 0; i < nmounts; i++) {
-    len = sys_strlen(mounts[i].path);
+    len = (int)sys_strlen(mounts[i].path);
     r = sys_strncmp(mounts[i].path, path, len);
     if (r == 0) {
       if (len > max) {
@@ -363,7 +372,7 @@ int vfs_chdir(vfs_session_t *session, char *path) {
   mutex_unlock(mutex);
 
   sys_strncpy(session->cwd, abspath, VFS_PATH-2);
-  n = sys_strlen(session->cwd);
+  n = (int)sys_strlen(session->cwd);
   if (n && session->cwd[n-1] != '/') {
     session->cwd[n] = '/';
     session->cwd[n+1] = 0;
@@ -612,7 +621,7 @@ int vfs_getc(vfs_file_t *f) {
 char *vfs_gets(vfs_file_t *f, char *s, uint32_t len) {
   int c, i;
 
-  for (i = 0; i < len-1;) {
+  for (i = 0; i < (int)len-1;) {
     c = vfs_getc(f);
     if (c == SYS_EOF) break;
     s[i++] = c;
@@ -645,7 +654,7 @@ int vfs_printf(vfs_file_t *f, char *fmt, ...) {
   sys_vsnprintf(f->buf, MAX_BUF-1, fmt, ap);
   sys_va_end(ap);
 
-  r = sys_strlen(f->buf);
+  r = (int)sys_strlen(f->buf);
   if (r > 0) vfs_write(f, (uint8_t *)f->buf, r);
 
   return r;

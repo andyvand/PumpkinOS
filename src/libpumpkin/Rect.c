@@ -135,6 +135,18 @@ static int intersects(const RectangleType *a, const RectangleType *b) {
 
 UInt16 RctGetDifference(const RectangleType *a, const RectangleType *b, RectangleType *r) {
   UInt16 rectCount = 0;
+  int raHeight = 0;
+  int rbY = 0;
+  int rbHeight = 0;
+  int rectAYH = 0;
+  int y1 = 0;
+  int y2 = 0;
+  int rcHeight = 0;
+  int rbX = 0;
+  int rdWidth = 0;
+
+  // compute the left rectangle
+  int rcWidth = b->topLeft.x - a->topLeft.x;
 
   if (contains(b, a)) {
     return 0;
@@ -146,7 +158,7 @@ UInt16 RctGetDifference(const RectangleType *a, const RectangleType *b, Rectangl
   }
 
   // compute the top rectangle
-  int raHeight = b->topLeft.y - a->topLeft.y;
+  raHeight = b->topLeft.y - a->topLeft.y;
   if (raHeight > 0) {
     r[rectCount].topLeft.x = a->topLeft.x;
     r[rectCount].topLeft.y = a->topLeft.y;
@@ -156,8 +168,8 @@ UInt16 RctGetDifference(const RectangleType *a, const RectangleType *b, Rectangl
   }
 
   // compute the bottom rectangle
-  int rbY = b->topLeft.y + b->extent.y;
-  int rbHeight = a->extent.y - (rbY - a->topLeft.y);
+  rbY = b->topLeft.y + b->extent.y;
+  rbHeight = a->extent.y - (rbY - a->topLeft.y);
   if (rbHeight > 0 && rbY < a->topLeft.y + a->extent.y) {
     r[rectCount].topLeft.x = a->topLeft.x;
     r[rectCount].topLeft.y = rbY;
@@ -166,13 +178,13 @@ UInt16 RctGetDifference(const RectangleType *a, const RectangleType *b, Rectangl
     rectCount++;
   }
 
-  int rectAYH = a->topLeft.y+a->extent.y;
-  int y1 = b->topLeft.y > a->topLeft.y ? b->topLeft.y : a->topLeft.y;
-  int y2 = rbY < rectAYH ? rbY : rectAYH;
-  int rcHeight = y2 - y1;
+  rectAYH = a->topLeft.y+a->extent.y;
+  y1 = b->topLeft.y > a->topLeft.y ? b->topLeft.y : a->topLeft.y;
+  y2 = rbY < rectAYH ? rbY : rectAYH;
+  rcHeight = y2 - y1;
 
   // compute the left rectangle
-  int rcWidth = b->topLeft.x - a->topLeft.x;
+  rcWidth = b->topLeft.x - a->topLeft.x;
   if (rcWidth > 0 && rcHeight > 0) {
     r[rectCount].topLeft.x = a->topLeft.x;
     r[rectCount].topLeft.y = y1;
@@ -182,8 +194,8 @@ UInt16 RctGetDifference(const RectangleType *a, const RectangleType *b, Rectangl
   }
 
   // compute the right rectangle
-  int rbX = b->topLeft.x + b->extent.x;
-  int rdWidth = a->extent.x - (rbX - a->topLeft.x);
+  rbX = b->topLeft.x + b->extent.x;
+  rdWidth = a->extent.x - (rbX - a->topLeft.x);
   if (rdWidth > 0) {
     r[rectCount].topLeft.x = rbX;
     r[rectCount].topLeft.y = y1;

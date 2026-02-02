@@ -290,7 +290,7 @@ uint32_t ssfn_utf8(char **s)
 # ifndef NULL
 #  define NULL (void*)0
 # endif
-# ifndef size_t
+# if !defined(size_t) && !defined(_MSC_VER)
 #  ifndef __SIZE_TYPE__
 #  define __SIZE_TYPE__ uint32_t
 #  endif
@@ -364,20 +364,20 @@ static void *SSFN_memset(void *__s, int __c, size_t __n)
 /* parse character table */
 static uint8_t *_ssfn_c(const ssfn_font_t *font, const char *str, int *len, uint32_t *unicode)
 {
-    uint32_t i, j, u = -1U;
-    uint16_t *l;
-    uint8_t *ptr, *s;
+    uint32_t i = 0, j = 0, u = (uint32_t)(-1);
+    uint16_t *l = NULL;
+    uint8_t *ptr = NULL, *s = NULL;
 
     *len = 0; *unicode = 0;
     if(!font || !font->characters_offs || !str || !*str) return NULL;
 
     if(font->ligature_offs) {
-        for(l = (uint16_t*)((uint8_t*)font + le32(font->ligature_offs)), i = 0; l[i] && u == -1U; i++) {
+        for(l = (uint16_t*)((uint8_t*)font + le32(font->ligature_offs)), i = 0; l[i] && u == (uint32_t)(-1); i++) {
             for(ptr = (uint8_t*)font + l[i], s = (uint8_t*)str; *ptr && *ptr == *s; ptr++, s++);
             if(!*ptr) { u = SSFN_LIG_FIRST + i; break; }
         }
     }
-    if(u == -1U) {
+    if(u == (uint32_t)(-1)) {
         /* inline ssfn_utf8 to workaround -O2 bug in gcc 11.1 */
         s = (uint8_t*)str; u = *s;
         if((*s & 128) != 0) {
@@ -826,7 +826,7 @@ int ssfn_load(ssfn_t *ctx, const void *data)
 #ifdef SSFN_MAXLINES
             if(ctx->len[family] > 15) return SSFN_ERR_ALLOC;
 #else
-            ctx->fnt[family] = (const ssfn_font_t**)SSFN_realloc(ctx->fnt[family], ctx->len[family]*sizeof(void*));
+			ctx->fnt[family] = (const ssfn_font_t**)SSFN_realloc((void *)ctx->fnt[family], ctx->len[family] * sizeof(void*));
             if(!ctx->fnt[family]) {
                 ctx->len[family] = 0;
                 return SSFN_ERR_ALLOC;
@@ -860,7 +860,7 @@ void ssfn_free(ssfn_t *ctx)
         SSFN_free(ctx->bufs);
     }
     for(i = 0; i < 5; i++)
-        if(ctx->fnt[i]) SSFN_free(ctx->fnt[i]);
+	if (ctx->fnt[i]) SSFN_free((ssfn_t *)ctx->fnt[i]);
     if(ctx->p) SSFN_free(ctx->p);
 #endif
     SSFN_memset(ctx, 0, sizeof(ssfn_t));
@@ -1350,7 +1350,7 @@ again:  if(p >= SSFN_FAMILY_BYNAME) { n = 0; m = 4; } else n = m = p;
                             m = le32(ctx->f->kerning_offs) + ((((frg[2] >> 4) & 0xF) << 24) | (((frg[5] >> 4) & 0xF) << 16) | (frg[7] << 8) | frg[6]);
                             tmp = (uint8_t*)ctx->f + m;
                             while(tmp < (uint8_t*)ctx->f + ctx->f->size - 4) {
-                                if((tmp[0] & 0x7F) < P) {
+                                if((tmp[0] & 0x7F) < (uint8_t)P) {
                                     P -= (tmp[0] & 0x7F) + 1;
                                     tmp += 2 + (tmp[0] & 0x80 ? 0 : tmp[0] & 0x7F);
                                 } else {
@@ -1433,7 +1433,7 @@ ssfn_buf_t *ssfn_text(ssfn_t *ctx, const char *str, unsigned int fg)
     buf->fg = fg;
     if(!*str || ssfn_bbox(ctx, str, (int*)&buf->w, (int*)&buf->h, (int*)&buf->x, (int*)&buf->y) != SSFN_OK)
         return buf;
-    buf->p = buf->w * sizeof(uint32_t);
+    buf->p = (uint16_t)(buf->w * sizeof(uint32_t));
     buf->ptr = (uint8_t*)SSFN_realloc(NULL, buf->p * buf->h);
     SSFN_memset(buf->ptr, 0, buf->p * buf->h);
     while((ret = ssfn_render(ctx, buf, str)) > 0)

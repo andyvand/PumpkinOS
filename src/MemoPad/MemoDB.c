@@ -36,11 +36,11 @@
  *************************************************************/
 static void MemoLocalizeAppInfo (MemoAppInfoPtr appInfoP)
 {
-	Int16 		i;
-	Char **		stringsP;
-	MemHandle 	stringsH;
-	MemHandle 	localizedAppInfoH;
-	Char *		localizedAppInfoP;
+	Int16 		i = 0;
+	Char **		stringsP = NULL;
+	MemHandle 	stringsH = NULL;
+	MemHandle 	localizedAppInfoH = NULL;
+	Char *		localizedAppInfoP = NULL;
 	//MemoAppInfoPtr	nilP = 0;
 
 
@@ -84,12 +84,12 @@ static void MemoLocalizeAppInfo (MemoAppInfoPtr appInfoP)
  *************************************************************/
 Err	MemoAppInfoInit(DmOpenRef dbP)
 {
-	UInt16 				cardNo;
-	MemHandle			h;
-	LocalID 				dbID;
-	LocalID 				appInfoID;
+	UInt16 				cardNo = 0;
+	MemHandle			h = NULL;
+	LocalID 				dbID = 0;
+	LocalID 				appInfoID = 0;
 	//MemoAppInfoPtr 	nilP = 0;
-	MemoAppInfoPtr		appInfoP;
+	MemoAppInfoPtr		appInfoP = NULL;
 	
 	if (DmOpenDatabaseInfo(dbP, &dbID, NULL, NULL, &cardNo, NULL))
 		return dmErrInvalidParam;
@@ -145,10 +145,10 @@ Err	MemoAppInfoInit(DmOpenRef dbP)
  *************************************************************/
 static MemHandle MemoGetAppInfo (DmOpenRef dbP)
 {
-	Err error;
-	UInt16 cardNo;
-	LocalID dbID;
-	LocalID appInfoID;
+	Err error = 0;
+	UInt16 cardNo = 0;
+	LocalID dbID = 0;
+	LocalID appInfoID = 0;
 	
 	error = DmOpenDatabaseInfo (dbP, &dbID, NULL, NULL, &cardNo, NULL);
 	ErrFatalDisplayIf (error,  "Get getting app info block");
@@ -196,7 +196,7 @@ static Int16 MemoCompareRecords (MemoDBRecordPtr r1,
 	MemoDBRecordPtr r2, Int16 sortOrder, SortRecordInfoPtr UNUSED_PARAM(info1), 
 	SortRecordInfoPtr UNUSED_PARAM(info2), MemHandle UNUSED_PARAM(appInfoH))
 {
-	Int16 result;
+	Int16 result = 0;
 
 	// Alphabetize;
 	if (sortOrder == soAlphabetic)
@@ -265,7 +265,7 @@ UInt8 MemoGetSortOrder (DmOpenRef dbP)
  *************************************************************/
 Err MemoChangeSortOrder(DmOpenRef dbP, Boolean sortOrder)
 {
-	MemoAppInfoPtr appInfoP;
+	MemoAppInfoPtr appInfoP = NULL;
 	//MemoAppInfoPtr	nilP = 0;
 
 
@@ -311,7 +311,7 @@ Err MemoChangeSortOrder(DmOpenRef dbP, Boolean sortOrder)
  *************************************************************/
 void MemoSort (DmOpenRef dbP)
 {
-	Int16 sortOrder;
+	Int16 sortOrder = 0;
 	
 	sortOrder = MemoGetSortOrder (dbP);
 	DmInsertionSort (dbP, (DmComparF *) &MemoCompareRecords, (Int16) sortOrder);
@@ -337,11 +337,11 @@ void MemoSort (DmOpenRef dbP)
  *************************************************************/
 Err MemoNewRecord (DmOpenRef dbP, MemoItemPtr item, UInt16 *index)
 {
-	Err 					result;
+	Err 					result = 0;
 	int					size = 0;
-	UInt32				offset;
-	MemHandle			recordH;	
-	MemoDBRecordPtr	recordP;
+	UInt32				offset = 0;
+	MemHandle			recordH = NULL;	
+	MemoDBRecordPtr	recordP = NULL;
 
 	// Compute the size of the new memo record.
 	size = StrLen (item->note);
@@ -397,16 +397,16 @@ Err MemoNewRecord (DmOpenRef dbP, MemoItemPtr item, UInt16 *index)
  *************************************************************/
 Err MemoSortRecord (DmOpenRef dbP, UInt16 * indexP)
 {
-	Err err;
-	Int16 sortOrder;
-	UInt16 index;
-	UInt16 attributes;
-	UInt32 uniqueID;
-	MemHandle recordH;
-	MemHandle h;
-	Boolean dontMove;
-	MemoDBRecordPtr cmp;
-	MemoDBRecordPtr recordP;
+	Err err = 0;
+	Int16 sortOrder = 0;
+	UInt16 index = 0;
+	UInt16 attributes = 0;
+	UInt32 uniqueID = 0;
+	MemHandle recordH = NULL;
+	MemHandle h = NULL;
+	Boolean dontMove = 0;
+	MemoDBRecordPtr cmp = NULL;
+	MemoDBRecordPtr recordP = NULL;
 	
 	sortOrder = MemoGetSortOrder (dbP);
 
@@ -493,9 +493,9 @@ Err MemoSortRecord (DmOpenRef dbP, UInt16 * indexP)
 Err MemoGetDatabase (DmOpenRef *dbPP, UInt16 mode)
 {
 	Err error = 0;
-	DmOpenRef dbP;
-	UInt16 cardNo;
-	LocalID dbID;
+	DmOpenRef dbP = NULL;
+	UInt16 cardNo = 0;
+	LocalID dbID = 0;
 
 	*dbPP = NULL;
   

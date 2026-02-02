@@ -1584,7 +1584,7 @@ static Boolean ItemsGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
               printApp(data, &data->item[i], x, y, false);
             }
           }
-          break;
+          break;	
         case launcher_app_small:
           if (row == 0) {
             x = event->screenX - gad->rect.topLeft.x;
@@ -1742,9 +1742,9 @@ static Boolean ItemsGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
 
   FntSetFont(old);
   WinSetDrawMode(mode);
-  WinSetBackColor(bc);
-  WinSetTextColor(tc);
-  WinSetTextColor(fc);
+  WinSetBackColor((IndexedColorType)bc);
+  WinSetTextColor((IndexedColorType)tc);
+  WinSetTextColor((IndexedColorType)fc);
 
   return true;
 }
@@ -2050,7 +2050,7 @@ static void UpdateStatus(FormPtr frm, launcher_data_t *data, Boolean title) {
     case launcher_app_small:
       if (update) {
         tf = PrefGetPreference(prefTimeFormat);
-        TimeToAscii(dt.hour, dt.minute, tf, data->title);
+		TimeToAscii((UInt8)dt.hour, (UInt8)dt.minute, tf, data->title);
         FrmSetTitle(frm, data->title);
         DrawBattery(true);
         if (data->useTaskbar) {
@@ -2123,7 +2123,7 @@ void setField(FormType *frm, UInt16 fieldId, char *s, Boolean focus) {
   fld = (FieldPtr)FrmGetObjectPtr(frm, objIndex);
 
   FldGetAttributes(fld, &attr);
-  old = attr.editable;
+  old = (Boolean)attr.editable;
   attr.editable = true;
   FldSetAttributes(fld, &attr);
 
@@ -2304,7 +2304,7 @@ static void dbFiltercallback(FormType *frm, dynamic_form_phase_t phase, void *_d
     case getProperties:
       data->filterDbType = getField4Char(frm, 1000);
       data->filterCreator = getField4Char(frm, 1001);
-      data->filterRsrc = getControlValue(frm, 1002);
+      data->filterRsrc = (Boolean)getControlValue(frm, 1002);
       break;
     case finishForm:
       frm = FrmGetActiveForm();
@@ -2853,7 +2853,7 @@ static Err LauncherNotificationHandler(SysNotifyParamType *notifyParamsP) {
           debug(DEBUG_INFO, "Launcher", "sysNotifyAppLaunchingEvent '%s' \"%s\"", screator, name);
           if (data->useTaskbar) {
             pumpkin_taskbar_add(launch->dbID, creator, name);
-	  }
+	      }
         }
         break;
       case sysNotifyAppQuittingEvent:
@@ -2864,7 +2864,7 @@ static Err LauncherNotificationHandler(SysNotifyParamType *notifyParamsP) {
           debug(DEBUG_INFO, "Launcher", "sysNotifyAppQuittingEvent '%s' \"%s\"", screator, name);
           if (data->useTaskbar) {
             pumpkin_taskbar_remove(launch->dbID);
-	  }
+	      }
           data->appQuit = true;
         }
         break;
@@ -2906,8 +2906,8 @@ static void addWidgets(launcher_data_t *data) {
   Boolean firstLoad;
   void *lib;
   void *(*widgetInit)(void);
-  void (*widgetFinish)(void *data);
-  void *widgetData;
+  void (*widgetFinish)(void *data) = NULL;
+  void *widgetData = NULL;
   launcher_widget_t aux;
 
   i = 0;
@@ -3003,9 +3003,16 @@ UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #endif
 {
-  launcher_data_t *data;
-  FormType *formP;
-  UInt32 value;
+  launcher_data_t *data = NULL;
+  FormType *formP = NULL;
+  UInt32 value = 0;
+
+#ifdef WINDOWS
+  if (!(launchFlags & sysAppLaunchFlagFork)) {
+    pumpkin_set_mode(0, 1, 16);
+    pumpkin_set_taskbar(1);
+  }
+#endif
 
   switch (cmd) {
     case sysAppLaunchCmdNormalLaunch:
@@ -3089,7 +3096,7 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   data->useTaskbar = !(launchFlags & sysAppLaunchFlagFork);
 
   if (data->useTaskbar) {
-    pumpkin_taskbar_create();
+	pumpkin_taskbar_create();
     pumpkin_taskbar_add(pumpkin_get_app_localid(), pumpkin_get_app_creator(), APPNAME);
     addWidgets(data);
   }
@@ -3097,6 +3104,7 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   if (pumpkin_get_mode() == 0) {
     FrmCenterDialogs(true);
   }
+
   FrmGotoForm(MainForm);
   EventLoop(data);
   formP = FrmGetActiveForm();
@@ -3123,6 +3131,7 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   pumpkin_set_data(NULL);
   mutex_destroy(data->mutex);
   sys_free(data);
+
   if (!(launchFlags & sysAppLaunchFlagFork)) pumpkin_set_finish(1);
 
   return 0;

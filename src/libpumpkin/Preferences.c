@@ -198,9 +198,9 @@ static void initPrefs(SystemPreferencesType *prefs) {
     debug(DEBUG_INFO, PALMOS_MODULE, "setting locale for country %d (%s) and language %d", systemLocale.country, countryName, systemLocale.language);
     OmSetSystemLocale(&systemLocale);
 
-    prefs->country = systemLocale.country;
-    prefs->timeZoneCountry = systemLocale.country;
-    prefs->language = systemLocale.language;
+    prefs->country = (CountryType)systemLocale.country;
+    prefs->timeZoneCountry = (CountryType)systemLocale.country;
+    prefs->language = (LanguageType)systemLocale.language;
 
     LmGetLocaleSetting(index, lmChoiceTimeZone, &prefs->timeZone, sizeof(prefs->timeZone));
     LmGetLocaleSetting(index, lmChoiceDateFormat, &prefs->dateFormat, sizeof(prefs->dateFormat));
@@ -212,12 +212,12 @@ static void initPrefs(SystemPreferencesType *prefs) {
 
   } else if (systemLocale.country != lmAnyCountry) {
     debug(DEBUG_INFO, PALMOS_MODULE, "setting prefs for country %d", systemLocale.country);
-    prefs->country = systemLocale.country;
-    prefs->timeZoneCountry = systemLocale.country;
+    prefs->country = (CountryType)systemLocale.country;
+	prefs->timeZoneCountry = (CountryType)systemLocale.country;
 
   } else if (systemLocale.language != lmAnyLanguage) {
     debug(DEBUG_INFO, PALMOS_MODULE, "setting prefs for language %d", systemLocale.language);
-    prefs->language = systemLocale.language;
+    prefs->language = (LanguageType)systemLocale.language;
   }
 }
 
