@@ -3,13 +3,12 @@ PumpkinOS is a re-implementation of PalmOS that runs on modern architectures (x8
 It is not your average PalmOS emulator (it does NOT require a PalmOS ROM), but it can run m68K PalmOS applications.
 For a series of articles describing various aspects of PumpkinOS, look here: https://pmig96.wordpress.com/category/palmos/.
 
-PumpkinOS running on Windows Embedded Compact 2013:
+# PumpkinOS running on Windows Embedded Compact 2013:
 ![](/screenshots/pumpkinos_wce.png)
 
-PumpkinOS running on macOS:
+# PumpkinOS running on macOS:
 ![](/screenshots/pumpkinos_macOS.png)
 
-General screenshot:
 ![](/screenshots/pumpkin.png)
 
 # Support for MSVC and macOS
