@@ -39,9 +39,19 @@ $(DLIB): $(PROGRAM).dlib
 	@cp $(PROGRAM).dlib $(DLIB)
 	@$(STRIP) $(DLIB)
 
+ifeq ($(OSNAME),Msys)
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 	@echo Linking $(PROGRAM).dlib
 	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS) --def $(PROGRAM).def
+else ifeq ($(OSNAME),Darwin)
+$(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
+	@echo Linking $(PROGRAM).dlib
+	@$(CC) -dynamiclib -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS)
+else
+$(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
+	@echo Linking $(PROGRAM).dlib
+	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS)
+endif
 
 $(STUBS_OPT): $(STUBS).c
 	@echo Compiling $<

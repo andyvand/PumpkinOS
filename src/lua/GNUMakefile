@@ -12,8 +12,8 @@ CUSTOMFLAGS=-DLUA_COMPAT_5_2 -DLUA_INT_TYPE=1 -DLUA_FLOAT_TYPE=2
 
 ifeq ($(OSNAME),Emscripten)
 STATIC=2
-endif
-
+else ifeq ($(OSNAME),Msys)
 LIBS = -lmincore
+endif
 
 include ../lib.mak

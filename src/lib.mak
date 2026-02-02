@@ -15,10 +15,22 @@ LIB=$(BIN)/$(PROGRAM)
 
 $(LIB)$(EXT):
 
+ifeq ($(OSNAME),Msys)
 $(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
 	@echo Linking $(PROGRAM)$(SOEXT)
 	@$(CC) -shared -o $(LIB)$(SOEXT) -Wl,--out-implib,$(LIB).a $(OBJS) -L$(BIN) -lpit $(LIBS) --def $(LIB).def
 	@$(STRIP) $(LIB)$(SOEXT)
+else ifeq ($(OSNAME),Darwin)
+$(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
+	@echo Linking $(PROGRAM)$(SOEXT)
+	@$(CC) -dynamiclib -o $(LIB)$(SOEXT) $(OBJS) -L$(BIN) -lpit $(LIBS)
+	@$(STRIP) $(LIB)$(SOEXT)
+else
+$(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
+	@echo Linking $(PROGRAM)$(SOEXT)
+	@$(CC) -shared -o $(LIB)$(SOEXT) $(OBJS) -L$(BIN) -lpit $(LIBS)
+	@$(STRIP) $(LIB)$(SOEXT)
+endif
 
 $(LIB).a: $(OBJS)
 	@echo Creating $(PROGRAM).a

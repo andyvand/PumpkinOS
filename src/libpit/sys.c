@@ -67,7 +67,13 @@
 #include <sys/statvfs.h>
 #else
 #include <sys/syscall.h>
+
+#if defined(DARWIN)
+#include <sys/mount.h>
+#include <mach/mach_time.h>
+#else
 #include <sys/vfs.h>
+#endif
 #endif
 #include <sys/wait.h>
 #include <arpa/inet.h>
@@ -681,6 +687,11 @@ uint32_t sys_get_tid(void) {
 #if defined(WINDOWS)
   return (uint32_t)GetCurrentThreadId();
 #endif
+#if defined(DARWIN)
+  uint64_t tid = 0;
+  pthread_threadid_np(NULL, &tid); // NULL pakt de huidige thread
+  return (uint32_t)tid;
+#endif
 #if defined(LINUX)
   return syscall(SYS_gettid);
 #endif
@@ -876,7 +887,7 @@ int sys_rewinddir(sys_dir_t *dir) {
         r = 0;
       }
     }
-#elif defined(LINUX)
+#elif defined(LINUX) || defined(DARWIN)
     rewinddir(dir->dir);
     r = 0;
 #endif
@@ -1912,7 +1923,7 @@ int sys_statfs(const char *pathname, sys_statfs_t *st) {
     r = 0;
   }
 #endif
-#if defined(LINUX) || defined(EMSCRIPTEN)
+#if defined(LINUX) || defined(EMSCRIPTEN) || defined(DARWIN)
   struct statfs sb;
 
   if (statfs(pathname, &sb) == 0) {
@@ -2599,6 +2610,8 @@ int64_t sys_get_clock(void) {
   ticks.QuadPart *= 1000000;
   ticks.QuadPart /= ticks_per_second.QuadPart;
   ts = ticks.QuadPart;
+#elif defined(DARWIN)
+  ts = mach_absolute_time();
 #elif defined(EMSCRIPTEN)
   ts = gettime(CLOCK_MONOTONIC);
 #else
@@ -2616,7 +2629,10 @@ int sys_get_clock_ts(sys_timespec_t *ts) {
   struct timespec t;
   int r;
 
-#if WINDOWS
+#ifdef WINDOWS
+  r = my_clock_gettime(CLOCK_REALTIME, &t);
+#else
+#ifdef DARWIN
   r = my_clock_gettime(CLOCK_REALTIME, &t);
 #else
 #if _POSIX_TIMERS > 0
@@ -2624,6 +2640,7 @@ int sys_get_clock_ts(sys_timespec_t *ts) {
 #else
   debug(DEBUG_ERROR, "SYS", "clock_gettime is not implemented");
   r = -1;
+#endif
 #endif
 #endif
 
@@ -2643,12 +2660,12 @@ int64_t sys_get_process_time(void) {
   } else {
     debug(DEBUG_ERROR, "SYS", "GetProcessTimes failed");
   }
-#else
-#if defined(LINUX)
+#elif defined(DARWIN)
+  ts = mach_absolute_time();
+#elif defined(LINUX)
   ts = gettime(CLOCK_PROCESS_CPUTIME_ID);
 #else
   debug(DEBUG_ERROR, "SYS", "CLOCK_PROCESS_CPUTIME_ID is not implemented");
-#endif
 #endif
 
   return ts;
@@ -2665,10 +2682,14 @@ int64_t sys_get_thread_time(void) {
     debug(DEBUG_ERROR, "SYS", "GetThreadTimes failed");
   }
 #else
+#if defined(DARWIN)
+  ts = mach_absolute_time();
+#else
 #if defined(LINUX)
   ts = gettime(CLOCK_THREAD_CPUTIME_ID);
 #else
   debug(DEBUG_ERROR, "SYS", "CLOCK_THREAD_CPUTIME_ID is not implemented");
+#endif
 #endif
 #endif
 
@@ -2676,9 +2697,14 @@ int64_t sys_get_thread_time(void) {
 }
 
 int sys_set_thread_name(char *name) {
+#if defined(DARWIN)
+  pthread_setname_np(name);
+#else
 #if defined(LINUX)
   pthread_setname_np(pthread_self(), name);
 #endif
+#endif
+
   return 0;
 }
 
@@ -2782,9 +2808,15 @@ void *sys_lib_load(char *libname, int *first_load) {
 
   sys_strncpy(buf, libname, FILE_PATH-1);
   len = sys_strlen(buf);
+#ifdef DARWIN
+  if (sys_strstr(buf, ".dylib") == NULL && sys_strchr(buf, '.') == NULL && FILE_PATH-len > 7) {
+    sys_strcat(buf, ".dylib");
+  }
+#else
   if (sys_strstr(buf, ".so") == NULL && sys_strchr(buf, '.') == NULL && FILE_PATH-len > 4) {
     sys_strcat(buf, ".so");
   }
+#endif
 
   // check if library is already loaded
   dlerror();

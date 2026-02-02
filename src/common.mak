@@ -98,6 +98,14 @@ OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
 CC=gcc
 FC=gfortran
 
+else ifeq ($(OSNAME),Darwin)
+SYS_OS=1
+SOEXT=.dylib
+LUAPLAT=linux
+OS=Darwin
+OSDEFS=$(MBITS) -DDARWIN $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\" -std=gnu11 -Wno-invalid-pp-token -Wno-string-plus-int
+CC=clang -arch x86_64 -arch arm64
+CPP=clang++ -arch x86_64 -arch arm64
 else ifeq ($(OSNAME),Msys)
 SYS_OS=2
 EXTLIBS=-lwsock32 -lws2_32

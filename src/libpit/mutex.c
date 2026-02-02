@@ -11,6 +11,10 @@
 #include "..\winpthreads\misc.h"
 #endif
 
+#ifdef DARWIN
+#include <dispatch/dispatch.h>
+#endif
+
 struct mutex_t {
   pthread_mutex_t mutex;
   char name[16];
@@ -368,6 +372,26 @@ int semaphore_wait(sema_t *sem, int block) {
   return r;
 }
 
+#ifdef DARWIN
+int macos_sem_timedwait(dispatch_semaphore_t sem, const struct timespec *abs_timeout) {
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+
+    // Bereken resterende tijd in nanoseconden
+    int64_t nsec = (abs_timeout->tv_sec - now.tv_sec) * NSEC_PER_SEC +
+                   (abs_timeout->tv_nsec - now.tv_nsec);
+    
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, nsec > 0 ? nsec : 0);
+
+    if (dispatch_semaphore_wait(sem, timeout) == 0) {
+        return 0;
+    } else {
+        errno = ETIMEDOUT;
+        return -1;
+    }
+}
+#endif
+
 int semaphore_timedwait(sema_t *sem, int us) {
   struct timespec ts;
   int64_t t;
@@ -380,7 +404,11 @@ int semaphore_timedwait(sema_t *sem, int us) {
     t -= ts.tv_sec * 1000000;
     ts.tv_nsec = (long)(t * 1000);
 
+#ifdef DARWIN
+    r = macos_sem_timedwait(sem->s, &ts);
+#else
     r = sem_timedwait(sem->s, &ts);
+#endif
 
     if (r != 0 && errno != ETIMEDOUT) {
       debug_errno("MUTEX", "sem_timedwait");

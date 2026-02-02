@@ -4,7 +4,9 @@ DIRS=../bin ../lib ../tools ../vfs/app_card/PALM/Programs ../vfs/app_install ../
 BASE_MODULES=pilrc prcbuild libpit lua libpumpkin libos libshell BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook
 
 ifeq ($(OSNAME),GNU/Linux)
-ifneq ($(wildcard /usr/include/SDL2/SDL.h),)
+ifneq ($(wildcard /usr/local/include/SDL3/SDL.h),)
+WINDOW_MODULE=liblsdl3
+else ifneq ($(wildcard /usr/include/SDL2/SDL.h),)
 WINDOW_MODULE=liblsdl2
 else ifneq ($(wildcard /usr/include/wayland-client.h),)
 WINDOW_MODULE=libwwayland
@@ -15,6 +17,16 @@ ERROR=make_error
 ERROR_MSG=Could not find SDL2, Wayland or XCB development headers
 endif
 EXTRA_MODULES=$(WINDOW_MODULE) libaalsa linux
+
+else ifeq ($(OSNAME),Darwin)
+ifneq ($(wildcard /usr/local/include/SDL3/SDL.h),)
+WINDOW_MODULE=liblsdl3
+else ifneq ($(wildcard /usr/local/include/SDL2/SDL.h),)
+WINDOW_MODULE=liblsdl2
+else ifneq ($(wildcard /opt/X11/include/xcb/xcb_ewmh.h),)
+WINDOW_MODULE=libwxcb
+endif
+EXTRA_MODULES=$(WINDOW_MODULE) linux
 
 else ifeq ($(OSNAME),Msys)
 
