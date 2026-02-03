@@ -28,7 +28,7 @@
 #include "pthread_compat.h"
 
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(HAS_TIMESPEC)
 struct _timespec64 {
 	__time64_t tv_sec;
 	int tv_nsec;
