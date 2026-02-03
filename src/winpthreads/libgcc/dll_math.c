@@ -128,7 +128,7 @@ u_quad_t	__udivmoddi4(u_quad_t a, u_quad_t b, u_quad_t *rem);
 
 #endif /* !_LIBKERN_QUAD_H_ */
 
-#if defined (_X86_) || defined(_X64_) || defined(_AMD64_) || defined(_ARM_) || defined(_ARM64_)
+#if (defined (_X86_) || defined(_X64_) || defined(_AMD64_) || defined(_ARM_) || defined(_ARM64_)) && !defined(_ARM64EC_)
 /*
  * Shift a (signed) quad value left (arithmetic shift left).
  * This is the same as logical shift left!
