@@ -3,7 +3,22 @@ PumpkinOS is a re-implementation of PalmOS that runs on modern architectures (x8
 It is not your average PalmOS emulator (it does NOT require a PalmOS ROM), but it can run m68K PalmOS applications.
 For a series of articles describing various aspects of PumpkinOS, look here: https://pmig96.wordpress.com/category/palmos/.
 
+# PumpkinOS running on Windows Embedded Compact 2013:
+![](/screenshots/pumkinos_wce.png)
+
+# PumpkinOS running on macOS:
+![](/screenshots/pumpkinos_macOS.png)
+
 ![](/screenshots/pumpkin.png)
+
+# Support for MSVC and macOS
+The folder VCProject contains a MSVC buildable project.
+Support for Application Builder (Windows CE) was added in the form of makefiles and sources files to be able to build it for Windows CE.
+Support for macOS added.
+The support for MSVC and macOS was done by Andy Vandijck
+
+If you use GNU make do the following command:
+- make -f GNUmakefile
 
 Launcher is the first application that runs when PumpkinOS starts. It shows a panel from which you can start other applications.
 Preferences will eventually contain all preference options for configuring PumpkinOS.
