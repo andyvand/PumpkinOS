@@ -70,7 +70,10 @@
 
 #if defined(DARWIN)
 #include <sys/mount.h>
+#include <mach/mach_init.h>
+#include <mach/thread_act.h>
 #include <mach/mach_time.h>
+#include <mach/task.h>
 #else
 #include <sys/vfs.h>
 #endif
@@ -80,6 +83,10 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#endif
+
+#if defined(DARWIN)
+#define SYS_C
 #endif
 
 #include "sys.h"
@@ -2602,6 +2609,10 @@ static int64_t gettime(int type) {
 
 int64_t sys_get_clock(void) {
   int64_t ts = -1;
+#if defined(DARWIN)
+  static mach_timebase_info_data_t info;
+  uint64_t now = 0;
+#endif
 
 #if defined(WINDOWS)
   LARGE_INTEGER ticks_per_second, ticks;
@@ -2611,7 +2622,13 @@ int64_t sys_get_clock(void) {
   ticks.QuadPart /= ticks_per_second.QuadPart;
   ts = ticks.QuadPart;
 #elif defined(DARWIN)
-  ts = mach_absolute_time();
+    // macOS specifieke aanpak voor microseconden
+  if (info.denom == 0) mach_timebase_info(&info);
+
+  now = mach_absolute_time();
+  // mach_absolute_time * numer / denom = nanoseconden
+  // Deel door 1000 voor microseconden
+  ts = (int64_t)((now * info.numer) / (info.denom * 1000));
 #elif defined(EMSCRIPTEN)
   ts = gettime(CLOCK_MONOTONIC);
 #else
@@ -2652,6 +2669,10 @@ int sys_get_clock_ts(sys_timespec_t *ts) {
 
 int64_t sys_get_process_time(void) {
   int64_t ts = -1;
+#if defined(DARWIN)
+  struct task_thread_times_info thread_info_data;
+  mach_msg_type_number_t count = 0;
+#endif
 
 #if defined(WINDOWS)
   FILETIME creationTime, exitTime, kernelTime, userTime;
@@ -2661,7 +2682,15 @@ int64_t sys_get_process_time(void) {
     debug(DEBUG_ERROR, "SYS", "GetProcessTimes failed");
   }
 #elif defined(DARWIN)
-  ts = mach_absolute_time();
+    // Gebruik Mach task_info voor CPU-gebruik van het huidige proces
+  count = TASK_THREAD_TIMES_INFO_COUNT;
+
+  if (task_info(mach_task_self(), TASK_THREAD_TIMES_INFO, (task_info_t)&thread_info_data, &count) == KERN_SUCCESS) {
+    // Combineer user-time en system-time naar microseconden
+    ts = ((int64_t)thread_info_data.user_time.seconds * 1000000) + thread_info_data.user_time.microseconds;
+    // Optioneel: voeg kernel-time toe als je de totale CPU-tijd wilt (zoals Linux vaak doet)
+    // ts += ((int64_t)thread_info_data.system_time.seconds * 1000000) + thread_info_data.system_time.microseconds;
+  }
 #elif defined(LINUX)
   ts = gettime(CLOCK_PROCESS_CPUTIME_ID);
 #else
@@ -2673,6 +2702,10 @@ int64_t sys_get_process_time(void) {
 
 int64_t sys_get_thread_time(void) {
   int64_t ts = -1;
+#if defined(DARWIN)
+  thread_basic_info_data_t info;
+  mach_msg_type_number_t count = 0;
+#endif
 
 #if defined(WINDOWS)
   FILETIME creationTime, exitTime, kernelTime, userTime;
@@ -2683,7 +2716,14 @@ int64_t sys_get_thread_time(void) {
   }
 #else
 #if defined(DARWIN)
-  ts = mach_absolute_time();
+  // macOS specifieke thread CPU-tijd
+  count = THREAD_BASIC_INFO_COUNT;
+    
+  if (thread_info(mach_thread_self(), THREAD_BASIC_INFO, (thread_info_t)&info, &count) == KERN_SUCCESS) {
+    // Omzetting naar microseconden (user_time)
+    ts = ((int64_t)info.user_time.seconds * 1000000) + info.user_time.microseconds;
+    // Voeg eventueel info.system_time toe voor totale CPU belasting
+  }
 #else
 #if defined(LINUX)
   ts = gettime(CLOCK_THREAD_CPUTIME_ID);

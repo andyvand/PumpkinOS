@@ -262,7 +262,7 @@ void palmos_accessortrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       formP = ARG32;
       labelID = ARG16;
       form = (FormType *)emupalmos_trap_sel_in(formP, sysTrapAccessorDispatch, sel, 0);
-      res = FrmGlueGetLabelFont(form, labelID);
+      res = (ControlStyleType)FrmGlueGetLabelFont(form, labelID);
       debug(DEBUG_TRACE, "EmuPalmOS", "FrmGlueGetLabelFont(0x%08X, %u): %u", formP, labelID, res);
       m68k_set_reg(M68K_REG_D0, res);
       }

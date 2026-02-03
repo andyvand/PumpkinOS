@@ -215,9 +215,9 @@ static int palmos_systrap_gen(uint16_t trap) {
   uint32_t winH = 0;
   WinHandle l_winH = NULL;
   uint32_t extentX = 0;
-  Coord l_extentX;
+  Coord l_extentX = 0;
   uint32_t extentY = 0;
-  Coord l_extentY;
+  Coord l_extentY = 0;
   uint32_t listP = 0;
   ListType *s_listP = NULL;
   int16_t itemCount = 0;
@@ -2466,7 +2466,7 @@ uint32_t palmos_systrap(uint16_t trap) {
         *p = 0;
         res = (UInt32)sys_strlen(s);
       }
-      debug(DEBUG_TRACE, "EmuPalmOS", "StrPrintF(0x%08X \"%s\", 0x%08X \"%s\", ...): %d", str, s ? s : "", formatStr, f ? f : "", res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "StrPrintF(0x%08X \"%s\", 0x%08X \"%s\", ...): %d", strP, str, formatStr, s ? s : "", f ? res : 0);
       m68k_set_reg(M68K_REG_D0, res);
       }
       break;
@@ -4136,7 +4136,7 @@ uint32_t palmos_systrap(uint16_t trap) {
       bufP = ARG32;
       sys = emupalmos_trap_in(sysP, trap, 1);
       bufp = emupalmos_trap_in(bufP, trap, 2);
-      debug(level, sys, "%s", bufp);
+      debug(level, sys, "%s", (char *)bufp);
       break;
     }
     case sysTrapPumpkinDebugBytes: {

@@ -1271,7 +1271,7 @@ static uint32_t tos_gemdos_systrap(void) {
           aaddr = p ? (uint32_t)(p - memory) : 0;
         }
         m68k_set_reg(M68K_REG_D0, aaddr);
-        debug(DEBUG_INFO, "TOS", "GEMDOS Malloc(%d): 0x%08X", number, addr);
+        debug(DEBUG_INFO, "TOS", "GEMDOS Malloc(%d): 0x%08X", number, aaddr);
       }
       break;
     case 260: { // int32_t Fcntl(int16_t fh, int32_t arg, int16_t cmd)

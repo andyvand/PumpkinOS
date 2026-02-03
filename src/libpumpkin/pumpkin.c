@@ -1653,7 +1653,7 @@ static uint32_t pumpkin_launch_sub(launch_request_t *request, int opendb) {
           if ((lib = DmResourceLoadLib(dbRef, sysRsrcTypeDlib, &firstLoad)) != NULL) {
             debug(DEBUG_INFO, PUMPKINOS, "dlib resource loaded (first %d, lib 0x%lx)", firstLoad ? 1 : 0, (unsigned long)((uint64_t)lib));
             pilot_main = sys_lib_defsymbol(lib, "PilotMain", 1);
-			debug(DEBUG_INFO, PUMPKINOS, "pilot_main: 0x%lx)", firstLoad ? 1 : 0, (unsigned long)((uint64_t)pilot_main));
+			debug(DEBUG_INFO, PUMPKINOS, "pilot_main: 0x%lx)", firstLoad ? 1 : (unsigned long)((uint64_t)pilot_main));
 			if (pilot_main == NULL) {
               debug(DEBUG_ERROR, PUMPKINOS, "PilotMain not found in dlib");
             } else {

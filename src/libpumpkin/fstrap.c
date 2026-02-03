@@ -151,7 +151,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileClose(fileRef ? l_fileRef : 0);
       if (ll_fileRef) pumpkin_heap_free(ll_fileRef, "FileProxy");
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileClose(fileRef=%d): %d", fileRef, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileClose(fileRef=%p): %d", fileRef, res);
       }
       break;
     case vfsTrapInit: {
@@ -185,7 +185,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileReadData(fileRef ? l_fileRef : 0, numBytes, bufBaseP ? s_bufBaseP : NULL, offset, numBytesReadP ? &l_numBytesReadP : NULL);
       if (numBytesReadP) m68k_write_memory_32(numBytesReadP, l_numBytesReadP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileReadData(fileRef=%d, numBytes=%d, bufBaseP=0x%08X, offset=%d, numBytesReadP=0x%08X [%d]): %d", fileRef, numBytes, bufBaseP, offset, numBytesReadP, l_numBytesReadP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileReadData(fileRef=%p, numBytes=%d, bufBaseP=0x%08X, offset=%d, numBytesReadP=0x%08X [%d]): %d", fileRef, numBytes, bufBaseP, offset, numBytesReadP, l_numBytesReadP, res);
     }
     break;
     case vfsTrapFileRead: {
@@ -201,7 +201,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileRead(fileRef ? l_fileRef : 0, numBytes, bufP ? s_bufP : NULL, numBytesReadP ? &l_numBytesReadP : NULL);
       if (numBytesReadP) m68k_write_memory_32(numBytesReadP, l_numBytesReadP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileRead(fileRef=%d, numBytes=%d, bufP=0x%08X, numBytesReadP=0x%08X [%d]): %d", fileRef, numBytes, bufP, numBytesReadP, l_numBytesReadP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileRead(fileRef=%p, numBytes=%d, bufP=0x%08X, numBytesReadP=0x%08X [%d]): %d", fileRef, numBytes, bufP, numBytesReadP, l_numBytesReadP, res);
     }
     break;
     case vfsTrapFileWrite: {
@@ -217,7 +217,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileWrite(fileRef ? l_fileRef : 0, numBytes, dataP ? s_dataP : NULL, numBytesWrittenP ? &l_numBytesWrittenP : NULL);
       if (numBytesWrittenP) m68k_write_memory_32(numBytesWrittenP, l_numBytesWrittenP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileWrite(fileRef=%d, numBytes=%d, dataP=0x%08X, numBytesWrittenP=0x%08X [%d]): %d", fileRef, numBytes, dataP, numBytesWrittenP, l_numBytesWrittenP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileWrite(fileRef=%p, numBytes=%d, dataP=0x%08X, numBytesWrittenP=0x%08X [%d]): %d", fileRef, numBytes, dataP, numBytesWrittenP, l_numBytesWrittenP, res);
     }
     break;
     case vfsTrapFileDelete: {
@@ -251,7 +251,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       offset = ARG32;
       res = VFSFileSeek(fileRef ? l_fileRef : 0, origin, (int32_t)offset);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSeek(fileRef=%d, origin=%d, offset=%d): %d", fileRef, origin, offset, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSeek(fileRef=%p, origin=%d, offset=%d): %d", fileRef, origin, offset, res);
     }
     break;
     case vfsTrapFileEOF: {
@@ -261,7 +261,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       l_fileRef = ll_fileRef ? ll_fileRef->ref : NULL;
       res = VFSFileEOF(fileRef ? l_fileRef : 0);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileEOF(fileRef=%d): %d", fileRef, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileEOF(fileRef=%p): %d", fileRef, res);
     }
     break;
     case vfsTrapFileTell: {
@@ -274,7 +274,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileTell(fileRef ? l_fileRef : 0, filePosP ? &l_filePosP : NULL);
       if (filePosP) m68k_write_memory_32(filePosP, l_filePosP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileTell(fileRef=%d, filePosP=0x%08X [%d]): %d", fileRef, filePosP, l_filePosP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileTell(fileRef=%p, filePosP=0x%08X [%d]): %d", fileRef, filePosP, l_filePosP, res);
     }
     break;
     case vfsTrapFileSize: {
@@ -287,7 +287,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileSize(fileRef ? l_fileRef : 0, fileSizeP ? &l_fileSizeP : NULL);
       if (fileSizeP) m68k_write_memory_32(fileSizeP, l_fileSizeP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSize(fileRef=%d, fileSizeP=0x%08X [%d]): %d", fileRef, fileSizeP, l_fileSizeP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSize(fileRef=%p, fileSizeP=0x%08X [%d]): %d", fileRef, fileSizeP, l_fileSizeP, res);
     }
     break;
     case vfsTrapFileResize: {
@@ -298,7 +298,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       newSize = ARG32;
       res = VFSFileResize(fileRef ? l_fileRef : 0, newSize);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileResize(fileRef=%d, newSize=%d): %d", fileRef, newSize, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileResize(fileRef=%p, newSize=%d): %d", fileRef, newSize, res);
     }
     break;
     case vfsTrapFileGetAttributes: {
@@ -311,7 +311,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileGetAttributes(fileRef ? l_fileRef : 0, attributesP ? &l_attributesP : NULL);
       if (attributesP) m68k_write_memory_32(attributesP, l_attributesP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileGetAttributes(fileRef=%d, attributesP=0x%08X [%d]): %d", fileRef, attributesP, l_attributesP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileGetAttributes(fileRef=%p, attributesP=0x%08X [%d]): %d", fileRef, attributesP, l_attributesP, res);
     }
     break;
     case vfsTrapFileSetAttributes: {
@@ -322,7 +322,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       attributes = ARG32;
       res = VFSFileSetAttributes(fileRef ? l_fileRef : 0, attributes);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSetAttributes(fileRef=%d, attributes=%d): %d", fileRef, attributes, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSetAttributes(fileRef=%p, attributes=%d): %d", fileRef, attributes, res);
     }
     break;
     case vfsTrapFileGetDate: {
@@ -336,7 +336,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       res = VFSFileGetDate(fileRef ? l_fileRef : 0, whichDate, dateP ? &l_dateP : NULL);
       if (dateP) m68k_write_memory_32(dateP, l_dateP);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileGetDate(fileRef=%d, whichDate=%d, dateP=0x%08X [%d]): %d", fileRef, whichDate, dateP, l_dateP, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileGetDate(fileRef=%p, whichDate=%d, dateP=0x%08X [%d]): %d", fileRef, whichDate, dateP, l_dateP, res);
     }
     break;
     case vfsTrapFileSetDate: {
@@ -348,7 +348,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       date = ARG32;
       res = VFSFileSetDate(fileRef ? l_fileRef : 0, whichDate, date);
       m68k_set_reg(M68K_REG_D0, res);
-      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSetDate(fileRef=%d, whichDate=%d, date=%d): %d", fileRef, whichDate, date, res);
+      debug(DEBUG_TRACE, "EmuPalmOS", "VFSFileSetDate(fileRef=%p, whichDate=%d, date=%d): %d", fileRef, whichDate, date, res);
     }
     break;
     case vfsTrapDirCreate: {

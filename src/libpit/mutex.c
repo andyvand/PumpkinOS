@@ -28,13 +28,18 @@ struct cond_t {
 };
 
 struct sema_t {
+#if defined(DARWIN)
+  dispatch_semaphore_t gsem;
+#else
   sem_t sem;
   sem_t *s;
+#endif
   int named;
 };
 
 mutex_t *mutex_create(char *name) {
   mutex_t *m;
+
   pthread_mutexattr_t attr;
 
   if ((m = xcalloc(1, sizeof(mutex_t))) != NULL) {
@@ -285,8 +290,22 @@ int semaphore_timedwait(sema_t *sem, int us) {
 
 sema_t *semaphore_create_named(char *name, int count) {
   sema_t *sem;
+#ifdef DARWIN
+  (void)name;
+#endif
 
   if ((sem = xcalloc(1, sizeof(sema_t))) != NULL) {
+#ifdef DARWIN
+  // macOS: Gebruik GCD (Native, snel en geen deprecation)
+    sem->gsem = dispatch_semaphore_create(count);
+    if (sem->gsem != NULL) {
+      debug(DEBUG_TRACE, "MUTEX", "created dispatch semaphore (%p)", sem);
+      sem->named = 0;
+    } else {
+      xfree(sem);
+      sem = NULL;
+    }
+#else
     if ((sem->s = sem_open(name, O_CREAT | O_EXCL, S_IWUSR | S_IRUSR, count)) == (sem_t *)SEM_FAILED) {
       debug_errno("MUTEX", "sem_open \"%s\"", name);
       xfree(sem);
@@ -295,20 +314,35 @@ sema_t *semaphore_create_named(char *name, int count) {
       debug(DEBUG_TRACE, "MUTEX", "created named semaphore \"%s\" (%p)", name, sem);
       sem->named = 1;
     }
+#endif
   }
 
   return sem;
 }
 
 sema_t *semaphore_create(int count) {
+#ifndef DARWIN
   uint32_t n1, n2, n3;
   uint64_t t;
-  sema_t *sem;
   char name[64];
+#endif
+  sema_t *sem;
 
+#ifndef DARWIN
   name[0] = 0;
+#endif
 
   if ((sem = xcalloc(1, sizeof(sema_t))) != NULL) {
+#ifdef DARWIN
+  // macOS: Gebruik GCD (Native, snel en geen deprecation)
+    sem->gsem = dispatch_semaphore_create(count);
+    if (sem->gsem != NULL) {
+      debug(DEBUG_TRACE, "MUTEX", "created dispatch semaphore (%p)", sem);
+    } else {
+      xfree(sem);
+      sem = NULL;
+    }
+#else
     if (sem_init(&sem->sem, 0, count) == 0) {
       sem->s = &sem->sem;
       debug(DEBUG_TRACE, "MUTEX", "created semaphore (%p)", sem);
@@ -334,6 +368,7 @@ sema_t *semaphore_create(int count) {
         sem = NULL;
       }
     }
+#endif
   }
 
   return sem;
@@ -343,10 +378,17 @@ int semaphore_post(sema_t *sem) {
   int r = -1;
 
   if (sem) {
+#if defined(DARWIN)
+    // dispatch_semaphore_signal geeft > 0 terug als een thread is gewekt,
+    // of 0 als er geen threads wachtten. Beiden zijn 'success' (0) voor jouw API.
+    dispatch_semaphore_signal(sem->gsem);
+    r = 0;
+#else
     r = sem_post(sem->s);
     if (r != 0) {
       debug_errno("MUTEX", "sem_post");
     }
+#endif
   }
 
   return r;
@@ -356,6 +398,21 @@ int semaphore_wait(sema_t *sem, int block) {
   int r = -1;
 
   if (sem) {
+#if defined(DARWIN)
+    // DISPATCH_TIME_FOREVER voor blokkerend, DISPATCH_TIME_NOW voor try-wait
+    dispatch_time_t timeout = block ? DISPATCH_TIME_FOREVER : DISPATCH_TIME_NOW;
+
+    // dispatch_semaphore_wait geeft 0 bij succes, anders een time-out resultaat
+    if (dispatch_semaphore_wait(sem->gsem, timeout) == 0) {
+      r = 0;
+    } else {
+      if (!block) {
+        errno = EAGAIN; // Behoud compatibiliteit met de rest van je code
+      } else {
+        debug(DEBUG_ERROR, "MUTEX", "dispatch_semaphore_wait failed");
+      }
+    }
+#else
     if (block) {
       r = sem_wait(sem->s);
       if (r != 0) {
@@ -367,6 +424,7 @@ int semaphore_wait(sema_t *sem, int block) {
         debug_errno("MUTEX", "sem_trywait");
       }
     }
+#endif
   }
 
   return r;
@@ -405,7 +463,7 @@ int semaphore_timedwait(sema_t *sem, int us) {
     ts.tv_nsec = (long)(t * 1000);
 
 #ifdef DARWIN
-    r = macos_sem_timedwait(sem->s, &ts);
+    r = macos_sem_timedwait(sem->gsem, &ts);
 #else
     r = sem_timedwait(sem->s, &ts);
 #endif
@@ -422,6 +480,11 @@ int semaphore_destroy(sema_t *sem) {
   int r = -1;
 
   if (sem) {
+#if defined(DARWIN)
+    // GCD semaphores hebben geen return value bij release
+    dispatch_release(sem->gsem);
+    r = 0;
+#else
     if (sem->named) {
       if ((r = sem_close(sem->s)) != 0) {
         debug_errno("MUTEX", "sem_close");
@@ -431,7 +494,8 @@ int semaphore_destroy(sema_t *sem) {
         debug_errno("MUTEX", "sem_destroy");
       }
     }
-    
+#endif
+
     if (r == 0) {
       debug(DEBUG_TRACE, "MUTEX", "destroyed semaphore (%p)", sem);
     }

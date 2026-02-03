@@ -103,9 +103,9 @@ SYS_OS=1
 SOEXT=.dylib
 LUAPLAT=linux
 OS=Darwin
-OSDEFS=$(MBITS) -DDARWIN $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\" -std=gnu11 -Wno-invalid-pp-token -Wno-string-plus-int
-CC=clang -arch x86_64 -arch arm64
-CPP=clang++ -arch x86_64 -arch arm64
+OSDEFS=$(MBITS) -DDARWIN $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\" -Wno-invalid-pp-token -Wno-string-plus-int -Wno-typedef-redefinition -Wno-nonportable-include-path
+CC=clang -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
+CPP=clang++ -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
 else ifeq ($(OSNAME),Msys)
 SYS_OS=2
 EXTLIBS=-lwsock32 -lws2_32

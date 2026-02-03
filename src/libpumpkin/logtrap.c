@@ -15,8 +15,11 @@
 #define strdup    sys_strdup
 
 #ifndef WINDOWS
+#undef  va_list
 #define va_list   sys_va_list
+#undef  va_start
 #define va_start  sys_va_start
+#undef  va_end
 #define va_end    sys_va_end
 #endif
 

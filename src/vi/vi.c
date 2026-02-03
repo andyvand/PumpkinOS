@@ -3533,7 +3533,7 @@ static void do_cmd(struct globals *g, int c)
     } while (--g->cmdcnt > 0);
     break;
   case '{':      // {- move backward paragraph
-    q = char_search(g, g->dot, "\n\n", (BACK << 1) | FULL);
+    q = char_search(g, g->dot, "\n\n", ((UInt32)BACK) << 1 | FULL);
     if (q != NULL) {  // found blank line
       g->dot = next_line(g, q);  // move to next blank line
     }

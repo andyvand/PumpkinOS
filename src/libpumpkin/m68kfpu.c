@@ -597,6 +597,8 @@ static floatx80 READ_EA_FPE(m68k_state_t *m68k_state, int mode, int reg, uint32 
 {
 	floatx80 fpr;
 
+    sys_memset(&fpr, 0, sizeof(floatx80));
+
 	switch (mode)
 	{
 		case 2:		// (An)
@@ -661,6 +663,8 @@ static floatx80 READ_EA_PACK(m68k_state_t *m68k_state, int ea)
 	floatx80 fpr;
 	int mode = (ea >> 3) & 0x7;
 	int reg = (ea & 0x7);
+
+    sys_memset(&fpr, 0, sizeof(floatx80));
 
 	switch (mode)
 	{
@@ -1050,6 +1054,8 @@ static void fpgen_rm_reg(m68k_state_t *m68k_state, uint16 w2)
 	int dst = (w2 >>  7) & 0x7;
 	int opmode = w2 & 0x7f;
 	floatx80 source;
+
+    sys_memset(&source, 0, sizeof(floatx80));
 
 	// fmovecr #$f, fp0	f200 5c0f
 

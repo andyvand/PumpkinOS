@@ -1057,7 +1057,7 @@ case sysTrapDmStrCopy: {
   s_srcP = emupalmos_trap_in(srcP, trap, 2);
   res = DmStrCopy(recordP ? s_recordP : NULL, offset, srcP ? (char *)s_srcP : NULL);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "DmStrCopy(recordP=0x%08X, offset=%d, srcP=0x%08X [%s]): %d", recordP, offset, srcP, s_srcP, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmStrCopy(recordP=0x%08X, offset=%d, srcP=0x%08X [%s]): %d", recordP, offset, srcP, (char *)s_srcP, res);
 }
 break;
 case sysTrapDmSet: {
@@ -3402,7 +3402,7 @@ case sysTrapTblGetRowData: {
   row = ARG16;
   resUP = TblGetRowData(tableP ? s_tableP : NULL, row);
   m68k_set_reg(M68K_REG_D0, (uint32_t)resUP);
-  debug(DEBUG_TRACE, "EmuPalmOS", "TblGetRowData(tableP=0x%08X, row=%d): 0x%08X", tableP, row, resUP);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TblGetRowData(tableP=0x%08X, row=%d): 0x%08llX", tableP, row, resUP);
 }
 break;
 case sysTrapTblSetRowData: {

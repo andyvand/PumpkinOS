@@ -1916,7 +1916,7 @@
           res = Fsendmsg(fd, msghdr, (int32_t)aflags);
         }
         m68k_set_reg(M68K_REG_D0, res);
-        debug(DEBUG_TRACE, "TOS", "GEMDOS Fsendmsg(%d, 0x%08X, %d): %d", fd, amsg, flags, res);
+        debug(DEBUG_TRACE, "TOS", "GEMDOS Fsendmsg(%d, 0x%08X, %d): %d", fd, amsg, aflags, res);
       }
       break;
 

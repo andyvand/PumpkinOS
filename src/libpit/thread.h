@@ -29,7 +29,9 @@ void thread_close(void);
 
 void thread_yield(int waiting);
 
+#ifndef SYS_C
 void thread_resume(int handle);
+#endif
 
 void thread_run(void);
 
