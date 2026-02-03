@@ -125,7 +125,7 @@ static uint32_t cpuPrvClz(uint32_t val)
 	
 	if (sizeof(long long) == sizeof(uint32_t))
 		return __builtin_clzll(val);
-#elif defined(_MSC_VER) && (defined(_M_X64_) || defined(_X64_) || defined(_M_IX86) || defined(_X86_))
+#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_X64_) || defined(_M_IX86) || defined(_X86_))
     return (uint32_t)__lzcnt((unsigned long)val);
 #elif defined(_MSC_VER)
     return (uint32_t)_CountLeadingZeros((unsigned long)val);
