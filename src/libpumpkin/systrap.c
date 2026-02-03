@@ -736,7 +736,7 @@ uint32_t palmos_systrap(uint16_t trap) {
   uint32_t dbPP = 0;
   MemHandle h = NULL;
   Boolean b = 0;
-  DmOpenRef dbPOR;
+  DmOpenRef dbPOR = NULL;
   uint8_t newSearch = 0;
   uint32_t stateInfoP = 0;
   uint8_t onlyLatestVers = 0;

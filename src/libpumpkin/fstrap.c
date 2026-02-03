@@ -96,7 +96,7 @@ void palmos_filesystemtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
   uint32_t resHP = 0;
   FileRefProxy *ref = NULL;
   FileRef fileRef =  NULL;
-  MemHandle resH;
+  MemHandle resH = NULL;
   uint32_t nameP = 0;
   uint32_t versionP = 0;
   uint32_t crDateP = 0;
