@@ -7,7 +7,7 @@
 #endif
 
 #ifdef SDL_MIXER
-#include <SDL3/SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
 
 #include "sys.h"
@@ -706,7 +706,7 @@ static int libsdl_video_setup(libsdl_window_t *window) {
 
   debug(DEBUG_INFO, "SDL", "creating renderer");
   // index of the rendering driver to initialize, or -1 to initialize the first one supporting the requested flags.
-#ifdef DARWIN
+#if defined(DARWIN) || defined(SW_RENDERER)
   window->renderer = SDL_CreateRenderer(window->window, "software" /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);
 #else
   window->renderer = SDL_CreateRenderer(window->window, s /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);

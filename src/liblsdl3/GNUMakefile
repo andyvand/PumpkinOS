@@ -7,8 +7,8 @@ include ../common.mak
 PROGRAM=liblsdl3
 SOURCE=liblsdl3.c
 
-#MIXER_LIBS=-lSDL3_mixer
-#MIXER_FLAGS=-DSDL_MIXER
+MIXER_LIBS=-lSDL3_mixer
+MIXER_FLAGS=-DSDL_MIXER
 #OPENGL_FLAGS=-DSDL_OPENGL
 
 ifeq ($(OSNAME),Kernel)
