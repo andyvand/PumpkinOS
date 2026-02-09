@@ -25,7 +25,9 @@
 #define INETLIB_TRAP SYS_TRAP
 #endif
 
+#ifndef ESP32
 #pragma mark Constants
+#endif
 
 // Creator. Used for both the database that contains the INet Library and
 //  it's features for the feature manager. 
@@ -70,7 +72,10 @@
 #define netProxyIPDefaultHGA				netProxyIPManhattanHGA
 #define netProxyIPDefaultHGAStr			"10.1.134.165"		//Should correspond to above value
 
+#ifndef ESP32
 #pragma mark ErrorCodes
+#endif
+
 /********************************************************************
  * Error codes
  ********************************************************************/
@@ -207,7 +212,9 @@
 //
 #define 	inetErrCacheInvalidSort			(inetErrorClass | 95)
 
+#ifndef ESP32
 #pragma mark Types
+#endif
 
 // The following are used and bit field parameters to the sort routine.  They
 // are additive but ordered.  Precendence is given to the lowest ordered bit.
@@ -659,7 +666,9 @@ typedef enum {
  * INet Library functions. 
  ********************************************************************/
 
+#ifndef ESP32
 #pragma mark Traps
+#endif
 
 #define inetLibTrapSettingGet					(sysLibTrapCustom)
 #define inetLibTrapSettingSet					(sysLibTrapCustom+1)
@@ -774,8 +783,9 @@ typedef struct
 	UInt32						serverBits1;				// Bits sent by the server
 } INetCacheInfoType, *INetCacheInfoPtr;
 
-
+#ifndef ESP32
 #pragma mark Functions
+#endif
 
 #ifdef __cplusplus
 extern "C" {

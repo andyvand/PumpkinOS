@@ -1,3 +1,7 @@
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <VFSMgr.h>
 
@@ -1242,7 +1246,7 @@ static int ps_callback(int i, uint32_t id, char *name, int m68k, void *idata) {
 
   dbID = DmFindDatabase(0, name);
   if (dbID && DmDatabaseInfo(0, dbID, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &type, &creator) == errNone) {
-    sys_snprintf(tid, sizeof(tid)-1, "%3u", id);
+    sys_snprintf(tid, sizeof(tid)-1, "%3u", (unsigned int)id);
     command_puts(idata, tid);
     command_putc(idata, ' ');
     pumpkin_id2s(type, stype);
@@ -1619,8 +1623,8 @@ static int command_script_play(int pe, void *data) {
         idata->sound = 0;
       }
       if (WavFileHeader(fileRef, &rate, &type, &width)) {
-        debug(DEBUG_INFO, "Command", "wav rate %d", rate);
-        debug(DEBUG_INFO, "Command", "wav type %d", type);
+        debug(DEBUG_INFO, "Command", "wav rate %d", (int)rate);
+        debug(DEBUG_INFO, "Command", "wav type %d", (int)type);
         debug(DEBUG_INFO, "Command", "wav %s", width == sndMono ? "mono" : "stereo");
 
         play = sys_calloc(1, sizeof(command_play_t));

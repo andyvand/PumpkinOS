@@ -7,8 +7,8 @@ int sys_atoi(const char *s) {
   
   while (sys_isspace(*s)) s++;
   switch (*s) {
-    case '-': neg = 1; 
-    case '+': s++;
+    case '-': neg = 1; s++; break;
+    case '+': s++; break;
   }
   // Compute n as a negative number to avoid overflow on INT_MIN
   while (sys_isdigit(*s)) {

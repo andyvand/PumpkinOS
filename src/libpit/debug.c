@@ -309,7 +309,7 @@ void debug_bytes_offset_full(const char *file, const char *func, int line, int l
       abuf[j] = 0;
       debug_full(file, func, line, level, sys, "%s %s", sbuf, abuf);
       p = sbuf;
-      sys_sprintf(p, "%08X: ", offset+i+1);
+      sys_sprintf(p, "%08X: ", (unsigned int)(offset+i+1));
       n = (uint32_t)sys_strlen(p);
       p += n;
       e = p + 1024 - n - 4;

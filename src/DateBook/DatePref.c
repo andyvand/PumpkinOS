@@ -16,6 +16,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include "sections.h"
 #include "Datebook.h"

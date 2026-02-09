@@ -11,6 +11,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <BuildDefaults.h>
 
 // RESOURCE_FILE_PREFIX is now defined in :Incs:BuildDefaults.h based on LANGUAGE.

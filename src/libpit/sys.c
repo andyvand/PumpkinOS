@@ -58,11 +58,17 @@
 #if !defined(KERNEL)
 #include <dirent.h>
 #endif
+
+#ifdef ESP32
+#include <esp_dlfcn.h>
+#else
 #include <dlfcn.h>
+#endif
+
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#if defined(SERENITY)
+#if defined(SERENITY) || defined(ESP32)
 #include <sys/select.h>
 #include <sys/statvfs.h>
 #else
@@ -142,6 +148,7 @@ struct sys_dir_t {
 #define closesocket(s) close(s)
 #endif
 
+#ifndef ESP32
 void sys_init(void) {
 #if defined(WINDOWS)
   WORD version;
@@ -154,6 +161,7 @@ void sys_init(void) {
   }
 #endif
 }
+#endif
 
 #if !defined(KERNEL)
 static int socket_select(int socket, uint32_t us, int nf) {
@@ -708,10 +716,14 @@ uint32_t sys_get_tid(void) {
 #if defined(EMSCRIPTEN)
   return 0;
 #endif
-#if defined(KERNEL)
+#if defined(KERNEL) || defined(ESP32)
   return 0;
 #endif
 }
+
+#if defined(ESP32_ERRNO)
+int __THREAD_LOCAL_ERRNO errno = 0;
+#endif
 
 int sys_errno(void) {
 #if defined(WINDOWS)
@@ -1730,7 +1742,7 @@ fail:
   if (w != INVALID_SOCKET) closesocket(w);
 
   return -1;
-#elif defined(KERNEL)
+#elif defined(KERNEL) || defined(ESP32)
   return -1;
 #else
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == -1) {
@@ -2114,7 +2126,7 @@ int sys_mkdir(const char *pathname) {
 }
 
 int sys_serial_open(char *device, char *word, int baud) {
-#if defined(KERNEL)
+#if defined(KERNEL) || defined(ESP32)
   return -1;
 #elif defined(WINDOWS)
   WCHAR *wbuf = (WCHAR *)sys_malloc((strlen(device) + 1) * sizeof(WCHAR));
@@ -2262,7 +2274,7 @@ int sys_serial_open(char *device, char *word, int baud) {
 }
 
 int sys_serial_baud(int serial, int baud) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   debug(DEBUG_ERROR, "SYS", "sys_serial_baud not implemented");
   return -1;
 #else
@@ -2334,7 +2346,7 @@ int sys_serial_baud(int serial, int baud) {
 }
 
 int sys_serial_word(int serial, char *word) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   debug(DEBUG_ERROR, "SYS", "sys_serial_word not implemented");
   return -1;
 #else
@@ -2398,7 +2410,7 @@ int sys_serial_word(int serial, char *word) {
 }
 
 void *sys_tty_raw(int fd) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   return NULL;
 #else
   struct termios term;
@@ -2419,7 +2431,7 @@ void *sys_tty_raw(int fd) {
 }
 
 int sys_tty_restore(int fd, void *p) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   return 0;
 #else
   int r = -1;
@@ -2434,7 +2446,7 @@ int sys_tty_restore(int fd, void *p) {
 }
 
 int sys_termsize(int fd, int *cols, int *rows) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   return -1;
 #else
   struct winsize ws;
@@ -2461,7 +2473,7 @@ void sys_srand(unsigned int seed) {
 }
 
 int sys_isatty(int fd) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   return 0;
 #else
   return isatty(fd);
@@ -2469,7 +2481,7 @@ int sys_isatty(int fd) {
 }
 
 int sys_daemonize(void) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   return -1;
 #else
   pid_t pid;
@@ -2780,7 +2792,7 @@ void sys_unblock_signals(void) {
 
 void sys_install_handler(int signum, void (*handler)(int)) {
 #if !defined(KERNEL)
-#if defined(WINDOWS)
+#if defined(WINDOWS) || defined(ESP32)
   signal(signum, handler);
 #else
   struct sigaction action;
@@ -3092,12 +3104,21 @@ static int __inet_aton(const char *s0, struct in_addr *dest) {
   case 0:
     a[1] = a[0] & 0xffffff;
     a[0] >>= 24;
+    a[2] = a[1] & 0xffff;
+    a[1] >>= 16;
+    a[3] = a[2] & 0xff;
+    a[2] >>= 8;
+    break;
   case 1:
     a[2] = a[1] & 0xffff;
     a[1] >>= 16;
+    a[3] = a[2] & 0xff;
+    a[2] >>= 8;
+    break;
   case 2:
     a[3] = a[2] & 0xff;
     a[2] >>= 8;
+    break;
   }
   for (i=0; i<4; i++) {
     if (a[i] > 255) return 0;
@@ -3170,7 +3191,11 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
     hints.ai_protocol = IPPROTO_TCP;
 
     if ((r = getaddrinfo(host, NULL, &hints, &res)) != 0) {
+#ifdef ESP32
+      debug(DEBUG_ERROR, "SYS", "getaddrinfo %s error \"%d\"", host, r);
+#else
       debug(DEBUG_ERROR, "SYS", "getaddrinfo %s error \"%s\"", host, gai_strerror(r));
+#endif
       r = -1;
 
     } else {

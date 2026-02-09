@@ -533,7 +533,9 @@ typedef struct {
  *		or for obtaining statistics from the Net Library.
  * 
  ********************************************************************/
+#ifndef ESP32
 #pragma mark Master
+#endif
 typedef enum {
 	// These calls return info
 	netMasterInterfaceInfo,
@@ -710,7 +712,9 @@ typedef struct NetMasterPBType {
 //-----------------------------------------------------------------------------
 // Enumeration of Net settings as passed to NetLibSettingGet/Set. 
 //-----------------------------------------------------------------------------
+#ifndef ESP32
 #pragma mark Settings
+#endif
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Global environment settings common to all attached network interfaces,
 //   passed to NetLibSettingGet/Set
@@ -1006,7 +1010,10 @@ void netFDZero(NetFDSetType *fds);
 //-----------------------------------------------------------------------------
 // Net error codes
 //-----------------------------------------------------------------------------
+#ifndef ESP32
 #pragma mark ErrorCodes
+#endif
+
 #define	netErrAlreadyOpen					(netErrorClass | 1)
 #define	netErrNotOpen						(netErrorClass | 2)
 #define	netErrStillOpen					(netErrorClass | 3)
@@ -1259,7 +1266,10 @@ void netFDZero(NetFDSetType *fds);
 /************************************************************
  * Net Library procedures.
  *************************************************************/ 
+#ifndef ESP32
 #pragma mark Functions
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

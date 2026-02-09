@@ -123,7 +123,7 @@ int mutex_unlock(mutex_t *m) {
     if (m->count == 0) {
       dt = sys_get_clock() - m->t;
       if (dt >= 300000) {
-        debug(DEBUG_INFO, "MUTEX", "mutex %s (%p) locked for %u us", m->name, m, (uint32_t)dt);
+        debug(DEBUG_INFO, "MUTEX", "mutex %s (%p) locked for %u us", m->name, m, (unsigned int)dt);
       }
     }
     r = pthread_mutex_unlock(&m->mutex);
@@ -243,7 +243,7 @@ int cond_timedwait(cond_t *c, mutex_t *m, int us) {
   return r;
 }
 
-#if defined(EMSCRIPTEN)
+#if defined(EMSCRIPTEN) || defined(ESP32)
 
 sema_t *semaphore_create_named(char *name, int count) {
   return NULL;
@@ -352,7 +352,7 @@ sema_t *semaphore_create(int count) {
         t = sys_get_clock();
         n2 = t >> 32;
         n3 = t & 0xFFFFFFFF;
-        sys_snprintf(name, sizeof(name)-1, "/pit_%u%u%u.sem", n1, n2, n3);
+        sys_snprintf(name, sizeof(name)-1, "/pit_%u%u%u.sem", (unsigned int)n1, (unsigned int)n2, (unsigned int)n3);
         sem_unlink(name);
         if ((sem->s = sem_open(name, O_CREAT | O_EXCL, S_IWUSR | S_IRUSR, count)) == (sem_t *)SEM_FAILED) {
           debug_errno("MUTEX", "sem_open \"%s\"", name);

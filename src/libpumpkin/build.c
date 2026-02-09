@@ -3,7 +3,9 @@
 #include "pumpkin.h"
 
 const char *pumpkin_get_build(void) {
-#if defined(GIT_COMMIT_ID)
+#if defined(ESP32)
+  return "esp-idf";
+#elif defined(GIT_COMMIT_ID)
 #if defined(GIT_TAG_NAME)
   return GIT_TAG_NAME;
 #else

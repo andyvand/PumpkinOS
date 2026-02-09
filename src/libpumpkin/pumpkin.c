@@ -41,6 +41,10 @@
 #include "launch_serde.h"
 #include "debug.h"
 
+#ifdef ESP32
+#include "esp_attr.h"
+#endif
+
 #define MAX_SEARCH_ORDER   16
 #define MAX_NOTIF_QUEUE    8
 #define MAX_NOTIF_REGISTER 256
@@ -327,7 +331,13 @@ static const RGBColorType colorUnselectedBorder = { 0, 0xA0, 0xA0, 0xA0 };
 static const RGBColorType colorLockedBorder     = { 0, 0xF0, 0xC0, 0x80 };
 
 static mutex_t *mutex;
+
+#ifdef ESP32
+static EXT_RAM_BSS_ATTR pumpkin_module_t pumpkin_module;
+#else
 static pumpkin_module_t pumpkin_module;
+#endif
+
 static thread_key_t *task_key;
 
 static void pumpkin_make_current(int i);

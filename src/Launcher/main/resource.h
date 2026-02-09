@@ -1,0 +1,1 @@
+../../Launcher/resource.h

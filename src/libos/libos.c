@@ -301,7 +301,7 @@ static param_t params[] = {
   { 0, 0, NULL }
 };
 
-#ifdef KERNEL
+#if defined(KERNEL) || defined(ESP32)
 int libos_start(int pe) {
 #else
 static int libos_start(int pe) {
@@ -418,7 +418,7 @@ static int libos_start(int pe) {
   return r;
 }
 
-#ifdef KERNEL
+#if defined(KERNEL) || defined(ESP32)
 int libos_app_init(int pe) {
 #else
 static int libos_app_init(int pe) {

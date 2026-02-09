@@ -17,7 +17,10 @@
 #include <PalmTypes.h>
 #include <LibTraps.h>
 
-  #pragma mark *---------General--------------*
+#ifndef ESP32
+#pragma mark *---------General--------------*
+#endif
+
 /********************************************************************
  * General
  ********************************************************************/
@@ -236,8 +239,10 @@
 
 #define btLibNotYetSupported		(blthErrorClass | 0xEF)// dgb only, unsupported feature <do later-djk>remove
 
+#ifndef ESP32
+#pragma mark *---------Management----------*
+#endif
 
- #pragma mark *---------Management----------*
 /********************************************************************
  * Management
  ********************************************************************/
@@ -578,7 +583,10 @@ typedef struct _BtLibManagementEventType{
  
 typedef void (*BtLibManagementProcPtr) (BtLibManagementEventType *mEvent, UInt32 refCon);
  
-  #pragma mark *---------L2CAP---------------*
+#ifndef ESP32
+#pragma mark *---------L2CAP---------------*
+#endif
+
 /********************************************************************
  * L2CAP
  ********************************************************************/
@@ -588,8 +596,10 @@ typedef void (*BtLibManagementProcPtr) (BtLibManagementEventType *mEvent, UInt32
  #define BT_L2CAP_RANDOM_PSM 0xFFFF
  #define BT_L2CAP_MTU 672
  
- 
- #pragma mark *---------RFCOMM-------------*
+#ifndef ESP32
+#pragma mark *---------RFCOMM-------------*
+#endif
+
 /********************************************************************
  * RFCOMM
  ********************************************************************/
@@ -598,7 +608,10 @@ typedef void (*BtLibManagementProcPtr) (BtLibManagementEventType *mEvent, UInt32
  #define BT_RF_MIN_FRAMESIZE 23
  #define BT_RF_DEFAULT_FRAMESIZE 127
 
- #pragma mark *---------SDP-----------------*
+#ifndef ESP32
+#pragma mark *---------SDP-----------------*
+#endif
+
 /********************************************************************
  * SDP
  ********************************************************************/
@@ -1284,8 +1297,11 @@ typedef union BtLibSdpAttributeDataType {
 #define btLibDESD_MASK       0x07 /* AND this value with the first byte of a Data
                               	  * Element to return the element's size.
                               	  */
-                          
+
+#ifndef ESP32
 #pragma mark *---------Sockets--------------*
+#endif
+
 /********************************************************************
  * Sockets
  ********************************************************************/
@@ -1608,7 +1624,9 @@ typedef struct BtLibSocketConnectInfoType {
  
  } BtLibSocketConnectInfoType;
 
+#ifndef ESP32
 #pragma mark *---------Services-------------*
+#endif
 
 #define BtLibServiceNotifyType		'btsv'
 

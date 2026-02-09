@@ -21,6 +21,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 
 // Set this to get to private database defines

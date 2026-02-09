@@ -667,6 +667,10 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   uint32_t n, i, w, h;
   const char *s;
 
+#if defined(ESP32)
+  w = CONFIG_BSP_DISPLAY_WIDTH;
+  h = CONFIG_BSP_DISPLAY_HEIGHT;
+#else
   w = window->width;
   h = window->height;
 
@@ -674,6 +678,7 @@ static int libsdl_video_setup(libsdl_window_t *window) {
     w *= window->xfactor;
     h *= window->yfactor;
   }
+#endif
 
   i = -1;
   s = NULL;
@@ -706,7 +711,7 @@ static int libsdl_video_setup(libsdl_window_t *window) {
 
   debug(DEBUG_INFO, "SDL", "creating renderer");
   // index of the rendering driver to initialize, or -1 to initialize the first one supporting the requested flags.
-#if defined(DARWIN) || defined(SW_RENDERER)
+#if defined(DARWIN) || defined(SW_RENDERER) || defined(ESP32)
   window->renderer = SDL_CreateRenderer(window->window, "software" /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);
 #else
   window->renderer = SDL_CreateRenderer(window->window, s /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);

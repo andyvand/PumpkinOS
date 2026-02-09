@@ -216,7 +216,7 @@ static void *ptr_access(const char *file, const char *func, int line, int id, ch
           debug_full(file, func, line, DEBUG_TRACE, "PTR", "locked handle %d (%d) (%s) locking=%d", id, index, tag, locking);
           t = sys_get_clock() - t;
           if (t >= 5000) {
-            debug_full(file, func, line, DEBUG_INFO, "PTR", "lock handle %d (%d) (%s) wait %u us", id, index, tag, (uint32_t)t);
+            debug_full(file, func, line, DEBUG_INFO, "PTR", "lock handle %d (%d) (%s) wait %u us", id, index, tag, (unsigned int)t);
           }
         }
         break;
@@ -225,11 +225,11 @@ static void *ptr_access(const char *file, const char *func, int line, int id, ch
         debug_full(file, func, line, DEBUG_TRACE, "PTR", "unlocked handle %d (%d) (%s) locking=%d delete=%d", id, index, tag, locking, delete);
         break;
       case OP_WAIT:
-        debug_full(file, func, line, DEBUG_TRACE, "PTR", "waiting handle %d (%d) (%s) locking=%d us=%d", id, index, tag, locking, arg);
+        debug_full(file, func, line, DEBUG_TRACE, "PTR", "waiting handle %d (%d) (%s) locking=%d us=%d", id, index, tag, locking, (unsigned int)arg);
         if (cond_timedwait(ptr_cond, ptr_mutex, arg) != 0) {
           p = NULL;
         } else {
-          debug_full(file, func, line, DEBUG_TRACE, "PTR", "waited handle %d (%d) (%s) locking=%d us=%d", id, index, tag, locking, arg);
+          debug_full(file, func, line, DEBUG_TRACE, "PTR", "waited handle %d (%d) (%s) locking=%d us=%d", id, index, tag, locking, (unsigned int)arg);
         }
         break;
       case OP_SIGNAL:

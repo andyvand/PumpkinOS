@@ -97,7 +97,7 @@ typedef MdmInfoType*		MdmInfoPtr;
  * Modem Manager result codes
  * (mdmErrorClass is defined in ErrorBase.h)
  *************************************************************/
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(ESP32)
 #pragma mark -Error Codes-
 #endif
 
@@ -124,7 +124,7 @@ typedef MdmInfoType*		MdmInfoPtr;
  *  under native mode from the module that actually installs the trap
  *  vectors
  ********************************************************************/
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(ESP32)
 #pragma mark -API Routines-
 #endif
 

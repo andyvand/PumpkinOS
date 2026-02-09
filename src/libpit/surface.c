@@ -356,7 +356,7 @@ void surface_draw_alpha(surface_t *dst, int dst_x, int dst_y, surface_t *src, in
 
 void surface_draw(surface_t *dst, int dst_x, int dst_y, surface_t *src, int src_x, int src_y, int w, int h) {
   uint32_t color, c1, c2, src_transp, dst_transp, src_pitch, dst_pitch, n;
-  int i, j, size, red, green, blue, alpha, src_transparent, dst_transparent, len1, len2, vflip;
+  int i, j, size = 0, red, green, blue, alpha, src_transparent, dst_transparent, len1, len2, vflip;
   uint8_t *p1, *p2;
 
   if (h < 0) {
@@ -595,6 +595,7 @@ static void bsurface_setarea(void *data, int x1, int y1, int x2, int y2, uint32_
           SETPIXEL32(x, y, color);
         }
       }
+      break;
     case SURFACE_ENCODING_ABGR:
       for (y = y1; y <= y2; y++) {
         for (x = x1; x <= x2; x++) {

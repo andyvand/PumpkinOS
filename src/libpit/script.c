@@ -189,7 +189,7 @@ int script_set_idle(int pe, script_ref_t ref, uint32_t t) {
   int r = -1;
 
   if ((env = ptr_lock(pe, TAG_ENV)) != NULL) {
-    debug(DEBUG_INFO, "SCRIPT", "idle period set to %u us", t);
+    debug(DEBUG_INFO, "SCRIPT", "idle period set to %u us", (unsigned int)t);
     env->idle = ref;
     env->idle_period = t;
     ptr_unlock(pe, TAG_ENV);

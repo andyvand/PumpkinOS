@@ -11,6 +11,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <FntGlue.h>
 #include <TraceMgr.h>
@@ -1282,9 +1286,9 @@ static void DetermineDueDate (UInt16 itemSelected, DateType * dueDateP)
  ***********************************************************************/
 static void OptionsApply (void)
 {
-	UInt8 sortOrder;
-	UInt16 listItem;
-	Int16 val;
+	UInt8 sortOrder = 0;
+	UInt16 listItem = 0;
+	Int16 val = 0;
 
 	// Update the sort order.  Reset the ToDo list to the top.
 	listItem = LstGetSelection (GetObjectPtr (OptionsSortByList));
@@ -3932,10 +3936,10 @@ static void ListViewCrossOutItem (Int16 row)
  ***********************************************************************/
 static void ListViewChangeCompleteStatus (Int16 row, UInt16 complete)
 {
-	UInt16 recordNum;
-	UInt32 ticks;
-	Boolean deleted;
-	TablePtr table;
+	UInt16 recordNum = 0;
+	UInt32 ticks = 0;
+	Boolean deleted = 0;
+	TablePtr table = NULL;
 	DateType dueDate;
 	DateTimeType today;
 
@@ -5906,8 +5910,8 @@ static void EventLoop (void)
  ***********************************************************************/
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 {
-	Err error;
-	DmOpenRef dbP;
+	Err error = 0;
+	DmOpenRef dbP = NULL;
 
 	// Normal Launch
 	if (cmd == sysAppLaunchCmdNormalLaunch)

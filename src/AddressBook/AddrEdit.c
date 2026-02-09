@@ -12,6 +12,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <TraceMgr.h>
 #include <TextMgr.h>

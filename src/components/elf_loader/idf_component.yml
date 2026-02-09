@@ -1,0 +1,17 @@
+dependencies:
+  espressif/cmake_utilities: 0.*
+  idf: '>=4.4.3'
+description: Espressif ELF(Executable and Linkable Format) Loader
+repository: git://github.com/espressif/esp-iot-solution.git
+repository_info:
+  commit_sha: 40106e7fdcf95e54607b4c7ecfc9b5ecb4e78de4
+  path: components/elf_loader
+targets:
+- esp32
+- esp32s2
+- esp32s3
+- esp32c6
+- esp32c61
+- esp32p4
+url: https://github.com/espressif/esp-iot-solution/tree/master/components/elf_loader
+version: 1.3.0

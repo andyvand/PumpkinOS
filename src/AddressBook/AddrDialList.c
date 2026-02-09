@@ -12,6 +12,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <Chars.h>
 #include <ErrorMgr.h>

@@ -69,7 +69,10 @@ int pit_main(int argc, char *argv[], void (*callback)(int pe, void *data), void 
     return STATUS_ERROR;
   }
 
+#ifndef ESP32
   sys_init();
+#endif
+
   debug_init(debugfile);
   ptr_init();
   thread_init();

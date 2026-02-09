@@ -48,7 +48,7 @@ void thumb2_parse_misc(darm_t *d, uint16_t w, uint16_t w2);
 // We don't care about the carry for the moment (should we?)
 uint32_t thumb_expand_imm(uint16_t imm12)
 {
-    uint32_t value;
+    uint32_t value = 0;
 
     imm12 &= 0xfff;
 

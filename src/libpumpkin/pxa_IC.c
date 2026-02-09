@@ -353,7 +353,7 @@ struct SocIc* socIcInit(struct ArmCpu *cpu, struct ArmMem *physMem, uint_fast8_t
 	ic->cpu = cpu;
 	ic->gen2 = socRev == 2;
 	
-	memRegionAdd(physMem, PXA_IC_BASE, PXA_IC_SIZE, socIcPrvMemAccessF, ic);
+	memRegionAdd(physMem, PXA_IC_BASE, PXA_IC_SIZE, (ArmMemAccessF)socIcPrvMemAccessF, ic);
 	
 	if (ic->gen2)
 		cpuCoprocessorRegister(cpu, 6, &cp);

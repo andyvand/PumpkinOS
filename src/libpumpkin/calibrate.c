@@ -121,7 +121,7 @@ void calibrate(window_provider_t *wp, window_t *w, int depth, int width, int hei
     }
 
     if (i == 3) {
-      set_calibration(lcdx, lcdy, tpx, tpy, c);
+      set_calibration((int32_t *)lcdx, (int32_t *)lcdy, (int32_t *)tpx, (int32_t *)tpy, c);
     }
 
     surface_rectangle(surface, 0, 0, width-1, height-1, 1, white);

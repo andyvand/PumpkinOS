@@ -2,6 +2,10 @@
 #include "sys.h"
 #include "debug.h"
 
+#ifdef ESP32
+#include "esp_attr.h"
+#endif
+
 extern void m68040_fpu_op0(m68k_state_t *m68k_state);
 extern void m68040_fpu_op1(m68k_state_t *m68k_state);
 extern void m68881_mmu_ops(m68k_state_t *m68k_state);
@@ -34503,8 +34507,15 @@ static void m68k_op_unpk_16_mm(m68k_state_t *m68k_state)
 
 #define NUM_CPU_TYPES 5
 
+#ifdef ESP32
+EXT_RAM_BSS_ATTR void (*m68ki_instruction_jump_table[0x10000])(m68k_state_t *m68k_state); /* opcode handler jump table */
+
+EXT_RAM_BSS_ATTR unsigned char m68ki_cycles[NUM_CPU_TYPES][0x10000]; /* Cycles used by CPU type */
+#else
 void  (*m68ki_instruction_jump_table[0x10000])(m68k_state_t *m68k_state); /* opcode handler jump table */
+
 unsigned char m68ki_cycles[NUM_CPU_TYPES][0x10000]; /* Cycles used by CPU type */
+#endif
 
 /* This is used to generate the opcode handler jump table */
 typedef struct

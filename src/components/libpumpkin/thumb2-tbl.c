@@ -1,0 +1,1 @@
+../../libpumpkin/thumb2-tbl.c

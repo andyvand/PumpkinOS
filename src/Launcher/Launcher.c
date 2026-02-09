@@ -1,3 +1,7 @@
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <Control.h>
 #include <BmpGlue.h>
@@ -1958,7 +1962,7 @@ static void find(launcher_data_t *data) {
       }
     }
     if (i == data->numItems) {
-      debug(DEBUG_ERROR, "Launcher", "find goto appID %d not found", gotoParam.dbID);
+      debug(DEBUG_ERROR, "Launcher", "find goto appID %d not found", (int)gotoParam.dbID);
     }
   }
 }
@@ -1967,7 +1971,12 @@ static void LauncherAboutForm(UInt16 formId) {
   FormType *frm;
 
   if ((frm = FrmInitForm(formId)) != NULL) {
+#if defined(ESP32)
+    FrmCopyLabel(frm, buildLbl, "esp-idf");
+#else
     FrmCopyLabel(frm, buildLbl, pumpkin_get_build());
+#endif
+
     FrmDoDialog(frm);
     FrmDeleteForm(frm);
   }
@@ -2879,7 +2888,7 @@ static Err LauncherNotificationHandler(SysNotifyParamType *notifyParamsP) {
         break;
       case sysNotifyTimeChangeEvent:
         delta = (Int32 *)notifyParamsP->notifyDetailsP;
-        debug(DEBUG_INFO, "Launcher", "sysNotifyTimeChangeEvent %d", *delta);
+        debug(DEBUG_INFO, "Launcher", "sysNotifyTimeChangeEvent %d", (int)*delta);
         data->updateTime = true;
         break;
     }
@@ -2965,7 +2974,7 @@ static void addWidgets(launcher_data_t *data) {
                   data->widgets[i].name = NULL;
                 }
                 debug(DEBUG_INFO, "Launcher", "widget id %d, formId %d, panel %d, bitmapId %d",
-                  data->widgets[i].id, data->widgets[i].formId, data->widgets[i].panel, data->widgets[i].bitmapId);
+                  (int)data->widgets[i].id, (int)data->widgets[i].formId, (int)data->widgets[i].panel, (int)data->widgets[i].bitmapId);
                 i++;
               }
             }       

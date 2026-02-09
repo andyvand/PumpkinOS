@@ -37,7 +37,10 @@
 extern "C" {
 #endif
 
+#ifndef ESP32
 #pragma mark *---------Library Common------*
+#endif
+
 /********************************************************************
  * Library Common
  ********************************************************************/
@@ -101,8 +104,11 @@ Err BtLibHandleEvent (UInt16 btLibRefNum, void *eventP)
 //
 void BtLibHandleTransportEvent(UInt16 btLibRefNum, void *transportEventP)
 	BTLIB_TRAP(btLibTrapHandleTransportEvent);
-	
+
+#ifndef ESP32
 #pragma mark *---------Management----------*
+#endif
+
 /********************************************************************
  * Management
  * 
@@ -536,7 +542,10 @@ Err BtLibSetGeneralPreference( UInt16 btLibRefNum, BtLibGeneralPrefEnum pref, vo
 Err BtLibGetGeneralPreference( UInt16 btLibRefNum, BtLibGeneralPrefEnum pref, void* prefValue, UInt16 prefValueSize)
  BTLIB_TRAP(btLibTrapGetGeneralPreference);
 
+#ifndef ESP32
 #pragma mark *---------Sockets--------------*
+#endif
+
 /********************************************************************
  * Sockets
  *
@@ -764,8 +773,10 @@ Err BtLibSocketGetInfo( UInt16 btLibRefNum,  BtLibSocketRef socket, BtLibSocketI
 	void * valueP, UInt32 valueSize)
  BTLIB_TRAP(btLibTrapSocketGetInfo);
 	
+#ifndef ESP32
+#pragma mark *---------SDP-----------------*
+#endif
 
- #pragma mark *---------SDP-----------------*
 /********************************************************************
  * SDP
  *
@@ -1179,7 +1190,10 @@ Err BtLibSdpServiceRecordGetNumLists( UInt16 btLibRefNum, BtLibSdpRecordHandle r
 Err BtLibSdpCompareUuids(UInt16 btLibRefNum, BtLibSdpUuidType *uuid1, BtLibSdpUuidType *uuid2)
 	BTLIB_TRAP(btLibTrapSdpCompareUuids);
 
+#ifndef ESP32
 #pragma mark *--------Raw SDP----------*
+#endif
+
 // Raw SDP APIs - If you have a profile or application specific SDP attribute then you
 // will need to use the Raw SDP APIs to form and parse SDP protocol data yourself. (Refer
 // to the bluetooth 1.1 specification to see how SDP data is formatted.) 
@@ -1344,7 +1358,9 @@ Err BtLibSdpVerifyRawDataElement(UInt16 btLibRefNum, const UInt8 *value, UInt16 
 //
 #define BtLibSdpGetRawDataElementSize(header) ((header) & btLibDESD_MASK)   
 
+#ifndef ESP32
 #pragma mark *--------Security----------*
+#endif
 
 //---------------------------------------------------------------------------
 // Search the device database for the device with the specified
@@ -1545,8 +1561,11 @@ Err	BtLibAddrBtdToA(UInt16 libRefNum, BtLibDeviceAddressType *btDevP, Char *spac
 // 
 Err BtLibAddrAToBtd(UInt16 libRefNum, const Char *a, BtLibDeviceAddressType *btDevP)
 	BTLIB_TRAP(btLibTrapAddrAToBtd);
-	
+
+#ifndef ESP32
 #pragma mark *--------Service----------*
+#endif
+
 // ** The Service's API is not yet documented **//
 
 //--------------------------------------------------------------------	

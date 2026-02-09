@@ -62,7 +62,7 @@
 /************************************************************
  * Net Library procedures.
  *************************************************************/ 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(ESP32)
 #pragma mark Functions
 #endif
 

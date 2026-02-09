@@ -5,6 +5,10 @@
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 
 #include "sys.h"
@@ -860,7 +864,7 @@ static void edit_print(void *data, uint32_t fg, uint32_t bg, char *s, int n) {
   struct globals *g = (struct globals *)data;
   
   if (s && n) {
-    debug(DEBUG_TRACE, "vi", "sequence fg=0x%08X bg=0x%08X [%.*s]", fg, bg, n, s);
+    debug(DEBUG_TRACE, "vi", "sequence fg=0x%08X bg=0x%08X [%.*s]", (unsigned int)fg, (unsigned int)bg, (unsigned int)n, s);
     g->e->color(g->e->data, fg, bg);
     g->e->write(g->e->data, s, n);
     g->e->color(g->e->data, g->foregroundColor, g->backgroundColor);

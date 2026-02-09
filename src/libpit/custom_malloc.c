@@ -19,12 +19,12 @@ void CustomMallocInit(HEAP_INFO_t *pHeapInfo) {
 static void printLists(HEAP_INFO_t *hp) {
   BD_t *iter;
 
-  debug(DEBUG_ERROR, "Heap", "heap size %u, used %u", hp->heapSize, hp->allocSize);
+  debug(DEBUG_ERROR, "Heap", "heap size %u, used %u", (unsigned int)hp->heapSize, (unsigned int)hp->allocSize);
 
   iter = hp->avail_dll->next;
   if (iter) debug(DEBUG_ERROR, "Heap", "available list");
   while (iter != NULL) {
-    debug(DEBUG_ERROR, "Heap", "block size=%u offset=%u", iter->blkSize, (uint32_t)((uint8_t *)iter - hp->pHeap));
+    debug(DEBUG_ERROR, "Heap", "block size=%u offset=%u", (unsigned int)iter->blkSize, (unsigned int)((uint8_t *)iter - hp->pHeap));
     iter = iter->next;
   }
 
@@ -95,7 +95,7 @@ void *CustomMalloc(HEAP_INFO_t *pHeapInfo, uint32_t size) {
     iter = iter->next;
   }
 
-  debug(DEBUG_ERROR, "Heap", "CustomMalloc %u bytes failed", size);
+  debug(DEBUG_ERROR, "Heap", "CustomMalloc %u bytes failed", (unsigned int)size);
   printLists(pHeapInfo);
 
   return NULL;
@@ -106,7 +106,11 @@ uint32_t CustomBlockSize(HEAP_INFO_t *pHeapInfo, void *p) {
 
   if (!pHeapInfo || !p) return 0;
 
+#if SYS_SIZE == 2
   bd = (BD_t *)(((unsigned long long)p) - sizeof(BD_t));
+#else
+  bd = (BD_t *)(((unsigned long)p) - sizeof(BD_t));
+#endif
 
   return bd->blkSize;
 }
@@ -117,7 +121,12 @@ void CustomFree(HEAP_INFO_t *pHeapInfo, void *p) {
 
   if (!pHeapInfo || !p) return;
 
+#if SYS_SIZE == 2
   bd = (BD_t *)(((unsigned long long)p) - sizeof(BD_t));
+#else
+  bd = (BD_t *)(((unsigned long)p) - sizeof(BD_t));
+#endif
+
   pHeapInfo->allocSize -= sizeof(BD_t) + bd->blkSize;
   sys_memset(p, 0, bd->blkSize);
 

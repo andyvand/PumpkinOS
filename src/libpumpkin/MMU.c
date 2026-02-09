@@ -82,9 +82,9 @@ int mmuTranslate(struct ArmMmu *mmu, uint32_t adr, int priviledged, int write, u
 {
 	int c = 0, b = 0, ur = 0, uw = 0, sr = 0, sw = 0;
 	int section = 0, coarse = 1, pxa_tex_page = 0;
-	uint32_t va, pa = 0, sz, t;
-	int16_t i, j, bucket;
-	uint8_t dom, ap = 0;
+	uint32_t va = 0, pa = 0, sz = 0, t = 0;
+	int16_t i = 0, j = 0, bucket = 0;
+	uint8_t dom = 0, ap = 0;
 	
 	//handle the 'MMU off' case
 		

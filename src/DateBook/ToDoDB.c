@@ -14,6 +14,10 @@
 // Set this to get to private database defines
 #define __TODOMGR_PRIVATE__
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 
 #ifdef PALMOS

@@ -25,7 +25,9 @@
  * DLK result codes
  * (dlkErrorClass is defined in SystemMgr.h)
  *************************************************************/
+#ifndef ESP32
 #pragma mark *Error Codes*
+#endif
 
 #define dlkErrParam			(dlkErrorClass | 1)	// invalid parameter
 #define dlkErrMemory			(dlkErrorClass | 2)	// memory allocation error
@@ -45,7 +47,9 @@
  * Desktop Link system preferences resource for user info
  * id = sysResIDDlkUserInfo, defined in SystemResources.h
  ********************************************************************/
+#ifndef ESP32
 #pragma mark *User Info Preference*
+#endif
 
 #define dlkMaxUserNameLength			40
 #define dlkUserNameBufSize				(dlkMaxUserNameLength + 1)
@@ -106,7 +110,9 @@ typedef DlkUserInfoType*		DlkUserInfoPtr;		// user info pointer
  * Desktop Link system preferences resource for the Conduit Filter Table
  * id = sysResIDDlkCondFilterTab, defined in SystemResources.h
  ********************************************************************/
+#ifndef ESP32
 #pragma mark *Conduit Filter Preference*
+#endif
 
 //
 // Table for specifying conduits to "filter out" during HotSync
@@ -139,8 +145,9 @@ typedef DlkCondFilterTableType*	DlkCondFilterTablePtr;
 /********************************************************************
  * DLK Session Structures
  ********************************************************************/
+#ifndef ESP32
 #pragma mark *Session Structures*
-
+#endif
 
 // DesktopLink event notification callback.  If non-zero is returned,
 // sync will be cancelled as soon as a safe point is reached.
@@ -274,7 +281,9 @@ typedef DlkServerSessionType*	DlkServerSessionPtr;
 /********************************************************************
  * DLK Function Parameter Structures
  ********************************************************************/
+#ifndef ESP32
 #pragma mark *Function Parameter Structures*
+#endif
 
 //
 // Parameter passed to DlkControl()
@@ -372,7 +381,9 @@ typedef struct DlkCallAppReplyParamType {
 /********************************************************************
  * DesktopLink Server Routines
  ********************************************************************/
+#ifndef ESP32
 #pragma mark *Function Prototypes*
+#endif
 
 #ifdef __cplusplus
 extern "C" {

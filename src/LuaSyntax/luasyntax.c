@@ -1,3 +1,7 @@
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 
 #include "sys.h"
@@ -270,7 +274,7 @@ static void syntax_char(syntax_highlight_t *shigh, char c) {
       } else {
         shigh->buf[shigh->count] = 0;
         color = syntax_color(shigh, shigh->buf);
-        debug(DEBUG_TRACE, "SYNTAX", "end alpha buffer \"%s\" color 0x%08X", shigh->buf, color);
+        debug(DEBUG_TRACE, "SYNTAX", "end alpha buffer \"%s\" color 0x%08X", shigh->buf, (unsigned int)color);
         shigh->print(shigh->data, color, shigh->backgroundColor, shigh->buf, shigh->count);
         shigh->count = 0;
         next_state(shigh, c);
@@ -286,7 +290,7 @@ static void syntax_char(syntax_highlight_t *shigh, char c) {
       } else {
         shigh->buf[shigh->count] = 0;
         color = syntax_color(shigh, shigh->buf);
-        debug(DEBUG_TRACE, "SYNTAX", "end number buffer \"%s\" color 0x%08X", shigh->buf, color);
+        debug(DEBUG_TRACE, "SYNTAX", "end number buffer \"%s\" color 0x%08X", shigh->buf, (unsigned int)color);
         shigh->print(shigh->data, shigh->numberColor, shigh->backgroundColor, shigh->buf, shigh->count);
         shigh->count = 0;
         next_state(shigh, c);

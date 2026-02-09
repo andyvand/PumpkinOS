@@ -12,6 +12,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "sec.h"
 
 #include "Address.h"
@@ -535,18 +539,18 @@ Boolean TransferImportVCard(DmOpenRef dbP, UInt16 pdiRefNum, PdiReaderType* read
 {
 	volatile AddrDBRecordType 	newRecord;
 	AddressPhoneLabels 			phoneLabel;
-	UInt16						phoneField;
-	UInt16 						indexNew;
-	UInt16 						indexOld;
-	UInt32 						uid;
-	Err 						err;
-	UInt32 						uniqueID;
+	UInt16						phoneField = 0;
+	UInt16 						indexNew = 0;
+	UInt16 						indexOld = 0;
+	UInt32 						uid = 0;
+	Err 						err = 0;
+	UInt32 						uniqueID = 0;
 	volatile Err 				error = 0;
-	UInt16						property;
+	UInt16						property = 0;
 	//Char* 						addressBufferP = NULL;
 	//Char* 						nameBufferP = NULL;
-	UInt16						i;
-	UInt16						categoryID;
+	UInt16						i = 0;
+	UInt16						categoryID = 0;
 	char 						categoryName[dmCategoryLength];
 
 

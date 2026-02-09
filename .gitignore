@@ -49,3 +49,6 @@ src/libemulation/tools/zmac/zmac.c
 !/lib32/*
 !/vfs/app_card/PALM/Programs/Command/
 !/src/plucker/fonts/*
+!/src/data
+!/src/data/app_install/*.prc
+

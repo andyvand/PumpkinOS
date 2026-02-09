@@ -11,6 +11,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <BuildDefaults.h>
 
 const char *AppResourceList[] = {

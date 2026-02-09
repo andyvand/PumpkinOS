@@ -39,6 +39,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <Graffiti.h>
 #include <SysEvtMgr.h>

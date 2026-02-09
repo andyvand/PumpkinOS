@@ -14,6 +14,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "sec.h"
 
 #include "Address.h"

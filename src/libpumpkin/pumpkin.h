@@ -24,7 +24,12 @@ extern "C" {
 #define PUMPKINOS_PREFS_VERSION 1
 
 #define APP_SCREEN_WIDTH  320
+
+#ifdef ESP32
+#define APP_SCREEN_HEIGHT 240
+#else
 #define APP_SCREEN_HEIGHT 320
+#endif
 
 #define MAX_SERIAL  8
 #define MAX_SYSLIBS 32

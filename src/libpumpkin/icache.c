@@ -153,7 +153,7 @@ debug(1, "XXX", "icacheFetch alignment issue");
 	
 		//if we're here, we found nothing - maybe time to populate the cache
 		
-		if (!mmuTranslate(ic->mmu, va, priviledged, 0, &pa, fsrP, &mappingInfo)) {
+		if (!mmuTranslate(ic->mmu, va, priviledged, 0, &pa, (uint8_t *)fsrP, &mappingInfo)) {
 debug(1, "XXX", "icacheFetch mmuTranslate");
 			return 0;
 		}

@@ -172,7 +172,7 @@ static storage_handle_t *StoPtrRecoverHandle(void *p) {
       h = (storage_handle_t *)q[-1];
       if ((uint8_t *)h >= sto->base && (uint8_t *)h < sto->end) {
         if (h->magic != STO_MAGIC) {
-          debug(DEBUG_ERROR, "STOR", "StoPtrRecoverHandle invalid handle magic 0x%08X for handle %p pointer %p", h->magic, h, p);
+          debug(DEBUG_ERROR, "STOR", "StoPtrRecoverHandle invalid handle magic 0x%08lX for handle %p pointer %p", h->magic, h, p);
           h = NULL;
         }
       } else {
@@ -302,11 +302,11 @@ static void storage_name(storage_t *sto, char *name, int file, int id, uint32_t 
           if (!((st[i] >= 'a' && st[i] <= 'z') || (st[i] >= 'A' && st[i] <= 'Z') || (st[i] >= '0' && st[i] <= '9'))) st[i] = '_';
         }
 		if (sys_strncmp(st, "dlib", 4) == 0)
-			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08X.%d.%s", st, type, id, screator);
+			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08lX.%d.%s", st, type, id, screator);
 		else
-			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08X.%d", st, type, id);
+			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08lX.%d", st, type, id);
       } else {
-        sys_snprintf(&buf[n], VFS_PATH-n-1, "/%08X.%02X", uniqueId, attr);
+        sys_snprintf(&buf[n], VFS_PATH-n-1, "/%08lX.%02X", uniqueId, attr);
       }
       break;
     case 0:
@@ -353,7 +353,7 @@ static int StoWriteIndex(storage_t *sto, storage_db_t *db) {
   if ((f = StoVfsOpen(sto->session, buf, VFS_WRITE | VFS_TRUNC)) != NULL) {
     for (i = 0; i < db->numRecs; i++) {
       h = db->elements[i];
-      sys_snprintf(buf, sizeof(buf)-1, "%08X.%02X\n", h->d.rec.uniqueID, h->d.rec.attr & ATTR_MASK);
+      sys_snprintf(buf, sizeof(buf)-1, "%08lX.%02X\n", h->d.rec.uniqueID, h->d.rec.attr & ATTR_MASK);
       if (vfs_write(f, (uint8_t *)buf, 12) != 12) break;
     }
     r = 0;
@@ -375,8 +375,8 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
   if ((f = StoVfsOpen(sto->session, buf, VFS_WRITE | VFS_TRUNC)) != NULL) {
     pumpkin_id2s(db->type, stype);
     pumpkin_id2s(db->creator, screator);
-    sys_snprintf(buf, sizeof(buf)-1, "ftype=%u\ntype='%4s'\ncreator='%4s'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
-      db->ftype, stype, screator, db->attributes, db->uniqueIDSeed, db->version, db->crDate, db->modDate, db->bckDate, db->modNum);
+    sys_snprintf(buf, sizeof(buf)-1, "ftype=%lu\ntype='%4s'\ncreator='%4s'\nattributes=%lu\nuniqueIDSeed=%lu\nversion=%lu\ncrDate=%lu\nmodDate=%lu\nbckDate=%lu\nmodNum=%d\n",
+      db->ftype, stype, screator, (unsigned int)db->attributes, (unsigned int)db->uniqueIDSeed, (unsigned int)db->version, db->crDate, (unsigned int)db->modDate, (unsigned int)db->bckDate, db->modNum);
     n = (int)sys_strlen(buf);
     if (vfs_write(f, (uint8_t *)buf, n) == n) {
       r = 0;
@@ -399,7 +399,7 @@ static int StoReadHeader(storage_t *sto, storage_db_t *db) {
   if ((f = StoVfsOpen(sto->session, buf, VFS_READ)) != NULL) {
     sys_memset(buf, 0, sizeof(buf));
     if (vfs_read(f, (uint8_t *)buf, sizeof(buf)-1) > 0) {
-      if (sys_sscanf(buf, "ftype=%u\ntype='%c%c%c%c'\ncreator='%c%c%c%c'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
+      if (sys_sscanf(buf, "ftype=%lu\ntype='%c%c%c%c'\ncreator='%c%c%c%c'\nattributes=%lu\nuniqueIDSeed=%lu\nversion=%lu\ncrDate=%lu\nmodDate=%lu\nbckDate=%lu\nmodNum=%ld\n",
            &db->ftype, stype, stype+1, stype+2, stype+3, screator, screator+1, screator+2, screator+3,
            &db->attributes, &db->uniqueIDSeed, &db->version, &db->crDate, &db->modDate, &db->bckDate, &db->modNum) == 16) {
         stype[4] = 0;
@@ -478,7 +478,7 @@ static int StoLockForReading(storage_t *sto, storage_db_t *db) {
       if (db->writeCount > 0) {
         debug(DEBUG_INFO, "STOR", "StoLockForReading file \"%s\" already locked for writing (own)", db->name);
       }
-      debug(DEBUG_TRACE, "STOR", "StoLockForReading \"%s\" readCount %d -> %d", db->name, db->readCount, db->readCount+1);
+      debug(DEBUG_TRACE, "STOR", "StoLockForReading \"%s\" readCount %ld -> %ld", db->name, db->readCount, db->readCount+1);
       db->readCount++;
       read_locks++;
       r = StoPutFileLocks(sto, db, read_locks, write_locks);
@@ -495,7 +495,7 @@ static int StoUnlockForReading(storage_t *sto, storage_db_t *db) {
   if (db->readCount > 0) {
     if (StoGetFileLocks(sto, db, &read_locks, &write_locks) == 0) {
       if (read_locks > 0) {
-        debug(DEBUG_TRACE, "STOR", "StoUnlockForReading \"%s\" readCount %d -> %d", db->name, db->readCount, db->readCount-1);
+        debug(DEBUG_TRACE, "STOR", "StoUnlockForReading \"%s\" readCount %ld -> %ld", db->name, db->readCount, db->readCount-1);
         db->readCount--;
         read_locks--;
         r = StoPutFileLocks(sto, db, read_locks, write_locks);
@@ -523,7 +523,7 @@ static int StoLockForWriting(storage_t *sto, storage_db_t *db) {
       if (db->readCount > 0) {
         debug(DEBUG_INFO, "STOR", "StoLockForWriting file \"%s\" already locked for reading (own)", db->name);
       }
-      debug(DEBUG_TRACE, "STOR", "StoLockForWriting \"%s\" writeCount %d -> %d", db->name, db->writeCount, db->writeCount+1);
+      debug(DEBUG_TRACE, "STOR", "StoLockForWriting \"%s\" writeCount %ld -> %ld", db->name, db->writeCount, db->writeCount+1);
       db->writeCount++;
       write_locks++;
       r = StoPutFileLocks(sto, db, read_locks, write_locks);
@@ -723,7 +723,7 @@ int StoInit(char *path, mutex_t *mutex) {
             continue;
           }
           dbID = (LocalID)((uint8_t *)db - sto->base);
-          debug(DEBUG_TRACE, "STOR", "StoInit 0x%08X database \"%s\"", dbID, db->name);
+          debug(DEBUG_TRACE, "STOR", "StoInit 0x%08lX database \"%s\"", dbID, db->name);
           sto->list = db;
           sto->num_storage++;
         }
@@ -772,7 +772,7 @@ int StoRefresh(void) {
               sys_strncpy(db->name, name, dmDBNameLength-1);
               if (StoReadHeader(sto, db) == 0) {
                 dbID = (LocalID)((uint8_t *)db - sto->base);
-                debug(DEBUG_INFO, "STOR", "StoRefresh 0x%08X database \"%s\"", dbID, db->name);
+                debug(DEBUG_INFO, "STOR", "StoRefresh 0x%08lX database \"%s\"", dbID, db->name);
                 db->next = sto->list;
                 sto->list = db;
                 sto->num_storage++;

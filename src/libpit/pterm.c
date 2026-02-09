@@ -123,12 +123,12 @@ void pterm_callback(pterm_t *t, pterm_callback_t *cb) {
 void pterm_setfg(pterm_t *t, uint32_t c) {
   if (t->rgb) {
     t->rgb_fg = c;
-    debug(DEBUG_TRACE, "TERM", "rgb fg 0x%06X", c);
+    debug(DEBUG_TRACE, "TERM", "rgb fg 0x%06X", (unsigned int)c);
   } else {
     c &= 0x07;
     t->color &= 0x0F;
     t->color |= (c << 4);
-    debug(DEBUG_TRACE, "TERM", "fg color %d color 0x%02X", c, t->color);
+    debug(DEBUG_TRACE, "TERM", "fg color %d color 0x%02X", (unsigned int)c, t->color);
   }
 }
 
@@ -143,12 +143,12 @@ static void setfg(pterm_t *t, uint32_t fg) {
 void pterm_setbg(pterm_t *t, uint32_t c) {
   if (t->rgb) {
     t->rgb_bg = c;
-    debug(DEBUG_TRACE, "TERM", "rgb bg 0x%06X", c);
+    debug(DEBUG_TRACE, "TERM", "rgb bg 0x%06X", (unsigned int)c);
   } else {
     c &= 0x07;
     t->color &= 0xF0;
     t->color |= c;
-    debug(DEBUG_TRACE, "TERM", "bg color %d color 0x%02X", c, t->color);
+    debug(DEBUG_TRACE, "TERM", "bg color %d color 0x%02X", (unsigned int)c, t->color);
   }
 }
 
