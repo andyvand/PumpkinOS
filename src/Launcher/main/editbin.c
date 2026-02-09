@@ -1,1 +1,1 @@
-../../Launcher/editbin.c
+../editbin.c

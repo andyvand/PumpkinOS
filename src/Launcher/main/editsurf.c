@@ -1,1 +1,1 @@
-../../Launcher/editsurf.c
+../editsurf.c

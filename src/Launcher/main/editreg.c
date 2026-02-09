@@ -1,1 +1,1 @@
-../../Launcher/editreg.c
+../editreg.c

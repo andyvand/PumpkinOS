@@ -1,1 +1,1 @@
-../../Launcher/resource.h
+../resource.h

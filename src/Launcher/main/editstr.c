@@ -1,1 +1,1 @@
-../../Launcher/editstr.c
+../editstr.c

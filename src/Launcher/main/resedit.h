@@ -1,1 +1,1 @@
-../../Launcher/resedit.h
+../resedit.h
