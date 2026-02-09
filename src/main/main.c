@@ -33,6 +33,10 @@
 
 #include <string.h>
 
+#ifndef CONFIG_STORAGE_LITTLEFS
+#define CONFIG_STORAGE_LITTLEFS 1
+#endif
+
 #if defined(LIBLSDL2)
 extern int liblsdl2_load(void);
 extern int liblsdl2_init(int pe, script_ref_t obj);
