@@ -4,6 +4,8 @@
 
 #if defined(ANDROID)
 #include <android/log.h>
+#elif defined(ESP32)
+#include "esp_log.h"
 #endif
 
 #include "sys.h"
@@ -246,6 +248,8 @@ void debugva_full(const char *file, const char *func, int line, int _level, cons
       default: _level = ANDROID_LOG_INFO;
     }
     __android_log_buf_write(LOG_ID_MAIN, _level, "pit", tmp);
+#elif defined(ESP32)
+    ESP_LOGI(__func__, "%s", tmp);
 #elif !defined(KERNEL)
     mutex_lock_only(mutex);
     fwrite((uint8_t *)tmp, 1, s - tmp, fd);

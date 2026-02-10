@@ -2586,6 +2586,8 @@ static int my_clock_gettime(clockid_t clockid, struct timespec *tp) {
   tp->tv_nsec = (long)((relative_100ns % 10000000ULL) * 100);  // 100ns to ns
 
   return 0;
+#elif defined(ESP32)
+  return clock_gettime(CLOCK_REALTIME, tp);
 #else
   return clock_gettime(clockid, tp);
 #endif
@@ -2882,7 +2884,7 @@ void *sys_lib_load(char *libname, int *first_load) {
 */
 #define NODELETE 0
 
-#if defined(RTLD_NOLOAD)
+#if defined(RTLD_NOLOAD) && !defined(ESP32)
   lib = dlopen(buf, RTLD_NOW | RTLD_NOLOAD);
 #else
   lib = NULL;

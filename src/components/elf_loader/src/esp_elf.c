@@ -69,7 +69,12 @@ int esp_elf_open(elf_file_t *file, const char *name)
         return -1;
     }
 
+#ifdef USE_FS_PATH
     ret = asprintf(&file_path, FS_PATH"/%s", name);
+#else
+    ret = asprintf(&file_path, "%s", name);
+#endif
+
     if (ret < 0) {
         ESP_LOGE(TAG, "Failed to generate path errno=%d", errno);
         return -1;

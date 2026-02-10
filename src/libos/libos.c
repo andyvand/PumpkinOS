@@ -226,9 +226,12 @@ static int libos_action(void *arg) {
 
     debug(DEBUG_INFO, PUMPKINOS, "deploying applications");
     pumpkin_deploy_files("/app_install");
+    debug(DEBUG_INFO, PUMPKINOS, "init misc");
     pumpkin_init_misc();
+    debug(DEBUG_INFO, PUMPKINOS, "load plugins");
     pumpkin_load_plugins();
 
+    debug(DEBUG_INFO, PUMPKINOS, "set options");
     pumpkin_set_secure(data->secure);
     pumpkin_set_mono(data->mono);
     pumpkin_set_abgr(data->abgr);
@@ -238,6 +241,7 @@ static int libos_action(void *arg) {
     pumpkin_set_obj(data->pe, data->obj);
 
     if (data->mode == 0) {
+      debug(DEBUG_INFO, PUMPKINOS, "create taskbar");
       pumpkin_set_taskbar(data->taskbar);
     }
 

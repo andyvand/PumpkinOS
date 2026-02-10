@@ -39,6 +39,21 @@ int script_get_object(int pe, int index, script_ref_t *ref) {
   return 0;
 }
 
+int script_get_named_value(int pe, int index, int type, char *lib, char *func, char *param, int opt, script_arg_t *arg)
+{
+  return 0;
+}
+
+script_ref_t script_loadlib(int pe, char *libname)
+{
+  return (script_ref_t)0;
+}
+
+int script_object_set(int pe, script_ref_t obj, script_arg_t *key, script_arg_t *value)
+{
+  return 0;
+}
+
 #define OBJ_INTEGER(k,v) \
     if (!sys_strcmp(key->value.s, k)) { \
       value->type = SCRIPT_ARG_INTEGER; \

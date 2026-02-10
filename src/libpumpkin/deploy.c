@@ -184,15 +184,21 @@ int pumpkin_deploy_files_session(vfs_session_t *session, char *path) {
   int rr, r = -1;
 
   if (path) {
+    debug(DEBUG_INFO, PUMPKINOS, "vfs open dir %s", path);
     if ((dir = vfs_opendir(session, path)) != NULL) {
       for (r = 0; r == 0;) {
+        debug(DEBUG_INFO, PUMPKINOS, "vfs read dir %s", path);
         if ((ent = vfs_readdir(dir)) == NULL) break;
         if (ent->type != VFS_FILE) continue;
+        debug(DEBUG_INFO, PUMPKINOS, "get extension of %s", ent->name);
         ext = getext(ent->name);
-        if (!sys_strcasecmp(ext, "prc") || !sys_strcasecmp(ext, "pdb")) {
+        debug(DEBUG_INFO, PUMPKINOS, "extension is %s", ext);
+        if ((ext != NULL) && (!sys_strcasecmp(ext, "prc") || !sys_strcasecmp(ext, "pdb"))) {
           sys_memset(buf, 0, sizeof(buf));
           sys_snprintf(buf, sizeof(buf)-1, "%s/%s", path, ent->name);
+          debug(DEBUG_INFO, PUMPKINOS, "deploying %s/%s", path, ent->name);
           rr = pumpkin_deploy_file_session(session, buf);
+          debug(DEBUG_INFO, PUMPKINOS, "vfs unlink %s", buf);
           vfs_unlink(session, buf);
           if (rr == 0) {
             r = 0;

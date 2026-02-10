@@ -67,7 +67,12 @@
 #define VFS_CARD      "/app_card/"
 #define VFS_INSTALL   "/app_install/"
 
+#ifdef ESP32
+#define HEAP_SIZE (512*1024)
+#else
 #define HEAP_SIZE (8*1024*1024)
+#endif
+
 #define SMALL_HEAP_SIZE (128*1024)
 
 #define APP_STORAGE "/app_storage/"
