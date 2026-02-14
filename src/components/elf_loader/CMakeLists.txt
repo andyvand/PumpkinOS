@@ -2,13 +2,7 @@
 if(CONFIG_ELF_LOADER)
     set(srcs  "src/esp_elf_symbol.c"
               "src/esp_elf.c"
-              "src/esp_elf_adapter.c"
-              "../libpit/telnet.c"
-              "../libpit/filter.c"
-              "../libpumpkin/syntax.c"
-              "../libpumpkin/build.c"
-              "../libpumpkin/peditor.c"
-              "../libpumpkin/edit.c")
+              "src/esp_elf_adapter.c")
 
     if(CONFIG_ELF_LOADER_CUSTOMER_SYMBOLS)
         list(APPEND srcs "src/esp_all_symbol.c")
@@ -30,7 +24,7 @@ if(CONFIG_ELF_LOADER)
                          "src/dlso/dlmod.c")
     endif()
 
-    set(include_dirs "include" "../../libpumpkin" "../../libpit" "../../font" "../../PalmOS/Core/System" "../../PalmOs/PalmOne" "../../PalmOs/PalmOne/Common" "../../PalmOs/PalmOne/Common/System" "../../PalmOs/PalmOne/68K" "../../PalmOs/PalmOne/68K/System" "../../PalmOS/PalmOne/Common/Libraries/filebrowser" "../../PalmOS/PalmOne/68K/Libraries/filebrowser" "../../PalmOS/Libraries/SSL" "../../PalmOS/Libraries/CPMLib" "../../PalmOS/Libraries/Pdi" "../../PalmOS/Garmin" "../../PalmOS/Libraries/PalmOSGlue" "../../PalmOS/Libraries/INet" "../../PalmOS/Core/Hardware" "../../PalmOS/Extensions/ExpansionMgr" "../../PalmOS/Extensions/Bluetooth" "../../PalmOS" "../../PalmOS/Libraries" "../../PalmOS/Core" "../../PalmOS/Core/UI" "../../PalmOS/Core/System" "../../PalmOS/Dynamic")
+    set(include_dirs "include")
     set(ldfragments "linker.lf")
 endif()
 
@@ -43,11 +37,10 @@ endif()
 idf_component_register(SRCS ${srcs}
                        INCLUDE_DIRS ${include_dirs}
                        PRIV_REQUIRES ${priv_req}
+                       REQUIRES libpumpkin libpit
                        LDFRAGMENTS ${ldfragments})
 
 include(package_manager)
 if(CONFIG_ELF_LOADER)
     cu_pkg_define_version(${CMAKE_CURRENT_LIST_DIR})
 endif()
-
-target_compile_options(${COMPONENT_LIB} PRIVATE -DSYS_CPU=3 -DSYS_SIZE=1 -DSYS_OS=1 -DSYS_ENDIAN=1 -DSYSTEM_NAME="pit" -DSYSTEM_VERSION="1.0" -DSYSTEM_OS="ESP32" -DSOEXT=".so" -DLOGTRAP_SYS -DESP32 -Wno-multichar -Wno-format)

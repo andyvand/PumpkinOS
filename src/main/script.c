@@ -82,6 +82,41 @@ int script_object_get(int pe, script_ref_t obj, script_arg_t *key, script_arg_t 
   return -1;
 }
 
+script_engine_t *script_load_engine(char *libname) {
+  return NULL;
+}
+
+int script_init(script_engine_t *engine) {
+  return 0;
+}
+
+int script_finish(script_engine_t *engine) {
+  return 0;
+}
+
+void script_idle_loop(int pe) {
+}
+
+int script_get_real(int pe, int index, script_real_t *d) {
+  return 0;
+}
+
+int script_push_real(int pe, script_real_t d) {
+  return 0;
+}
+
+int script_push_value(int pe, script_arg_t *value) {
+  return 0;
+}
+
+int script_set_idle(int pe, script_ref_t ref, uint32_t t) {
+  return 0;
+}
+
+int script_set_cleanup(int pe, script_ref_t ref) {
+  return 0;
+}
+
 int script_get_function(int pe, int index, script_ref_t *ref) {
   return 0;
 }

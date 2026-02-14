@@ -16,20 +16,11 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_check.h"
+#include "esp_err.h"
 
 #include "esp_lcd_ili9341.h"
 
 static const char *TAG = "ili9341";
-
-static esp_err_t panel_ili9341_del(esp_lcd_panel_t *panel);
-static esp_err_t panel_ili9341_reset(esp_lcd_panel_t *panel);
-static esp_err_t panel_ili9341_init(esp_lcd_panel_t *panel);
-static esp_err_t panel_ili9341_draw_bitmap(esp_lcd_panel_t *panel, int x_start, int y_start, int x_end, int y_end, const void *color_data);
-static esp_err_t panel_ili9341_invert_color(esp_lcd_panel_t *panel, bool invert_color_data);
-static esp_err_t panel_ili9341_mirror(esp_lcd_panel_t *panel, bool mirror_x, bool mirror_y);
-static esp_err_t panel_ili9341_swap_xy(esp_lcd_panel_t *panel, bool swap_axes);
-static esp_err_t panel_ili9341_set_gap(esp_lcd_panel_t *panel, int x_gap, int y_gap);
-static esp_err_t panel_ili9341_disp_on_off(esp_lcd_panel_t *panel, bool off);
 
 typedef struct {
     esp_lcd_panel_t base;
@@ -44,101 +35,6 @@ typedef struct {
     const ili9341_lcd_init_cmd_t *init_cmds;
     uint16_t init_cmds_size;
 } ili9341_panel_t;
-
-esp_err_t esp_lcd_new_panel_ili9341(const esp_lcd_panel_io_handle_t io, const esp_lcd_panel_dev_config_t *panel_dev_config, esp_lcd_panel_handle_t *ret_panel)
-{
-    esp_err_t ret = ESP_OK;
-    ili9341_panel_t *ili9341 = NULL;
-    gpio_config_t io_conf = { 0 };
-
-    ESP_GOTO_ON_FALSE(io && panel_dev_config && ret_panel, ESP_ERR_INVALID_ARG, err, TAG, "invalid argument");
-    ili9341 = (ili9341_panel_t *)calloc(1, sizeof(ili9341_panel_t));
-    ESP_GOTO_ON_FALSE(ili9341, ESP_ERR_NO_MEM, err, TAG, "no mem for ili9341 panel");
-
-    if (panel_dev_config->reset_gpio_num >= 0) {
-        io_conf.mode = GPIO_MODE_OUTPUT;
-        io_conf.pin_bit_mask = 1ULL << panel_dev_config->reset_gpio_num;
-        ESP_GOTO_ON_ERROR(gpio_config(&io_conf), err, TAG, "configure GPIO for RST line failed");
-    }
-
-#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
-    switch (panel_dev_config->color_space) {
-    case ESP_LCD_COLOR_SPACE_RGB:
-        ili9341->madctl_val = 0;
-        break;
-    case ESP_LCD_COLOR_SPACE_BGR:
-        ili9341->madctl_val |= LCD_CMD_BGR_BIT;
-        break;
-    default:
-        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported color space");
-        break;
-    }
-#else
-    switch (panel_dev_config->rgb_endian) {
-    case LCD_RGB_ENDIAN_RGB:
-        ili9341->madctl_val = 0;
-        break;
-    case LCD_RGB_ENDIAN_BGR:
-        ili9341->madctl_val |= LCD_CMD_BGR_BIT;
-        break;
-    default:
-        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported rgb endian");
-        break;
-    }
-#endif
-
-    switch (panel_dev_config->bits_per_pixel) {
-    case 16: // RGB565
-        ili9341->colmod_val = 0x55;
-        ili9341->fb_bits_per_pixel = 16;
-        break;
-    case 18: // RGB666
-        ili9341->colmod_val = 0x66;
-        // each color component (R/G/B) should occupy the 6 high bits of a byte, which means 3 full bytes are required for a pixel
-        ili9341->fb_bits_per_pixel = 24;
-        break;
-    default:
-        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported pixel width");
-        break;
-    }
-
-    ili9341->io = io;
-    ili9341->reset_gpio_num = panel_dev_config->reset_gpio_num;
-    ili9341->reset_level = panel_dev_config->flags.reset_active_high;
-    if (panel_dev_config->vendor_config) {
-        ili9341->init_cmds = ((ili9341_vendor_config_t *)panel_dev_config->vendor_config)->init_cmds;
-        ili9341->init_cmds_size = ((ili9341_vendor_config_t *)panel_dev_config->vendor_config)->init_cmds_size;
-    }
-    ili9341->base.del = panel_ili9341_del;
-    ili9341->base.reset = panel_ili9341_reset;
-    ili9341->base.init = panel_ili9341_init;
-    ili9341->base.draw_bitmap = panel_ili9341_draw_bitmap;
-    ili9341->base.invert_color = panel_ili9341_invert_color;
-    ili9341->base.set_gap = panel_ili9341_set_gap;
-    ili9341->base.mirror = panel_ili9341_mirror;
-    ili9341->base.swap_xy = panel_ili9341_swap_xy;
-#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
-    ili9341->base.disp_off = panel_ili9341_disp_on_off;
-#else
-    ili9341->base.disp_on_off = panel_ili9341_disp_on_off;
-#endif
-    *ret_panel = &(ili9341->base);
-    ESP_LOGD(TAG, "new ili9341 panel @%p", ili9341);
-
-    ESP_LOGI(TAG, "LCD panel create success, version: %d.%d.%d", ESP_LCD_ILI9341_VER_MAJOR, ESP_LCD_ILI9341_VER_MINOR,
-             ESP_LCD_ILI9341_VER_PATCH);
-
-    return ESP_OK;
-
-err:
-    if (ili9341) {
-        if (panel_dev_config->reset_gpio_num >= 0) {
-            gpio_reset_pin(panel_dev_config->reset_gpio_num);
-        }
-        free(ili9341);
-    }
-    return ret;
-}
 
 static esp_err_t panel_ili9341_del(esp_lcd_panel_t *panel)
 {
@@ -180,49 +76,49 @@ typedef struct {
 static const ili9341_lcd_init_cmd_t vendor_specific_init_default[] = {
 //  {cmd, { data }, data_size, delay_ms}
     /* Power contorl B, power control = 0, DC_ENA = 1 */
-    {0xCF, (uint8_t []){0x00, 0xAA, 0XE0}, 3, 0},
+    {0xCF, {0x00, 0xAA, 0XE0}, 3, 0},
     /* Power on sequence control,
      * cp1 keeps 1 frame, 1st frame enable
      * vcl = 0, ddvdh=3, vgh=1, vgl=2
      * DDVDH_ENH=1
      */
-    {0xED, (uint8_t []){0x67, 0x03, 0X12, 0X81}, 4, 0},
+    {0xED, {0x67, 0x03, 0X12, 0X81}, 4, 0},
     /* Driver timing control A,
      * non-overlap=default +1
      * EQ=default - 1, CR=default
      * pre-charge=default - 1
      */
-    {0xE8, (uint8_t []){0x8A, 0x01, 0x78}, 3, 0},
+    {0xE8, {0x8A, 0x01, 0x78}, 3, 0},
     /* Power control A, Vcore=1.6V, DDVDH=5.6V */
-    {0xCB, (uint8_t []){0x39, 0x2C, 0x00, 0x34, 0x02}, 5, 0},
+    {0xCB, {0x39, 0x2C, 0x00, 0x34, 0x02}, 5, 0},
     /* Pump ratio control, DDVDH=2xVCl */
-    {0xF7, (uint8_t []){0x20}, 1, 0},
+    {0xF7, {0x20}, 1, 0},
 
-    {0xF7, (uint8_t []){0x20}, 1, 0},
+    {0xF7, {0x20}, 1, 0},
     /* Driver timing control, all=0 unit */
-    {0xEA, (uint8_t []){0x00, 0x00}, 2, 0},
+    {0xEA, {0x00, 0x00}, 2, 0},
     /* Power control 1, GVDD=4.75V */
-    {0xC0, (uint8_t []){0x23}, 1, 0},
+    {0xC0, {0x23}, 1, 0},
     /* Power control 2, DDVDH=VCl*2, VGH=VCl*7, VGL=-VCl*3 */
-    {0xC1, (uint8_t []){0x11}, 1, 0},
+    {0xC1, {0x11}, 1, 0},
     /* VCOM control 1, VCOMH=4.025V, VCOML=-0.950V */
-    {0xC5, (uint8_t []){0x43, 0x4C}, 2, 0},
+    {0xC5, {0x43, 0x4C}, 2, 0},
     /* VCOM control 2, VCOMH=VMH-2, VCOML=VML-2 */
-    {0xC7, (uint8_t []){0xA0}, 1, 0},
+    {0xC7, {0xA0}, 1, 0},
     /* Frame rate control, f=fosc, 70Hz fps */
-    {0xB1, (uint8_t []){0x00, 0x1B}, 2, 0},
+    {0xB1, {0x00, 0x1B}, 2, 0},
     /* Enable 3G, disabled */
-    {0xF2, (uint8_t []){0x00}, 1, 0},
+    {0xF2, {0x00}, 1, 0},
     /* Gamma set, curve 1 */
-    {0x26, (uint8_t []){0x01}, 1, 0},
+    {0x26, {0x01}, 1, 0},
     /* Positive gamma correction */
-    {0xE0, (uint8_t []){0x1F, 0x36, 0x36, 0x3A, 0x0C, 0x05, 0x4F, 0X87, 0x3C, 0x08, 0x11, 0x35, 0x19, 0x13, 0x00}, 15, 0},
+    {0xE0, {0x1F, 0x36, 0x36, 0x3A, 0x0C, 0x05, 0x4F, 0X87, 0x3C, 0x08, 0x11, 0x35, 0x19, 0x13, 0x00}, 15, 0},
     /* Negative gamma correction */
-    {0xE1, (uint8_t []){0x00, 0x09, 0x09, 0x05, 0x13, 0x0A, 0x30, 0x78, 0x43, 0x07, 0x0E, 0x0A, 0x26, 0x2C, 0x1F}, 15, 0},
+    {0xE1, {0x00, 0x09, 0x09, 0x05, 0x13, 0x0A, 0x30, 0x78, 0x43, 0x07, 0x0E, 0x0A, 0x26, 0x2C, 0x1F}, 15, 0},
     /* Entry mode set, Low vol detect disabled, normal display */
-    {0xB7, (uint8_t []){0x07}, 1, 0},
+    {0xB7, {0x07}, 1, 0},
     /* Display function control */
-    {0xB6, (uint8_t []){0x08, 0x82, 0x27}, 3, 0},
+    {0xB6, {0x08, 0x82, 0x27}, 3, 0},
 };
 
 static esp_err_t panel_ili9341_init(esp_lcd_panel_t *panel)
@@ -384,4 +280,111 @@ static esp_err_t panel_ili9341_disp_on_off(esp_lcd_panel_t *panel, bool on_off)
     }
     ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_param(io, command, NULL, 0), TAG, "send command failed");
     return ESP_OK;
+}
+
+esp_err_t esp_lcd_new_panel_ili9341(const esp_lcd_panel_io_handle_t io, const esp_lcd_panel_dev_config_t *panel_dev_config, esp_lcd_panel_handle_t *ret_panel)
+{
+    esp_err_t ret = ESP_OK;
+    ili9341_panel_t *ili9341 = NULL;
+    gpio_config_t io_conf = { 0 };
+
+    ESP_GOTO_ON_FALSE(io && panel_dev_config && ret_panel, ESP_ERR_INVALID_ARG, err, TAG, "invalid argument");
+    ili9341 = (ili9341_panel_t *)calloc(1, sizeof(ili9341_panel_t));
+    ESP_GOTO_ON_FALSE(ili9341, ESP_ERR_NO_MEM, err, TAG, "no mem for ili9341 panel");
+
+    if (panel_dev_config->reset_gpio_num >= 0) {
+        io_conf.mode = GPIO_MODE_OUTPUT;
+        io_conf.pin_bit_mask = 1ULL << panel_dev_config->reset_gpio_num;
+        ESP_GOTO_ON_ERROR(gpio_config(&io_conf), err, TAG, "configure GPIO for RST line failed");
+    }
+
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
+    switch (panel_dev_config->color_space) {
+    case ESP_LCD_COLOR_SPACE_RGB:
+        ili9341->madctl_val = 0;
+        break;
+    case ESP_LCD_COLOR_SPACE_BGR:
+        ili9341->madctl_val |= LCD_CMD_BGR_BIT;
+        break;
+    default:
+        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported color space");
+        break;
+    }
+#elif ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+    switch (panel_dev_config->rgb_ele_order) {
+    case COLOR_RGB_ELEMENT_ORDER_RGB:
+        ili9341->madctl_val = 0;
+        break;
+    case COLOR_RGB_ELEMENT_ORDER_BGR:
+        ili9341->madctl_val |= LCD_CMD_BGR_BIT;
+        break;
+    default:
+        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported rgb endian");
+        break;
+    }
+#else
+    switch (panel_dev_config->rgb_endian) {
+    case LCD_RGB_ENDIAN_RGB:
+        ili9341->madctl_val = 0;
+        break;
+    case LCD_RGB_ENDIAN_BGR:
+        ili9341->madctl_val |= LCD_CMD_BGR_BIT;
+        break;
+    default:
+        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported rgb endian");
+        break;
+    }
+#endif
+
+    switch (panel_dev_config->bits_per_pixel) {
+    case 16: // RGB565
+        ili9341->colmod_val = 0x55;
+        ili9341->fb_bits_per_pixel = 16;
+        break;
+    case 18: // RGB666
+        ili9341->colmod_val = 0x66;
+        // each color component (R/G/B) should occupy the 6 high bits of a byte, which means 3 full bytes are required for a pixel
+        ili9341->fb_bits_per_pixel = 24;
+        break;
+    default:
+        ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported pixel width");
+        break;
+    }
+
+    ili9341->io = io;
+    ili9341->reset_gpio_num = panel_dev_config->reset_gpio_num;
+    ili9341->reset_level = panel_dev_config->flags.reset_active_high;
+    if (panel_dev_config->vendor_config) {
+        ili9341->init_cmds = ((ili9341_vendor_config_t *)panel_dev_config->vendor_config)->init_cmds;
+        ili9341->init_cmds_size = ((ili9341_vendor_config_t *)panel_dev_config->vendor_config)->init_cmds_size;
+    }
+    ili9341->base.del = panel_ili9341_del;
+    ili9341->base.reset = panel_ili9341_reset;
+    ili9341->base.init = panel_ili9341_init;
+    ili9341->base.draw_bitmap = panel_ili9341_draw_bitmap;
+    ili9341->base.invert_color = panel_ili9341_invert_color;
+    ili9341->base.set_gap = panel_ili9341_set_gap;
+    ili9341->base.mirror = panel_ili9341_mirror;
+    ili9341->base.swap_xy = panel_ili9341_swap_xy;
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
+    ili9341->base.disp_off = panel_ili9341_disp_on_off;
+#else
+    ili9341->base.disp_on_off = panel_ili9341_disp_on_off;
+#endif
+    *ret_panel = &(ili9341->base);
+    ESP_LOGD(TAG, "new ili9341 panel @%p", ili9341);
+
+    ESP_LOGI(TAG, "LCD panel create success, version: %d.%d.%d", ESP_LCD_ILI9341_VER_MAJOR, ESP_LCD_ILI9341_VER_MINOR,
+             ESP_LCD_ILI9341_VER_PATCH);
+
+    return ESP_OK;
+
+err:
+    if (ili9341) {
+        if (panel_dev_config->reset_gpio_num >= 0) {
+            gpio_reset_pin(panel_dev_config->reset_gpio_num);
+        }
+        free(ili9341);
+    }
+    return ret;
 }

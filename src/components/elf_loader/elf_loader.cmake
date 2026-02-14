@@ -102,7 +102,8 @@ macro(project_so project_name)
         set(so_compile_flags -c
                              -fPIC
                              -DCONFIG_ELF_DYNAMIC_LOAD_SHARED_OBJECT
-                             -I../../Availability -I. -I../../font -I../../libpit -I../../libpumpkin -I../../PalmOS/Core/System -I../../PalmOs/PalmOne -I../../PalmOs/PalmOne/Common -I../../PalmOs/PalmOne/Common/System -I../../PalmOs/PalmOne/68K -I../../PalmOs/PalmOne/68K/System -I../../PalmOS/PalmOne/Common/Libraries/filebrowser -I../../PalmOS/PalmOne/68K/Libraries/filebrowser -I../../PalmOS/Libraries/SSL -I../../PalmOS/Libraries/CPMLib -I../../PalmOS/Libraries/Pdi -I../../PalmOS/Garmin -I../../PalmOS/Libraries/PalmOSGlue -I../../PalmOS/Libraries/INet -I../../PalmOS/Core/Hardware -I../../PalmOS/Extensions/ExpansionMgr -I../../PalmOS/Extensions/Bluetooth -I../../PalmOS -I../../PalmOS/Libraries -I../../PalmOS/Core -I../../PalmOS/Core/UI -I../../PalmOS/Core/System -I../../PalmOS/Dynamic -I../../tos -I../../libemulation -DESP_PLATFORM -Wno-multichar -Wno-format)
+                             -Wno-multichar -Wno-format
+                             -I"../../Availability" -I"../../libpumpkin" -I"../../libpit" -I"../../font" -I"../../PalmOS/Core/System" -I"../../PalmOs/PalmOne" -I"../../PalmOs/PalmOne/Common" -I"../../PalmOs/PalmOne/Common/System" -I"../../PalmOs/PalmOne/68K" -I"../../PalmOs/PalmOne/68K/System" -I"../../PalmOS/PalmOne/Common/Libraries/filebrowser" -I"../../PalmOS/PalmOne/68K/Libraries/filebrowser" -I"../../PalmOS/Libraries/SSL" -I"../../PalmOS/Libraries/CPMLib" -I"../../PalmOS/Libraries/Pdi" -I"../../PalmOS/Garmin" -I"../../PalmOS/Libraries/PalmOSGlue" -I"../../PalmOS/Libraries/INet" -I"../../PalmOS/Core/Hardware" -I"../../PalmOS/Extensions/ExpansionMgr" -I"../../PalmOS/Extensions/Bluetooth" -I"../../PalmOS" -I"../../PalmOS/Libraries" -I"../../PalmOS/Core" -I"../../PalmOS/Core/UI" -I"../../PalmOS/Core/System" -I"../../PalmOS/Dynamic")
 
         # Link flags for producing a shared object from the collected .o files.
         # This setup favors size reduction (gc-sections, hidden visibility) and
@@ -112,13 +113,12 @@ macro(project_so project_name)
                           -static-libgcc
                           -nostdlib
                           -nostartfiles
-                          -Wl,-E
-                          -Wl,--export-dynamic
+                          #-Wl,-E
+                          #-Wl,--export-dynamic
                           -fdata-sections
                           -ffunction-sections
                           -Wl,--gc-sections
-                          -fvisibility=hidden
-                          )
+                          -fvisibility=hidden)
 
         list(APPEND so_link_flags -Wl,--strip-all
                                   -Wl,--strip-debug
@@ -152,8 +152,6 @@ macro(project_so project_name)
         set(so_c_sources "")
         set(so_dependencies "")
         set(so_obj_files "")
-
-        # set(so_link_libs "-Lesp-idf/libpumpkin" "-Lesp-idf/libpit" "-llibpumpkin" "-llibpit")
         set(so_link_libs "")
 
         if(ELF_COMPONENTS)

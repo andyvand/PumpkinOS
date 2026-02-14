@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "hal/spi_ll.h"
 #include "esp_lcd_panel_vendor.h"
 
 #ifdef __cplusplus
@@ -23,7 +22,7 @@ extern "C" {
  */
 typedef struct {
     int cmd;                /*<! The specific LCD command */
-    const void *data;       /*<! Buffer that holds the command specific data */
+    const uint8_t data[16];    /*<! Buffer that holds the command specific data */
     size_t data_bytes;      /*<! Size of `data` in memory, in bytes */
     unsigned int delay_ms;  /*<! Delay in milliseconds after this command */
 } ili9341_lcd_init_cmd_t;

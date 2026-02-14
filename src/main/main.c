@@ -30,6 +30,8 @@
 #include "pwindow.h"
 #include "script.h"
 #include "debug.h"
+#include "hal/cache_hal.h"
+#include "soc/sensitive_reg.h"
 
 #include <string.h>
 

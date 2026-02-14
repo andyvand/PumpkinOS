@@ -2806,7 +2806,7 @@ void sys_install_handler(int signum, void (*handler)(int)) {
 }
 
 void sys_wait(int *status) {
-#if !defined(WINDOWS) && !defined(KERNEL)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(ESP32)
   wait(status);
 #endif
 }
@@ -2884,7 +2884,7 @@ void *sys_lib_load(char *libname, int *first_load) {
 */
 #define NODELETE 0
 
-#if defined(RTLD_NOLOAD) && !defined(ESP32)
+#if defined(RTLD_NOLOAD)
   lib = dlopen(buf, RTLD_NOW | RTLD_NOLOAD);
 #else
   lib = NULL;
@@ -3933,7 +3933,7 @@ int sys_socket_shutdown(int sock, int dir) {
 }
 
 int sys_fork_exec(char *filename, char *argv[], int fd) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
   return -1;
 #else
   char *envp[] = { NULL };
