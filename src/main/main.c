@@ -173,11 +173,6 @@ void app_task(void *arg)
     libos_app_init(0);
     libos_start(0);
 
-    while (1)
-    {
-        vTaskDelay(1);
-    }
-
     // finish
     vfs_finish();
     thread_close();
@@ -204,5 +199,5 @@ void app_main(void)
     bsp_sdcard_mount();
 #endif
 
-    xTaskCreatePinnedToCore(&app_task, "app_task", 20000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
+    xTaskCreatePinnedToCore(&app_task, "app_task", 8000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
 }

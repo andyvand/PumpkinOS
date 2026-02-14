@@ -9,6 +9,7 @@
 #include "esp_idf_version.h"
 #include "esp_attr.h"
 #include "esp_heap_caps.h"
+#include "esp_log.h"
 #include "soc/soc.h"
 #include "private/elf_platform.h"
 
@@ -16,6 +17,10 @@
 #ifdef CONFIG_IDF_TARGET_ESP32S3
 #define OFFSET_TEXT_VALUE   (SOC_IROM_LOW - SOC_DROM_LOW)
 #endif
+#endif
+
+#ifndef MALLOC_CAP_EXEC
+#define MALLOC_CAP_EXEC MALLOC_CAP_INTERNAL
 #endif
 
 /**

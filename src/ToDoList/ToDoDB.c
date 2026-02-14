@@ -507,15 +507,15 @@ static UInt16 ToDoFindSortPosition(DmOpenRef dbP, ToDoDBRecord *newRecord,
  *************************************************************/
 Err ToDoNewRecord(DmOpenRef dbP, ToDoItemPtr item, UInt16 category, UInt16 *index)
 {
-	Err 						err;
-	UInt16					size;
+	Err 						err = 0;
+	UInt16					size = 0;
 	Char						zero=0;
-	UInt16					attr;
-	UInt16 					newIndex;
+	UInt16					attr = 0;
+	UInt16 					newIndex = 0;
 	UInt32					offset;
 	ToDoDBRecordPtr		nilP=0;
-	ToDoDBRecordPtr		recordP;
-	MemHandle 				recordH;
+	ToDoDBRecordPtr		recordP=0;
+	MemHandle 				recordH=NULL;
 	SortRecordInfoType	sortInfo;
 
 	// Compute the size of the new to do record.
@@ -606,18 +606,18 @@ Err ToDoNewRecord(DmOpenRef dbP, ToDoItemPtr item, UInt16 category, UInt16 *inde
  ***********************************************************************/
 Err ToDoInsertNewRecord (DmOpenRef dbP, UInt16 * index)
 {
-	UInt8					priority;
-	ToDoDBRecordPtr 	rec;
-	ToDoDBRecordPtr 	newRec;
-	MemHandle 		 	recH;
-	MemHandle			 	newRecH;
-	Err				 	err;
-	UInt16 				size;
+	UInt8					priority = 0;
+	ToDoDBRecordPtr 	rec = NULL;
+	ToDoDBRecordPtr 	newRec = NULL;
+	MemHandle 		 	recH = NULL;
+	MemHandle			 	newRecH = NULL;
+	Err				 	err = 0;
+	UInt16 				size = 0;
 	ToDoDBRecordPtr	nilP=0;
 	UInt16				zero=0;
-	UInt16 				newIndex;
-	UInt16				category;
-	UInt16				attr;
+	UInt16 				newIndex = 0;
+	UInt16				category = 0;
+	UInt16				attr = 0;
 
 
 	// Make a new chunk
@@ -766,18 +766,18 @@ void ToDoSort (DmOpenRef dbP)
 Err ToDoChangeRecord(DmOpenRef dbP, UInt16 *index, 
 	ToDoRecordFieldType changedField, void * data)
 {
-	Err 						err;
-	Int16 					cLen;
-	UInt16					attr;
-	UInt16 					curSize;
-	UInt16 					newSize;
-	UInt16 					newIndex;
-	UInt8						priority;
-	UInt32					offset;
-	Char * 					c;
+	Err 						err = 0;
+	Int16 					cLen = 0;
+	UInt16					attr = 0;
+	UInt16 					curSize = 0;
+	UInt16 					newSize = 0;
+	UInt16 					newIndex = 0;
+	UInt8						priority = 0;
+	UInt32					offset = 0;
+	Char * 					c = NULL;
 	MemHandle 				recordH=0;
 	ToDoDBRecord			temp;
-	ToDoDBRecordPtr 		src;
+	ToDoDBRecordPtr 		src = 0;
 	ToDoDBRecordPtr 		nilP = 0;
 	SortRecordInfoType	sortInfo;
 	

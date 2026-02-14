@@ -70,7 +70,12 @@
 #include <sys/socket.h>
 #if defined(SERENITY) || defined(ESP32)
 #include <sys/select.h>
+
+#ifdef ESP32
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
 #include <sys/statvfs.h>
+#endif
+#endif
 #else
 #include <sys/syscall.h>
 
@@ -722,7 +727,9 @@ uint32_t sys_get_tid(void) {
 }
 
 #if defined(ESP32_ERRNO)
+#if (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0))
 int __THREAD_LOCAL_ERRNO errno = 0;
+#endif
 #endif
 
 int sys_errno(void) {
@@ -2794,13 +2801,16 @@ void sys_unblock_signals(void) {
 
 void sys_install_handler(int signum, void (*handler)(int)) {
 #if !defined(KERNEL)
-#if defined(WINDOWS) || defined(ESP32)
+
+#if defined(WINDOWS) || (defined(ESP32) && (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)))
   signal(signum, handler);
 #else
+#if !defined(ESP32)
   struct sigaction action;
   sys_memset(&action, 0, sizeof(action));
   action.sa_handler = handler;
   sigaction(signum, &action, NULL);
+#endif
 #endif
 #endif
 }
@@ -2884,6 +2894,13 @@ void *sys_lib_load(char *libname, int *first_load) {
 */
 #define NODELETE 0
 
+#if defined(ESP32)
+  lib = dlopen(buf, RTLD_LAZY);
+
+  if (lib == NULL) {
+    debug(DEBUG_ERROR, "SYS", "dlopen \"%s\"", dlerror());
+  }
+#else
 #if defined(RTLD_NOLOAD)
   lib = dlopen(buf, RTLD_NOW | RTLD_NOLOAD);
 #else
@@ -2905,6 +2922,7 @@ void *sys_lib_load(char *libname, int *first_load) {
     // already loaded
     debug(DEBUG_INFO, "SYS", "library %s already loaded", buf);
   }
+#endif
 #endif
 
   return lib;

@@ -253,8 +253,13 @@ typedef struct esp_elf {
 #ifdef CONFIG_ELF_LOADER_SET_MMU
     uint32_t        text_off;           /*!< .text symbol offset */
 
+#if CONFIG_IDF_TARGET_ESP32S3
+    uint32_t        mapped_addr;
+    uint32_t        mapped_size;
+#else
     uint32_t        mmu_off;            /*!< MMU unit offset */
     uint32_t        mmu_num;            /*!< MMU unit total number */
+#endif
 #endif
 
 #ifdef CONFIG_ELF_DYNAMIC_LOAD_SHARED_OBJECT

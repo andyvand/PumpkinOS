@@ -1,5 +1,11 @@
 menu "PumpkinOS Configuration"
 
+    config PUMPKINOS_KERNEL
+        bool "Build PumpkinOS kernel"
+        default y
+        help
+           Build PumpkinOS kernel.
+
     config STORAGE_LITTLEFS
         bool "Use LittleFS for storage"
         default y

@@ -2918,6 +2918,9 @@ static void addWidgets(launcher_data_t *data) {
   void (*widgetFinish)(void *data) = NULL;
   void *widgetData = NULL;
   launcher_widget_t aux;
+  aux.widgetDialogPost = NULL;
+  aux.widgetDialogEventHandler = NULL;
+  aux.widgetDialogPre = NULL;
 
   i = 0;
   for (newSearch = true; i < MAX_WIDGETS; newSearch = false) {

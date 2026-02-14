@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(PUMPKINOS_KERNEL 1)
+
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(PumpkinOS)
 

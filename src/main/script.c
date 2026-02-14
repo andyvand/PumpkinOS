@@ -4,6 +4,14 @@
 #include "gpio.h"
 #include "pspi.h"
 
+#ifndef CONFIG_BSP_DISPLAY_WIDTH
+#define CONFIG_BSP_DISPLAY_WIDTH 240
+#endif
+
+#ifndef CONFIG_BSP_DISPLAY_HEIGHT
+#define CONFIG_BSP_DISPLAY_HEIGHT 320
+#endif
+
 static void *gpiop = NULL;
 static void *spip = NULL;
 static void *wp = NULL;

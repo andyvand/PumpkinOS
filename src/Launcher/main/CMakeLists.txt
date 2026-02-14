@@ -1,3 +1,4 @@
 idf_component_register(
     SRCS "Launcher.c" "editbin.c" "editbmp.c" "editform.c" "editreg.c" "editstr.c" "editsurf.c"
+    INCLUDE_DIRS "../../Availability" "../../libpumpkin" "../../libpit" "../../font" "../../PalmOS/Core/System" "../../PalmOs/PalmOne" "../../PalmOs/PalmOne/Common" "../../PalmOs/PalmOne/Common/System" "../../PalmOs/PalmOne/68K" "../../PalmOs/PalmOne/68K/System" "../../PalmOS/PalmOne/Common/Libraries/filebrowser" "../../PalmOS/PalmOne/68K/Libraries/filebrowser" "../../PalmOS/Libraries/SSL" "../../PalmOS/Libraries/CPMLib" "../../PalmOS/Libraries/Pdi" "../../PalmOS/Garmin" "../../PalmOS/Libraries/PalmOSGlue" "../../PalmOS/Libraries/INet" "../../PalmOS/Core/Hardware" "../../PalmOS/Extensions/ExpansionMgr" "../../PalmOS/Extensions/Bluetooth" "../../PalmOS" "../../PalmOS/Libraries" "../../PalmOS/Core" "../../PalmOS/Core/UI" "../../PalmOS/Core/System" "../../PalmOS/Dynamic"
 )
