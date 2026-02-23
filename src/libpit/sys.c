@@ -2802,8 +2802,14 @@ void sys_unblock_signals(void) {
 void sys_install_handler(int signum, void (*handler)(int)) {
 #if !defined(KERNEL)
 
-#if defined(WINDOWS) || (defined(ESP32) && (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)))
+#if defined(WINDOWS) || defined(ESP32)
+#ifdef ESP32
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
   signal(signum, handler);
+#endif
+#else
+  signal(signum, handler);
+#endif
 #else
 #if !defined(ESP32)
   struct sigaction action;

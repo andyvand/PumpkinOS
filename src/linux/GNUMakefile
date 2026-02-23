@@ -7,6 +7,7 @@ OBJS=main.o
 $(PROGRAM): $(OBJS)
 	@echo Linking pumpkin
 	@$(CC) -o $(PROGRAM) $(OBJS) -L$(BIN) -lpit -lpthread
+	@codesign -s "Developer ID Application" $(PROGRAM)
 
 clean:
 	@rm -f $(PROGRAM) $(OBJS)

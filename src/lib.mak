@@ -24,6 +24,7 @@ else ifeq ($(OSNAME),Darwin)
 $(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
 	@echo Linking $(PROGRAM)$(SOEXT)
 	@$(CC) -dynamiclib -o $(LIB)$(SOEXT) $(OBJS) -L$(BIN) -lpit $(LIBS)
+	@codesign -f -s "Developer ID Application" $(LIB)$(SOEXT)
 	@$(STRIP) $(LIB)$(SOEXT)
 else
 $(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)

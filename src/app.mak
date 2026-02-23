@@ -39,14 +39,16 @@ $(DLIB): $(PROGRAM).dlib
 	@cp $(PROGRAM).dlib $(DLIB)
 	@$(STRIP) $(DLIB)
 
-ifeq ($(OSNAME),Msys)
-$(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
-	@echo Linking $(PROGRAM).dlib
-	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS) --def $(PROGRAM).def
-else ifeq ($(OSNAME),Darwin)
+ifeq ($(OSNAME),Darwin)
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 	@echo Linking $(PROGRAM).dlib
 	@$(CC) -dynamiclib -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS)
+	@codesign -f -s "Developer ID Application" $(PROGRAM).dlib
+else ifeq ($(OSNAME),Msys)
+$(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
+	@echo Linking $(PROGRAM).dlib
+	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS) --def $(PROGRAM).def
+$(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 else
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 	@echo Linking $(PROGRAM).dlib

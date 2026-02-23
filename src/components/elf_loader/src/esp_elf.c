@@ -11,6 +11,9 @@
 #include <sys/param.h>
 #include <inttypes.h>
 #include <fcntl.h>
+#include <esp_heap_caps.h>
+#include <esp_mmu_map.h>
+#include <esp_cache.h>
 
 #include "esp_log.h"
 #include "esp_elf.h"
@@ -147,6 +150,40 @@ void esp_elf_close(elf_file_t *file)
 }
 
 #if CONFIG_ELF_LOADER_BUS_ADDRESS_MIRROR
+#if CONFIG_IDF_TARGET_ESP32S3
+#ifndef CACHE_LINE_SIZE
+#define CACHE_LINE_SIZE 32
+#endif
+
+esp_err_t map_text_to_instr(void *data_vaddr,
+                            size_t size,
+                            void **instr_vaddr_out)
+{
+    esp_paddr_t psram_buf_paddr = 0;
+    mmu_target_t out_target;
+
+    ESP_ERROR_CHECK(esp_mmu_vaddr_to_paddr(data_vaddr, &psram_buf_paddr, &out_target));
+
+    const size_t low_paddr = psram_buf_paddr & ~(CONFIG_MMU_PAGE_SIZE - 1);   // round down to page boundary
+    const size_t high_paddr = (psram_buf_paddr + size + CONFIG_MMU_PAGE_SIZE - 1) & ~(CONFIG_MMU_PAGE_SIZE - 1); // round up to page boundary
+
+    const size_t map_size = high_paddr - low_paddr;
+    void *mmap_ptr = NULL;
+    ESP_ERROR_CHECK(esp_mmu_map(0, map_size, MMU_TARGET_PSRAM0, MMU_MEM_CAP_EXEC, 0, &mmap_ptr));
+    esp_mmu_map_dump_mapped_blocks(stdout);
+
+    void *exec_buf = mmap_ptr + (psram_buf_paddr - low_paddr);
+
+    ESP_ERROR_CHECK(esp_cache_msync(data_vaddr, size + (size % 32), 0));
+
+    ESP_LOGI(TAG, "vaddr: %p, paddr:0x%08x...0x%08x, exec_buf: %p", data_vaddr, low_paddr, high_paddr, exec_buf);
+
+    // Return pointer adjusted for original offset
+    *instr_vaddr_out = exec_buf;
+
+    return ESP_OK;
+}
+#endif
 
 /**
  * @brief Load ELF section.
@@ -260,9 +297,18 @@ static int esp_elf_load_section(esp_elf_t *elf, const uint8_t *pbuf)
 
     /* Dump ".text" from ELF to executable space memory */
 
-    elf->sec[ELF_SEC_TEXT].addr = (Elf32_Addr)elf->ptext;
     memcpy(elf->ptext, pbuf + elf->sec[ELF_SEC_TEXT].offset,
            elf->sec[ELF_SEC_TEXT].size);
+
+#if CONFIG_IDF_TARGET_ESP32S3
+    if (map_text_to_instr(elf->ptext, elf->sec[ELF_SEC_TEXT].size, (void **)&elf->sec[ELF_SEC_TEXT].addr)) {
+        esp_elf_free(elf->ptext);
+        esp_elf_free(elf->pdata);
+        return -EIO;
+    }
+#else
+    elf->sec[ELF_SEC_TEXT].addr = (Elf32_Addr)elf->ptext;
+#endif
 
 #ifdef CONFIG_ELF_LOADER_SET_MMU
     if (esp_elf_arch_init_mmu(elf)) {
@@ -531,6 +577,8 @@ int esp_elf_relocate(esp_elf_t *elf, const uint8_t *pbuf)
                 const elf32_sym_t *sym = &symtab[ELF_R_SYM(rela_buf.info)];
 
                 type = ELF_R_TYPE(rela_buf.info);
+
+
                 if (type == STT_COMMON || type == STT_OBJECT || type == STT_SECTION) {
                     const char *comm_name = strtab + sym->name;
 
@@ -564,7 +612,11 @@ int esp_elf_relocate(esp_elf_t *elf, const uint8_t *pbuf)
 #if CONFIG_ELF_DYNAMIC_LOAD_SHARED_OBJECT
                     if (!addr && sym->shndx != SHN_UNDEF) {
 #if CONFIG_ELF_LOADER_BUS_ADDRESS_MIRROR
+#if CONFIG_IDF_TARGET_ESP32S3
                         addr = (uintptr_t)(elf->sec[ELF_SEC_TEXT].addr + sym->value - elf->sec[ELF_SEC_TEXT].v_addr);
+#else
+                        addr = (uintptr_t)(elf->sec[ELF_SEC_TEXT].addr + sym->value - elf->sec[ELF_SEC_TEXT].v_addr);
+#endif
 #else
                         addr = (uintptr_t)(elf->psegment + sym->value - elf->svaddr);
 #endif
@@ -612,7 +664,7 @@ int esp_elf_relocate(esp_elf_t *elf, const uint8_t *pbuf)
                         len = strlen((const char *)(strtab + symtab[j].name)) + 1;
 #if CONFIG_ELF_LOADER_BUS_ADDRESS_MIRROR
                         elf->symtab[num].addr =
-                            (void *)(elf->ptext + symtab[j].value - elf->sec[ELF_SEC_TEXT].v_addr);
+                            (void *)(elf->sec[ELF_SEC_TEXT].addr + symtab[j].value - elf->sec[ELF_SEC_TEXT].v_addr);
 #else
                         elf->symtab[num].addr =
                             (void *)(elf->psegment + symtab[j].value - elf->svaddr);
@@ -626,7 +678,7 @@ int esp_elf_relocate(esp_elf_t *elf, const uint8_t *pbuf)
 
                         memset((void *)elf->symtab[num].name, 0, len);
                         memcpy((void *)elf->symtab[num].name, strtab + symtab[j].name, len);
-                        ESP_LOGI(TAG, "elf->symtab[%d], func: %s", num, strtab + symtab[j].name);
+                        ESP_LOGI(TAG, "elf->symtab[%d], func: %s, addr: %p", num, strtab + symtab[j].name, (void *)elf->symtab[num].addr);
                         num++;
                     }
                 }
@@ -635,7 +687,9 @@ int esp_elf_relocate(esp_elf_t *elf, const uint8_t *pbuf)
         }
     }
 
-#ifdef CONFIG_ELF_LOADER_LOAD_PSRAM
+#if CONFIG_IDF_TARGET_ESP32S3 && defined(CONFIG_ELF_LOADER_LOAD_PSRAM)
+    ESP_ERROR_CHECK(esp_cache_msync(elf->ptext, elf->sec[ELF_SEC_TEXT].size + (elf->sec[ELF_SEC_TEXT].size % 32), 0));
+#elif defined(CONFIG_ELF_LOADER_LOAD_PSRAM)
     esp_elf_arch_flush();
 #endif
 

@@ -181,7 +181,7 @@ void app_task(void *arg)
 
 void app_main(void)
 {
-    esp_log_level_set("*", ESP_LOG_INFO);
+    esp_log_level_set("*", ESP_LOG_DEBUG);
 
     ESP_LOGI(__func__, "PumpkinOS (%s).\n", __DATE__);
 

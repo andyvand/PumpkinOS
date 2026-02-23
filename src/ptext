@@ -1,0 +1,164 @@
+components/elf_loader/elf_loader.cmake:    string(REPLACE "-elf-gcc" "-elf-strip" CMAKE_STRIP ${CMAKE_C_COMPILER})
+components/elf_loader/elf_loader.cmake:        string(REPLACE "-elf-gcc" "-elf-strip" CMAKE_STRIP_SO ${CMAKE_C_COMPILER})
+components/elf_loader/src/esp_elf_adapter.c:    esp_elf_sec_t *sec = &elf->sec[ELF_SEC_TEXT];
+components/elf_loader/src/esp_elf_adapter.c:        mapped_sym = sym + elf->text_off;
+components/elf_loader/src/soc/esp_elf_esp32s2.c:    esp_elf_sec_t *sec = &elf->sec[ELF_SEC_TEXT];
+components/elf_loader/src/soc/esp_elf_esp32s2.c:    dbus_secs = PSRAM_SECS(elf->ptext);
+components/elf_loader/src/soc/esp_elf_esp32s2.c:        elf->mmu_off  = off;
+components/elf_loader/src/soc/esp_elf_esp32s2.c:        elf->mmu_num  = ibus_secs;
+components/elf_loader/src/soc/esp_elf_esp32s2.c:        elf->text_off = ICACHE_ADDR(off) - PSRAM_ALIGN(elf->ptext);
+components/elf_loader/src/soc/esp_elf_esp32s2.c:    volatile int num = elf->mmu_num;
+components/elf_loader/src/soc/esp_elf_esp32s2.c:    volatile int off = elf->mmu_off;
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    if (!elf || !elf->ptext)
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    esp_elf_sec_t *sec = &elf->sec[ELF_SEC_TEXT];
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    ESP_LOGI(TAG, "map .text: %p (%u bytes)", elf->ptext, (unsigned)map_size);
+components/elf_loader/src/soc/esp_elf_esp32s3.c:        (esp_paddr_t)elf->ptext,                 // source pointer (PSRAM virtual)
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    elf->mapped_addr = (uint32_t)vaddr;
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    elf->mapped_size = map_size;
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    elf->text_off = (uint32_t)((uintptr_t)vaddr - (uintptr_t)elf->ptext);
+components/elf_loader/src/soc/esp_elf_esp32s3.c:             elf->ptext,
+components/elf_loader/src/soc/esp_elf_esp32s3.c:             (unsigned)elf->text_off);
+components/elf_loader/src/soc/esp_elf_esp32s3.c:    if (elf->mapped_addr) {
+components/elf_loader/src/soc/esp_elf_esp32s3.c:        esp_mmu_unmap((void *)elf->mapped_addr);
+components/elf_loader/src/soc/esp_elf_esp32s3.c:        elf->mapped_addr = 0;
+components/elf_loader/src/soc/esp_elf_esp32s3.c:        elf->mapped_size = 0;
+components/elf_loader/src/soc/esp_elf_esp32s3.c:        elf->text_off = 0;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_TEXT].v_addr  = shdr[i].addr;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_TEXT].size    = ELF_ALIGN(shdr[i].size, 4);
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_TEXT].offset  = shdr[i].offset;
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_TEXT].offset,
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_TEXT].size);
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_DATA].v_addr  = shdr[i].addr;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_DATA].size    = shdr[i].size;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_DATA].offset  = shdr[i].offset;
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_DATA].offset,
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_DATA].size);
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_RODATA].v_addr  = shdr[i].addr;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_RODATA].size    = shdr[i].size;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_RODATA].offset  = shdr[i].offset;
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_RODATA].offset,
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_RODATA].size);
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_DRLRO].v_addr  = shdr[i].addr;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_DRLRO].size    = shdr[i].size;
+components/elf_loader/src/esp_elf.c:                elf->sec[ELF_SEC_DRLRO].offset  = shdr[i].offset;
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_DRLRO].offset,
+components/elf_loader/src/esp_elf.c:                         elf->sec[ELF_SEC_DRLRO].size);
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_BSS].v_addr  = shdr[i].addr;
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_BSS].size    = shdr[i].size;
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_BSS].offset  = shdr[i].offset;
+components/elf_loader/src/esp_elf.c:                     elf->sec[ELF_SEC_BSS].offset,
+components/elf_loader/src/esp_elf.c:                     elf->sec[ELF_SEC_BSS].size);
+components/elf_loader/src/esp_elf.c:    if (!elf->sec[ELF_SEC_TEXT].size) {
+components/elf_loader/src/esp_elf.c:    elf->ptext = esp_elf_malloc(elf->sec[ELF_SEC_TEXT].size, true);
+components/elf_loader/src/esp_elf.c:    if (!elf->ptext) {
+components/elf_loader/src/esp_elf.c:                 (uint32_t)elf->sec[ELF_SEC_TEXT].size);
+components/elf_loader/src/esp_elf.c:    size = elf->sec[ELF_SEC_DATA].size +
+components/elf_loader/src/esp_elf.c:           elf->sec[ELF_SEC_RODATA].size +
+components/elf_loader/src/esp_elf.c:           elf->sec[ELF_SEC_BSS].size +
+components/elf_loader/src/esp_elf.c:           elf->sec[ELF_SEC_DRLRO].size;
+components/elf_loader/src/esp_elf.c:        elf->pdata = esp_elf_malloc(size, false);
+components/elf_loader/src/esp_elf.c:        if (!elf->pdata) {
+components/elf_loader/src/esp_elf.c:            esp_elf_free(elf->ptext);
+components/elf_loader/src/esp_elf.c:    if (map_text_to_instr(elf->ptext, elf->sec[ELF_SEC_TEXT].size, (void **)&elf->sec[ELF_SEC_TEXT].addr)) {
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->ptext);
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->pdata);
+components/elf_loader/src/esp_elf.c:    elf->sec[ELF_SEC_TEXT].addr = (Elf32_Addr)elf->ptext;
+components/elf_loader/src/esp_elf.c:    memcpy(elf->ptext, pbuf + elf->sec[ELF_SEC_TEXT].offset,
+components/elf_loader/src/esp_elf.c:           elf->sec[ELF_SEC_TEXT].size);
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->ptext);
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->pdata);
+components/elf_loader/src/esp_elf.c:        uint8_t *pdata = elf->pdata;
+components/elf_loader/src/esp_elf.c:        if (elf->sec[ELF_SEC_DATA].size) {
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_DATA].addr = (uint32_t)pdata;
+components/elf_loader/src/esp_elf.c:            memcpy(pdata, pbuf + elf->sec[ELF_SEC_DATA].offset,
+components/elf_loader/src/esp_elf.c:                   elf->sec[ELF_SEC_DATA].size);
+components/elf_loader/src/esp_elf.c:            pdata += elf->sec[ELF_SEC_DATA].size;
+components/elf_loader/src/esp_elf.c:        if (elf->sec[ELF_SEC_RODATA].size) {
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_RODATA].addr = (uint32_t)pdata;
+components/elf_loader/src/esp_elf.c:            memcpy(pdata, pbuf + elf->sec[ELF_SEC_RODATA].offset,
+components/elf_loader/src/esp_elf.c:                   elf->sec[ELF_SEC_RODATA].size);
+components/elf_loader/src/esp_elf.c:            pdata += elf->sec[ELF_SEC_RODATA].size;
+components/elf_loader/src/esp_elf.c:        if (elf->sec[ELF_SEC_DRLRO].size) {
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_DRLRO].addr = (uint32_t)pdata;
+components/elf_loader/src/esp_elf.c:            memcpy(pdata, pbuf + elf->sec[ELF_SEC_DRLRO].offset,
+components/elf_loader/src/esp_elf.c:                   elf->sec[ELF_SEC_DRLRO].size);
+components/elf_loader/src/esp_elf.c:            pdata += elf->sec[ELF_SEC_DRLRO].size;
+components/elf_loader/src/esp_elf.c:        if (elf->sec[ELF_SEC_BSS].size) {
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_BSS].addr = (uint32_t)pdata;
+components/elf_loader/src/esp_elf.c:            memset(pdata, 0, elf->sec[ELF_SEC_BSS].size);
+components/elf_loader/src/esp_elf.c:    entry = ehdr->entry + elf->sec[ELF_SEC_TEXT].addr -
+components/elf_loader/src/esp_elf.c:            elf->sec[ELF_SEC_TEXT].v_addr;
+components/elf_loader/src/esp_elf.c:    elf->entry = (void *)elf_remap_text(elf, (uintptr_t)entry);
+components/elf_loader/src/esp_elf.c:    elf->entry = (void *)entry;
+components/elf_loader/src/esp_elf.c:    elf->svaddr = vaddr_s;
+components/elf_loader/src/esp_elf.c:    elf->psegment = esp_elf_malloc(size, true);
+components/elf_loader/src/esp_elf.c:    if (!elf->psegment) {
+components/elf_loader/src/esp_elf.c:    memset(elf->psegment, 0, size);
+components/elf_loader/src/esp_elf.c:            memcpy(elf->psegment + phdr[i].vaddr - vaddr_s,
+components/elf_loader/src/esp_elf.c:                     i, (void *)((uint8_t *)elf->psegment + phdr[i].vaddr - vaddr_s), phdr[i].filesz);
+components/elf_loader/src/esp_elf.c:    elf->entry = (void *)((uint8_t *)elf->psegment + ehdr->entry - vaddr_s);
+components/elf_loader/src/esp_elf.c:        if ((sym >= elf->sec[i].v_addr) &&
+components/elf_loader/src/esp_elf.c:                (sym < (elf->sec[i].v_addr + elf->sec[i].size))) {
+components/elf_loader/src/esp_elf.c:            return sym - elf->sec[i].v_addr + elf->sec[i].addr;
+components/elf_loader/src/esp_elf.c:    ESP_LOGI(TAG, "elf->entry=%p", elf->entry);
+components/elf_loader/src/esp_elf.c:                            addr = (uintptr_t)(elf->sec[ELF_SEC_DATA].addr + sym->value - elf->sec[ELF_SEC_DATA].v_addr);
+components/elf_loader/src/esp_elf.c:                            addr = (uintptr_t)(elf->psegment + sym->value - elf->svaddr);
+components/elf_loader/src/esp_elf.c:                        addr = (uintptr_t)(elf->sec[ELF_SEC_TEXT].addr + sym->value - elf->sec[ELF_SEC_TEXT].v_addr);
+components/elf_loader/src/esp_elf.c:                        addr = (uintptr_t)(elf->sec[ELF_SEC_TEXT].addr + sym->value - elf->sec[ELF_SEC_TEXT].v_addr);
+components/elf_loader/src/esp_elf.c:                        addr = (uintptr_t)(elf->psegment + sym->value - elf->svaddr);
+components/elf_loader/src/esp_elf.c:                elf->num = 0;
+components/elf_loader/src/esp_elf.c:                        elf->num++;
+components/elf_loader/src/esp_elf.c:                if (elf->num) {
+components/elf_loader/src/esp_elf.c:                    elf->symtab = (esp_symtab_t *)esp_elf_malloc(elf->num * sizeof(esp_symtab_t), false);
+components/elf_loader/src/esp_elf.c:                    if (!elf->symtab) {
+components/elf_loader/src/esp_elf.c:                    memset(elf->symtab, 0, elf->num * sizeof(esp_symtab_t));
+components/elf_loader/src/esp_elf.c:                        elf->symtab[num].addr =
+components/elf_loader/src/esp_elf.c:                            (void *)(elf->sec[ELF_SEC_TEXT].addr + symtab[j].value - elf->sec[ELF_SEC_TEXT].v_addr);
+components/elf_loader/src/esp_elf.c:                        elf->symtab[num].addr =
+components/elf_loader/src/esp_elf.c:                            (void *)(elf->psegment + symtab[j].value - elf->svaddr);
+components/elf_loader/src/esp_elf.c:                        elf->symtab[num].name = esp_elf_malloc(len, false);
+components/elf_loader/src/esp_elf.c:                        if (!elf->symtab[num].name) {
+components/elf_loader/src/esp_elf.c:                            elf->num = num;
+components/elf_loader/src/esp_elf.c:                        memset((void *)elf->symtab[num].name, 0, len);
+components/elf_loader/src/esp_elf.c:                        memcpy((void *)elf->symtab[num].name, strtab + symtab[j].name, len);
+components/elf_loader/src/esp_elf.c:                        ESP_LOGI(TAG, "elf->symtab[%d], func: %s, addr: %p", num, strtab + symtab[j].name, (void *)elf->symtab[num].addr);
+components/elf_loader/src/esp_elf.c:    cache_flush_aligned((void *)elf->ptext, elf->sec[ELF_SEC_TEXT].size);
+components/elf_loader/src/esp_elf.c:    cache_flush_aligned((void *)elf->pdata, elf->sec[ELF_SEC_DATA].size);
+components/elf_loader/src/esp_elf.c:    if (!elf || !(elf->entry)) {
+components/elf_loader/src/esp_elf.c:    elf->entry(argc, argv);
+components/elf_loader/src/esp_elf.c:    if (elf->pdata) {
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->pdata);
+components/elf_loader/src/esp_elf.c:        elf->pdata = NULL;
+components/elf_loader/src/esp_elf.c:    if (elf->ptext) {
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->ptext);
+components/elf_loader/src/esp_elf.c:        elf->ptext = NULL;
+components/elf_loader/src/esp_elf.c:    if (elf->psegment) {
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->psegment);
+components/elf_loader/src/esp_elf.c:        elf->psegment = NULL;
+components/elf_loader/src/esp_elf.c:    if (elf->num && elf->symtab) {
+components/elf_loader/src/esp_elf.c:        for (int i = 0; i < elf->num; i++) {
+components/elf_loader/src/esp_elf.c:            if (elf->symtab[i].name) {
+components/elf_loader/src/esp_elf.c:                esp_elf_free(elf->symtab[i].name);
+components/elf_loader/src/esp_elf.c:        esp_elf_free(elf->symtab);
+components/elf_loader/src/esp_elf.c:        elf->symtab = NULL;
+components/elf_loader/src/esp_elf.c:    elf->num = 0;
+components/elf_loader/src/esp_elf.c:        ESP_LOGI(TAG, "%s:   0x%08x size 0x%08x", sec_names[i], elf->sec[i].addr, elf->sec[i].size);
+components/elf_loader/src/esp_elf.c:    ESP_LOGI(TAG, "entry:  %p", elf->entry);
+components/elf_loader/src/arch/esp_elf_riscv.c:    where = (uint32_t *)((uint8_t *)elf->psegment + rela->offset + elf->svaddr);
+components/elf_loader/src/arch/esp_elf_riscv.c:             ELF_R_TYPE(rela->info), where, (int)elf->psegment, (int)rela->offset);
+components/elf_loader/src/arch/esp_elf_riscv.c:        *where = (Elf32_Addr)((uint8_t *)elf->psegment - elf->svaddr + rela->addend);
+components/elf_loader/src/dlso/dlfcn.c:    if (!mod->elf || !mod->elf->symtab) {
+components/elf_loader/src/dlso/dlfcn.c:    if (mod->elf->num > 0) {
+components/elf_loader/src/dlso/dlfcn.c:        for (size_t i = 0; i < mod->elf->num; i++) {
+components/elf_loader/src/dlso/dlfcn.c:            if (mod->elf->symtab[i].name &&
+components/elf_loader/src/dlso/dlfcn.c:                    strcmp(mod->elf->symtab[i].name, name) == 0) {
+components/elf_loader/src/dlso/dlfcn.c:                return mod->elf->symtab[i].addr;
+components/elf_loader/src/dlso/dlmod.c:            if (current->elf && current->elf->symtab && current->elf->num) {
+components/elf_loader/src/dlso/dlmod.c:                for (uint16_t i = 0; i < current->elf->num; i++) {
+components/elf_loader/src/dlso/dlmod.c:                    name = current->elf->symtab[i].name;
+components/elf_loader/src/dlso/dlmod.c:                             current->elf->symtab[i].addr);
+components/elf_loader/src/dlso/dlmod.c:        if (current->elf && current->elf->symtab && current->elf->num) {
+components/elf_loader/src/dlso/dlmod.c:            for (uint16_t i = 0; i < current->elf->num; i++) {
+components/elf_loader/src/dlso/dlmod.c:                const char *name = current->elf->symtab[i].name;
+components/elf_loader/src/dlso/dlmod.c:                             sym_name, current->elf->symtab[i].addr);
+components/elf_loader/src/dlso/dlmod.c:                    result = current->elf->symtab[i].addr;

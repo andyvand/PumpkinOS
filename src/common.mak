@@ -27,7 +27,7 @@ else ifeq ($(MACHINE),aarch64)
 SYS_CPU=1
 SYS_ENDIAN=1
 ifeq ($(BITS),)
-BITS=32
+BITS=64
 endif
 MBITS=
 else ifeq ($(MACHINE),x86_64)
