@@ -551,6 +551,21 @@ static void launcherScanAppsSmall(launcher_data_t *data) {
         data->item[i].type = sysFileTApplication;
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
+#ifdef ESP32
+        if (creator == 'pref') {
+            data->item[i].pilot_main = PrefPilotMain;
+        } else if (creator == 'CmdP') {
+            data->item[i].pilot_main = CommandPilotMain;
+        } else if (creator == 'memo') {
+            data->item[i].pilot_main = MemoPilotMain;
+        } else if (creator == 'addr') {
+            data->item[i].pilot_main = AddrPilotMain;
+        } else if (creator == 'todo') {
+            data->item[i].pilot_main = ToDoPilotMain;
+        } else if (creator == 'date') {
+            data->item[i].pilot_main = DatePilotMain;
+        }
+#endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
           if ((nameRes = DmGet1Resource(ainRsc, 1000)) != NULL) {
             if ((s = MemHandleLock(nameRes)) != NULL) {
@@ -1995,12 +2010,7 @@ static void LauncherAboutForm(UInt16 formId) {
   FormType *frm;
 
   if ((frm = FrmInitForm(formId)) != NULL) {
-#if defined(ESP32)
-    FrmCopyLabel(frm, buildLbl, "esp-idf");
-#else
     FrmCopyLabel(frm, buildLbl, pumpkin_get_build());
-#endif
-
     FrmDoDialog(frm);
     FrmDeleteForm(frm);
   }
