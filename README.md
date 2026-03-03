@@ -11,14 +11,39 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 
 ![](/screenshots/pumpkin.png)
 
+# PumpkinOS running on ESP32:
+![](/screenshots/PumpkinOS_ESP32.png)
+
 # Support for MSVC and macOS
 The folder VCProject contains a MSVC buildable project.
 Support for Application Builder (Windows CE) was added in the form of makefiles and sources files to be able to build it for Windows CE.
 Support for macOS added.
-The support for MSVC and macOS was done by Andy Vandijck
+The support for MSVC and macOS was done by Andy Vandijck.
 
 If you use GNU make do the following command:
 - make -f GNUmakefile
+
+# Support for ESP32:
+For ESP32 download esp-idf 6.X
+- After "./install.sh" do ". ./export.sh"
+- cd into PumpkinOS/src
+- idf.py set-target esp32(xx)
+- idf.py menuconfig
+- Set up the configuration for your hardware
+- Save and exit
+- idf.py build
+- idf.py -p <port> flash
+- Enjoy PumpkinOS on ESP32
+
+I used an ESP32-S3 with 8MB PSRAM (is minimum) and 16MB flash
+If you edit partitions_lfs.csv (which you also need to set in the menu config) you can set the sizes.
+4 MB is required for the app.
+Standard 12MB is used for the storage partition.
+Minimum for the storage partition is 0MB (if you use SD card use partitions.csv)
+If you use built-in storage, make sure the storage partition is at least 1MB but 4MB is recommended
+So if you use SD card storage the minimum requirement is 4MB storage, 8MB PSRAM.
+So if you use internal storage the minimum requirement is 8MB storage, 8MB PSRAM.
+The support for ESP32 was done by Andy Vandijck.
 
 Launcher is the first application that runs when PumpkinOS starts. It shows a panel from which you can start other applications.
 Preferences will eventually contain all preference options for configuring PumpkinOS.
