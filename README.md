@@ -32,7 +32,7 @@ For ESP32 download esp-idf 6.X
 - Set up the configuration for your hardware
 - Save and exit
 - idf.py build
-- idf.py -p <port> flash
+- idf.py flash
 - Enjoy PumpkinOS on ESP32
 
 I used an ESP32-S3 with 8MB PSRAM (is minimum) and 16MB flash
