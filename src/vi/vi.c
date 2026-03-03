@@ -4497,7 +4497,12 @@ static void *PluginMain(void *p) {
   return e;
 }
 
-pluginMainF PluginInit(UInt32 *type, UInt32 *id) {
+#ifdef ESP32
+pluginMainF ViPluginInit(UInt32 *type, UInt32 *id)
+#else
+pluginMainF PluginInit(UInt32 *type, UInt32 *id)
+#endif
+{
   *type = editPluginType;
   *id = editPluginId;
 

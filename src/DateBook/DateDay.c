@@ -123,7 +123,7 @@ extern	UInt16					PendingUpdate;						// code of pending day view update
 
 // The following global variables are used to keep track of the edit
 // state of the application.
-extern 	UInt16					CurrentRecord;						// record being edited
+extern 	UInt16					DateCurrentRecord;						// record being edited
 extern 	Boolean					ItemSelected;						// true if a day view item is selected
 extern 	UInt16					DayEditPosition;					// position of the insertion point in the desc field
 extern	UInt16					DayEditSelectionLength;			// length of the current selection.
@@ -234,8 +234,8 @@ void DoSecurity (void)
 		ErrFatalDisplayIf(!ApptDB,"Can't reopen DB");
 		}
 		
-	//For safety, simply reset the currentRecord
-	//CurrentRecord = noRecordSelected;
+	//For safety, simply reset the DatecurrentRecord
+	//DateCurrentRecord = noRecordSelected;
 }
 
 
@@ -687,9 +687,9 @@ static Boolean CreateNote (Boolean prompt)
 	ApptDBRecordFlags changedFields;
 	
 	
-	if (CurrentRecord == noRecordSelected) return (false);
+	if (DateCurrentRecord == noRecordSelected) return (false);
 
-	ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+	ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 	MemHandleUnlock (recordH);
 
 	// If the record already has a note, exit
@@ -717,13 +717,13 @@ static Boolean CreateNote (Boolean prompt)
 	if (exception)
 		{
 		// Add an exception to the current record.
-		err = ApptAddException (ApptDB, &CurrentRecord, Date);
+		err = ApptAddException (ApptDB, &DateCurrentRecord, Date);
 		if (err) goto Exit;
 
 		// Create a new record on the current day that contains
 		// the same description, time, and alarm setting as the 
 		// repeating event.
-		ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+		ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 
 		when.startTime = apptRec.when->startTime;
 		when.endTime = apptRec.when->endTime;
@@ -735,7 +735,7 @@ static Boolean CreateNote (Boolean prompt)
 		newRec.alarm = apptRec.alarm;
 		newRec.note = (char *)"";
 		
-		err = CreateException (&newRec, &CurrentRecord);				
+		err = CreateException (&newRec, &DateCurrentRecord);
 		MemHandleUnlock (recordH);
 		if (err) goto Exit;
 		}
@@ -747,7 +747,7 @@ static Boolean CreateNote (Boolean prompt)
 		if (splitEvent)
 			{
 			// Split off the previous occurrences of the event
-			err = SplitRepeatingEvent (&CurrentRecord);
+			err = SplitRepeatingEvent (&DateCurrentRecord);
 			if (err) goto Exit;
 
 			// Set the new start date for the event
@@ -761,7 +761,7 @@ static Boolean CreateNote (Boolean prompt)
 		// Add the note to the record.
 		newRec.note = (char *)"";
 		changedFields.note = true;
-		err = ApptChangeRecord (ApptDB, &CurrentRecord, &newRec, changedFields);
+		err = ApptChangeRecord (ApptDB, &DateCurrentRecord, &newRec, changedFields);
 		if (err) goto Exit;
 		}
 	
@@ -807,13 +807,13 @@ static Boolean DeleteNote (Boolean exception, Boolean splitEvent)
 	if (exception)
 		{
 		// Add an exception to the current record.
-		err = ApptAddException (ApptDB, &CurrentRecord, Date);
-		if (err) goto Exit;		
+		err = ApptAddException (ApptDB, &DateCurrentRecord, Date);
+		if (err) goto Exit;
 
 		// Create a new record on the current day that contains
 		// the same description, time, and alarm settings as the 
 		// repeating event, but not the note.
-		ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+		ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 
 		when.startTime = apptRec.when->startTime;
 		when.endTime = apptRec.when->endTime;
@@ -824,7 +824,7 @@ static Boolean DeleteNote (Boolean exception, Boolean splitEvent)
 		newRec.description = apptRec.description;
 		newRec.alarm = apptRec.alarm;
 		
-		err = CreateException (&newRec, &CurrentRecord);
+		err = CreateException (&newRec, &DateCurrentRecord);
 		MemHandleUnlock (recordH);
 		if (err) goto Exit;
 		}
@@ -833,12 +833,12 @@ static Boolean DeleteNote (Boolean exception, Boolean splitEvent)
 		{
 		// Clear all changed fields flags.
 		MemSet (&changedFields, sizeof (changedFields), 0);
-		ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+		ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 		
 		if (splitEvent)
 			{
 			// Split off the previous occurrences of the event
-			err = SplitRepeatingEvent (&CurrentRecord);
+			err = SplitRepeatingEvent (&DateCurrentRecord);
 			if (err) goto Exit;
 
 			// Set the new start date for the event
@@ -853,7 +853,7 @@ static Boolean DeleteNote (Boolean exception, Boolean splitEvent)
 		newRec.note = NULL;
 		changedFields.note = true;
 
-		err = ApptChangeRecord (ApptDB, &CurrentRecord, &newRec, changedFields);
+		err = ApptChangeRecord (ApptDB, &DateCurrentRecord, &newRec, changedFields);
 		if (err) goto Exit;
 		}
 	
@@ -3081,7 +3081,7 @@ static Boolean DetailsDeleteAppointment (void)
 {
 	UInt16 recordNum;
 		
-	recordNum = CurrentRecord;
+	recordNum = DateCurrentRecord;
 
 	// Clear the edit state, this will delete the current record if is 
 	// blank.
@@ -3229,7 +3229,7 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 
 	// Compare the start date setting in the dialog with the date in the
 	// current record.  Update the record if necessary.
-	ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+	ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 
 	MemSet (&changedFields, sizeof (changedFields), 0);
 
@@ -3334,7 +3334,7 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 
 	// Get the current setting of the secret checkbox and compare it the
 	// the setting of the record.
-	DmRecordInfo (ApptDB, CurrentRecord, &attr, NULL, NULL);	
+	DmRecordInfo (ApptDB, DateCurrentRecord, &attr, NULL, NULL);
 	if (((attr & dmRecAttrSecret) == dmRecAttrSecret) != details->secret)
 		{
 		if (PrivateRecordVisualStatus > showPrivateRecords)
@@ -3553,7 +3553,7 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 	// an alarm and the date, time, or repeat info has been changed,
 	// delete the item from the attention manager queue if present.
 	if (changedFields.alarm || (apptRec.alarm && (changedFields.when || changedFields.repeat)) )
-		DeleteAlarmIfPosted(CurrentRecord);
+		DeleteAlarmIfPosted(DateCurrentRecord);
 
 
 	// Unlock the appointment record.
@@ -3570,10 +3570,10 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 	// Write the changes to the database.
 	if (exception)
 		{
-		err = ApptAddException (ApptDB, &CurrentRecord, Date);
+		err = ApptAddException (ApptDB, &DateCurrentRecord, Date);
 		if (! err)
 			{
-			ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+			ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 			MemSet (&newRec, sizeof (newRec), 0);
 			newRec.description = apptRec.description;
 			newRec.note = apptRec.note;
@@ -3581,7 +3581,7 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 			if (details->alarm.advance != apptNoAlarm)
 				newRec.alarm = &details->alarm;
 	
-			err = CreateException (&newRec, &CurrentRecord);
+			err = CreateException (&newRec, &DateCurrentRecord);
 			MemHandleUnlock (recordH);
 			}
 		}
@@ -3589,11 +3589,11 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 		{
 		// Create a copy of the repeating event and set its end date to yesterday.
 		if (pastRepeats)
-			err = SplitRepeatingEvent (&CurrentRecord);
+			err = SplitRepeatingEvent (&DateCurrentRecord);
 			
 		if (!err)
-			err = ApptChangeRecord (ApptDB, &CurrentRecord, &newRec, changedFields);
-		}		
+			err = ApptChangeRecord (ApptDB, &DateCurrentRecord, &newRec, changedFields);
+		}
 
 	if (err)
 		{
@@ -3605,14 +3605,14 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 	// Save the new secret status if it's been changed.
 	else if (attrDirty)
 		{
-		DmRecordInfo (ApptDB, CurrentRecord, &attr, NULL, NULL);	
+		DmRecordInfo (ApptDB, DateCurrentRecord, &attr, NULL, NULL);
 		if (details->secret)
 			attr |= dmRecAttrSecret;
 		else
 			attr &= ~dmRecAttrSecret;
 
 		attr |= dmRecAttrDirty;
-		DmSetRecordInfo (ApptDB, CurrentRecord, &attr, NULL);
+		DmSetRecordInfo (ApptDB, DateCurrentRecord, &attr, NULL);
 		}
 
 	// If the alarm info has been changed, or if the appointment has 
@@ -3624,7 +3624,7 @@ static Boolean DetailsApply (DetailsPtr details, Boolean attachNote, UInt16* upd
 
 	//if record has been hidden, make sure to deselect it
 	//if (updateCode & updateItemHide)
-	//		CurrentRecord = noRecordSelected;
+	//		DateCurrentRecord = noRecordSelected;
 
 	*updateCodeP = updateCode;
 	return (true);
@@ -3731,9 +3731,9 @@ static DetailsPtr DetailsInit (void)
 		MemSet (details, sizeof (DetailsType), 0);
 		
 		// Get a pointer to the appointment record.
-		ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+		ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 		
-		DmRecordInfo (ApptDB, CurrentRecord, &attr, NULL, NULL);
+		DmRecordInfo (ApptDB, DateCurrentRecord, &attr, NULL, NULL);
 
 		details->secret = (attr & dmRecAttrSecret) == dmRecAttrSecret;
 		details->when = *apptRec.when;
@@ -3842,7 +3842,7 @@ static DetailsPtr DetailsInit (void)
  *			jmp	09/17/99	Use NewNoteView instead of NoteView.
  *
  ***********************************************************************/
-Boolean DetailsHandleEvent (EventType* event)
+Boolean DateDetailsHandleEvent (EventType* event)
 {
 	static DetailsPtr	details;
 
@@ -4038,7 +4038,7 @@ Boolean DetailsHandleEvent (EventType* event)
 
 	// Get current record and related info.
 	//
-	ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+	ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 	desc = apptRec.description;
 	
 	// "Lock" the screen so that all drawing occurs offscreen to avoid
@@ -4273,9 +4273,9 @@ static void NoteViewLoadRecord (void)
 	fld = GetObjectPtr (NoteField);
 	
 	// Set the font used in the note field.
-	FldSetFont (fld, NoteFont);
+	FldSetFont (fld, DateNoteFont);
 	
-	ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+	ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 	ErrFatalDisplayIf (! apptRec.note, "Invalid record");
 
 	// Compute the offset within the appointment record of the note string.
@@ -4323,7 +4323,7 @@ static void NoteViewSave (void)
 		FldCompactText (fld);
 
 		// Mark the record dirty.	
-		DirtyRecord (ApptDB, CurrentRecord);
+		DirtyRecord (ApptDB, DateCurrentRecord);
 		}
 		
 	empty = (FldGetTextLength (fld) == 0);
@@ -4370,7 +4370,7 @@ static Boolean NoteViewDeleteNote (void)
 	MemHandle recordH;
 	ApptDBRecordType apptRec;
 	
-	ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+	ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 	MemHandleUnlock (recordH);
 
 	// If we're changing a repeating appointmemt, check if all occurrences
@@ -4443,8 +4443,8 @@ static Boolean NoteViewDoCommand (UInt16 command)
 	switch (command)
 		{
 		case newNoteFontCmd:
-			NoteFont = SelectFont (NoteFont);
-			break; 
+			DateNoteFont = SelectFont (DateNoteFont);
+			break;
 		
 		case newNotePhoneLookupCmd:
 			fld = GetObjectPtr (NoteField);
@@ -4598,7 +4598,7 @@ static void NoteViewInit (FormPtr frm)
  *			peter	09/15/00	Disable attention indicator because title is custom.
  *
  ***********************************************************************/
-Boolean NoteViewHandleEvent (EventType* event)
+Boolean DateNoteViewHandleEvent (EventType* event)
 {
 	UInt16 pos;
 	FormPtr frm;
@@ -4741,8 +4741,8 @@ Boolean NoteViewHandleEvent (EventType* event)
 	else if (event->eType == frmGotoEvent)
 		{
 		frm = FrmGetActiveForm ();
-		CurrentRecord = event->data.frmGoto.recordNum;
-		SetDateToNextOccurrence (CurrentRecord);
+		DateCurrentRecord = event->data.frmGoto.recordNum;
+		SetDateToNextOccurrence (DateCurrentRecord);
 		NoteViewInit (frm);
 		fld = GetObjectPtr (NoteField);
 		pos = event->data.frmGoto.matchPos;
@@ -4768,7 +4768,7 @@ Boolean NoteViewHandleEvent (EventType* event)
 		if (event->data.frmUpdate.updateCode & updateFontChanged)
 			{
 			fld = GetObjectPtr (NoteField);
-			FldSetFont (fld, NoteFont);
+			FldSetFont (fld, DateNoteFont);
 			NoteViewUpdateScrollBar ();
 			}
 		else
@@ -4832,7 +4832,7 @@ static void DayViewRestoreEditState ()
 	// that the current record is no longer displayable (ex: the record
 	// has marked private).
 	table = GetObjectPtr (DayTable);
-	DmRecordInfo (ApptDB, CurrentRecord, NULL, &uniqueID, NULL);
+	DmRecordInfo (ApptDB, DateCurrentRecord, NULL, &uniqueID, NULL);
 
 	if ( ! TblFindRowData (table, uniqueID, &row) )
 		{
@@ -4922,13 +4922,13 @@ static Boolean DayViewClearEditState (void)
 
 	if ( ! ItemSelected)
 		{
-		CurrentRecord = noRecordSelected;
+		DateCurrentRecord = noRecordSelected;
 		return (false);
 		}
 
 	frm = FrmGetFormPtr (DayView);
 	table = FrmGetObjectPtr (frm, FrmGetObjectIndex (frm, DayTable));
-	DmRecordInfo (ApptDB, CurrentRecord, NULL, &uniqueID, NULL);
+	DmRecordInfo (ApptDB, DateCurrentRecord, NULL, &uniqueID, NULL);
 	found = TblFindRowData (table, uniqueID, &row);
 	ErrNonFatalDisplayIf (!found, "Wrong record");
 	
@@ -4942,7 +4942,7 @@ static Boolean DayViewClearEditState (void)
 		
 		// Is the record still secret? It may have been changed from the
 		// details dialog.
-		DmRecordInfo (ApptDB, CurrentRecord, &attr, NULL, NULL);
+		DmRecordInfo (ApptDB, DateCurrentRecord, &attr, NULL, NULL);
 		
 		if (attr & dmRecAttrSecret)
 		{
@@ -6170,9 +6170,9 @@ static void DayViewLoadTable (void)
 
 	// If we currently have a selected record, make sure that it is not
 	// above the first visible record.
-	if (CurrentRecord != noRecordSelected)
+	if (DateCurrentRecord != noRecordSelected)
 		{
-		apptIndex = DayViewFindAppointment (CurrentRecord);
+		apptIndex = DayViewFindAppointment (DateCurrentRecord);
 		if (apptIndex < TopVisibleAppt)
 			TopVisibleAppt = apptIndex;
 		}
@@ -6222,7 +6222,7 @@ static void DayViewLoadTable (void)
 				init |= TblGetRowData (table, row) != uniqueID;
 				
 				//Mask if appropriate
-				visualStatus = recordNum == CurrentRecord
+				visualStatus = recordNum == DateCurrentRecord
 					? CurrentRecordVisualStatus : PrivateRecordVisualStatus;
 				DmRecordInfo (ApptDB, recordNum, &attr, NULL, NULL);
 		   	masked = (((attr & dmRecAttrSecret) && visualStatus == maskPrivateRecords));	
@@ -6285,9 +6285,9 @@ static void DayViewLoadTable (void)
 			// not below the last visible record.  If the currently selected 
 			// record is the last visible record, make sure the whole description 
 			// is visible.
-			if (CurrentRecord == noRecordSelected) break;
+			if (DateCurrentRecord == noRecordSelected) break;
 
-			apptIndex = DayViewFindAppointment (CurrentRecord);
+			apptIndex = DayViewFindAppointment (DateCurrentRecord);
 			if (apptIndex < lastAppt)
 				 break;
 
@@ -6766,7 +6766,7 @@ static Boolean DayViewNewAppointment (EventType* event)
 		return (true);
 		}
 
-	CurrentRecord = recordNum;
+	DateCurrentRecord = recordNum;
 	ItemSelected = true;
 
 	frm = FrmGetActiveForm ();
@@ -6831,7 +6831,7 @@ static void DayViewDeleteAppointment (void)
 	recordNum = appts[apptIndex].recordNum;
 	MemHandleUnlock (ApptsH);
 	
-	ErrFatalDisplayIf ((recordNum != CurrentRecord), "Wrong record");
+	ErrFatalDisplayIf ((recordNum != DateCurrentRecord), "Wrong record");
 
 	// Clear the edit state, this will delete the current record if is 
 	// blank.
@@ -6904,7 +6904,7 @@ static void DayViewDeleteNote ()
 		return;
 
 	// Check if the record has a note attached.
-	ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+	ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 	empty = ( (! apptRec.note) || (*apptRec.note == 0));
 	MemHandleUnlock (recordH);
 	if (empty) return;
@@ -7033,7 +7033,7 @@ static void DayViewSelectTime (TablePtr table, UInt16 row)
 	// to be updated to take care of time bars & alarm icon (when the preset is set)
 	if ((!userConfirmed) || moved)
 		{
-		CurrentRecord = recordNum;	
+		DateCurrentRecord = recordNum;
 		DayViewLayoutDay (true);
 		DayViewLoadTable ();
 		TblRedrawTable (table);
@@ -7241,7 +7241,7 @@ static Boolean DayViewSelectIcons (EventType* event)
 			selected = false;
 			DayViewSelectIconRect(table, row, &r, selected);
 
-			CurrentRecord = recordNum;
+			DateCurrentRecord = recordNum;
 
 			if (inNoteIcon)
 				FrmGotoForm (NewNoteView);
@@ -7380,7 +7380,7 @@ static void DayViewItemSelected (EventType* event)
 				DmRecordInfo (ApptDB, recordNum, NULL, &uniqueID, NULL);
 				TblSetRowData (table, row, uniqueID);
 
-				CurrentRecord = recordNum;
+				DateCurrentRecord = recordNum;
 				ItemSelected = true;
 				}
 
@@ -7405,7 +7405,7 @@ static void DayViewItemSelected (EventType* event)
 		// Get the record index of the selected appointment.
 		apptIndex = TblGetRowID (table, row);
 		appts = MemHandleLock (ApptsH);
-		CurrentRecord = appts[apptIndex].recordNum;
+		DateCurrentRecord = appts[apptIndex].recordNum;
 		MemPtrUnlock (appts);
 		
 		// If the table is in edit mode then the description field
@@ -7496,7 +7496,7 @@ static void DayViewResizeDescription (EventType* event)
 
 	// Relaying-out the day migth move the row that has the focus, if so 
 	// we need to correct the table's current row.
-	apptIndex = DayViewFindAppointment (CurrentRecord);
+	apptIndex = DayViewFindAppointment (DateCurrentRecord);
 	TblFindRowID (table, apptIndex, &row);
 	TblGetSelection (table, &currentRow, &currentColumn);
 	if (row != currentRow)
@@ -7826,11 +7826,11 @@ static void DayViewGotoAppointment (EventType* event)
 {
 	TopVisibleAppt = 0;
 	ItemSelected = true;
-	CurrentRecord = event->data.frmGoto.recordNum;
+	DateCurrentRecord = event->data.frmGoto.recordNum;
 	DayEditPosition = event->data.frmGoto.matchPos;
 	DayEditSelectionLength = event->data.frmGoto.matchLen;
 	
-	SetDateToNextOccurrence (CurrentRecord);
+	SetDateToNextOccurrence (DateCurrentRecord);
 }
 
 
@@ -8069,7 +8069,7 @@ static Boolean DayViewDoCommand (UInt16 command)
 		if (ItemSelected)
 			{
 			TblReleaseFocus (GetObjectPtr (DayTable));
-			DateSendRecord(ApptDB, CurrentRecord, exgBeamPrefix);
+			DateSendRecord(ApptDB, DateCurrentRecord, exgBeamPrefix);
 			DayViewRestoreEditState ();
 			}
 		else
@@ -8083,7 +8083,7 @@ static Boolean DayViewDoCommand (UInt16 command)
 		if (ItemSelected)
 			{
 			TblReleaseFocus (GetObjectPtr (DayTable));
-			DateSendRecord(ApptDB, CurrentRecord, exgSendPrefix);
+			DateSendRecord(ApptDB, DateCurrentRecord, exgSendPrefix);
 			DayViewRestoreEditState ();
 			}
 		else
@@ -8247,7 +8247,7 @@ static void DayViewUpdateDisplay (UInt16 updateCode)
 	// Was the repeat infomation changed?
 	else if (updateCode & updateRepeatChanged)
 		{
-		ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+		ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 		if (apptRec.repeat)
 			{
 			next = Date;
@@ -8295,7 +8295,7 @@ static void DayViewUpdateDisplay (UInt16 updateCode)
 	// Was the date of an appointment changed?
 	else if (updateCode & updateDateChanged)
 		{
-		ApptGetRecord (ApptDB, CurrentRecord, &apptRec, &recordH);
+		ApptGetRecord (ApptDB, DateCurrentRecord, &apptRec, &recordH);
 		Date = apptRec.when->date;
 		MemHandleUnlock (recordH);
 			
@@ -8317,7 +8317,7 @@ static void DayViewUpdateDisplay (UInt16 updateCode)
 
 		// Redraw the current record if it's still visible so the
 		// the alarm indictor will be drawn or erased.
-		apptIndex = DayViewFindAppointment (CurrentRecord);
+		apptIndex = DayViewFindAppointment (DateCurrentRecord);
 		if (TblFindRowID (table, apptIndex, &row))
 			TblSetRowUsable (table, row, false);
 		}
@@ -8597,7 +8597,7 @@ Boolean DayViewHandleEvent (EventType* event)
 				if (ItemSelected)
 					{
 					TblReleaseFocus (GetObjectPtr (DayTable));
-					DateSendRecord(ApptDB, CurrentRecord, exgBeamPrefix);
+					DateSendRecord(ApptDB, DateCurrentRecord, exgBeamPrefix);
 					DayViewRestoreEditState ();
 					}
 				else
@@ -8821,7 +8821,7 @@ Boolean DayViewHandleEvent (EventType* event)
 		table = (TablePtr) event->data.tblEnter.pTable;
 		if (ItemSelected)
 			{
-			DmRecordInfo (ApptDB, CurrentRecord, NULL, &uniqueID, NULL);
+			DmRecordInfo (ApptDB, DateCurrentRecord, NULL, &uniqueID, NULL);
 			if (TblFindRowData (table, uniqueID, &row))
 				{
 				if (event->data.tblEnter.row != row) {

@@ -383,7 +383,7 @@ static void WeekViewNewAppointment (TimePtr startTime, TimePtr endTime)
 	
 	if (! error)
 		{
-		CurrentRecord = recordNum;
+		DateCurrentRecord = recordNum;
 		ItemSelected = true;
 		}
 

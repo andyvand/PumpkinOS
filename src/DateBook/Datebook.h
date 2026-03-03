@@ -252,7 +252,7 @@ extern	UInt16				DayEndHour;					// end of the day 6:00pm
 extern	TimeFormatType		TimeFormat;
 extern	DateFormatType		LongDateFormat;			// system preference
 extern 	DateFormatType		ShortDateFormat;
-extern 	UInt16				CurrentRecord;				// record being edited
+extern 	UInt16				DateCurrentRecord;				// record being edited
 extern	Boolean				ItemSelected;				// true if a day view item is selected
 extern	UInt16				DayEditPosition;			// position of the insertion point in the desc field
 extern 	RGBColorType	 	colorLine;					// Color to draw week and month view lines in
@@ -267,7 +267,7 @@ extern 	RGBColorType	 	colorLine;					// Color to draw week and month view lines
 // The following global variable are saved to a state file.
 extern 	UInt16				DayStartHour;				// start of the day 8:00am
 extern 	UInt16				DayEndHour;					// end of the day 6:00pm
-extern  	FontID				NoteFont;					// font used in note view
+extern  	FontID				DateNoteFont;				// font used in note view
 extern  	AlarmInfoType		AlarmPreset;				// default alarm settings.
 extern	Boolean				SaveBackup;					// default setting "Backuo tp PC" checkbox
 extern	Boolean				ShowTimeBars;				// show time bars in the day view

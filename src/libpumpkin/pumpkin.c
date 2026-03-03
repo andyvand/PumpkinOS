@@ -70,7 +70,7 @@
 #define SMALL_HEAP_SIZE (128*1024)
 
 #ifdef ESP32
-#define HEAP_SIZE (256*1024)
+#define HEAP_SIZE (448*1024)
 #else
 #define HEAP_SIZE (8*1024*1024)
 #endif
@@ -540,6 +540,11 @@ void pumpkin_enum_plugins(UInt32 type, void (*callback)(pumpkin_plugin_t *plugin
   }
 }
 
+#ifdef ESP32
+extern pluginMainF ViPluginInit(UInt32 *type, UInt32 *id);
+extern pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id);
+#endif
+
 void pumpkin_load_plugins(void) {
   DmSearchStateType stateInfo;
   UInt32 type, id;
@@ -550,6 +555,23 @@ void pumpkin_load_plugins(void) {
   pluginMainF (*pluginInit)(UInt32 *type, UInt32 *id);
   pluginMainF pluginMain;
   void *lib;
+
+#ifdef ESP32
+  pluginInit = ViPluginInit;
+  if ((pluginMain = pluginInit(&type, &id)) != NULL) {
+    pumpkin_register_plugin(type, id, pluginMain);
+  }
+
+  pluginInit = LuaPluginInit;
+  if ((pluginMain = pluginInit(&type, &id)) != NULL) {
+    pumpkin_register_plugin(type, id, pluginMain);
+  }
+
+  pluginInit = NULL;
+  pluginMain = NULL;
+  type = 0;
+  id = 0;
+#endif
 
   for (newSearch = true;; newSearch = false) {
     if (DmGetNextDatabaseByTypeCreator(newSearch, &stateInfo, sysFileTypePlugin, 0, false, &cardNo, &dbID) != errNone) break;
@@ -2248,7 +2270,7 @@ int pumpkin_launcher(char *name, int width, int height) {
     } else {
       wman_add(pumpkin_module.wm, 0, texture, 0, 0, width, height);
       MemSet(&request, sizeof(launch_request_t), 0);
-#if defined(ANDROID) || defined(KERNEL)
+#if defined(ANDROID) || defined(KERNEL) || defined(ESP32)
       extern UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
       request.pilot_main = LauncherPilotMain;
 #endif
@@ -2858,6 +2880,7 @@ static int draw_task(int i, int *x, int *y, int *w, int *h) {
   EventType event;
 
   if ((screen = ptr_lock(pumpkin_module.tasks[i].screen_ptr, TAG_SCREEN))) {
+#ifndef ESP32
     if (pumpkin_module.dia) {
       if (dia_get_main_dimension(pumpkin_module.dia, &width, &height) == 0) {
         if (width != pumpkin_module.tasks[i].width || height != pumpkin_module.tasks[i].height) {
@@ -2885,12 +2908,14 @@ static int draw_task(int i, int *x, int *y, int *w, int *h) {
                pumpkin_module.tasks[i].height != pumpkin_module.tasks[i].new_height) {
       width = pumpkin_module.tasks[i].new_width;
       height = pumpkin_module.tasks[i].new_height;
+
       debug(DEBUG_INFO, PUMPKINOS, "task %d (%s) display changed from %dx%d to %dx%d", i, pumpkin_module.tasks[i].name,
           pumpkin_module.tasks[i].width, pumpkin_module.tasks[i].height, width, height);
       if (pumpkin_changed_display(&pumpkin_module.tasks[i], screen, width, height) == 0) {
         pumpkin_forward_msg(i, MSG_DISPLAY, width, height, 0);
       }
     }
+#endif
 
     if (screen->dirty) {
       if (pumpkin_module.mono) {

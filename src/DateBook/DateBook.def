@@ -36,7 +36,7 @@ EXPORTS
     AttentionBottleNeckProc @33
     ClearEditState @34
     CompressDayView @35
-    CurrentRecord @36
+    DateCurrentRecord @36
     CurrentRecordVisualStatus @37
     Date @38
     DateExportVCal @39
@@ -53,7 +53,7 @@ EXPORTS
     DayStartHour @50
     DayViewHandleEvent @51
     DeleteAlarmIfPosted @52
-    DetailsHandleEvent @53
+    DateDetailsHandleEvent @53
     DetailsP @54
     DirtyRecord @55
     DisplayOptionsHandleEvent @56
@@ -73,9 +73,9 @@ EXPORTS
     MonthViewHandleEvent @70
     MoveEvent @71
     NoteDownScrollerVisible @72
-    NoteFont @73
+    DateNoteFont @73
     NoteUpScrollerVisible @74
-    NoteViewHandleEvent @75
+    DateNoteViewHandleEvent @75
     NumAppts @76
     NumApptsOnly @77
     PendingUpdate @78

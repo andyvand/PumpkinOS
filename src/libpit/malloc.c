@@ -49,21 +49,41 @@ void *sys_realloc(void *ptr, sys_size_t size) {
 #define _abs64 absm
 #endif
 
+#ifdef ESP32
+#include "esp_heap_caps.h"
+#else
 #include <stdlib.h>
+#endif
 
 void *sys_malloc(sys_size_t size) {
+#ifdef ESP32
+  return heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+#else
   return malloc(size);
+#endif
 }
 
 void sys_free(void *ptr) {
+#ifdef ESP32
+  heap_caps_free(ptr);
+#else
   free(ptr);
+#endif
 }
 
 void *sys_calloc(sys_size_t nmemb, sys_size_t size) {
+#ifdef ESP322
+  return heap_caps_calloc(size, nmemb, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+#else
   return calloc(nmemb, size);
+#endif
 }
 
 void *sys_realloc(void *ptr, sys_size_t size) {
+#ifdef ESP32
+  return heap_caps_realloc(ptr, size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+#else
   return realloc(ptr, size);
+#endif
 }
 #endif

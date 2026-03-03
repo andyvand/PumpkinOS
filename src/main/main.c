@@ -154,10 +154,14 @@ void app_task(void *arg)
     // SDL2
     liblsdl2_load();
     liblsdl2_init(0, 0);
+
+    ESP_LOGI(__func__, "SDL2 loaded.\n");
 #else
     // SDL3
     liblsdl3_load();
     liblsdl3_init(0, 0);
+
+    ESP_LOGI(__func__, "SDL3 loaded.\n");
 #endif
 
     // VFS Mount
@@ -191,13 +195,21 @@ void app_main(void)
     wifi_scan();
 #endif
 
+    ESP_LOGI(__func__, "WiFi scan done.\n");
+
 #if CONFIG_STORAGE_LITTLEFS
     bsp_littlefs_mount();
+
+    ESP_LOGI(__func__, "LittleFS internal storage mounted.\n");
 #elif CONFIG_STORAGE_SPIFFS
     bsp_spiffs_mount();
+
+    ESP_LOGI(__func__, "SPIFFS internal storage mounted.\n");
 #else
     bsp_sdcard_mount();
+
+    ESP_LOGI(__func__, "SD card mounted.\n");
 #endif
 
-    xTaskCreatePinnedToCore(&app_task, "app_task", 8000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
+    xTaskCreatePinnedToCore(&app_task, "app_task", 40000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
 }

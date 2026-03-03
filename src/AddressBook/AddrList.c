@@ -478,7 +478,7 @@ Boolean ListHandleEvent (EventType* event)
 						DmRecordInfo( AddrDB, CurrentRecord, &attr, NULL, NULL );
 						// If this is a "private" record, then determine what is to be shown.
 						if ( attr & dmRecAttrSecret ) {
-							switch ( PrivateRecordVisualStatus ) {
+							switch ( AddrPrivateRecordVisualStatus ) {
 								case showPrivateRecords:
 									FrmGotoForm( RecordView );
 									break;
@@ -769,7 +769,7 @@ Boolean PrvListLookupString (EventType * event)
 
 		if (!AddrDBLookupString(AddrDB, fldTextP, SortByCompany,
 							  CurrentCategory, &foundRecord, &completeMatch,
-							  (PrivateRecordVisualStatus == maskPrivateRecords)))
+							  (AddrPrivateRecordVisualStatus == maskPrivateRecords)))
 		{
 			// If the user deleted the lookup text remove the
 			// highlight.
@@ -1091,7 +1091,7 @@ void PrvListLoadTable( FormType* frmP )
 		TblSetRowUsable (tblP, row, true);
 
 		DmRecordInfo (AddrDB, recordNum, &attr, NULL, NULL);
-		masked = (((attr & dmRecAttrSecret) && PrivateRecordVisualStatus == maskPrivateRecords));
+		masked = (((attr & dmRecAttrSecret) && AddrPrivateRecordVisualStatus == maskPrivateRecords));
 		TblSetRowMasked(tblP,row,masked);
 
 		#if WRISTPDA
@@ -1532,9 +1532,9 @@ void PrvListSelectRecord( FormType* frmP, UInt16 recordNum, Boolean forceSelecti
 	tblP = ToolsGetFrmObjectPtr(frmP, ListTable);
 
 	#if WRISTPDA
-	if (PrivateRecordVisualStatus > maskPrivateRecords)
+	if (AddrPrivateRecordVisualStatus > maskPrivateRecords)
 	#else
-	if (PrivateRecordVisualStatus > showPrivateRecords)
+	if (AddrPrivateRecordVisualStatus > showPrivateRecords)
 	#endif
 	{
 		// If the record is hidden stop trying to show it.
@@ -1703,7 +1703,7 @@ Boolean PrvListDeleteRecord (void)
 
 	// Set the "save backup" checkbox to its previous setting.
 	ctlIndex = FrmGetObjectIndex (alert, DeleteAddrSaveBackup);
-	FrmSetControlValue (alert, ctlIndex, SaveBackup);
+	FrmSetControlValue (alert, ctlIndex, AddrSaveBackup);
 
 	buttonHit = FrmDoDialog (alert);
 
@@ -1714,7 +1714,7 @@ Boolean PrvListDeleteRecord (void)
 		return (false);
 
 	// Remember the "save backup" checkbox setting.
-	SaveBackup = archive;
+	AddrSaveBackup = archive;
 
 	// Clear the highlight on the selection before deleting the item.
 	table = ToolsGetObjectPtr (ListTable);
@@ -1872,17 +1872,17 @@ Boolean PrvListDoCommand (UInt16 command)
 		return true;
 
 	case ListOptionsSecurityCmd:
-		wasHiding = (PrivateRecordVisualStatus == hidePrivateRecords);
+		wasHiding = (AddrPrivateRecordVisualStatus == hidePrivateRecords);
 
-		PrivateRecordVisualStatus = SecSelectViewStatus();
+		AddrPrivateRecordVisualStatus = SecSelectViewStatus();
 
-		if (wasHiding != (PrivateRecordVisualStatus == hidePrivateRecords))
+		if (wasHiding != (AddrPrivateRecordVisualStatus == hidePrivateRecords))
 		{
 
 			// Close the application's data file.
 			DmCloseDatabase (AddrDB);
 
-			mode = (PrivateRecordVisualStatus == hidePrivateRecords) ?
+			mode = (AddrPrivateRecordVisualStatus == hidePrivateRecords) ?
 				dmModeReadWrite : (dmModeReadWrite | dmModeShowSecret);
 
 			AddrDBGetDatabase(&AddrDB, mode);

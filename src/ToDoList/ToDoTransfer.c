@@ -38,7 +38,7 @@
 
 #define kVObjectVersion				"4.0"
 
-extern Char * GetToDoNotePtr (ToDoDBRecordPtr recordP);	// needed to see if ToDo empty
+extern Char * TDGetToDoNotePtr (ToDoDBRecordPtr recordP);	// needed to see if ToDo empty
 
 /***********************************************************************
  *
@@ -432,7 +432,7 @@ extern void ToDoSendRecord (DmOpenRef dbP, Int16 recordNum, const Char * const p
 
     // If the description field is empty and the note field is empty,
     // consider the record empty.
-    empty = (! recordP->description) && (! *GetToDoNotePtr(recordP));
+    empty = (! recordP->description) && (! *TDGetToDoNotePtr(recordP));
 
     if (!empty)
     {

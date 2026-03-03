@@ -12,11 +12,19 @@
 #include "debug.h"
 #include "xalloc.h"
 
+#ifdef ESP32
+#define DIA_WIDTH     APP_SCREEN_WIDTH
+#define DIA_HEIGHT    APP_SCREEN_HEIGHT
+#define DIA_GHEIGHT   DIA_HEIGHT - DIA_WIDTH
+#define ALPHA_WIDTH   168
+#define ALPHA_HEIGHT  32
+#else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272
 #define DIA_GHEIGHT   112
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  65
+#endif
 
 #define CODE_CAPS   157
 #define CODE_SHIFT  158
@@ -160,7 +168,13 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
     dia->graffiti_height = DIA_GHEIGHT;
     dia->alpha_width = ALPHA_WIDTH;
     dia->alpha_height = ALPHA_HEIGHT;
+
+#ifdef ESP32
+    dia->button_height = BUTTONS_HEIGHT / 4;
+#else
     dia->button_height = BUTTONS_HEIGHT / 2;
+#endif
+
     if (dbl) {
       dia->width *= 2;
       dia->height *= 2;
@@ -171,8 +185,13 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
       dia->button_width = 45;
       dia->icon_width = 29;  // 11*29 + 1 = 320
     } else {
+#ifdef ESP32
+      dia->button_width = 11;
+      dia->icon_width = 7;  // 11*21 + 1 = 232
+#else
       dia->button_width = 22;
       dia->icon_width = 14;  // 11*14 + 1 = 155
+#endif
     }
 
     dia_color(&fg, &bg);

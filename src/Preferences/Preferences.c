@@ -1011,7 +1011,12 @@ static void FinishData(void) {
   xfree(data);
 }
 
-UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags) {
+#ifdef ESP32
+UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#else
+UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#endif
+{
   switch (cmd) {
     case sysAppLaunchCmdNormalLaunch:
       break;

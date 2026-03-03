@@ -202,9 +202,18 @@ static int libos_action(void *arg) {
   data = (libos_t *)arg;
 
   if (data != NULL) {
+#ifdef ESP32
+    data->width = APP_SCREEN_WIDTH;
+    data->height = APP_SCREEN_HEIGHT;
+#endif
+
   if (data->wp) {
     encoding = data->hdepth == 16 ? ENC_RGB565 : ENC_RGBA;
+#ifdef ESP32
+    height = data->dia ? (data->height - BUTTONS_HEIGHT) : data->height;
+#else
     height = data->dia ? ((data->height - BUTTONS_HEIGHT) * 2) / 3 : data->height;
+#endif
     debug(DEBUG_INFO, PUMPKINOS, "creating %dx%d window, encoding %d", data->width, data->height, encoding);
 
     if ((data->w = data->wp->create(encoding, &data->width, &data->height, data->xfactor, data->yfactor, data->rotate,
@@ -329,9 +338,19 @@ static int libos_start(int pe) {
       // set some default values
     data->mode = 0;
     data->dia = 0;
+
+#ifdef ESP32
+    data->width = APP_SCREEN_WIDTH;
+    data->height = APP_SCREEN_HEIGHT;
+
+    data->density = kDensityLow;
+#else
     data->width = 1024;
     data->height = 680;
+
     data->density = kDensityDouble;
+#endif
+
     data->hdepth = 16;
     data->depth = 16;
     data->abgr = 0;
@@ -390,10 +409,18 @@ static int libos_start(int pe) {
 
     if (data->mode != 0) {
       if (data->width == 0) {
+#ifdef ESP32
+        data->width = APP_SCREEN_WIDTH;
+#else
         data->width = data->density == kDensityDouble ?  APP_SCREEN_WIDTH : APP_SCREEN_WIDTH / 2;
+#endif
       }
       if (data->height == 0) {
+#ifdef ESP32
+        data->height = data->dia ? data->width + BUTTONS_HEIGHT : data->width;
+#else
         data->height = data->dia ? (data->width * 3 ) / 2 + BUTTONS_HEIGHT : data->width;
+#endif
       }
     }
 

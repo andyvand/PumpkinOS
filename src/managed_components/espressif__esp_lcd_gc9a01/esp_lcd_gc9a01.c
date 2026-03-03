@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
+#if 0
+
 #include <stdlib.h>
 #include <sys/cdefs.h>
 #include "freertos/FreeRTOS.h"
@@ -391,3 +394,5 @@ static esp_err_t panel_gc9a01_disp_on_off(esp_lcd_panel_t *panel, bool on_off)
     ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_param(io, command, NULL, 0), TAG, "send command failed");
     return ESP_OK;
 }
+
+#endif

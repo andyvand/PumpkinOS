@@ -124,7 +124,7 @@ void PrefsLoad(AddrAppInfoPtr appInfoPtr)
 		if (prefsVersion < addrPrefVersionNum) {
 			prefs.noteFont = prefs.v20NoteFont;
 		}
-		SaveBackup = prefs.saveBackup;
+		AddrSaveBackup = prefs.saveBackup;
 		RememberLastCategory = prefs.rememberLastCategory;
 		if (prefs.noteFont == largeFont)
 			NoteFont = largeBoldFont;
@@ -230,7 +230,7 @@ void PrefsSave(void)
 	prefs.addrRecordFont = AddrRecordFont;
 	prefs.addrEditFont = AddrEditFont;
 	prefs.showAllCategories = ShowAllCategories;
-	prefs.saveBackup = SaveBackup;
+	prefs.saveBackup = AddrSaveBackup;
 	prefs.rememberLastCategory = RememberLastCategory;
 	prefs.businessCardRecordID = BusinessCardRecordID;
 //	if (!DialerPresent)

@@ -21,6 +21,6 @@
 #include <Event.h>
 
 Boolean RepeatHandleEvent (EventType* event) EXTRA_SECTION_TWO;
-Boolean DetailsHandleEvent (EventType* event) EXTRA_SECTION_TWO;
-Boolean NoteViewHandleEvent (EventType* event) EXTRA_SECTION_TWO;
+Boolean DateDetailsHandleEvent (EventType* event) EXTRA_SECTION_TWO;
+Boolean DateNoteViewHandleEvent (EventType* event) EXTRA_SECTION_TWO;
 Boolean DayViewHandleEvent (EventType* event) EXTRA_SECTION_TWO;

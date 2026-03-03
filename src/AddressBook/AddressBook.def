@@ -1,4 +1,4 @@
-LIBRARY AddressBook
+teLIBRARY AddressBook
 EXPORTS
 	DllMain @97
     AddrDB @1
@@ -53,12 +53,12 @@ EXPORTS
     PrefsLoad @50
     PrefsSave @51
     PriorAddressFormID @52
-    PrivateRecordVisualStatus @53
+    AddrPrivateRecordVisualStatus @53
     PrvToolsPhoneIsANumber @54
     RecordLabelColumnWidth @55
     RecordNeededAfterEditView @56
     RememberLastCategory @57
-    SaveBackup @58
+    AddrSaveBackup @58
     ShowAllCategories @59
     SortByCompany @60
     TickAppButtonPushed @61

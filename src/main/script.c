@@ -78,7 +78,7 @@ int script_object_set(int pe, script_ref_t obj, script_arg_t *key, script_arg_t 
 
 int script_object_get(int pe, script_ref_t obj, script_arg_t *key, script_arg_t *value) {
   if (key->type == SCRIPT_ARG_STRING) {
-    OBJ_INTEGER("density", 144);
+    OBJ_INTEGER("density", 72);
     OBJ_INTEGER("width",   CONFIG_BSP_DISPLAY_WIDTH);
     OBJ_INTEGER("height",  CONFIG_BSP_DISPLAY_HEIGHT);
     OBJ_INTEGER("hdepth",  16);

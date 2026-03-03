@@ -1499,14 +1499,14 @@ void PrvViewScroll (WinDirectionType direction)
 		//skip masked records.
 		while (!DmSeekRecordInCategory (AddrDB, &recordNum, 1, seekDirection, category) &&
 			   !DmRecordInfo (AddrDB, recordNum, &attr, NULL, NULL) &&
-			   ((attr & dmRecAttrSecret) && PrivateRecordVisualStatus == maskPrivateRecords))
+			   ((attr & dmRecAttrSecret) && AddrPrivateRecordVisualStatus == maskPrivateRecords))
 		{
 		}
 		if (recordNum == CurrentRecord) return;
 		
 		// Don't show first/last record if it's private and we're masking.
 		if (!DmRecordInfo (AddrDB, recordNum, &attr, NULL, NULL) &&
-			   ((attr & dmRecAttrSecret) && PrivateRecordVisualStatus == maskPrivateRecords))
+			   ((attr & dmRecAttrSecret) && AddrPrivateRecordVisualStatus == maskPrivateRecords))
 			return;
 
 		SndPlaySystemSound (sndInfo);

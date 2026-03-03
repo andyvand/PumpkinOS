@@ -193,7 +193,7 @@ Boolean DetailsDeleteRecord (void)
 
 	// Set the "save backup" checkbox to its previous setting.
 	ctlIndex = FrmGetObjectIndex (alert, DeleteAddrSaveBackup);
-	FrmSetControlValue (alert, ctlIndex, SaveBackup);
+	FrmSetControlValue (alert, ctlIndex, AddrSaveBackup);
 
 	buttonHit = FrmDoDialog (alert);
 
@@ -204,7 +204,7 @@ Boolean DetailsDeleteRecord (void)
 		return (false);
 
 	// Remember the "save backup" checkbox setting.
-	SaveBackup = archive;
+	AddrSaveBackup = archive;
 
 	ToolsDeleteRecord(archive);
 
@@ -314,7 +314,7 @@ UInt16 PrvDetailsApply (UInt16 category, Boolean categoryEdited)
 	secret = (Boolean)CtlGetValue(ToolsGetObjectPtr(DetailsSecretCheckbox));
 	if (((attr & dmRecAttrSecret) == dmRecAttrSecret) != secret)
 	{
-		if (PrivateRecordVisualStatus > showPrivateRecords)
+		if (AddrPrivateRecordVisualStatus > showPrivateRecords)
 		{
 			updateCode |= updateItemHide;
 		}

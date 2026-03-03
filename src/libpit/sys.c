@@ -135,6 +135,12 @@
 #define S_IRUSR 0
 #endif
 
+#ifdef ESP32
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_timer.h"
+#endif
+
 struct sys_dir_t {
 #if defined(WINDOWS)
   int first;
@@ -151,6 +157,19 @@ struct sys_dir_t {
 
 #if !defined(WINDOWS) && !defined(KERNEL)
 #define closesocket(s) close(s)
+#endif
+
+#ifdef ESP32
+int64_t sys_get_thread_time_esp32(void) {
+    TaskStatus_t taskStatus;
+    
+    // Verkrijg runtime statistieken voor de huidige task
+    // De teller eenheid hangt af van de klokconfiguratie (vaak 10-100µs of CPU cycles)
+    vTaskGetInfo(NULL, &taskStatus, pdTRUE, eDeleted);
+    
+    // ulRunTimeCounter is de totale tijd die de task heeft verbruikt
+    return (int64_t)taskStatus.ulRunTimeCounter;
+}
 #endif
 
 #ifndef ESP32
@@ -2611,6 +2630,7 @@ uint64_t sys_time(void) {
 #endif
 }
 
+#ifndef ESP32
 #ifndef WINDOWS
 #if _POSIX_TIMERS > 0
 static int64_t gettime(int type) {
@@ -2625,6 +2645,7 @@ static int64_t gettime(int type) {
 
   return ts;
 }
+#endif
 #endif
 #endif
 
@@ -2650,6 +2671,8 @@ int64_t sys_get_clock(void) {
   // mach_absolute_time * numer / denom = nanoseconden
   // Deel door 1000 voor microseconden
   ts = (int64_t)((now * info.numer) / (info.denom * 1000));
+#elif defined(ESP32)
+  ts = esp_timer_get_time();
 #elif defined(EMSCRIPTEN)
   ts = gettime(CLOCK_MONOTONIC);
 #else
@@ -2673,11 +2696,15 @@ int sys_get_clock_ts(sys_timespec_t *ts) {
 #ifdef DARWIN
   r = my_clock_gettime(CLOCK_REALTIME, &t);
 #else
+#if defined(ESP32)
+  r = my_clock_gettime(CLOCK_REALTIME, &t);
+#else
 #if _POSIX_TIMERS > 0
   r = my_clock_gettime(CLOCK_REALTIME, &t);
 #else
   debug(DEBUG_ERROR, "SYS", "clock_gettime is not implemented");
   r = -1;
+#endif
 #endif
 #endif
 #endif
@@ -2712,6 +2739,8 @@ int64_t sys_get_process_time(void) {
     // Optioneel: voeg kernel-time toe als je de totale CPU-tijd wilt (zoals Linux vaak doet)
     // ts += ((int64_t)thread_info_data.system_time.seconds * 1000000) + thread_info_data.system_time.microseconds;
   }
+#elif defined(ESP32)
+  ts = esp_timer_get_time();
 #elif defined(LINUX)
   ts = gettime(CLOCK_PROCESS_CPUTIME_ID);
 #else
@@ -2748,6 +2777,8 @@ int64_t sys_get_thread_time(void) {
 #else
 #if defined(LINUX)
   ts = gettime(CLOCK_THREAD_CPUTIME_ID);
+#elif defined(ESP32)
+  ts = sys_get_thread_time_esp32();
 #else
   debug(DEBUG_ERROR, "SYS", "CLOCK_THREAD_CPUTIME_ID is not implemented");
 #endif

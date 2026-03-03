@@ -2145,7 +2145,12 @@ static void StopApplication(void) {
   sys_free(data);
 }
 
-UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags) {
+#ifdef ESP32
+UInt32 CommandPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#else
+UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#endif
+{
   switch (cmd) {
     case sysAppLaunchCmdNormalLaunch:
       break;

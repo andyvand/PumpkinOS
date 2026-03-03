@@ -65,7 +65,7 @@ Boolean				InPhoneLookup = false;				// true if we've called PhoneNumberLookup()
 // state of the application.
 UInt16				DayEditPosition = 0;					// position of the insertion point in the desc field
 UInt16				DayEditSelectionLength;				// length of the current selection.
-UInt16				CurrentRecord = noRecordSelected;// record being edited
+UInt16				DateCurrentRecord = noRecordSelected;// record being edited
 Boolean				ItemSelected = false;				// true if a day view item is selected
 Boolean				RecordDirty = false;					// true if a record has been modified
 
@@ -85,7 +85,7 @@ UInt16				DayStartHour = defaultDayStartHour;	// start of the day 8:00am
 UInt16				DayEndHour = defaultDayEndHour;		// end of the day 6:00pm
 UInt16				StartDayOfWeek = sunday;
 UInt16				RepeatStartOfWeek = sunday;		//	status of Repeat Dialog
-FontID				NoteFont;										// font used in note view
+FontID				DateNoteFont;										// font used in note view
 AlarmInfoType		AlarmPreset = { defaultAlarmPresetAdvance, defaultAlarmPresetUnit };
 Boolean				SaveBackup = defaultSaveBackup;				// default setting "Backuo tp PC" checkbox
 Boolean				ShowTimeBars = defaultShowTimeBars;			// show time bars in the day view

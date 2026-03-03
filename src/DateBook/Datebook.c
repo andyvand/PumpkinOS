@@ -65,7 +65,7 @@ extern privateRecordViewEnum	PrivateRecordVisualStatus;	// applies to all other 
 
 // The following global variables are used to keep track of the edit
 // state of the application.
-extern 	UInt16					CurrentRecord;						// record being edited
+extern 	UInt16					DateCurrentRecord;						// record being edited
 extern 	Boolean					ItemSelected;						// true if a day view item is selected
 extern 	UInt16					DayEditPosition;					// position of the insertion point in the desc field
 extern	UInt16					DayEditSelectionLength;			// length of the current selection.
@@ -347,7 +347,7 @@ static UInt16 StartApplication (void)
 	DayStartHour = prefs.dayStartHour;
 	DayEndHour = prefs.dayEndHour;
 	AlarmPreset = prefs.alarmPreset;
-	NoteFont = prefs.noteFont;
+	DateNoteFont = prefs.noteFont;
 	SaveBackup = prefs.saveBackup;
 	ShowTimeBars = prefs.showTimeBars;
 	CompressDayView = prefs.compressDayView;
@@ -367,7 +367,7 @@ static UInt16 StartApplication (void)
 		RegisterData();
 
 	TopVisibleAppt = 0;
-	CurrentRecord = noRecordSelected;	
+	DateCurrentRecord = noRecordSelected;
 	
 	return 0;
 }
@@ -566,8 +566,8 @@ void DatebookSavePrefs (void)
 	prefs.alarmSoundUniqueRecID = AlarmSoundUniqueRecID;
 	//prefs.apptDescFont = FossilNormalFontID( true, ApptDescFont );
 	prefs.apptDescFont = ApptDescFont;
-	//prefs.noteFont = FossilNormalFontID( true, NoteFont );		
-	prefs.noteFont = NoteFont;		
+	//prefs.noteFont = FossilNormalFontID( true, DateNoteFont );
+	prefs.noteFont = DateNoteFont;
 	prefs.alarmSnooze = AlarmSnooze;
 
 	// Clear reserved field so prefs don't look "different" just from stack garbage!
@@ -1261,16 +1261,16 @@ Boolean ClearEditState (void)
 
 	if ( ! ItemSelected)
 		{
-		CurrentRecord = noRecordSelected;
+		DateCurrentRecord = noRecordSelected;
 		return (false);
 		}
 	
-	recordNum = CurrentRecord;
+	recordNum = DateCurrentRecord;
 
 	// Clear the global variables that keep track of the edit state of the
 	// current record.
 	ItemSelected = false;
-	CurrentRecord = noRecordSelected;
+	DateCurrentRecord = noRecordSelected;
 	DayEditPosition = 0;
 	DayEditSelectionLength = 0;
 	
@@ -1369,7 +1369,11 @@ Char* DateParamString(const Char* inTemplate, const Char* param0,
  *			rbb	11/12/99	Added recentFormFeature to pick default view on launch
  *
  ***********************************************************************/
+#ifdef ESP32
+PUBLIC UInt32   DatePilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#else
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#endif
 {
 	UInt16 error;
 	UInt32 defaultForm;
@@ -1578,8 +1582,8 @@ PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 			// DateReceiveData() inserts the received record in sorted order. This may may change
 			// the index of the current record. So we remember its UID here, and refresh our copy
 			// of its index afterwards.
-			if (CurrentRecord != noRecordSelected)
-				DmRecordInfo(dbP, CurrentRecord, NULL, &currentUID, NULL);
+			if (DateCurrentRecord != noRecordSelected)
+				DmRecordInfo(dbP, DateCurrentRecord, NULL, &currentUID, NULL);
       	}
       
       if (dbP != NULL)
@@ -1588,10 +1592,10 @@ PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 			
 	      if (launchFlags & sysAppLaunchFlagSubCall)
 	      	{
-				if (CurrentRecord != noRecordSelected)
+				if (DateCurrentRecord != noRecordSelected)
 					{
-					if (DmFindRecordByID(dbP, currentUID, &CurrentRecord) != 0)
-						CurrentRecord = noRecordSelected;	// Can't happen, but...
+					if (DmFindRecordByID(dbP, currentUID, &DateCurrentRecord) != 0)
+						DateCurrentRecord = noRecordSelected;	// Can't happen, but...
 					
 					// DOLATER dje -
 					//		To fix the off-by-one error, we can decrement exgSocketP->goToParams.recordNum
@@ -1737,10 +1741,10 @@ static Boolean ApplicationHandleEvent (EventType* event)
 			FrmSetEventHandler (frm, AgendaViewHandleEvent);
 	
 		else if (formId == NewNoteView)
-			FrmSetEventHandler (frm, NoteViewHandleEvent);
+			FrmSetEventHandler (frm, DateNoteViewHandleEvent);
 	
 		else if (formId == DetailsDialog)
-			FrmSetEventHandler (frm, DetailsHandleEvent);
+			FrmSetEventHandler (frm, DateDetailsHandleEvent);
 
 		else if (formId == RepeatDialog)
 			FrmSetEventHandler (frm, RepeatHandleEvent);

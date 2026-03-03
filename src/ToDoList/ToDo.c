@@ -29,7 +29,7 @@
 extern void ECToDoDBValidate(DmOpenRef dbP);
 
 // Exported routines
-extern Char* GetToDoNotePtr (ToDoDBRecordPtr recordP);
+extern Char* TDGetToDoNotePtr (ToDoDBRecordPtr recordP);
 
 
 /***********************************************************************
@@ -1019,7 +1019,7 @@ static Boolean SeekRecord (UInt16* indexP, Int16 offset, Int16 direction)
  *			art	4/15/95	Initial Revision
  *
  ***********************************************************************/
-Char* GetToDoNotePtr (ToDoDBRecordPtr recordP)
+Char* TDGetToDoNotePtr (ToDoDBRecordPtr recordP)
 {
 	return (&recordP->description + StrLen (&recordP->description) + 1);
 }
@@ -1150,7 +1150,7 @@ static Boolean ClearEditState (void)
 	// the ToDo record.
 	recordH = DmQueryRecord (ToDoDB, recordNum);
 	recordP = MemHandleLock (recordH);
-	empty = (! recordP->description) && (! *GetToDoNotePtr(recordP));
+	empty = (! recordP->description) && (! *TDGetToDoNotePtr(recordP));
 	MemHandleUnlock (recordH);
 
 	if (empty)
@@ -1582,7 +1582,7 @@ static Boolean DetailsDeleteToDo (void)
 	// this will delete the current record if it is blank.
 	recordH = DmQueryRecord (ToDoDB, recordNum);
 	recordP = MemHandleLock (recordH);
-	empty = (! recordP->description) && (! *GetToDoNotePtr(recordP));
+	empty = (! recordP->description) && (! *TDGetToDoNotePtr(recordP));
 	MemHandleUnlock (recordH);
 
 	if (empty)
@@ -2865,7 +2865,7 @@ static UInt16 ListViewGetDescriptionHeight (UInt16 recordNum, UInt16 width, UInt
 	toDoRec = (ToDoDBRecordPtr) MemHandleLock (recordH);
 
 	// If the record has a note, leave space for the note indicator.
-	note = GetToDoNotePtr (toDoRec);
+	note = TDGetToDoNotePtr (toDoRec);
 	if (*note)
 		width -= tableNoteIndicatorWidth;
 
@@ -3173,7 +3173,7 @@ static void ListInitTableRow (TablePtr table, Int16 row, UInt16 recordNum,
 
 	// Set the table item type for the description, it will differ depending
 	// on the presents of a note.
-	note = GetToDoNotePtr (toDoRec);
+	note = TDGetToDoNotePtr (toDoRec);
 	if (*note)
 		TblSetItemStyle (table, row, descColumn, textWithNoteTableItem);
 	else
@@ -3561,7 +3561,7 @@ static Boolean ListViewNewToDo (EventPtr event)
 		// a new record.
 		recordH = DmQueryRecord (ToDoDB, recordNum);
 		recordP = MemHandleLock (recordH);
-		empty = (! recordP->description) && (! *GetToDoNotePtr(recordP));
+		empty = (! recordP->description) && (! *TDGetToDoNotePtr(recordP));
 		MemHandleUnlock (recordH);
 		if (empty)
 			{
@@ -3775,7 +3775,7 @@ static void ListViewDeleteNote ()
 
 	// Check if the record has a note attached.
 	recordP = MemHandleLock (DmQueryRecord (ToDoDB, recordNum));
-	empty = (! *GetToDoNotePtr(recordP));
+	empty = (! *TDGetToDoNotePtr(recordP));
 	MemPtrUnlock (recordP);
 	if (empty) return;
 
@@ -3870,7 +3870,7 @@ static void ListViewCrossOutItem (Int16 row)
 	maxWidth = r.extent.x;
 
 	// If the record has a note, leave space for the note indicator.
-	if (*GetToDoNotePtr (toDoRec))
+	if (*TDGetToDoNotePtr (toDoRec))
 		maxWidth -= tableNoteIndicatorWidth;
 
 	chars = &toDoRec->description;
@@ -5908,7 +5908,11 @@ static void EventLoop (void)
  *			ABa 07/04/00	Add the todoLaunchCmdImportVObject launch code (DateBook uses it to import vtodo)
  *
  ***********************************************************************/
+#ifdef ESP32
+PUBLIC UInt32   ToDoPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#else
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#endif
 {
 	Err error = 0;
 	DmOpenRef dbP = NULL;

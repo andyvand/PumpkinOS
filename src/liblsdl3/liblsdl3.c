@@ -402,6 +402,7 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
           window->buttons |= *arg1;
           r = WINDOW_BUTTONDOWN;
         }
+        debug(DEBUG_INFO, "SDL", "Mouse button \"%d\" down", window->buttons);
         break;
       case SDL_EVENT_MOUSE_BUTTON_UP:
         *arg1 = map_button(window, &ev);
@@ -409,12 +410,14 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
           window->buttons &= ~(*arg1);
           r = WINDOW_BUTTONUP;
         }
+        debug(DEBUG_INFO, "SDL", "Mouse button \"%d\" up", window->buttons);
         break;
       case SDL_EVENT_MOUSE_MOTION:
         window->x = ev.motion.x / window->xfactor;
         window->y = ev.motion.y / window->yfactor;
         *arg1 = window->x;
         *arg2 = window->y;
+        debug(DEBUG_INFO, "SDL", "Mouse move to \"%dx%d\"", window->x, window->y);
         r = WINDOW_MOTION;
         break;
       case SDL_EVENT_MOUSE_WHEEL:
@@ -592,6 +595,7 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
             buttons |= SDL_BUTTON2;
             break;
         }
+        debug(DEBUG_INFO, "SDL", "Mouse button \"%d\" down", ev.button.button);
         break;
 
       case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -603,6 +607,7 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
             buttons &= ~SDL_BUTTON2;
             break;
         }
+        debug(DEBUG_INFO, "SDL", "Mouse button \"%d\" up", ev.button.button);
         break;
 
       case SDL_EVENT_MOUSE_MOTION:
@@ -612,6 +617,7 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
         *mods = window->y;
         *ebuttons = buttons;
         r = WINDOW_MOTION;
+        debug(DEBUG_INFO, "SDL", "Mouse move to \"%dx%d\"", window->x, window->y);
         break;
 
       case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
@@ -670,6 +676,10 @@ static int libsdl_video_setup(libsdl_window_t *window) {
 #if defined(ESP32)
   w = CONFIG_BSP_DISPLAY_WIDTH;
   h = CONFIG_BSP_DISPLAY_HEIGHT;
+
+  window->fullscreen = 1;
+  window->xfactor = 1;
+  window->yfactor = 1;
 #else
   w = window->width;
   h = window->height;
@@ -821,7 +831,12 @@ static window_t *libsdl_window_create(int encoding, int *width, int *height, int
     window->format = format;
     window->spixel = spixel;
     window->rotate = rotate;
+
+#ifdef ESP32
+    sys_strncpy(window->driver, "software", MAX_DRIVER);
+#else
     sys_strncpy(window->driver, driver, MAX_DRIVER);
+#endif
 
     if (libsdl_video_setup(window) == 0) {
       debug(DEBUG_INFO, "SDL", "window created");

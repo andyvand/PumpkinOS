@@ -4230,7 +4230,7 @@ static UInt16 ListViewSelectCategory (void)
 			TopVisibleRecord = 0;
 			if ( ! ToolsSeekRecord( Agenda.todoDB, & TopVisibleRecord, 0, +1 ) )
 				TopVisibleRecord = noRecordSelected;
-			SelectedRecord = CurrentRecord = TopVisibleRecord;
+			SelectedRecord = DateCurrentRecord = TopVisibleRecord;
 			AgendaViewMoveToDoSelection( 0 );
 		}
 	}
@@ -4521,7 +4521,7 @@ static void ListViewChangeCompleteStatus (Int16 row, UInt16 complete)
 		dueDate.month = today.month;
 		dueDate.day = today.day;
 		ToDoChangeRecord (todoDB, &recordNum, toDoDueDate, &dueDate);
-//		CurrentRecord = recordNum;
+//		DateCurrentRecord = recordNum;
 		}
 
 	// Mark the record dirty.
@@ -4726,9 +4726,9 @@ Err	ToDoAppInfoInit(DmOpenRef dbP)
 		//if (prefs.noteFont == FossilLargeFont)
 			//NoteFont = FossilLargeBoldFont;
 		if (prefs.noteFont == largeFont)
-			NoteFont = largeBoldFont;
+			DateNoteFont = largeBoldFont;
 		else
-			NoteFont = prefs.noteFont;
+			DateNoteFont = prefs.noteFont;
 		
 		ShowAllCategories = prefs.showAllCategories;
 		ShowCompletedItems = prefs.showCompletedItems;
@@ -4752,11 +4752,11 @@ Err	ToDoAppInfoInit(DmOpenRef dbP)
 		}
 	else
 		{
-		NoteFont = FntGlueGetDefaultFontID(defaultSystemFont);
+		DateNoteFont = FntGlueGetDefaultFontID(defaultSystemFont);
 		}
 	#if WRISTPDA
 	ListFont = FossilLargeFontID( WRISTPDA, ListFont );
-	NoteFont = FossilLargeFontID( WRISTPDA, NoteFont );
+	DateNoteFont = FossilLargeFontID( WRISTPDA, DateNoteFont );
 	#endif
 }
 

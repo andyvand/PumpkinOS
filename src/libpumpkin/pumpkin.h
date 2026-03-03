@@ -24,25 +24,8 @@ extern "C" {
 #define PUMPKINOS_PREFS_VERSION 1
 
 #ifdef ESP32
-#ifndef CONFIG_BSP_DISPLAY_WIDTH
-#define CONFIG_BSP_DISPLAY_WIDTH 240
-#endif
-
-#ifndef CONFIG_BSP_DISPLAY_HEIGHT
-#define CONFIG_BSP_DISPLAY_HEIGHT 320
-#endif
-
-#if CONFIG_BSP_DISPLAY_WIDTH < 320
-#define APP_SCREEN_WIDTH  CONFIG_BSP_DISPLAY_WIDTH
-#else
-#define APP_SCREEN_WIDTH  320
-#endif
-
-#if CONFIG_BSP_DISPLAY_HEIGHT < 320
+#define APP_SCREEN_WIDTH CONFIG_BSP_DISPLAY_WIDTH
 #define APP_SCREEN_HEIGHT CONFIG_BSP_DISPLAY_HEIGHT
-#else
-#define APP_SCREEN_HEIGHT 320
-#endif
 #else
 #define APP_SCREEN_WIDTH  320
 #define APP_SCREEN_HEIGHT 320
@@ -789,7 +772,7 @@ int pumpkin_system_call(syscall_lib_e lib, uint32_t id, uint32_t sel, uint64_t *
 
 typedef int (*pumpkin_system_call_t)(syscall_lib_e lib, uint32_t id, uint32_t sel, uint64_t *iret, void **pret, ...);
 
-#ifdef PUMPKIN_APP
+#if defined(PUMPKIN_APP) && !defined(ESP32)
 #define PUBLIC __attribute__((visibility("default")))
 extern int (*pumpkin_system_call_p)(syscall_lib_e lib, uint32_t id, uint32_t sel, uint64_t *iret, void **pret, ...);
 #define PUMPKIN_API PUBLIC pumpkin_system_call_t pumpkin_system_call_p

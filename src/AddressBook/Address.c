@@ -69,7 +69,7 @@
 PUMPKIN_API;
 
 DmOpenRef					AddrDB = NULL;
-privateRecordViewEnum		PrivateRecordVisualStatus;
+privateRecordViewEnum		AddrPrivateRecordVisualStatus;
 Char						CategoryName [dmCategoryLength];
 UInt16        				TopVisibleRecord = 0;
 UInt16						TopVisibleFieldIndex;
@@ -100,7 +100,7 @@ Boolean						RecordNeededAfterEditView;
 UInt16						CurrentCategory = dmAllCategories;
 Boolean						EnableTapDialing = false;	// tap dialing is not enabled by default
 Boolean						ShowAllCategories = true;
-Boolean						SaveBackup = true;
+Boolean						AddrSaveBackup = true;
 Boolean						RememberLastCategory = false;
 #if WRISTPDA
 FontID						NoteFont = FossilBoldFont;
@@ -167,7 +167,11 @@ static Boolean	PrvAppLaunchCmdDatabaseInit(DmOpenRef dbP);
  *         art   7/24/95   Initial Revision
  *
  ***********************************************************************/
+#ifdef ESP32
+PUBLIC UInt32   AddrPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#else
 PUBLIC UInt32   PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
+#endif
 {
 	return PrvAppPilotMain(cmd, cmdPBP, launchFlags);
 }
@@ -459,8 +463,8 @@ Err PrvAppStart(void)
 	#endif
 
 	// Determime if secret records should be shown.
-	PrivateRecordVisualStatus = (privateRecordViewEnum)PrefGetPreference(prefShowPrivateRecords);
-	mode = (PrivateRecordVisualStatus == hidePrivateRecords) ?
+	AddrPrivateRecordVisualStatus = (privateRecordViewEnum)PrefGetPreference(prefShowPrivateRecords);
+	mode = (AddrPrivateRecordVisualStatus == hidePrivateRecords) ?
 		dmModeReadWrite : (dmModeReadWrite | dmModeShowSecret);
 
 

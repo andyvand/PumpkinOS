@@ -417,6 +417,15 @@ static void launcherResetItems(launcher_data_t *data) {
   data->numItems = 0;
 }
 
+#ifdef ESP32
+extern UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 CommandPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 MemoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 AddrPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 ToDoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 DatePilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+#endif
+
 static void launcherScanApps(launcher_data_t *data) {
   DmSearchStateType stateInfo;
   Boolean newSearch;
@@ -442,10 +451,25 @@ static void launcherScanApps(launcher_data_t *data) {
     }
     if (DmDatabaseInfo(cardNo, data->item[i].dbID, data->item[i].name, &attr, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator) == errNone) {
       if (StrCompare(data->item[i].name, AppName) && (attr & dmHdrAttrResDB)) {
-        debug(DEBUG_TRACE, "Launcher", "found app \"%s\"", data->item[i].name);
+        debug(DEBUG_INFO, "Launcher", "found app \"%s\"", data->item[i].name);
         data->item[i].type = sysFileTApplication;
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
+#ifdef ESP32
+        if (creator == 'pref') {
+            data->item[i].pilot_main = PrefPilotMain;
+        } else if (creator == 'CmdP') {
+            data->item[i].pilot_main = CommandPilotMain;
+        } else if (creator == 'memo') {
+            data->item[i].pilot_main = MemoPilotMain;
+        } else if (creator == 'addr') {
+            data->item[i].pilot_main = AddrPilotMain;
+        } else if (creator == 'todo') {
+            data->item[i].pilot_main = ToDoPilotMain;
+        } else if (creator == 'date') {
+            data->item[i].pilot_main = DatePilotMain;
+        }
+#endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
           if ((nameRes = DmGet1Resource(ainRsc, 1000)) != NULL) {
             if ((s = MemHandleLock(nameRes)) != NULL) {
@@ -2510,6 +2534,7 @@ static void resize(FormType *frm, launcher_data_t *data) {
 
   WinScreenMode(winScreenModeGet, &swidth, &sheight, NULL, NULL);
   wh = FrmGetWindowHandle(frm);
+
   RctSetRectangle(&rect, 0, 0, swidth, sheight);
   WinSetBounds(wh, &rect); 
   WinSetClipingBounds(&frm->window, &rect);
@@ -3009,7 +3034,7 @@ static void removeWidgets(launcher_data_t *data) {
   }
 }
 
-#if defined(ANDROID) || defined(EMSCRIPTEN) || defined(KERNEL)
+#if defined(ANDROID) || defined(EMSCRIPTEN) || defined(KERNEL) || defined(ESP32)
 UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

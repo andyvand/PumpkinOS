@@ -28,7 +28,7 @@
  * Global Variables
  *************************************************************/
 
-extern privateRecordViewEnum	PrivateRecordVisualStatus;
+extern privateRecordViewEnum	AddrPrivateRecordVisualStatus;
 extern Boolean					SortByCompany;
 extern DmOpenRef				AddrDB;
 extern Char						CategoryName[dmCategoryLength];
@@ -52,7 +52,7 @@ extern UInt16					NumCharsToHilite;
 extern UInt16					CurrentCategory;
 extern Boolean					EnableTapDialing;
 extern Boolean					ShowAllCategories;
-extern Boolean					SaveBackup;
+extern Boolean					AddrSaveBackup;
 extern Boolean					RememberLastCategory;
 extern FontID					NoteFont;
 extern FontID					AddrListFont;

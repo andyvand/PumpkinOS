@@ -1,0 +1,1 @@
+../../MemoPad/MemoRsc.c

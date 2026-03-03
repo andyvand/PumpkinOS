@@ -447,7 +447,12 @@ static void *PluginMain(void *p) {
   return &plugin;
 }
 
-pluginMainF PluginInit(UInt32 *type, UInt32 *id) {
+#ifdef ESP32
+pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id)
+#else
+pluginMainF PluginInit(UInt32 *type, UInt32 *id)
+#endif
+{
   *type = syntaxPluginType;
   *id = luaSyntaxPluginId;
 

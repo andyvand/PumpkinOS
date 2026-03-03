@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/andyvand/Downloads/SDL3-3.4.2/buildmac/cmake_install.cmake",
+		"/Users/andyvand/Downloads/SDL3-3.4.2/buildmac/test/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
