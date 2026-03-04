@@ -2873,11 +2873,14 @@ static int pumpkin_changed_display(pumpkin_task_t *task, task_screen_t *screen, 
 
 static int draw_task(int i, int *x, int *y, int *w, int *h) {
   task_screen_t *screen;
-  pumpkin_task_t *task;
   uint8_t *raw;
+#ifndef ESP32
+  pumpkin_task_t *task;
   uint16_t prev;
-  int width, height, len, updated = 0;
+  int width, height;
   EventType event;
+#endif
+  int len, updated = 0;
 
   if ((screen = ptr_lock(pumpkin_module.tasks[i].screen_ptr, TAG_SCREEN))) {
 #ifndef ESP32

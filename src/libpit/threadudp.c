@@ -36,7 +36,7 @@ static mutex_t *mutex;
 static unsigned int num_threads;
 static thread_ps_t ps[MAX_PS_THREADS];
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN)
 static double thread_usage(void) {
   int64_t tt, pt;
   double p;
@@ -181,7 +181,7 @@ int thread_must_end(void) {
   if (local == NULL) return 0;
   targ = (thread_arg_t *)thread_get(local);
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN)
   if (targ == NULL || targ->sock <= 0 || sys_peek(targ->sock) != -1) {
     double p;
     uint64_t t;

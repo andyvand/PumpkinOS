@@ -75,6 +75,8 @@
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
 #include <sys/statvfs.h>
 #endif
+#else
+#include <sys/statvfs.h>
 #endif
 #else
 #include <sys/syscall.h>

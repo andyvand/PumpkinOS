@@ -113,7 +113,7 @@ char *EvtGetEventName(UInt16 eType) {
 }
 
 void EvtPrintEvent(char *op, EventType *event) {
-  int level = DEBUG_TRACE;
+  int level = DEBUG_INFO;
 
   if (event->eType <= lastRegularEvent) {
     switch (event->eType) {
