@@ -16,7 +16,14 @@ else
 ERROR=make_error
 ERROR_MSG=Could not find SDL2, Wayland or XCB development headers
 endif
-EXTRA_MODULES=$(WINDOW_MODULE) libaalsa linux
+
+ifneq ($(UNICORN),)
+UNICORN_MODULE=UnicornArm
+else ifneq ($(wildcard /usr/include/unicorn/unicorn.h),)
+UNICORN_MODULE=UnicornArm
+endif
+
+EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) libaalsa linux
 
 else ifeq ($(OSNAME),Darwin)
 ifneq ($(wildcard /usr/local/include/SDL3/SDL.h),)
@@ -26,11 +33,22 @@ WINDOW_MODULE=liblsdl2
 else ifneq ($(wildcard /opt/X11/include/xcb/xcb_ewmh.h),)
 WINDOW_MODULE=libwxcb
 endif
-EXTRA_MODULES=$(WINDOW_MODULE) linux
+
+ifneq ($(UNICORN),)
+UNICORN_MODULE=UnicornArm
+else ifneq ($(wildcard /usr/local/include/unicorn/unicorn.h),)
+UNICORN_MODULE=UnicornArm
+endif
+
+EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) linux
 
 else ifeq ($(OSNAME),Msys)
 
-EXTRA_MODULES=windows
+ifneq ($(UNICORN),)
+UNICORN_MODULE=UnicornArm
+endif
+ 
+EXTRA_MODULES=$(UNICORN_MODULE) windows
 
 else ifeq ($(OSNAME),Emscripten)
 
@@ -66,7 +84,7 @@ $(DIRS):
 
 $(MODULES):
 	@echo "$(COLOR_GREEN)Building $@$(COLOR_END)"
-	@$(MAKE) -s --no-print-directory -f GNUMakefile -C $@
+	@$(MAKE) -s --no-print-directory -j -f GNUMakefile -C $@
 
 clean: $(CLEAN_MODULES)
 

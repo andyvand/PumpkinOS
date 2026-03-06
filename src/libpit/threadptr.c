@@ -444,7 +444,7 @@ static int thread_read_queue(int queue, uint32_t usec, unsigned char **rbuf, uns
   *rbuf = NULL;
   *len = 0;
 
-  if ((r = queue_get(queue, rbuf, len, client)) == -1) {
+  if ((r = queue_get(queue, rbuf, (uint32_t *)len, client)) == -1) {
     debug(DEBUG_ERROR, "THREAD", "read from queue %d failed", queue);
     return -1;
   }
@@ -461,7 +461,7 @@ static int thread_read_queue(int queue, uint32_t usec, unsigned char **rbuf, uns
 
     for (i = 0; i < n; i++) {
       sys_usleep(dt);
-      if ((r = queue_get(queue, rbuf, len, client)) == -1) {
+      if ((r = queue_get(queue, rbuf, (uint32_t *)len, client)) == -1) {
         debug(DEBUG_ERROR, "THREAD", "read from queue %d failed", queue);
         return -1;
       }

@@ -1,3 +1,3100 @@
+case sysTrapSysAppStartup: {
+  // Err SysAppStartup(SysAppInfoPtr *appInfoPP, MemPtr *prevGlobalsP, MemPtr *globalsPtrP)
+  appInfoPP = ARG32;
+  prevGlobalsP = ARG32;
+  globalsPtrP = ARG32;
+  if (appInfoPP) m68k_write_memory_32(appInfoPP, state->sysAppInfoStart);
+  if (prevGlobalsP) m68k_write_memory_32(prevGlobalsP, 0);
+  if (globalsPtrP) m68k_write_memory_32(globalsPtrP, 0);
+  debug(DEBUG_INFO, "EmuPalmOS", "SysAppStartup called");
+  m68k_set_reg(M68K_REG_D0, 0);
+}
+break;
+case sysTrapSysAppExit:
+  // Err SysAppExit(SysAppInfoPtr appInfoP, MemPtr prevGlobalsP, MemPtr globalsP)
+  debug(DEBUG_INFO, "EmuPalmOS", "SysAppExit called");
+  m68k_set_reg(M68K_REG_D0, 0);
+  m68k_pulse_halt();
+  emupalmos_finish(1);
+break;
+case sysTrapSysGetAppInfo: {
+  // SysAppInfoPtr SysGetAppInfo(SysAppInfoPtr *uiAppPP, SysAppInfoPtr *actionCodeAppPP)
+  // XXX uiAppPP and actionCodeAppPP ignored
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysGetAppInfo(): 0x%08X", state->sysAppInfoStart);
+  m68k_set_reg(M68K_REG_A0, state->sysAppInfoStart);
+}
+break;
+case sysTrapSysTaskDelay: {
+  // Err SysTaskDelay(Int32 delay)
+  delay = ARG32;
+  err = SysTaskDelay(delay);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysTaskDelay(%d): %d", delay, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSysLibFind: { // Return a reference number for a library that is already loaded, given its name.
+  // Err SysLibFind(const Char *nameP, UInt16 *refNumP)
+  nameP = ARG32;
+  refNumP = ARG32;
+  name = (char *)emupalmos_trap_in(nameP, trap, 0);
+  emupalmos_trap_in(refNumP, trap, 1);
+  if (SysLibFind(name, &refNum) != errNone || refNum == 0) {
+    refNum = SysLibFind68K(name);
+  }
+  err = refNum ? errNone : sysErrLibNotFound;
+  if (refNum == 0) refNum = 0xffff;
+  if (refNumP) m68k_write_memory_16(refNumP, refNum);
+  debug(DEBUG_INFO, "EmuPalmOS", "SysLibFind(0x%08X \"%s\", 0x%08X): %d", nameP, name ? name : "", refNumP, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSysLibLoad: {
+  // Err SysLibLoad(UInt32 libType, UInt32 libCreator, UInt16 *refNumP)
+  libType = ARG32;
+  libCreator = ARG32;
+  refNumP = ARG32;
+  emupalmos_trap_in(refNumP, trap, 2);
+  pumpkin_id2s(libType, buf);
+  pumpkin_id2s(libCreator, buf2);
+  debug(DEBUG_INFO, "EmuPalmOS", "SysLibLoad('%s', '%s', 0x%08X) native", buf, buf2, refNumP);
+  r = state->SysLibLoad_addr;
+}
+break;
+case sysTrapSysLibNewRefNum68K: {
+  // Boolean SysLibNewRefNum68K(UInt32 type, UInt32 creator, UInt16 *refNum)
+  type = ARG32;
+  creator = ARG32;
+  refNumP = ARG32;
+  emupalmos_trap_in(refNumP, trap, 2);
+  exists = SysLibNewRefNum68K(type, creator, &refNum);
+  if (refNumP) m68k_write_memory_16(refNumP, refNum);
+  pumpkin_id2s(type, buf);
+  pumpkin_id2s(creator, buf2);
+  debug(DEBUG_INFO, "EmuPalmOS", "SysLibNewRefNum68K('%s', '%s', 0x%08X): %d ", buf, buf2, refNumP, exists);
+  m68k_set_reg(M68K_REG_D0, exists);
+}
+break;
+case sysTrapSysLibRegister68K: {
+  // Err SysLibRegister68K(UInt16 refNum, LocalID dbID, void *code, UInt32 size, UInt16 *dispatchTblP, UInt8 *globalsP)
+  refNum = ARG16;
+  id = ARG32;
+  code = ARG32;
+  size = ARG32;
+  dispatchTblP = ARG32;
+  globalsP = ARG32;
+  dbIDL = id;
+  err = SysLibRegister68K(refNum, dbIDL, emupalmos_trap_in(code, trap, 2), size, emupalmos_trap_in(dispatchTblP, trap, 4), emupalmos_trap_in(globalsP, trap, 5));
+  if (err == errNone) {
+      p = SysLibTblEntry68K(refNum, &tbl);
+    if (p) {
+  pP = emupalmos_trap_out(p);
+  m68k_write_memory_32(pP +  0, emupalmos_trap_out(tbl.dispatchTblP));
+  m68k_write_memory_32(pP +  4, emupalmos_trap_out(tbl.globalsP));
+  m68k_write_memory_32(pP +  8, tbl.dbID);
+  m68k_write_memory_32(pP + 12, 0); // XXX codeResH
+    }
+  }
+  debug(DEBUG_INFO, "EmuPalmOS", "SysLibRegister68K(%d, 0x%08X, 0x%08X, %d, 0x%08X, 0x%08X)", refNum, id, code, size, dispatchTblP, globalsP);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSysLibCancelRefNum68K: {
+  // void SysLibCancelRefNum68K(UInt16 refNum)
+  refNum = ARG16;
+  SysLibCancelRefNum68K(refNum);
+  debug(DEBUG_INFO, "EmuPalmOS", "SysLibCancelRefNum68K(%d)", refNum);
+}
+break;
+case sysTrapSysLibTblEntry: {
+  // SysLibTblEntryType *SysLibTblEntry(UInt16 refNum)
+  refNum = ARG16;
+  p = SysLibTblEntry68K(refNum, &tbl);
+  a = emupalmos_trap_out(p);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysLibTblEntry(%d): 0x%08X", refNum, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapSysLibRemove: {
+  // Err SysLibRemove(UInt16 refNum)
+  refNum = ARG16;
+  SysLibCancelRefNum68K(refNum);
+  debug(DEBUG_INFO, "EmuPalmOS", "SysLibRemove(%d): 0", refNum);
+  m68k_set_reg(M68K_REG_D0, errNone);
+}
+break;
+case sysTrapPceNativeCall: {
+  // UInt32 PceNativeCall(NativeFuncType *nativeFuncP, userDataP)
+#ifdef ARMEMU
+  nativeFuncP = ARG32;
+  userDataP = ARG32;
+  emupalmos_trap_in(nativeFuncP, trap, 0);
+  emupalmos_trap_in(userDataP, trap, 1);
+  res = arm_native_call_pce(nativeFuncP, userDataP);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PceNativeCall(0x%08X, 0x%08X): %d", nativeFuncP, userDataP, res);
+  m68k_set_reg(M68K_REG_A0, res);
+  m68k_set_reg(M68K_REG_D0, res);
+#endif
+}
+break;
+case sysTrapSysGetStackInfo: {
+  // Boolean SysGetStackInfo(MemPtr *startPP, MemPtr *endPP)
+  startPP = ARG32;
+  endPP = ARG32;
+  emupalmos_trap_in(startPP, trap, 0);
+  emupalmos_trap_in(endPP, trap, 1);
+  // XXX
+  //if (startPP) m68k_write_memory_32(startPP, state->stackStart);
+  //if (endPP) m68k_write_memory_32(endPP, state->stackStart + stackSize);
+  if (startPP) m68k_write_memory_32(startPP, state->stackStart + stackSize);
+  if (endPP) m68k_write_memory_32(endPP, state->stackStart);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysGetStackInfo(0x%08X [0x%08X], 0x%08X [0x%08X]): %d", startPP, state->stackStart, endPP, state->stackStart + stackSize, true);
+  m68k_set_reg(M68K_REG_D0, true);
+}
+break;
+case sysTrapSysSetTrapAddress: {
+  // Err SysSetTrapAddress(UInt16 trapNum, void *procP)
+  trapNum = ARG16;
+  procP = ARG32;
+  selector = 0;
+  emupalmos_trap_in(procP, trap, 1);
+  s = logtrap_trapname(state->lt, trap, &selector, 0);
+  res = sysErrParamErr;
+  debug(DEBUG_INFO, "EmuPalmOS", "SysSetTrapAddress(0x%04X [ %s ], 0x%08X): %d", trapNum, s ? s : "unknown", procP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSysGetTrapAddress: {
+  // void *SysGetTrapAddress(UInt16 trapNum)
+  trapNum = ARG16;
+  a = 0;
+  selector = 0;
+  s = logtrap_trapname(state->lt, trap, &selector, 0);
+  if (s) {
+   a = pumpkin_heap_size() + (trapNum << 2);
+  }
+  debug(DEBUG_INFO, "EmuPalmOS", "SysGetTrapAddress(0x%04X [ %s ]): 0x%08X", trapNum, s ? s : "unknown", a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapHwrGetROMToken: {
+  // Err HwrGetROMToken(UInt16 cardNo, UInt32 token, out UInt8 **dataP, out UInt16 *sizeP)
+  cardNo = ARG16;
+  token = ARG32;
+  dataP = ARG32;
+  sizeP = ARG32;
+  emupalmos_trap_in(dataP, trap, 2);
+  emupalmos_trap_in(sizeP, trap, 3);
+  res = HwrGetROMToken(cardNo, token, &l_dataP, &l_sizeP);
+  if (dataP) m68k_write_memory_32(dataP, emupalmos_trap_out(l_dataP));
+  if (sizeP) m68k_write_memory_16(sizeP, l_sizeP);
+  m68k_set_reg(M68K_REG_D0, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "HwrGetROMToken(cardNo=%d, token=%d, dataP=0x%08X, sizeP=0x%08X): %d", cardNo, token, dataP, sizeP, res);
+}
+break;
+case sysTrapSysCreatePanelList: {
+  // Boolean SysCreatePanelList(UInt16 *panelCount, MemHandle *panelIDs)
+  panelCountP = ARG32;
+  panelIDsP = ARG32;
+  emupalmos_trap_in(panelCountP, trap, 0);
+  emupalmos_trap_in(panelIDsP, trap, 1);
+  resb = SysCreatePanelList(&panelCount, &panelIDs);
+  if (panelCountP) m68k_write_memory_16(panelCountP, panelCount);
+  if (panelIDsP) m68k_write_memory_32(panelIDsP, emupalmos_trap_out(panelIDs));
+  m68k_set_reg(M68K_REG_D0, resb);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysCreatePanelList(panelCount=0x%08X, panelIDs=0x%08X): %d", panelCountP, panelIDsP, resb);
+}
+break;
+case sysTrapSysInsertionSort:
+case sysTrapSysQSort: {
+  // void SysQSort(void *baseP, UInt16 numOfElements, Int16 width, CmpFuncPtr comparF, Int32 other)
+  baseP = ARG32;
+  numOfElements = ARG16;
+  width = ARG16;
+  comparF = ARG32;
+  other = ARG32;
+  base = emupalmos_trap_in(baseP, trap, 0);
+  emupalmos_trap_in(comparF, trap, 3);
+  SysQSort68k(base, numOfElements, (int16_t)width, comparF, other);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysQSort68k(0x%08X, %d, %d, 0x%08X, %d)", baseP, numOfElements, (int16_t)width, comparF, other);
+}
+break;
+case sysTrapSysBinarySearch: {
+  // Boolean SysBinarySearch(void const *baseP, UInt16 numOfElements, Int16 width, SearchFuncPtr searchF, void const *searchData, Int32 other, Int32 *position, Boolean findFirst)
+  baseP = ARG32;
+  numOfElements = ARG16;
+  width = ARG16;
+  searchF = ARG32;
+  searchData = ARG32;
+  other = ARG32;
+  positionP = ARG32;
+  findFirst = ARG8;
+  emupalmos_trap_in(baseP, trap, 0);
+  emupalmos_trap_in(searchF, trap, 3);
+  emupalmos_trap_in(searchData, trap, 4);
+  emupalmos_trap_in(positionP, trap, 6);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysBinarySearch(0x%08X, %d, %d, 0x%08X, 0x%08X, %d, 0x%08X, %d) native 0x%08X", baseP, numOfElements, (int16_t)width, searchF, searchData, other, positionP, findFirst, state->SysQSort_addr);
+  r = state->SysBinarySearch_addr;
+}
+break;
+case sysTrapHostControl: {
+  // UInt32 HostControl(HostControlTrapNumber selector, ...)
+  selector = ARG16;
+  res = 0;
+  debug(DEBUG_TRACE, "EmuPalmOS", "HostControl(0x%04X): 0x%08X", selector, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSysNotifyRegister: {
+  // Err SysNotifyRegister(UInt16 cardNo, LocalID dbID, UInt32 notifyType, SysNotifyProcPtr callbackP, Int8 priority, userDataP)
+  cardNo = ARG16;
+  dbID = ARG32;
+  notifyType = ARG32;
+  callbackP = ARG32;
+  priority = ARG8;
+  userDataP = ARG32;
+  SysNotifyProcPtr callback = emupalmos_trap_in(callbackP, trap, 3);
+  userData = emupalmos_trap_in(userDataP, trap, 5);
+  res = SysNotifyRegister(cardNo, dbID, notifyType, callback, priority, userData);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysNotifyRegister(%d, 0x%08X, 0x%08X, 0x%08X, %u, 0x%08X): %d", cardNo, dbID, notifyType, callbackP, priority, userDataP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSysNotifyUnregister: {
+  // Err SysNotifyUnregister(UInt16 cardNo, LocalID dbID, UInt32 notifyType, Int8 priority)
+  cardNo = ARG16;
+  dbID = ARG32;
+  notifyType = ARG32;
+  priority = ARG8;
+  res = SysNotifyUnregister(cardNo, dbID, notifyType, priority);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysNotifyUnregister(%d, 0x%08X, 0x%08X, %u): %d", cardNo, dbID, notifyType, priority, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSysNotifyBroadcast: {
+  // Err SysNotifyBroadcast(SysNotifyParamType *notify)
+  notifyP = ARG32;
+  emupalmos_trap_in(notifyP, trap, 0);
+  decode_notify(notifyP, &notify);
+  res = SysNotifyBroadcast(notifyP ? &notify : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysNotifyBroadcast(0x%08X): %d", notifyP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSysFormPointerArrayToStrings: {
+  // MemHandle SysFormPointerArrayToStrings(Char *c, Int16 stringCount)
+  c = ARG32;
+  emupalmos_trap_in(c, trap, 0);
+  stringCount = ARG16;
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysFormPointerArrayToStrings(0x%08X, %d) native 0x%08X", c, stringCount, state->SysFormPointerArrayToStrings_addr);
+  r = state->SysFormPointerArrayToStrings_addr;
+}
+break;
+case sysTrapSysCopyStringResource: {
+  // void SysCopyStringResource(string, Int16 theID)
+  stringP = ARG32;
+  theID = ARG16;
+  string = emupalmos_trap_in(stringP, trap, 0);
+  SysCopyStringResource(string, theID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysCopyStringResource(0x%08X, %d)", stringP, theID);
+}
+break;
+case sysTrapSysStringByIndex: {
+  // sysStringByIndex(UInt16 resID, UInt16 index, strP, UInt16 maxLen)
+  uresID = ARG16;
+  index = ARG16;
+  strP = ARG32;
+  maxLen = ARG16;
+  strp = emupalmos_trap_in(strP, trap, 2);
+  resc = SysStringByIndex(uresID, (uint16_t)index, strP ? strp : NULL, maxLen);
+  p32 = emupalmos_trap_out(resc);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysStringByIndex(%d, %d, 0x%08X, %d): 0x%08X", uresID, (uint16_t)index, strP, maxLen, p32);
+  m68k_set_reg(M68K_REG_A0, p32);
+}
+break;
+case sysTrapSysReset:
+  // void SysReset(void)
+  SysReset();
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysReset()");
+break;
+case sysTrapSysErrString: {
+  // sysErrString(Err err, strP, UInt16 maxLen)
+  err = ARG16;
+  strP = ARG32;
+  maxLen = ARG16;
+  strc = emupalmos_trap_in(strP, trap, 1);
+  resc = SysErrString((int16_t)err, strc, maxLen);
+  p32 = emupalmos_trap_out(resc);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysErrString(%d, 0x%08X, %u): 0x%08X", (int16_t)err, strP, maxLen, p32);
+  m68k_set_reg(M68K_REG_A0, p32);
+}
+break;
+case sysTrapResLoadConstant: {
+  // UInt32 ResLoadConstant(UInt16 rscID)
+  rscID = ARG16;
+  res = ResLoadConstant(rscID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ResLoadConstant(%d): 0x%08X", rscID, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapAttnListOpen: {
+  // void AttnListOpen(void)
+  AttnListOpen();
+  debug(DEBUG_TRACE, "EmuPalmOS", "AttnListOpen()");
+}
+break;
+case sysTrapAttnIndicatorEnable: {
+  // void AttnIndicatorEnable(Boolean enableIt)
+  enableIt = ARG8;
+  AttnIndicatorEnable((Boolean)enableIt);
+  debug(DEBUG_TRACE, "EmuPalmOS", "AttnIndicatorEnable(%d)", enableIt);
+}
+break;
+case sysTrapAttnIterate: {
+  // void AttnIterate(UInt16 cardNo, LocalID dbID, UInt32 iterationData)
+  cardNo = ARG16;
+  dbID = ARG32;
+  iterationData = ARG32;
+  AttnIterate(cardNo, dbID, iterationData);
+  debug(DEBUG_TRACE, "EmuPalmOS", "AttnIterate(%d, 0x%08X, %u)", cardNo, dbID, iterationData);
+}
+break;
+case sysTrapDlkGetSyncInfo: {
+  // Err DlkGetSyncInfo(UInt32 *succSyncDateP, UInt32 *lastSyncDateP, DlkSyncStateType *syncStateP, Char *nameBufP, Char *logBufP, Int32 *logLenP)
+  succSyncDateP = ARG32;
+  lastSyncDateP = ARG32;
+  syncStateP = ARG32;
+  nameBufP = ARG32;
+  logBufP = ARG32;
+  logLenP = ARG32;
+  emupalmos_trap_in(succSyncDateP, trap, 0);
+  emupalmos_trap_in(lastSyncDateP, trap, 1);
+  emupalmos_trap_in(syncStateP, trap, 2);
+  char *nameBuf = emupalmos_trap_in(nameBufP, trap, 3);
+  char *logBuf = emupalmos_trap_in(logBufP, trap, 4);
+  err = DlkGetSyncInfo(&succSyncDate, &lastSyncDate, &syncState, nameBuf, logBuf, &logLen);
+  if (succSyncDateP) m68k_write_memory_32(succSyncDateP, succSyncDate);
+  if (lastSyncDateP) m68k_write_memory_32(lastSyncDateP, lastSyncDate);
+  if (syncStateP) m68k_write_memory_8(syncStateP, syncState);
+  if (logLenP) m68k_write_memory_32(logLenP, logLen);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DlkGetSyncInfo(0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X): %d", succSyncDateP, lastSyncDateP, syncStateP, nameBufP, logBufP, logLenP, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapErrDisplayFileLineMsg: {
+  // void ErrDisplayFileLineMsg(const Char * const filename, UInt16 lineNo, const Char * const msg)
+  filenameP = ARG32;
+  lineNo = ARG16;
+  msgP = ARG32;
+  filename = emupalmos_trap_in(filenameP, trap, 0);
+  msg = emupalmos_trap_in(msgP, trap, 2);
+  ErrDisplayFileLineMsg(filename, lineNo, msg);
+  debug(DEBUG_INFO, "EmuPalmOS", "ErrDisplayFileLineMsg(0x%08X \"%s\", %d, 0x%08X \"%s\")", filenameP, filename ? filename : "", lineNo, msgP, msg ? msg : "");
+}
+break;
+case sysTrapFileControl: {
+  // Err FileControl(FileOpEnum op, FileHand stream, inout void *valueP, inout Int32 *valueLenP)
+  op = ARG8;
+  stream = ARG32;
+  l_stream = (FileHand)emupalmos_trap_in(stream, trap, 1);
+  valueP = ARG32;
+  s_valueP = emupalmos_trap_in(valueP, trap, 2);
+  valueLenP = ARG32;
+  emupalmos_trap_in(valueLenP, trap, 3);
+  if (valueLenP) l_valueLenP = m68k_read_memory_32(valueLenP);
+  // XXX read valueP
+  res = FileControl(op, l_stream, s_valueP, &l_valueLenP);
+  // XXX fill valueP
+  if (valueLenP) m68k_write_memory_32(valueLenP, l_valueLenP);
+  m68k_set_reg(M68K_REG_D0, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FileControl(op=%d, stream=0x%08X, valueP=0x%08X, valueLenP=0x%08X): %d", op, stream, valueP, valueLenP, res);
+}
+break;
+case sysTrapFtrPtrNew: {
+  // Err FtrPtrNew(UInt32 creator, UInt16 featureNum, UInt32 size, void **newPtrP)
+  creator = ARG32;
+  featureNum = ARG16;
+  size = ARG32;
+  newPtrP = ARG32;
+  emupalmos_trap_in(newPtrP, trap, 3);
+  p = MemPtrNew(size);
+  if (p) {
+    a = emupalmos_trap_out(p);
+    if (newPtrP) m68k_write_memory_32(newPtrP, a);
+    err = FtrSet(creator, featureNum, a);
+  } else {
+    err = memErrNotEnoughSpace;
+  }
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FtrPtrNew('%s', %d, %d, 0x%08X): %d", buf, featureNum, size, newPtrP, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapFtrPtrFree: {
+  // Err FtrPtrFree(UInt32 creator, UInt16 featureNum)
+  creator = ARG32;
+  featureNum = ARG16;
+  a = 0;
+  err = FtrGet(creator, featureNum, &a);
+  if (err == errNone && a) {
+    p = emupalmos_trap_in(a, trap, -1);
+    MemPtrFree(p);
+  }
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FtrPtrFree('%s', %d): %d", buf, featureNum, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapFtrUnregister: {
+  // Err FtrUnregister(UInt32 creator, UInt16 featureNum)
+  creator = ARG32;
+  featureNum = ARG16;
+  err = FtrUnregister(creator, featureNum);
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FtrUnregister('%s', %d): %d", buf, featureNum, err);
+}
+break;
+case sysTrapFtrGet: {
+  // Err FtrGet(UInt32 creator, UInt16 featureNum, UInt32 *valueP)
+  creator = ARG32;
+  featureNum = ARG16;
+  valueP = ARG32;
+  emupalmos_trap_in(valueP, trap, 2);
+  pumpkin_id2s(creator, buf);
+  err = FtrGet(creator, featureNum, &value);
+
+  if (creator == sysFileCSystem && featureNum == sysFtrNumProcessorID && err == errNone) {
+#ifdef ARMEMU
+    // If the processor is 68K, Cubis writes directly to the display bitmap. It works ONLY if the display is 8bpp.
+    //value = sysFtrNumProcessorEZ;
+
+    // If the processor is ARM, Cubis does not write directly to the display bitmap. It works both on 8pp and 16bpp. No hooks are necessary.
+    value = sysFtrNumProcessorARM720T;
+#else
+    value = sysFtrNumProcessorEZ;
+#endif
+}
+
+  debug(DEBUG_TRACE, "EmuPalmOS", "FtrGet('%s', %d, 0x%08X [0x%08X]): %d", buf, featureNum, valueP, value, err);
+  m68k_write_memory_32(valueP, value);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapFtrSet: {
+  // Err FtrSet(UInt32 creator, UInt16 featureNum, UInt32 newValue)
+  creator = ARG32;
+  featureNum = ARG16;
+  newValue = ARG32;
+  pumpkin_id2s(creator, buf);
+  err = FtrSet(creator, featureNum, newValue);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FtrSet('%s', %d, %d): %d", buf, featureNum, newValue, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSelectOneTime: {
+  // Boolean SelectOneTime(Int16 *hour, Int16 *minute, const titleP)
+  uint32_t hourP = ARG32;
+  minP = ARG32;
+  titleP = ARG32;
+  emupalmos_trap_in(hourP, trap, 0);
+  emupalmos_trap_in(minP, trap, 1);
+  title = (char *)emupalmos_trap_in(titleP, trap, 2);
+  if (hourP) hour = m68k_read_memory_16(hourP);
+  if (minP) min = m68k_read_memory_16(minP);
+  resb = SelectOneTime(hourP ? &hour : NULL, minP ? &min : NULL, title);
+  if (hourP) m68k_write_memory_16(hourP, hour);
+  if (minP) m68k_write_memory_16(minP, min);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SelectOneTime(0x%08X, 0x%08X, 0x%08X): %d", hourP, minP, titleP, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapSelectDay: {
+  // Boolean SelectDay(const SelectDayType selectDayBy, Int16 *month, Int16 *day, Int16 *year, const title)
+  selectDayBy = ARG8;
+  monthP = ARG32;
+  dayP = ARG32;
+  yearP = ARG32;
+  titleP = ARG32;
+  emupalmos_trap_in(monthP, trap, 1);
+  emupalmos_trap_in(dayP, trap, 2);
+  emupalmos_trap_in(yearP, trap, 3);
+  title = (char *)emupalmos_trap_in(titleP, trap, 4);
+  if (monthP) month = m68k_read_memory_16(monthP);
+  if (dayP) day = m68k_read_memory_16(dayP);
+  if (yearP) year = m68k_read_memory_16(yearP);
+  resb = SelectDay(selectDayBy, monthP ? &month : NULL, dayP ? &day : NULL, yearP ? &year : NULL, title);
+  if (monthP) m68k_write_memory_16(monthP, month);
+  if (dayP) m68k_write_memory_16(dayP, day);
+  if (yearP) m68k_write_memory_16(yearP, year);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SelectDay(%d, 0x%08X, 0x%08X, 0x%08X, 0x%08X): %d", selectDayBy, monthP, dayP, yearP, titleP, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapDaysInMonth: {
+  // Int16 DaysInMonth(Int16 month, Int16 year)
+  month = ARG16;
+  year = ARG16;
+  res = DaysInMonth(month, year);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DaysInMonth(%d, %d): %d", month, year, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDayOfWeek: {
+  // Int16 DayOfWeek(Int16 month, Int16 day, Int16 year)
+  month = ARG16;
+  day = ARG16;
+  year = ARG16;
+  res = DayOfWeek(month, day, year);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DayOfWeek(%d, %d, %d): %d", month, day, year, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDateSecondsToDate: {
+  // void DateSecondsToDate(seconds, DateType *dateP)
+  seconds = ARG32;
+  dateP = ARG32;
+  emupalmos_trap_in(dateP, trap, 1);
+  DateSecondsToDate(seconds, dateP ? &date.fields : NULL);
+  if (dateP) m68k_write_memory_16(dateP, date.bits);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateSecondsToDate(%u, 0x%08X)", seconds, dateP);
+}
+break;
+case sysTrapDateToDOWDMFormat: {
+  // void DateToDOWDMFormat(UInt8 months, UInt8 days, UInt16 years, DateFormatType dateFormat, Char *pString)
+  months = ARG8;
+  days = ARG8;
+  years = ARG16;
+  dateFormat = ARG8;
+  stringP = ARG32;
+  string = (char *)emupalmos_trap_in(stringP, trap, 4);
+  DateToDOWDMFormat(months, (uint8_t)days, years, dateFormat, string);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateToDOWDMFormat(%u, %u, %u, %u, 0x%08X)", months, (uint8_t)days, years, dateFormat, stringP);
+}
+break;
+case sysTrapDateToAscii: {
+  // void DateToAscii(UInt8 months, UInt8 days, UInt16 years, DateFormatType dateFormat, Char *pString)
+  months = ARG8;
+  days = ARG8;
+  years = ARG16;
+  dateFormat = ARG8;
+  stringP = ARG32;
+  string = (char *)emupalmos_trap_in(stringP, trap, 4);
+  DateToAscii(months, (uint8_t)days, years, dateFormat, string);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateToAscii(%u, %u, %u, %u, 0x%08X)", months, (uint8_t)days, years, dateFormat, stringP);
+}
+break;
+case sysTrapDateToDays: {
+  // UInt32 DateToDays(DateType date)
+  date.bits = ARG16;
+  res = DateToDays(date.fields);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateToDays(0x%04X [%04d-%02d-%02d]): %d", date.bits, date.fields.year+1904, date.fields.month, date.fields.day, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDateDaysToDate: {
+  // void DateDaysToDate(UInt32 days, DateType *dateP)
+  days = ARG32;
+  dateP = ARG32;
+  emupalmos_trap_in(dateP, trap, 1);
+  DateDaysToDate(days, dateP ? &date.fields : NULL);
+  if (dateP) m68k_write_memory_16(dateP, date.bits);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateDaysToDate(%u, 0x%08X)", days, dateP);
+}
+break;
+case sysTrapTimSetSeconds: {
+  // void TimSetSeconds(seconds)
+  seconds = ARG32;
+  TimSetSeconds(seconds);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimSetSeconds(%u)", seconds);
+}
+break;
+case sysTrapTimAdjust: {
+  // void TimAdjust(DateTimeType *dateTimeP, Int32 adjustment)
+  dateTimeP = ARG32;
+  adjustment = ARG32;
+  emupalmos_trap_in(dateTimeP, trap, 0);
+  decode_datetime(dateTimeP, &dateTime);
+  TimAdjust(&dateTime, adjustment);
+  encode_datetime(dateTimeP, &dateTime);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimAdjust(0x%08X, %d)", dateTimeP, adjustment);
+}
+break;
+case sysTrapDateAdjust: {
+  // void DateAdjust(DateType *dateP, Int32 adjustment)
+  dateP = ARG32;
+  adjustment = ARG32;
+  emupalmos_trap_in(dateP, trap, 0);
+  if (dateP) date.bits = m68k_read_memory_16(dateP);
+  DateAdjust(&date.fields, adjustment);
+  if (dateP) m68k_write_memory_16(dateP, date.bits);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateAdjust(0x%08X, %d)", dateP, adjustment);
+}
+break;
+case sysTrapTimeToAscii: {
+  // void TimeToAscii(UInt8 hours, UInt8 minutes, TimeFormatType timeFormat, Char *pString)
+  hours = ARG8;
+  minutes = ARG8;
+  timeFormat = ARG8;
+  stringP = ARG32;
+  string = (char *)emupalmos_trap_in(stringP, trap, 3);
+  TimeToAscii(hours, minutes, timeFormat, string);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimeToAscii(%u, %u, %u, 0x%08X \"%s\")", hours, minutes, timeFormat, stringP, string ? string : "");
+}
+break;
+case sysTrapTimeZoneToAscii: {
+  // void TimeZoneToAscii(Int16 timeZone, const LmLocaleType *localeP, string)
+  timeZone = ARG16;
+  localeP = ARG32;
+  stringP = ARG32;
+  emupalmos_trap_in(localeP, trap, 1);
+  string = (char *)emupalmos_trap_in(stringP, trap, 2);
+  decode_locale(localeP, &locale);
+  TimeZoneToAscii(timeZone, localeP ? &locale : NULL, string);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimeZoneToAscii(%d, 0x%08X, 0x%08X )", timeZone, localeP, stringP);
+}
+break;
+case sysTrapDateTemplateToAscii: {
+  // UInt16 DateTemplateToAscii(const templateP, UInt8 months, UInt8 days, UInt16 years, stringP, Int16 stringLen)
+  templateP = ARG32;
+  months = ARG8;
+  days = ARG8;
+  years = ARG16;
+  stringP = ARG32;
+  stringLen = ARG16;
+  template = (char *)emupalmos_trap_in(templateP, trap, 0);
+  string = (char *)emupalmos_trap_in(stringP, trap, 4);
+  res16 = DateTemplateToAscii(template, months, (uint8_t)days, years, string, stringLen);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DateTemplateToAscii(0x%08X, %u, %u, %u, 0x%08X \"%s\", %d): %u", templateP, months, (uint8_t)days, years, stringP, string ? string : "", stringLen, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapTimDateTimeToSeconds: {
+  // UInt32 TimDateTimeToSeconds(const DateTimeType *dateTimeP)
+  dateTimeP = ARG32;
+  emupalmos_trap_in(dateTimeP, trap, 0);
+  decode_datetime(dateTimeP, &dateTime);
+  seconds = TimDateTimeToSeconds(&dateTime);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimDateTimeToSeconds(0x%08X [%04d-%02d-%02d %02d:%02d:%02d]): %u", dateTimeP, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second, seconds);
+  m68k_set_reg(M68K_REG_D0, seconds);
+}
+break;
+case sysTrapTimSecondsToDateTime: {
+  // void TimSecondsToDateTime(seconds, DateTimeType *dateTimeP)
+  seconds = ARG32;
+  dateTimeP = ARG32;
+  emupalmos_trap_in(dateTimeP, trap, 1);
+  TimSecondsToDateTime(seconds, &dateTime);
+  encode_datetime(dateTimeP, &dateTime);
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimSecondsToDateTime(%u, 0x%08X [%04d-%02d-%02d %02d:%02d:%02d])", seconds, dateTimeP, dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second);
+}
+break;
+case sysTrapTimGetSeconds: {
+  // UInt32 TimGetSeconds(void)
+  tm = TimGetSeconds();
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimGetSeconds(): %u", tm);
+  m68k_set_reg(M68K_REG_D0, tm);
+}
+break;
+case sysTrapTimGetTicks: {
+  // UInt32 TimGetTicks(void)
+  tm = TimGetTicks();
+  debug(DEBUG_TRACE, "EmuPalmOS", "TimGetTicks(): %u", tm);
+  m68k_set_reg(M68K_REG_D0, tm);
+}
+break;
+case sysTrapFplInit:
+  // Err FplInit(void)
+  debug(DEBUG_TRACE, "EmuPalmOS", "FplInit()");
+  m68k_set_reg(M68K_REG_D0, 0);
+break;
+case sysTrapFplFree:
+  // void FplFree(void)
+  debug(DEBUG_TRACE, "EmuPalmOS", "FplFree()");
+break;
+case sysTrapWinScreenMode: {
+  // Err WinScreenMode(WinScreenModeOperation operation, UInt32 *widthP, UInt32 *heightP, UInt32 *depthP, Boolean *enableColorP)
+  operation = ARG8;
+  widthP = ARG32;
+  heightP = ARG32;
+  depthP = ARG32;
+  enableColorP = ARG32;
+  emupalmos_trap_in(widthP, trap, 1);
+  emupalmos_trap_in(heightP, trap, 2);
+  emupalmos_trap_in(depthP, trap, 3);
+  emupalmos_trap_in(enableColorP, trap, 4);
+  if (widthP) width = m68k_read_memory_32(widthP);
+  if (heightP) height = m68k_read_memory_32(heightP);
+  if (depthP) depth = m68k_read_memory_32(depthP);
+  if (enableColorP) enableColor = m68k_read_memory_8(enableColorP);
+  err = WinScreenMode(operation, widthP ? &width : NULL, heightP ? &height : NULL, depthP ? &depth : NULL, enableColorP ? &enableColor : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinScreenMode(%d, 0x%08X [%d], 0x%08X [%d], 0x%08X [%d], 0x%08X [%d]): %d",
+    operation, widthP, width, heightP, height, depthP, depth, enableColorP, enableColor, err);
+  if (widthP) m68k_write_memory_32(widthP, width);
+  if (heightP) m68k_write_memory_32(heightP, height);
+  if (depthP) m68k_write_memory_32(depthP, depth);
+  if (enableColorP) m68k_write_memory_8(enableColorP, enableColor);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapWinPalette: {
+  // Err WinPalette(UInt8 operation, Int16 startIndex, UInt16 paletteEntries, RGBColorType *tableP)
+  // operation:
+  // 0: winPaletteGet
+  // 1: winPaletteSet
+  // 2: winPaletteSetToDefault
+  operation = ARG8;
+  startIndex = ARG16;
+  paletteEntries = ARG16;
+  tableP = ARG32;
+  emupalmos_trap_in(tableP, trap, 3);
+  MemSet(table, sizeof(table), 0);
+  if (operation == winPaletteSet && tableP) {
+    if (startIndex == WinUseTableIndexes) {
+      for (i = 0; i < paletteEntries && i < 256; i++) {
+        uint32_t index = m68k_read_memory_8(tableP + i*4);
+        decode_rgb(tableP + i*4, &table[i]);
+        debug(DEBUG_TRACE, "EmuPalmOS", "palette %d: %u,%u,%u (i=%d)", index, table[i].r, table[i].g, table[i].b, i);
+      }
+    } else {
+      for (i = 0; i < paletteEntries && i < 256; i++) {
+        if (startIndex+i >= 0 && startIndex+i < 256) {
+          decode_rgb(tableP + i*4, &table[i]);
+          debug(DEBUG_TRACE, "EmuPalmOS", "palette %d: %u,%u,%u (start=%d, i=%d)", startIndex+i, table[i].r, table[i].g, table[i].b, startIndex, i);
+        }
+      }
+    }
+  }
+  err = WinPalette(operation, startIndex, paletteEntries, tableP ? table : NULL);
+  if (operation == winPaletteGet && tableP && err == errNone) {
+    for (i = 0; i < paletteEntries; i++) {
+      encode_rgb(tableP + i*4, &table[i]);
+    }
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinPalette(%d, %d, %d, 0x%08X): %d", operation, startIndex, paletteEntries, tableP, err);
+  wh = WinGetDrawWindow();
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinPalette draw window 0x%08X", emupalmos_trap_out(wh));
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapFntDefineFont: {
+  // Err FntDefineFont(FontID font, fontp)
+  font = ARG8;
+  fontP = ARG32;
+  fontp = (FontPtr)emupalmos_trap_in(fontP, trap, 1);
+  err = FntDefineFont(font, fontp);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FntDefineFont(%d, 0x%08X): %d", font, fontP, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapWinCreateWindow: {
+  // WinHandle WinCreateWindow(const RectangleType *bounds, FrameType frame, Boolean modal, Boolean focusable, UInt16 *error)
+  uint32_t boundsP = ARG32;
+  frame = ARG16;
+  modal = ARG8;
+  focusable = ARG8;
+  errorP = ARG32;
+  emupalmos_trap_in(boundsP, trap, 0);
+  emupalmos_trap_in(errorP, trap, 4);
+  decode_rectangle(boundsP, &bounds);
+  wh = WinCreateWindow(boundsP ? &bounds : NULL, frame, modal, focusable, errorP ? &error16 : NULL);
+  encode_rectangle(boundsP, &bounds);
+  if (errorP) m68k_write_memory_16(errorP, error16);
+  w = emupalmos_trap_out(wh);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinCreateWindow([%d,%d,%d,%d], %d, %d, %d, 0x%08X [%d]): 0x%08X", bounds.topLeft.x, bounds.topLeft.y, bounds.extent.x, bounds.extent.y, frame, modal, focusable, errorP, error16, w);
+  m68k_set_reg(M68K_REG_A0, w);
+}
+break;
+case sysTrapWinCreateBitmapWindow: {
+  // WinHandle WinCreateBitmapWindow(bitmapP, UInt16 *error)
+  bitmapP = ARG32;
+  errorP = ARG32;
+  bitmap = (BitmapType *)emupalmos_trap_in(bitmapP, trap, 0);
+  wh = WinCreateBitmapWindow(bitmap, &error16);
+  if (errorP) m68k_write_memory_16(errorP, error16);
+  w = emupalmos_trap_out(wh);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinCreateBitmapWindow(0x%08X, 0x%08X [%d]): 0x%08X", bitmapP, errorP, error16, w);
+  m68k_set_reg(M68K_REG_A0, w);
+}
+break;
+case sysTrapWinCreateOffscreenWindow: {
+  // WinHandle WinCreateOffscreenWindow(Coord width, Coord height, WindowFormatType format, UInt16 *error)
+  width = ARG16;
+  height = ARG16;
+  format = ARG8;
+  errorP = ARG32;
+  emupalmos_trap_in(errorP, trap, 3);
+  wh = WinCreateOffscreenWindow((uint16_t)width, (uint16_t)height, (uint8_t)format, errorP ? &error16 : NULL);
+  if (errorP) m68k_write_memory_16(errorP, error16);
+  w = emupalmos_trap_out(wh);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinCreateOffscreenWindow(%d, %d, %d, 0x%08X [%d]): 0x%08X", (uint16_t)width, (uint16_t)height, format, errorP, error16, w);
+  m68k_set_reg(M68K_REG_A0, w);
+}
+break;
+case sysTrapWinDeleteWindow: {
+  // void WinDeleteWindow(WinHandle winHandle, Boolean eraseIt)
+  w = ARG32;
+  eraseIt = ARG8;
+  wh = (WinHandle)emupalmos_trap_in(w, trap, 0);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinDeleteWindow(0x%08X, %d) ...", w, eraseIt);
+  WinDeleteWindow(wh, eraseIt);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinDeleteWindow(0x%08X, %d)", w, eraseIt);
+}
+break;
+case sysTrapRctSetRectangle: {
+  // void RctSetRectangle(RectangleType *rP, Coord left, Coord top, Coord width, Coord height)
+  rP = ARG32;
+  left = ARG16;
+  top = ARG16;
+  width = ARG16;
+  height = ARG16;
+  emupalmos_trap_in(rP, trap, 0);
+  RctSetRectangle(rP ? &rect : NULL, left, top, (int16_t)width, (int16_t)height);
+  encode_rectangle(rP, &rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "RctSetRectangle(0x%08X [%d,%d,%d,%d], %d, %d, %d, %d)", rP, rect.topLeft.x, rect.topLeft.y, rect.extent.x, rect.extent.y, left, top, (int16_t)width, (int16_t)height);
+}
+break;
+case sysTrapRctInsetRectangle: {
+  // void RctInsetRectangle(RectangleType *rP, Coord insetAmt)
+  rP = ARG32;
+  insetAmt = ARG16;
+  emupalmos_trap_in(rP, trap, 0);
+  decode_rectangle(rP, &rect);
+  RctInsetRectangle(rP ? &rect : NULL, insetAmt);
+  encode_rectangle(rP, &rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "RctInsetRectangle(0x%08X [%d,%d,%d,%d], %d)",
+    rP, rect.topLeft.x, rect.topLeft.y, rect.extent.x, rect.extent.y, insetAmt);
+}
+break;
+case sysTrapRctOffsetRectangle: {
+  // void RctOffsetRectangle(RectangleType *rP, Coord deltaX, Coord deltaY)
+  rP = ARG32;
+  deltaX = ARG16;
+  deltaY = ARG16;
+  emupalmos_trap_in(rP, trap, 0);
+  decode_rectangle(rP, &rect);
+  RctOffsetRectangle(rP ? &rect : NULL, deltaX, deltaY);
+  encode_rectangle(rP, &rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "RctOffsetRectangle(0x%08X [%d,%d,%d,%d], %d, %d)",
+    rP, rect.topLeft.x, rect.topLeft.y, rect.extent.x, rect.extent.y, deltaX, deltaY);
+}
+break;
+case sysTrapRctCopyRectangle: {
+  // void RctCopyRectangle(const RectangleType *srcRectP, RectangleType *dstRectP)
+  srcRectP = ARG32;
+  dstRectP = ARG32;
+  emupalmos_trap_in(srcRectP, trap, 0);
+  emupalmos_trap_in(dstRectP, trap, 1);
+  decode_rectangle(srcRectP, &src);
+  RctCopyRectangle(srcRectP ? &src : NULL, dstRectP ? &dst : NULL);
+  encode_rectangle(dstRectP, &dst);
+  debug(DEBUG_TRACE, "EmuPalmOS", "RctCopyRectangle(0x%08X [%d,%d,%d,%d], 0x%08X [%d,%d,%d,%d])",
+    srcRectP, src.topLeft.x, src.topLeft.y, src.extent.x, src.extent.y,
+    dstRectP, dst.topLeft.x, dst.topLeft.y, dst.extent.x, dst.extent.y);
+}
+break;
+case sysTrapRctPtInRectangle: {
+  // Boolean RctPtInRectangle(Coord x, Coord y, const RectangleType *rP)
+  x = ARG16;
+  y = ARG16;
+  rP = ARG32;
+  emupalmos_trap_in(rP, trap, 2);
+  decode_rectangle(rP, &rect);
+  resb = RctPtInRectangle((int16_t)x, (int16_t)y, rP ? &rect : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "RctPtInRectangle(%d, %d, 0x%08X [%d,%d,%d,%d]): %d", (int16_t)x, (int16_t)y, rP, rect.topLeft.x, rect.topLeft.y, rect.extent.x, rect.extent.y, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapRctGetIntersection: {
+  // void RctGetIntersection(const RectangleType *r1P, const RectangleType *r2P, RectangleType *r3P)
+  r1P = ARG32;
+  r2P = ARG32;
+  r3P = ARG32;
+  emupalmos_trap_in(r1P, trap, 0);
+  emupalmos_trap_in(r2P, trap, 1);
+  emupalmos_trap_in(r3P, trap, 2);
+  decode_rectangle(r1P, &rect1);
+  decode_rectangle(r2P, &rect2);
+  decode_rectangle(r3P, &rect3);
+  RctGetIntersection(r1P ? &rect1 : NULL, r2P ? &rect2 : NULL, r3P ? &rect3 : NULL);
+  encode_rectangle(r1P, &rect1);
+  encode_rectangle(r2P, &rect2);
+  encode_rectangle(r3P, &rect3);
+  debug(DEBUG_TRACE, "EmuPalmOS", "RctGetIntersection(0x%08X, 0x%08X, 0x%08X)", r1P, r2P, r3P);
+}
+break;
+case sysTrapBmpCreate: {
+  // BitmapType *BmpCreate(Coord width, Coord height, UInt8 depth, ColorTableType *colorTableP, UInt16 *error)
+  width = ARG16;
+  height = ARG16;
+  depth = ARG8;
+  colorTableP = ARG32;
+  errorP = ARG32;
+  emupalmos_trap_in(errorP, trap, 4);
+  bitmap = BmpCreate((int16_t)width, (int16_t)height, (uint8_t)depth, (ColorTableType *)emupalmos_trap_in(colorTableP, trap, 3), errorP ? &error16 : NULL);
+  a = emupalmos_trap_out(bitmap);
+  if (errorP) m68k_write_memory_16(errorP, error16);
+  debug(DEBUG_TRACE, "EmuPalmOS", "BmpCreate(width=%d, height=%d, depth=%d, colorTableP=0x%08X, error=0x%08X [%d]): 0x%08X", (int16_t)width, (int16_t)height, (uint8_t)depth, colorTableP, errorP, error16, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapBmpDelete: {
+  // Err BmpDelete(bitmapP)
+  bitmapP = ARG32;
+  bitmap = (BitmapType *)emupalmos_trap_in(bitmapP, trap, 0);
+  debug(DEBUG_TRACE, "EmuPalmOS", "BmpDelete(0x%08X) ...", bitmapP);
+  err = BmpDelete(bitmap);
+  debug(DEBUG_TRACE, "EmuPalmOS", "BmpDelete(0x%08X): %d", bitmapP, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSecSelectViewStatus: {
+  // privateRecordViewEnum SecSelectViewStatus(void)
+  rprv = SecSelectViewStatus();
+  debug(DEBUG_TRACE, "EmuPalmOS", "SecSelectViewStatus(): %d", rprv);
+  m68k_set_reg(M68K_REG_D0, rprv);
+}
+break;
+case sysTrapFontSelect: {
+  // FontID FontSelect(FontID fontID)
+  fontID = ARG8;
+  oldFontID = FontSelect(fontID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FontID(%d): %d", fontID, oldFontID);
+  m68k_set_reg(M68K_REG_D0, oldFontID);
+}
+break;
+case sysTrapUIColorPushTable: {
+  // Err UIColorPushTable(void)
+  err = UIColorPushTable();
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIColorPushTable(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapUIColorPopTable: {
+  // Err UIColorPopTable(void)
+  err = UIColorPopTable();
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIColorPopTable(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapUIColorSetTableEntry: {
+  // Err UIColorSetTableEntry(UIColorTableEntries which, const RGBColorType *rgbP)
+  which = ARG8;
+  rgbP = ARG32;
+  emupalmos_trap_in(rgbP, trap, 1);
+  decode_rgb(rgbP, &rgb);
+  err = UIColorSetTableEntry(which, rgbP ? &rgb : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIColorSetTableEntry(%d, 0x%08X [%d,%d,%d,%d]): %d", which, rgbP, rgb.index, rgb.r, rgb.g, rgb.b, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapUIColorGetTableEntryRGB: {
+  // void UIColorGetTableEntryRGB(UIColorTableEntries which, RGBColorType *rgbP)
+  which = ARG8;
+  rgbP = ARG32;
+  emupalmos_trap_in(rgbP, trap, 1);
+  UIColorGetTableEntryRGB(which, rgbP ? &rgb : NULL);
+  encode_rgb(rgbP, &rgb);
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIColorGetTableEntryRGB(%d, 0x%08X [%d,%d,%d,%d])", which, rgbP, rgb.index, rgb.r, rgb.g, rgb.b);
+}
+break;
+case sysTrapUIColorGetTableEntryIndex: {
+  // IndexedColorType UIColorGetTableEntryIndex(UIColorTableEntries which)
+  which = ARG8;
+  cct = UIColorGetTableEntryIndex(which);
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIColorGetTableEntryIndex(%d): %d", which, cct);
+  m68k_set_reg(M68K_REG_D0, cct);
+}
+break;
+case sysTrapPrefGetPreferences: {
+  // void PrefGetPreferences(SystemPreferencesPtr p)
+  p32 = ARG32;
+  emupalmos_trap_in(p32, trap, 0);
+  PrefGetPreferences(p32 ? &prefs : NULL);
+  // XXX decode prefs into p
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefGetPreferences(0x%08X)", p32);
+}
+break;
+case sysTrapPrefSetPreferences: {
+  // void PrefSetPreferences(SystemPreferencesPtr p)
+  p32 = ARG32;
+  emupalmos_trap_in(p32, trap, 0);
+  // XXX encode p into prefs
+  PrefSetPreferences(p32 ? &prefs : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefSetPreferences(0x%08X)", p32);
+}
+break;
+case sysTrapPrefGetPreference: {
+  // UInt32 PrefGetPreference(SystemPreferencesChoice choice)
+  choice = ARG8;
+  value = PrefGetPreference(choice);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefGetPreference(%d): %d", choice, value);
+  m68k_set_reg(M68K_REG_D0, value);
+}
+break;
+case sysTrapPrefSetPreference: {
+  //void PrefSetPreference(SystemPreferencesChoice choice, UInt32 value)
+  choice = ARG8;
+  value = ARG32;
+  PrefSetPreference(choice, value);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefSetPreference(%d, %d)", choice, value);
+}
+break;
+case sysTrapPrefOpenPreferenceDB: {
+  // DmOpenRef PrefOpenPreferenceDB(Boolean saved)
+  saved = ARG8;
+  dbRef = PrefOpenPreferenceDB(saved);
+  a = emupalmos_trap_out(dbRef);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefOpenPreferenceDB(%d): 0x%08X", saved, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapPrefOpenPreferenceDBV10: {
+  // DmOpenRef PrefOpenPreferenceDBV10(void)
+  dbRef = PrefOpenPreferenceDBV10();
+  a = emupalmos_trap_out(dbRef);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefOpenPreferenceDBV10(): 0x%08X", a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapPrefSetAppPreferences: {
+  // void PrefSetAppPreferences(UInt32 creator, UInt16 id, Int16 version, const void *prefs, prefsSize, Boolean saved)
+  creator = ARG32;
+  id = ARG16;
+  version = ARG16;
+  prefsP = ARG32;
+  prefsSize = ARG16;
+  saved = ARG8;
+  PrefSetAppPreferences(creator, (uint16_t)id, version, emupalmos_trap_in(prefsP, trap, 3), prefsSize, saved);
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefSetAppPreferences('%s', %d, %d, 0x%08X, %d, %d)", buf, (uint16_t)id, version, prefsP, prefsSize, saved);
+}
+break;
+case sysTrapPrefSetAppPreferencesV10: {
+  // void PrefSetAppPreferencesV10(UInt32 creator, Int16 version, void *prefs, prefsSize)
+  creator = ARG32;
+  version = ARG16;
+  prefsP = ARG32;
+  prefsSize = ARG16;
+  PrefSetAppPreferencesV10(creator, version, emupalmos_trap_in(prefsP, trap, 2), prefsSize);
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefSetAppPreferencesV10('%s', %d, 0x%08X, %d)", buf, version, prefsP, prefsSize);
+}
+break;
+case sysTrapPrefGetAppPreferences: {
+  // Int16 PrefGetAppPreferences(UInt32 creator, UInt16 id, void *prefs, UInt16 *prefsSize, Boolean saved)
+  creator = ARG32;
+  id = ARG16;
+  prefsP = ARG32;
+  prefsSizeP = ARG32;
+  saved = ARG8;
+  emupalmos_trap_in(prefsSizeP, trap, 3);
+  prefsSize = prefsSizeP ? m68k_read_memory_16(prefsSizeP) : 0;
+  versionu = PrefGetAppPreferences(creator, (uint16_t)id, emupalmos_trap_in(prefsP, trap, 2), prefsSizeP ? &prefsSize : NULL, saved);
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefGetAppPreferences('%s', %d, 0x%08X, 0x%08X, %d): %d", buf, (uint16_t)id, prefsP, prefsSizeP, saved, versionu);
+  if (prefsSizeP) m68k_write_memory_16(prefsSizeP, prefsSize);
+  m68k_set_reg(M68K_REG_D0, version);
+}
+break;
+case sysTrapPrefGetAppPreferencesV10: {
+  // Boolean PrefGetAppPreferencesV10(UInt32 type, Int16 version, void *prefs, prefsSize)
+  type = ARG32;
+  versionu = ARG16;
+  prefsP = ARG32;
+  prefsSize = ARG16;
+  b = PrefGetAppPreferencesV10(type, versionu, emupalmos_trap_in(prefsP, trap, 2), prefsSize);
+  pumpkin_id2s(type, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrefGetAppPreferencesV10('%s', %d, 0x%08X, %d): %d", buf, versionu, prefsP, prefsSize, b);
+  m68k_set_reg(M68K_REG_D0, b);
+}
+break;
+case sysTrapMemSet: {
+  // Err MemSet(void *dstP, Int32 numBytes, UInt8 value)
+  dstP = ARG32;
+  numBytes = ARG32;
+  value = ARG8;
+  WinLegacyGetAddr(&start, &end);
+  if ((dstP >= start && dstP < end) ||
+      (dstP+numBytes-1 >= start && dstP+numBytes-1 < end) ||
+      (dstP < start && dstP+numBytes >= end)) {
+    debug(DEBUG_TRACE, "EmuPalmOS", "MemSet(0x%08X, %d, 0x%02X) inside screen", dstP, numBytes, (uint8_t)value);
+    for (i = 0; i < numBytes; i++) {
+      m68k_write_memory_8(dstP+i, (uint8_t)value);
+    }
+    err = 0;
+  } else {
+    if (emupalmos_check_address(dstP, numBytes, 0)) {
+      err = MemSet(emupalmos_trap_in(dstP, trap, 0), numBytes, (uint8_t)value);
+    } else {
+      err = dmErrInvalidParam;
+    }
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemSet(0x%08X, %d, 0x%02X): %d", dstP, numBytes, (uint8_t)value, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapMemMove: {
+  // Err MemMove(void *dstP, const void *sP, Int32 numBytes)
+  dstP = ARG32;
+  sP = ARG32;
+  numBytesi = ARG32;
+  WinLegacyGetAddr(&start, &end);
+  if ((dstP >= start && dstP < end) ||
+      (dstP+numBytesi-1 >= start && dstP+numBytesi-1 < end) ||
+      (dstP < start && dstP+numBytesi >= end) ||
+      (sP >= start && sP < end) ||
+      (sP+numBytesi-1 >= start && sP+numBytesi-1 < end) ||
+      (sP < start && sP+numBytesi >= end)) {
+    debug(DEBUG_TRACE, "EmuPalmOS", "MemMove(0x%08X, 0x%08X, %d) inside screen", dstP, sP, numBytesi);
+    for (i = 0; i < numBytesi; i++) {
+      value = m68k_read_memory_8(sP+i);
+      m68k_write_memory_8(dstP+i, (uint8_t)value);
+    }
+    err = 0;
+  } else {
+    if (emupalmos_check_address(dstP, numBytes, 0) && emupalmos_check_address(sP, numBytesi, 1)) {
+      err = MemMove(emupalmos_trap_in(dstP, trap, 0), emupalmos_trap_in(sP, trap, 1), numBytesi);
+    } else {
+      err = dmErrInvalidParam;
+    }
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemMove(0x%08X, 0x%08X, %d): %d", dstP, sP, numBytesi, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSysRandom: {
+  // Int16 SysRandom(Int32 newSeed)
+  newSeed = ARG32;
+  res = SysRandom(newSeed);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysRandom(%d): %d", newSeed, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmDetachRecord: {
+  // Err DmDetachRecord(DmOpenRef dbP, UInt16 index, MemHandle *oldHP)
+  dbP = ARG32;
+  index = ARG16;
+  oldHP = ARG32;
+  emupalmos_trap_in(oldHP, trap, 2);
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  res = DmDetachRecord(dbRef, (uint16_t)index, oldHP ? &old : NULL);
+  if (oldHP) m68k_write_memory_32(oldHP, emupalmos_trap_out(old));
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmDetachRecord(0x%08X, %d, 0x%08X): %d", dbP, (uint16_t)index, oldHP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmDetachResource: {
+  // Err DmDetachResource(DmOpenRef dbP, UInt16 index, MemHandle *oldHP)
+  dbP = ARG32;
+  index = ARG16;
+  oldHP = ARG32;
+  emupalmos_trap_in(oldHP, trap, 2);
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  res = DmDetachResource(dbRef, (uint16_t)index, oldHP ? &old : NULL);
+  if (oldHP) m68k_write_memory_32(oldHP, emupalmos_trap_out(old));
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmDetachsource(0x%08X, %d, 0x%08X): %d", dbP, (uint16_t)index, oldHP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmSearchResource: {
+  // UInt16 DmSearchResource(DmResType resType, DmResID resID, MemHandle resH, DmOpenRef *dbPP)
+  type = ARG32;
+  resID = ARG16;
+  ih = ARG32;
+  dbPP = ARG32;
+  hm = emupalmos_trap_in(ih, trap, 2);
+  emupalmos_trap_in(dbPP, trap, 3);
+  UInt16 index = DmSearchResource(type, resID, hm, dbPP ? &dbPOR : NULL);
+  if (dbPP) m68k_write_memory_32(dbPP, emupalmos_trap_out(dbPOR));
+  pumpkin_id2s(type, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmSearchResource('%s', %d, 0x%08X, 0x%08X): %d", buf, resID, ih, dbPP, index);
+  m68k_set_reg(M68K_REG_D0, index);
+}
+break;
+case sysTrapMemHandleLock: {
+  // MemPtr MemHandleLock(MemHandle h)
+  ih = ARG32;
+  hm = emupalmos_trap_in(ih, trap, 0);
+  p = MemHandleLock(hm);
+  a = emupalmos_trap_out(p);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemHandleLock(0x%08X): 0x%08X (%p)", ih, a, p);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapDmGetNextDatabaseByTypeCreator: {
+  // Err DmGetNextDatabaseByTypeCreator(Boolean newSearch, DmSearchStatePtr stateInfoP, UInt32 type, UInt32 creator, Boolean onlyLatestVers, UInt16 *cardNoP, LocalID *dbIDP)
+  newSearch = ARG8;
+  stateInfoP = ARG32;
+  type = ARG32;
+  creator = ARG32;
+  onlyLatestVers = ARG8;
+  cardNoP = ARG32;
+  dbIDP = ARG32;
+  emupalmos_trap_in(stateInfoP, trap, 1);
+  emupalmos_trap_in(cardNoP, trap, 5);
+  emupalmos_trap_in(dbIDP, trap, 6);
+  dbIDL = 0;
+  if (stateInfoP && !newSearch) {
+    info = m68k_read_memory_32(stateInfoP);
+    stateInfo.p = emupalmos_trap_in(info, trap, -1);
+  }
+  err = DmGetNextDatabaseByTypeCreator(newSearch, stateInfoP ? &stateInfo : NULL, type, creator, onlyLatestVers, cardNoP ? &cardNo : NULL, dbIDP ? &dbIDL : NULL);
+  if (stateInfoP) {
+    info = emupalmos_trap_out(stateInfo.p);
+    m68k_write_memory_32(stateInfoP, info);
+  }
+  if (cardNoP) m68k_write_memory_16(cardNoP, cardNo);
+  if (dbIDP) m68k_write_memory_32(dbIDP, dbIDL);
+  pumpkin_id2s(type, buf);
+  pumpkin_id2s(creator, buf2);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmGetNextDatabaseByTypeCreator(%d, 0x%08X, '%s', '%s', %d, 0x%08X, 0x%08X): %d", newSearch, stateInfoP, buf, buf2, onlyLatestVers, cardNoP, dbIDP, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapDmInsertionSort: {
+  // Err DmInsertionSort(DmOpenRef dbP, DmComparF *comparF, Int16 other)
+  dbP = ARG32;
+  comparP = ARG32;
+  other = ARG16;
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  res = DmInsertionSort68K(dbRef, comparP, (int16_t)other);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmInsertionSort(0x%08X, 0x%08X, %d): %d", dbP, comparP, (int16_t)other, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmQuickSort: {
+  // Err DmQuickSort(DmOpenRef dbP, DmComparF *comparF, Int16 other)
+  dbP = ARG32;
+  comparP = ARG32;
+  other = ARG16;
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  emupalmos_trap_in(comparP, trap, 1);
+  res = DmQuickSort68K(dbRef, comparP, (int16_t)other);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmQuickSort(0x%08X, 0x%08X, %d): %d", dbP, comparP, (int16_t)other, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmFindSortPositionV10: {
+  // UInt16 DmFindSortPositionV10(DmOpenRef dbP, void *newRecord, DmComparF *compar, Int16 other)
+  dbP = ARG32;
+  newRecordP = ARG32;
+  comparP = ARG32;
+  other = ARG16;
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  emupalmos_trap_in(newRecordP, trap, 1);
+  emupalmos_trap_in(comparP, trap, 2);
+  UInt16 res = DmFindSortPosition68K(dbRef, newRecordP, 0, comparP, (int16_t)other);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmFindSortPositionV10(0x%08X, 0x%08X, 0x%08X, %d): %d", dbP, newRecordP, comparP, (int16_t)other, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmFindSortPosition: {
+  // UInt16 DmFindSortPosition(DmOpenRef dbP, void *newRecord, SortRecordInfoPtr newRecordInfo, DmComparF *compar, Int16 other)
+  dbP = ARG32;
+  newRecordP = ARG32;
+  newRecordInfoP = ARG32;
+  comparP = ARG32;
+  other = ARG16;
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  emupalmos_trap_in(newRecordP, trap, 1);
+  emupalmos_trap_in(newRecordInfoP, trap, 2);
+  emupalmos_trap_in(comparP, trap, 3);
+  UInt16 res = DmFindSortPosition68K(dbRef, newRecordP, newRecordInfoP, comparP, (int16_t)other);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmFindSortPosition(0x%08X, 0x%08X, 0x%08X, 0x%08X, %d): %d", dbP, newRecordP, newRecordInfoP, comparP, (int16_t)other, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmAttachRecord: {
+  // Err DmAttachRecord(DmOpenRef dbP, UInt16 *atP, MemHandle newH, MemHandle *oldHP)
+  dbP = ARG32;
+  atP = ARG32;
+  newH = ARG32;
+  oldHP = ARG32;
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  emupalmos_trap_in(atP, trap, 1);
+  at = atP ? m68k_read_memory_16(atP) : 0;
+  hm = emupalmos_trap_in(newH, trap, 2);
+  emupalmos_trap_in(oldHP, trap, 3);
+  res = DmAttachRecord(dbRef, atP ? &at : NULL, hm, oldHP ? &old : NULL);
+  if (atP) m68k_write_memory_16(atP, at);
+  if (oldHP) m68k_write_memory_32(oldHP, emupalmos_trap_out(old));
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmAttachRecord(0x%08X, 0x%08X, 0x%08X, 0x%08X): %d", dbP, atP, newH, oldHP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapDmSync:
+  // void DmSync(void)
+  DmSync();
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmSync()");
+break;
+case sysTrapDmSyncDatabase: {
+  // Err DmSyncDatabase(dbRef)
+  dbP = ARG32;
+  dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
+  res = DmSyncDatabase(dbRef);
+  debug(DEBUG_TRACE, "EmuPalmOS", "DmSyncDatabase(0x%08X): %d", dbP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapStrVPrintF:
+case sysTrapStrPrintF: {
+  // Int16 StrVPrintF(s, const Char *formatStr, _Palm_va_list arg)
+  // Int16 StrPrintF(s, const Char *formatStr, ...)
+  str = ARG32;
+  formatStr = ARG32;
+  s = emupalmos_trap_in(str, trap, 0);
+  f = emupalmos_trap_in(formatStr, trap, 1);
+  vararg = trap == sysTrapStrVPrintF;
+  res = 0;
+  if (s && f) {
+    if (vararg) {
+      v_arg = ARG32;
+    } else {
+      v_arg = 0;
+    }
+    for (i = 0, p = (uint8_t *)s; f[i]; i++) {
+      switch (t) {
+        case 0:
+          if (f[i] == '%') {
+            j = 0;
+            fmt[j++] = f[i];
+            arglen = -1;
+            sz = 2;
+            t = 1;
+          } else {
+            *p++ = f[i];
+          }
+          break;
+        case 1:
+          switch (f[i]) {
+            case 'h':
+            case 'H':
+              fmt[j++] = f[i];
+              sz = 2;
+              break;
+            case 'l':
+            case 'L':
+              fmt[j++] = f[i];
+              sz = 4;
+              break;
+            case 'd':
+            case 'i':
+            case 'u':
+            case 'x':
+            case 'X':
+              if (vararg) {
+                switch (sz) {
+                  case 1:  arg = m68k_read_memory_16(v_arg) & 0xff; v_arg += 2; break;
+                  case 2:  arg = m68k_read_memory_16(v_arg); v_arg += 2; break;
+                  case 4:  arg = m68k_read_memory_32(v_arg); v_arg += 4; break;
+                  default: arg = m68k_read_memory_16(v_arg); v_arg += 2; break;
+                }
+              } else {
+                switch (sz) {
+                  case 1:  arg = ARG8;  break;
+                  case 2:  arg = ARG16; break;
+                  case 4:  arg = ARG32; break;
+                  default: arg = ARG16; break;
+                }
+              }
+              k++;
+              fmt[j++] = f[i];
+              fmt[j] = 0;
+              sys_sprintf((char *)p, fmt, arg);
+              p += sys_strlen((char *)p);
+              t = 0;
+              break;
+            case 'c':
+            case 'C':
+              if (vararg) {
+                arg = m68k_read_memory_16(v_arg) & 0xff;
+                v_arg += 2;
+              } else {
+                arg = ARG8;
+              }
+              k++;
+              fmt[j++] = f[i];
+              fmt[j] = 0;
+              sys_sprintf((char *)p, fmt, arg);
+              p += sys_strlen((char *)p);
+              t = 0;
+              break;
+            case 's':
+              if (vararg) {
+                arg = m68k_read_memory_32(v_arg);
+                v_arg += 4;
+              } else {
+                arg = ARG32;
+              }
+              k++;
+              q = emupalmos_trap_in(arg, trap, k);
+              fmt[j++] = f[i];
+              fmt[j] = 0;
+              if (arglen < 0) {
+                sys_sprintf((char *)p, fmt, q);
+              } else {
+                sys_sprintf((char *)p, fmt, arglen, q);
+              }
+              p += sys_strlen((char *)p);
+              t = 0;
+              break;
+            case '*':
+              if (vararg) {
+                arglen = m68k_read_memory_16(v_arg);
+                v_arg += 2;
+              } else {
+                arglen = ARG16;
+              }
+              k++;
+              break;
+            case '%':
+              *p++ = f[i];
+              t = 0;
+              break;
+            default:
+              fmt[j++] = f[i];
+              break;
+          }
+          break;
+      }
+    }
+    *p = 0;
+    res = sys_strlen(s);
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrPrintF(0x%08X \"%s\", 0x%08X \"%s\", ...): %d", str, s ? s : "", formatStr, f ? f : "", res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapFrmNewForm: {
+  // FormType *FrmNewForm(UInt16 formID, const titleStrP, Coord x, Coord y, Coord width, Coord height, Boolean modal, UInt16 defaultButton, UInt16 helpRscID, UInt16 menuRscID)
+  formID = ARG16;
+  titleStrP = ARG32;
+  x = ARG16;
+  y = ARG16;
+  width = ARG16;
+  height = ARG16;
+  modal = ARG8;
+  defaultButton = ARG16;
+  helpRscID = ARG16;
+  menuRscID = ARG16;
+  titleStr = (char *)emupalmos_trap_in(titleStrP, trap, 1);
+  form = FrmNewForm(formID, titleStr, (uint16_t)x, (uint16_t)y, (uint16_t)width, (uint16_t)height, modal, defaultButton, helpRscID, menuRscID);
+  formP = emupalmos_trap_out(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmNewForm(%d, 0x%08X [%s], %d, %d, %d, %d, %d, %d, %d, %d): 0x%08X", formID, titleStrP, titleStr, x, y, width, height, modal, defaultButton, helpRscID, menuRscID, formP);
+  m68k_set_reg(M68K_REG_A0, formP);
+}
+break;
+case sysTrapFrmInitForm: {
+  // FormType *FrmInitForm(UInt16 rscID)
+  rscID = ARG16;
+  form = FrmInitForm(rscID);
+  f32 = emupalmos_trap_out(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmInitForm(%d): 0x%08X", rscID, f32);
+  m68k_set_reg(M68K_REG_A0, f32);
+}
+break;
+case sysTrapFrmDeleteForm: {
+  // void FrmDeleteForm(formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmDeleteForm(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmDeleteForm(0x%08X)", formP);
+}
+break;
+case sysTrapFrmGetFormId: {
+  // UInt16 FrmGetFormId(const formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  id = FrmGetFormId(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetformId(0x%08X): %d", formP, (UInt16)id);
+  m68k_set_reg(M68K_REG_D0, (UInt16)id);
+}
+break;
+case sysTrapFrmGetFirstForm: {
+  // FormType *FrmGetFirstForm(void)
+  form = FrmGetFirstForm();
+  f32 = emupalmos_trap_out(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetFirstForm(): 0x%08X", f32);
+  m68k_set_reg(M68K_REG_A0, f32);
+}
+break;
+case sysTrapFrmGetFormPtr: {
+  // FormType *FrmGetFormPtr(UInt16 formID)
+  formID = ARG16;
+  form = FrmGetFormPtr(formID);
+  f32 = emupalmos_trap_out(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetFormPtr(%d): 0x%08X", formID, f32);
+  m68k_set_reg(M68K_REG_A0, f32);
+}
+break;
+case sysTrapFrmGetObjectIndexFromPtr: {
+  // UInt16 FrmGetObjectIndexFromPtr(const formP, objP)
+  formP = ARG32;
+  objP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  obj = emupalmos_trap_in(objP, trap, 1);
+  res16 = FrmGetObjectIndexFromPtr(form, obj);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectIndexFromPtr(0x%08X, 0x%08X): %d", formP, objP, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmGetActiveField: {
+  // FieldType *FrmGetActiveField(const FormType* formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  fld = FrmGetActiveField(form);
+  f32 = emupalmos_trap_out(fld);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetActiveField(0x%08X): 0x%08X", formP, f32);
+  m68k_set_reg(M68K_REG_A0, f32);
+}
+break;
+case sysTrapFrmGotoForm: {
+  // void FrmGotoForm(UInt16 formID)
+  formID = ARG16;
+  FrmGotoForm(formID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGotoForm(%d)", formID);
+}
+break;
+case sysTrapFrmUpdateForm: {
+  // void FrmUpdateForm(UInt16 formID, UInt16 updateCode)
+  formID = ARG16;
+  updateCode = ARG16;
+  FrmUpdateForm(formID, updateCode);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmUpdateForm(%d, %d)", formID, updateCode);
+}
+break;
+case sysTrapFrmDrawForm: {
+  // void FrmDrawForm(formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmDrawForm begin");
+  FrmDrawForm(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmDrawForm(0x%08X)", formP);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmDrawForm end");
+}
+break;
+case sysTrapFrmEraseForm: {
+  // void FrmEraseForm(formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmEraseForm(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmEraseForm(0x%08X)", formP);
+}
+break;
+case sysTrapFrmVisible: {
+  // Boolean FrmVisible(const formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  resb = FrmVisible(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmVisible(0x%08X): %d", formP, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapFrmHideObject: {
+  // void FrmHideObject(formP, UInt16 objIndex)
+  formP = ARG32;
+  index = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmHideObject(form, (uint16_t)index);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmHideObject(0x%08X, %d)", formP, (uint16_t)index);
+  // XXX must handle 68K code because of gadget handler
+}
+break;
+case sysTrapFrmShowObject: {
+  // void FrmShowObject(formP, UInt16 objIndex)
+  formP = ARG32;
+  index = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmShowObject(form, (uint16_t)index);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmShowObject(0x%08X, %d)", formP, (uint16_t)index);
+  // XXX must handle 68K code because of gadget handler
+}
+break;
+case sysTrapFrmGetFocus: {
+  // UInt16 FrmGetFocus(const formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  res16 = FrmGetFocus(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetFocus(0x%08X): %d", formP, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmSetMenu: {
+  // void FrmSetMenu(formP, UInt16 menuRscID)
+  formP = ARG32;
+  menuRscID = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmSetMenu(form, menuRscID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetMenu(0x%08X, %d)", formP, menuRscID);
+}
+break;
+case sysTrapFrmGetTitle: {
+  // const Char *FrmGetTitle(const formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  title = (char *)FrmGetTitle(form);
+  s32 = emupalmos_trap_out(title);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetTitle(0x%08X): 0x%08X \"%s\"", formP, s32, title ? title : "");
+  m68k_set_reg(M68K_REG_A0, s32);
+}
+break;
+case sysTrapFrmCopyTitle: {
+  // void FrmCopyTitle(formP, const newTitle)
+  formP = ARG32;
+  newTitleP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  newTitle = (char *)emupalmos_trap_in(newTitleP, trap, 1);
+  FrmCopyTitle(form, newTitle);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmCopyTitle(0x%08X, 0x%08X \"%s\")", formP, newTitleP, newTitle ? newTitle : "");
+}
+break;
+case sysTrapFrmSetTitle: {
+  // void FrmSetTitle(formP, newTitle)
+  formP = ARG32;
+  newTitleP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  newTitle = (char *)emupalmos_trap_in(newTitleP, trap, 1);
+  FrmSetTitle(form, newTitle);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetTitle(0x%08X, 0x%08X \"%s\")", formP, newTitleP, newTitle ? newTitle : "");
+}
+break;
+case sysTrapFrmUpdateScrollers: {
+  // void FrmUpdateScrollers(formP, UInt16 upIndex, UInt16 downIndex, Boolean scrollableUp, Boolean scrollableDown)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  upIndex = ARG16;
+  downIndex = ARG16;
+  scrollableUp = ARG8;
+  scrollableDown = ARG8;
+  FrmUpdateScrollers(form, upIndex, downIndex, scrollableUp, scrollableDown);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmUpdateScrollers(0x%08X, %d, %d, %d, %d)", formP, upIndex, downIndex, scrollableUp, scrollableDown);
+}
+break;
+case sysTrapFrmSetActiveForm: {
+  // void FrmSetActiveForm(formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmSetActiveForm(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetActiveForm(0x%08X)", formP);
+}
+break;
+case sysTrapFrmSetEventHandler: {
+  // void FrmSetEventHandler(formP, FormEventHandlerType *handler)
+  formP = ARG32;
+  handlerP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  if (form) form->m68k_handler = handlerP;
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetEventHandler(0x%08X, 0x%08X)", formP, handlerP);
+}
+break;
+case sysTrapFrmGetEventHandler68K: { // custom trap created for use in 68K code
+  // FormEventHandlerType *FrmGetEventHandler68K(formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  handlerP = form ? form->m68k_handler : 0;
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetEventHandler68K(0x%08X): 0x%08X", formP, handlerP);
+  m68k_set_reg(M68K_REG_A0, handlerP);
+}
+break;
+case sysTrapFrmSetGadgetHandler: {
+  // void FrmSetGadgetHandler(formP, UInt16 objIndex, FormGadgetHandlerType *attrP)
+  formP = ARG32;
+  objIndex = ARG16;
+  handlerP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  if (form) {
+    gadget = FrmGetObjectPtr(form, objIndex);
+    if (gadget) gadget->m68k_handler = handlerP;
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetGadgetHandler(0x%08X, %d, 0x%08X)", formP, objIndex, handlerP);
+}
+break;
+case sysTrapFrmGetGadgetData: {
+  // void *FrmGetGadgetData(const formP, UInt16 objIndex)
+  formP = ARG32;
+  objIndex = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  dataP = 0;
+  if (form) {
+    gadget = FrmGetObjectPtr(form, objIndex);
+    if (gadget) dataP = gadget->m68k_data;
+}
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetGadgetData(0x%08X, %d): 0x%08X", formP, objIndex, dataP);
+  m68k_set_reg(M68K_REG_A0, dataP);
+  }
+break;
+case sysTrapFrmSetGadgetData: {
+  // void FrmSetGadgetData(formP, UInt16 objIndex, const void *data)
+  formP = ARG32;
+  objIndex = ARG16;
+  dataP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  if (form) {
+    gadget = FrmGetObjectPtr(form, objIndex);
+    if (gadget) gadget->m68k_data = dataP;
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetGadgetData(0x%08X, %d, 0x%08X)", formP, objIndex, dataP);
+}
+break;
+case sysTrapFrmGetGadgetPtr68K: {
+  // FormGadgetTypeInCallback *FrmGetGadgetPtr68k(formP, UInt16 objIndex)
+  formP = ARG32;
+  objIndex = ARG16;
+  gadgetP = 0;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  if (form) {
+    gadget = FrmGetObjectPtr(form, objIndex);
+    if (gadget) {
+      gadgetP = emupalmos_trap_out(gadget);
+      if (FrmGetObjectType(form, objIndex) == frmGadgetObj) {
+        encode_gadget(gadgetP, gadget);
+      }
+    }
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetGadgetPtr68k(0x%08X, %d): 0x%08X", formP, objIndex, gadgetP);
+  m68k_set_reg(M68K_REG_A0, gadgetP);
+}
+break;
+case sysTrapFrmGetWindowHandle: {
+  // WinHandle FrmGetWindowHandle(const formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  wh = FrmGetWindowHandle(form);
+  w = emupalmos_trap_out(wh);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetWindowHandle(0x%08X): 0x%08X", formP, w);
+  m68k_set_reg(M68K_REG_A0, w);
+}
+break;
+case sysTrapFrmGetFormBounds: {
+  // void FrmGetFormBounds(const formP, RectangleType *rP)
+  formP = ARG32;
+  rP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmGetFormBounds(form, &rect);
+  encode_rectangle(rP, &rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetFormBounds(0x%08X, 0x%08X)", formP, rP);
+}
+break;
+case sysTrapFrmSetObjectBounds: {
+  // void FrmSetObjectBounds(formP, UInt16 objIndex, const RectangleType *bounds)
+  formP = ARG32;
+  objIndex = ARG16;
+  rP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  decode_rectangle(rP, &rect);
+  FrmSetObjectBounds(form, objIndex, &rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetObjectBounds(0x%08X, %d, 0x%08X)", formP, objIndex, rP);
+}
+break;
+case sysTrapFrmGetNumberOfObjects: {
+  // UInt16 FrmGetNumberOfObjects(const formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  res16 = FrmGetNumberOfObjects(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetNumberOfObjects(0x%08X): %d", formP, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmSetObjectPosition: {
+  // void FrmSetObjectPosition(formP, UInt16 objIndex, Coord x, Coord y)
+  formP = ARG32;
+  objIndex = ARG16;
+  xc = ARG16;
+  yc = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmSetObjectPosition(form, objIndex, xc, yc);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetObjectPosition(0x%08X, %u, %d, %d)", formP, objIndex, xc, yc);
+}
+break;
+case sysTrapFrmGetObjectId: {
+  // UInt16 FrmGetObjectId(const formP, UInt16 objIndex)
+  formP = ARG32;
+  objIndex = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  res16 = FrmGetObjectId(form, objIndex);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectId(0x%08X, %d): %d", formP, objIndex, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmGetObjectPosition: {
+  // void FrmGetObjectPosition(const formP, UInt16 objIndex, Coord *x, Coord *y)
+  formP = ARG32;
+  objIndex = ARG16;
+  xP = ARG32;
+  yP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmGetObjectPosition(form, objIndex, xP ? &xc : NULL, yP ? &yc : NULL);
+  if (xP) m68k_write_memory_16(xP, xc);
+  if (yP) m68k_write_memory_16(yP, yc);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectPosition(0x%08X, %d, 0x%08X, 0x%08X)", formP, objIndex, xP, yP);
+}
+break;
+case sysTrapFrmGetObjectBounds: {
+  // void FrmGetObjectBounds(const formP, UInt16 objIndex, RectangleType *rP)
+  formP = ARG32;
+  objIndex = ARG16;
+  rP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmGetObjectBounds(form, objIndex, &rect);
+  encode_rectangle(rP, &rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectBounds(0x%08X, %d, 0x%08X)", formP, objIndex, rP);
+}
+break;
+case sysTrapFrmGetControlGroupSelection: {
+  // UInt16 FrmGetControlGroupSelection(const formP, UInt8 groupNum)
+  formP = ARG32;
+  groupNum = ARG8;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  res16 = FrmGetControlGroupSelection(form, groupNum);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetControlGroupSelection(0x%08X, %u): %u", formP, groupNum, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmGetActiveForm: {
+  // FormType *FrmGetActiveForm(void)
+  form = FrmGetActiveForm();
+  f32 = emupalmos_trap_out(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetActiveForm(): 0x%08X", f32);
+  m68k_set_reg(M68K_REG_A0, f32);
+}
+break;
+case sysTrapFrmGetActiveFormID: {
+  // UInt16 FrmGetActiveFormId(void)
+  id = FrmGetActiveFormID();
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetActiveFormID(): %d", (UInt16)id);
+  m68k_set_reg(M68K_REG_D0, (UInt16)id);
+}
+break;
+case sysTrapFrmGetObjectIndex: {
+  // UInt16 FrmGetObjectIndex(const formP, UInt16 objID)
+  formP = ARG32;
+  objID = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  index = FrmGetObjectIndex(form, objID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectIndex(0x%08X, %d): %d", formP, objID, (UInt16)index);
+  m68k_set_reg(M68K_REG_D0, (UInt16)index);
+}
+break;
+case sysTrapFrmGetObjectPtr: {
+  // void *FrmGetObjectPtr(const formP, UInt16 objIndex)
+  formP = ARG32;
+  objIndex = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  p = FrmGetObjectPtr(form, objIndex);
+  ptr = emupalmos_trap_out(p);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectPtr(0x%08X, %d): 0x%08X", formP, objIndex, ptr);
+  m68k_set_reg(M68K_REG_A0, ptr);
+}
+break;
+case sysTrapFrmGetObjectType: {
+  // FormObjectKind FrmGetObjectType(const formP, UInt16 objIndex)
+  formP = ARG32;
+  objIndex = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FormObjectKind objType = FrmGetObjectType(form, objIndex);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetObjectType(0x%08X, %d): %d", formP, objIndex, objType);
+  m68k_set_reg(M68K_REG_D0, objType);
+}
+break;
+case sysTrapFrmGetLabel: {
+  // const Char *FrmGetLabel(const formP, UInt16 labelID)
+  formP = ARG32;
+  labelID = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  label = FrmGetLabel(form, labelID);
+  a = emupalmos_trap_out((void *)label);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetLabel(0x%08X, %d): 0x%08X", formP, labelID, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapFrmSetFocus: {
+  // void FrmSetFocus(formP, UInt16 fieldIndex)
+  formP = ARG32;
+  fieldIndex = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmSetFocus(form, fieldIndex);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetFocus(0x%08X, %d)", formP, fieldIndex);
+}
+break;
+case sysTrapFrmGetControlValue: {
+  // Int16 FrmGetControlValue(const formP, UInt16 objIndex)
+  formP = ARG32;
+  objIndex = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  value = (uint32_t)FrmGetControlValue(form, objIndex);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetControlValue(0x%08X, %d): %d", formP, objIndex, (Int16)value);
+  m68k_set_reg(M68K_REG_D0, (Int16)value);
+}
+break;
+case sysTrapFrmSetControlValue: {
+  // void FrmSetControlValue(const formP, UInt16 objIndex, Int16 newValue)
+  formP = ARG32;
+  objIndex = ARG16;
+  newValue = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmSetControlValue(form, objIndex, (int16_t)newValue);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetControlValue(0x%08X, %d, %d)", formP, objIndex, newValue);
+}
+break;
+case sysTrapFrmSetControlGroupSelection: {
+  // void FrmSetControlGroupSelection(const formP, UInt8 groupNum, UInt16 controlID)
+  formP = ARG32;
+  groupNum = ARG8;
+  controlID = ARG16;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmSetControlGroupSelection(form, groupNum, controlID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetControlGroupSelection(0x%08X, %d, %d)", formP, groupNum, controlID);
+}
+break;
+case sysTrapFrmDispatchEvent: {
+  // Boolean FrmDispatchEvent(EventType *eventP)
+  eventP = ARG32;
+
+  if (eventP) decode_event(eventP, &l_event);
+  resb = FrmDispatchEvent(&l_event);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmDispatchEvent(0x%08X): %d", eventP, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapFrmHandleEvent: {
+  // Boolean FrmHandleEvent(formP, EventType *eventP)
+  formP = ARG32;
+  eventP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+
+  if (eventP) decode_event(eventP, &l_eventP);
+  resb = FrmHandleEvent(form, &l_eventP);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmHandleEvent(0x%08X, 0x%08X): %d", formP, eventP, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapFrmCopyLabel: {
+  // void FrmCopyLabel(formP, UInt16 labelID, const Char *newLabel)
+  formP = ARG32;
+  labelID = ARG16;
+  newLabelP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  s = (char *)emupalmos_trap_in(newLabelP, trap, 1);
+  FrmCopyLabel(form, labelID, s);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmCopyLabel(0x%08X, %d, 0x%08X \"%s\")", formP, labelID, newLabelP, s ? s : "");
+}
+break;
+case sysTrapFrmSaveAllForms:
+  // void FrmSaveAllForms(void)
+  FrmSaveAllForms();
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmSaveAllForms()");
+break;
+case sysTrapFrmCloseAllForms:
+  // void FrmCloseAllForms(void)
+  FrmCloseAllForms();
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmCloseAllForms()");
+break;
+case sysTrapFrmPopupForm: {
+  // void FrmPopupForm(UInt16 formID)
+  formID = ARG16;
+  FrmPopupForm(formID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmPopupForm(%d)", formID);
+}
+break;
+case sysTrapFrmDoDialog: {
+  // UInt16 FrmDoDialog(formP)
+  formP = ARG32;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  res16 = FrmDoDialog(form);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmDoDialog(0x%08X): %d", formP, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmReturnToForm: {
+  // void FrmReturnToForm(UInt16 formID)
+  formID = ARG16;
+  FrmReturnToForm(formID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmReturnToForm(%d)", formID);
+}
+break;
+case sysTrapFrmHelp: {
+  // void FrmHelp(UInt16 helpMsgId)
+  helpMsgId = ARG16;
+  FrmHelp(helpMsgId);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmHelp(%d)", helpMsgId);
+}
+break;
+case sysTrapAbtShowAbout: {
+  // void AbtShowAbout(UInt32 creator)
+  creator = ARG32;
+  AbtShowAbout(creator);
+  debug(DEBUG_TRACE, "EmuPalmOS", "AbtShowAbout(%d)", creator);
+}
+break;
+case sysTrapFrmCustomAlert: {
+  // UInt16 FrmCustomAlert(UInt16 alertId, const s1, const s2, const s3)
+  alertId = ARG16;
+  s1P = ARG32;
+  s2P = ARG32;
+  s3P = ARG32;
+  s1 = (char *)emupalmos_trap_in(s1P, trap, 1);
+  s2 = (char *)emupalmos_trap_in(s2P, trap, 2);
+  s3 = (char *)emupalmos_trap_in(s3P, trap, 3);
+  res16 = FrmCustomAlert(alertId, s1, s2, s3);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmCustomAlert(%d, 0x%08X, 0x%08X, 0x%08X): %d", alertId, s1P, s2P, s3P, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmCustomResponseAlert: {
+  // UInt16 FrmCustomResponseAlert(UInt16 alertId, const s1, const s2, const s3, entryStringBuf, Int16 entryStringBufLength, FormCheckResponseFuncPtr callback)
+  alertId = ARG16;
+  s1P = ARG32;
+  s2P = ARG32;
+  s3P = ARG32;
+  entryStringBufP = ARG32;
+  entryStringBufLength = ARG16;
+  callbackP = ARG32;
+  s1 = (char *)emupalmos_trap_in(s1P, trap, 1);
+  s2 = (char *)emupalmos_trap_in(s2P, trap, 2);
+  s3 = (char *)emupalmos_trap_in(s3P, trap, 3);
+  entryStringBuf = (char *)emupalmos_trap_in(entryStringBufP, trap, 4);
+  callbackfp = (FormCheckResponseFuncPtr)emupalmos_trap_in(callbackP, trap, 6);
+  res16 = FrmCustomResponseAlert(alertId, s1, s2, s3, entryStringBuf, entryStringBufLength, callbackfp);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmCustomResponseAlert(%d, 0x%08X, 0x%08X, 0x%08X, 0x%08X, %d, 0x%08X): %d", alertId, s1P, s2P, s3P, entryStringBufP, entryStringBufLength, callbackP, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmAlert: {
+  // UInt16 FrmAlert(UInt16 alertId)
+  alertId = ARG16;
+  res16 = FrmAlert(alertId);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmAlert(%d): %d", alertId, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapFrmNewBitmap: {
+  // FormBitmapType *FrmNewBitmap(FormType **formPP, UInt16 ID, UInt16 rscID, Coord x, Coord y)
+  formPP = ARG32;
+  id = ARG16;
+  rscID = ARG16;
+  x = ARG16;
+  y = ARG16;
+  formP = formPP ? m68k_read_memory_32(formPP) : 0;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  Formbitmap = FrmNewBitmap(&form, (uint16_t)id, rscID, (uint16_t)x, (uint16_t)y);
+  a = emupalmos_trap_out(Formbitmap);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmNewBitmap(0x%08X, %u, %u, %d, %d): 0x%08X", formPP, id, rscID, x, y, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapFrmNewGadget: {
+  // FormGadgetType *FrmNewGadget(FormType **formPP, UInt16 id, Coord x, Coord y, Coord width, Coord height)
+  formPP = ARG32;
+  id = ARG16;
+  x = ARG16;
+  y = ARG16;
+  width = ARG16;
+  height = ARG16;
+  formP = formPP ? m68k_read_memory_32(formPP) : 0;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  gadget = FrmNewGadget(&form, (uint16_t)id, (uint16_t)x, (uint16_t)y, (uint16_t)width, (uint16_t)height);
+  a = emupalmos_trap_out(gadget);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmNewGadget(0x%08X, %u, %d, %d, %d, %d): 0x%08X", formPP, id, x, y, width, height, a);
+  m68k_set_reg(M68K_REG_A0, a);
+  }
+break;
+case sysTrapFrmActiveState: {
+  // Err FrmActiveState(FormActiveStateType *stateP, Boolean save)
+  stateP = ARG32;
+  save = ARG8;
+  statef = (FormActiveStateType *)emupalmos_trap_in(stateP, trap, 0);
+  err = FrmActiveState(statef, save);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmActiveState(0x%08X, %d)", stateP, save);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapFrmNewGsi: {
+  // FrmGraffitiStateType *FrmNewGsi(FormType **formPP, Coord x, Coord y)
+  formPP = ARG32;
+  x = ARG16;
+  y = ARG16;
+  formP = formPP ? m68k_read_memory_32(formPP) : 0;
+  form = (FormType *)emupalmos_trap_in(formP, trap, 0);
+  FrmGraffitiStateType *gsi = FrmNewGsi(&form, (uint16_t)x, (uint16_t)y);
+  a = emupalmos_trap_out(gsi);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FrmNewGsi(0x%08X, %d, %d): 0x%08X", formPP, x, y, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapCtlNewControl: {
+  // ctlNewControl(void **formPP, UInt16 ID, ControlStyleType style, const textP, Coord x, Coord y, Coord width, Coord height, FontID font, UInt8 group, Boolean leftAnchor)
+  formPP = ARG32;
+  id = ARG16;
+  style = ARG8;
+  textP = ARG32;
+  x = ARG16;
+  y = ARG16;
+  width = ARG16;
+  height = ARG16;
+  font = ARG8;
+  group = ARG8;
+  leftAnchor = ARG8;
+  formP = formPP ? m68k_read_memory_32(formPP) : 0;
+  formv = emupalmos_trap_in(formP, trap, 0);
+  text = (char *)emupalmos_trap_in(textP, trap, 3);
+  s_ctlP = CtlNewControl(&formv, (uint16_t)id, style, text, (int16_t)x, (int16_t)y, (uint16_t)width, (uint16_t)height, font, group, leftAnchor);
+  a = emupalmos_trap_out(s_ctlP);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CtlNewControl(0x%08X, %u, %d, 0x%08X [%s], %d, %d, %d, %d, %d, %d, %d): 0x%08X", formPP, id, style, textP, text, x, y, width, height, font, group, leftAnchor, a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapCtlGetStyle68K: { // custom trap created for use in 68K code
+  // ControlStyleType CtlGetStyle(controlP)
+  controlP = ARG32;
+  control = (ControlType *)emupalmos_trap_in(controlP, trap, 0);
+  stylest = control ? control->style : 0;
+  debug(DEBUG_TRACE, "EmuPalmOS", "CtlGetStyle(0x%08X): %d", controlP, stylest);
+  m68k_set_reg(M68K_REG_D0, stylest);
+}
+break;
+case sysTrapCtlGetLabel: {
+  // const Char *CtlGetLabel(controlP)
+  controlP = ARG32;
+  s_controlP = (ControlType *)emupalmos_trap_in(controlP, trap, 0);
+  resc = (Char *)CtlGetLabel(s_controlP);
+  r_res = emupalmos_trap_out(resc);
+  m68k_set_reg(M68K_REG_A0, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CtlGetLabel(controlP=0x%08X): 0x%08X", controlP, r_res);
+}
+break;
+case sysTrapLstSetDrawFunction: {
+  // void LstSetDrawFunction(listP, ListDrawDataFuncPtr func)
+  listP = ARG32;
+  funcP = ARG32;
+  list = (ListType *)emupalmos_trap_in(listP, trap, 0);
+  emupalmos_trap_in(funcP, trap, 1);
+  if (list) list->m68k_drawfunc = funcP;
+  debug(DEBUG_TRACE, "EmuPalmOS", "LstSetDrawFunction(0x%08X, 0x%08X)", listP, funcP);
+}
+break;
+case sysTrapLstDrawList: {
+  // void LstDrawList(listP)
+  listP = ARG32;
+  list = (ListType *)emupalmos_trap_in(listP, trap, 0);
+  LstDrawList(list);
+  debug(DEBUG_TRACE, "EmuPalmOS", "LstDrawList(0x%08X)", listP);
+  }
+break;
+case sysTrapTblSetCustomDrawProcedure: {
+  // void TblSetCustomDrawProcedure(TableType *tableP, Int16 column, TableDrawItemFuncPtr drawCallback)
+  tableP = ARG32;
+  column = ARG16;
+  funcP = ARG32;
+  tablet = (TableType *)emupalmos_trap_in(tableP, trap, 0);
+  emupalmos_trap_in(funcP, trap, 2);
+  if (tablet && column >= 0 && column < tablet->numColumns) {
+    tablet->columnAttrs[column].m68k_drawfunc = funcP;
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "TblSetCustomDrawProcedure(0x%08X, %d, 0x%08X)", tableP, column, funcP);
+}
+break;
+case sysTrapTblSetLoadDataProcedure: {
+  // void TblSetLoadDataProcedure(TableType *tableP, Int16 column, TableLoadDataFuncPtr loadDataCallback)
+  tableP = ARG32;
+  column = ARG16;
+  funcP = ARG32;
+  tablet = (TableType *)emupalmos_trap_in(tableP, trap, 0);
+  emupalmos_trap_in(funcP, trap, 2);
+  if (tablet && column >= 0 && column < tablet->numColumns) {
+    tablet->columnAttrs[column].m68k_loadfunc = funcP;
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "TblSetLoadDataProcedure(0x%08X, %d, 0x%08X)", tableP, column, funcP);
+}
+break;
+case sysTrapTblSetSaveDataProcedure: {
+  // void TblSetSaveDataProcedure(TableType *tableP, Int16 column, TableSaveDataFuncPtr saveDataCallback)
+  tableP = ARG32;
+  column = ARG16;
+  funcP = ARG32;
+  tablet = (TableType *)emupalmos_trap_in(tableP, trap, 0);
+  emupalmos_trap_in(funcP, trap, 2);
+  if (tablet && column >= 0 && column < tablet->numColumns) {
+    tablet->columnAttrs[column].m68k_savefunc = funcP;
+  }
+  debug(DEBUG_TRACE, "EmuPalmOS", "TblSetSaveDataProcedure(0x%08X, %d, 0x%08X)", tableP, column, funcP);
+}
+break;
+case sysTrapSclSetScrollBar: {
+  // void SclSetScrollBar(bar, Int16 value, Int16 min, Int16 max, Int16 pageSize)
+  barP = ARG32;
+  value16 = ARG16;
+  min = ARG16;
+  max = ARG16;
+  pageSize = ARG16;
+  bar = (ScrollBarType *)emupalmos_trap_in(barP, trap, 0);
+  SclSetScrollBar(bar, value16, min, max, pageSize);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SclSetScrollBar(0x%08X, %d, %d, %d, %d)", barP, value16, min, max, pageSize);
+}
+break;
+case sysTrapSclGetScrollBar: {
+  // void SclGetScrollBar(bar, Int16 *valueP, Int16 *minP, Int16 *maxP, Int16 *pageSizeP)
+  barP = ARG32;
+  valueP = ARG32;
+  minP = ARG32;
+  maxP = ARG32;
+  pageSizeP = ARG32;
+  bar = (ScrollBarType *)emupalmos_trap_in(barP, trap, 0);
+  emupalmos_trap_in(valueP, trap, 1);
+  emupalmos_trap_in(minP, trap, 2);
+  emupalmos_trap_in(maxP, trap, 3);
+  emupalmos_trap_in(pageSizeP, trap, 4);
+  SclGetScrollBar(bar, (Int16 *)&value16, &min, &max, &pageSize);
+  if (valueP) m68k_write_memory_16(valueP, (Int16)value16);
+  if (minP) m68k_write_memory_16(minP, min);
+  if (maxP) m68k_write_memory_16(maxP, max);
+  if (pageSizeP) m68k_write_memory_16(pageSizeP, pageSize);
+}
+break;
+case sysTrapSclDrawScrollBar: {
+  // void SclDrawScrollBar(bar)
+  barP = ARG32;
+  bar = (ScrollBarType *)emupalmos_trap_in(barP, trap, 0);
+  SclDrawScrollBar(bar);
+}
+break;
+case sysTrapSclHandleEvent: {
+  // Boolean SclHandleEvent(bar, EventType *event)
+  barP = ARG32;
+  eventP = ARG32;
+
+  if (eventP) decode_event(eventP, &l_eventP);
+  bar = (ScrollBarType *)emupalmos_trap_in(barP, trap, 0);
+  resb = SclHandleEvent(bar, &l_eventP);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapEvtEnableGraffiti: {
+  // void EvtEnableGraffiti(Boolean enable)
+  enable = ARG8;
+  EvtEnableGraffiti(enable);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtEnableGraffiti(%d)", enable);
+}
+break;
+case sysTrapEvtResetAutoOffTimer: {
+  // Err EvtResetAutoOffTimer(void)
+  err = EvtResetAutoOffTimer();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtResetAutoOffTimer(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapEvtAddUniqueEventToQueue: {
+  // void EvtAddUniqueEventToQueue(const EventType *eventP, UInt32 id, Boolean inPlace)
+  eventP = ARG32;
+  id = ARG32;
+  inPlace = ARG8;
+  emupalmos_trap_in(eventP, trap, 0);
+
+  if (eventP) decode_event(eventP, &l_eventP);
+  EvtAddUniqueEventToQueue(eventP ? &l_eventP : NULL, id, inPlace);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtAddUniqueEventToQueue(0x%08X [0x%04X], %d, %d)", eventP, l_eventP.eType, id, inPlace);
+}
+break;
+case sysTrapEvtAddEventToQueue: {
+  // void EvtAddEventToQueue(const EventType *event)
+  eventP = ARG32;
+  emupalmos_trap_in(eventP, trap, 0);
+
+  if (eventP) decode_event(eventP, &l_eventP);
+  EvtAddEventToQueue(eventP ? &l_eventP : NULL);
+  eventName = EvtGetEventName(l_eventP.eType);
+  if (eventName) {
+    debug(DEBUG_TRACE, "EmuPalmOS", "EvtAddEventToQueue(0x%08X [%s])", eventP, eventName);
+  } else {
+    debug(DEBUG_TRACE, "EmuPalmOS", "EvtAddEventToQueue(0x%08X [0x%04X])", eventP, l_eventP.eType);
+  }
+  if (eventP) encode_event(eventP, &l_eventP);
+}
+break;
+case sysTrapEvtEnqueueKey: {
+  // Err EvtEnqueueKey(WChar ascii, UInt16 keycode, UInt16 modifiers)
+  ascii = ARG16;
+  keycode = ARG16;
+  modifiers = ARG16;
+  err = EvtEnqueueKey(ascii, keycode, modifiers);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtEnqueueKey(0x%04X, 0x%04X, 0x%04X): %d", ascii, keycode, modifiers, err);
+}
+break;
+case sysTrapEvtEventAvail: {
+  // Boolean EvtEventAvail(void)
+  resb = EvtEventAvail();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtEventAvail(): %d", resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapEvtWakeup: {
+  // Err EvtWakeup(void)
+  err = EvtWakeup();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtWakeup(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapEvtGetEvent: {
+  // void EvtGetEvent(EventType *event, Int32 timeout)
+  eventP = ARG32;
+  timeout = ARG32;
+  timeout = pumpkin_event_timeout(timeout);
+  emupalmos_trap_in(eventP, trap, 0);
+
+  MemSet(&l_eventP, sizeof(EventType), 0);
+  EvtGetEvent(eventP ? &l_eventP : NULL, timeout);
+  eventName = EvtGetEventName(l_eventP.eType);
+  if (eventName) {
+    debug(DEBUG_TRACE, "EmuPalmOS", "EvtGetEvent(0x%08X [%s], %d)", eventP, eventName, timeout);
+  } else {
+    debug(DEBUG_TRACE, "EmuPalmOS", "EvtGetEvent(0x%08X [0x%04X], %d)", eventP, l_eventP.eType, timeout);
+  }
+  if (eventP) encode_event(eventP, &l_eventP);
+}
+break;
+case sysTrapEvtCopyEvent: {
+  // void EvtCopyEvent(const EventType *source, EventType *dest)
+  sourceP = ARG32;
+  destP = ARG32;
+  emupalmos_trap_in(sourceP, trap, 0);
+  emupalmos_trap_in(destP, trap, 1);
+  if (sourceP) decode_event(sourceP, &source);
+  EvtCopyEvent(&source, &dest);
+  if (destP) encode_event(destP, &dest);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtCopyEvent(0x%08X [0x%04X], 0x%08X)", sourceP, source.eType, destP);
+}
+break;
+case sysTrapPenResetCalibration: {
+  // Err PenResetCalibration(void)
+  err = PenResetCalibration();
+  debug(DEBUG_TRACE, "EmuPalmOS", "PenResetCalibration(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapPenCalibrate: {
+  // Err PenCalibrate(PointType *digTopLeftP, PointType *digBotRightP, PointType *scrTopLeftP, PointType *scrBotRightP)
+  err = PenCalibrate(NULL, NULL, NULL, NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PenCalibrate %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapPenSleep: {
+  // Err PenSleep(void)
+  err = PenSleep();
+  debug(DEBUG_TRACE, "EmuPalmOS", "PenSleep(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapPenWake: {
+  // Err PenWake(void)
+  err = PenWake();
+  debug(DEBUG_TRACE, "EmuPalmOS", "PenWake(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapEvtGetPen: {
+  // void EvtGetPen(Int16 *pScreenX, Int16 *pScreenY, Boolean *pPenDown)
+  pScreenX = ARG32;
+  pScreenY = ARG32;
+  pPenDown = ARG32;
+  emupalmos_trap_in(pScreenX, trap, 0);
+  emupalmos_trap_in(pScreenY, trap, 1);
+  emupalmos_trap_in(pPenDown, trap, 2);
+  EvtGetPen(pScreenX ? &screenX : NULL, pScreenY ? &screenY : NULL, pPenDown ? &penDown : NULL);
+  if (pScreenX) m68k_write_memory_16(pScreenX, screenX);
+  if (pScreenY) m68k_write_memory_16(pScreenY, screenY);
+  if (pPenDown) m68k_write_memory_8(pPenDown, penDown);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtGetPen(0x%08X, 0x%08X, 0x%08X)", pScreenX, pScreenY, pPenDown);
+}
+break;
+case sysTrapEvtSysEventAvail: {
+  // Boolean EvtSysEventAvail(ignorePenUps)
+  ignorePenUps = ARG8;
+  resb = EvtSysEventAvail(ignorePenUps);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtSysEventAvail(): %d", resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapEvtFlushKeyQueue:
+  // Err EvtFlushKeyQueue(void)
+  err = EvtFlushKeyQueue();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtFlushKeyQueue(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+break;
+case sysTrapEvtFlushPenQueue:
+  // Err EvtFlushPenQueue(void)
+  err = EvtFlushPenQueue();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtFlushPenQueue(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+break;
+case sysTrapEvtSetNullEventTick: {
+  // Boolean EvtSetNullEventTick(tick)
+  tick = ARG32;
+  resb = EvtSetNullEventTick(tick);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtSetNullEventTick(%u): %d", tick, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapEvtFlushNextPenStroke:
+  // Err EvtFlushNextPenStroke(void)
+  err = EvtFlushNextPenStroke();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtFlushNextPenStroke(): %d", err);
+  m68k_set_reg(M68K_REG_D0, err);
+break;
+case sysTrapEvtKeyQueueEmpty: {
+  // Boolean EvtKeyQueueEmpty(void)
+  resb = EvtKeyQueueEmpty();
+  debug(DEBUG_TRACE, "EmuPalmOS", "EvtKeyQueueEmpty(): %d", resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapClipboardAddItem: {
+  // void ClipboardAddItem(const ClipboardFormatType format, const void *ptr, UInt16 length)
+  format = ARG8;
+  ptrP = ARG32;
+  length = ARG16;
+  ptrv = emupalmos_trap_in(ptrP, trap, 1);
+  ClipboardAddItem((uint8_t)format, ptrv, length);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ClipboardAddItem(%d, 0x%08X, %d)", format, ptrP, length);
+}
+break;
+case sysTrapClipboardGetItem: {
+  // MemHandle ClipboardGetItem(const ClipboardFormatType format, UInt16 *length)
+  format = ARG8;
+  lengthP = ARG32;
+  emupalmos_trap_in(lengthP, trap, 1);
+  hm = ClipboardGetItem((uint8_t)format, &length);
+  r = emupalmos_trap_out(hm);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ClipboardGetItem(%d, 0x%08X): 0x%08X", format, lengthP, r);
+  m68k_set_reg(M68K_REG_A0, r);
+}
+break;
+case sysTrapExgInit:
+case sysTrapExgConnect:
+case sysTrapExgPut:
+case sysTrapExgGet:
+case sysTrapExgAccept:
+case sysTrapExgDisconnect:
+case sysTrapExgRegisterData:
+case sysTrapExgNotifyReceiveV35:
+case sysTrapExgDBRead:
+case sysTrapExgDBWrite:
+case sysTrapExgDoDialog:
+case sysTrapExgRegisterDatatype:
+case sysTrapExgNotifyReceive:
+case sysTrapExgNotifyGoto:
+case sysTrapExgRequest:
+case sysTrapExgSetDefaultApplication:
+case sysTrapExgGetDefaultApplication:
+case sysTrapExgGetTargetApplication:
+case sysTrapExgGetRegisteredApplications:
+case sysTrapExgGetRegisteredTypes:
+case sysTrapExgNotifyPreview:
+case sysTrapExgControl:
+  m68k_set_reg(M68K_REG_D0, sysErrParamErr);
+break;
+case sysTrapExgSend:
+case sysTrapExgReceive:
+  m68k_set_reg(M68K_REG_D0, 0);
+break;
+case sysTrapEvtGetSilkscreenAreaList:
+case sysTrapEvtGetPenBtnList: {
+  // const SilkscreenAreaType *EvtGetSilkscreenAreaList(UInt16* numAreas)
+  // const PenBtnInfoType *EvtGetPenBtnList(UInt16* numButtons)
+  numP = ARG32;
+  emupalmos_trap_in(numP, trap, 0);
+  if (numP) m68k_write_memory_16(numP, 0);
+  m68k_set_reg(M68K_REG_A0, 0);
+}
+break;
+case sysTrapSysSetAutoOffTime:
+  m68k_set_reg(M68K_REG_D0, 0);
+break;
+case sysTrapSysCreateDataBaseList: {
+  // Boolean SysCreateDataBaseList(UInt32 type, UInt32 creator, UInt16 *dbCount, MemHandle *dbIDs, Boolean lookupName)
+  type = ARG32;
+  creator = ARG32;
+  countP = ARG32;
+  listP = ARG32;
+  lookupName = ARG8;
+  emupalmos_trap_in(countP, trap, 2);
+  emupalmos_trap_in(listP, trap, 3);
+  resb = SysCreateDataBaseList68K(type, creator, &wCount, &listm, lookupName);
+  if (countP) m68k_write_memory_16(countP, wCount);
+  if (listP) m68k_write_memory_32(listP, emupalmos_trap_out(listm));
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysCreateDataBaseList(0x%08X, 0x%08X, 0x%08X, 0x%08X, %d)", type, creator, countP, listP, lookupName);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapUIPickColor: {
+  // Boolean UIPickColor(IndexedColorType *indexP, RGBColorType *rgbP, UIPickColorStartType start, const titleP, const tipP)
+  indexP = ARG32;
+  rgbP = ARG32;
+  start = ARG16;
+  titleP = ARG32;
+  tipP = ARG32;
+  emupalmos_trap_in(indexP, trap, 0);
+  emupalmos_trap_in(rgbP, trap, 1);
+  if (indexP) indexc = m68k_read_memory_8(indexP);
+  decode_rgb(rgbP, &rgb);
+  title = (char *)emupalmos_trap_in(titleP, trap, 3);
+  tip = (char *)emupalmos_trap_in(tipP, trap, 4);
+  resb = UIPickColor(indexP ? &indexc : NULL, rgbP ? &rgb : NULL, (uint16_t)start, title, tip);
+  if (indexP) m68k_write_memory_8(indexP, indexc);
+  encode_rgb(rgbP, &rgb);
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIPickColor(indexP=0x%08X, rgbP=0x%08X, start=%d, title=%s, tip=%s)", indexP, rgbP, start, title ? title : "", tip ? tip : "");
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapUIBrightnessAdjust:
+  // void UIBrightnessAdjust(void)
+  UIBrightnessAdjust();
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIBrightnessAdjust()");
+break;
+case sysTrapUIContrastAdjust:
+  // void UIContrastAdjust(void)
+  UIContrastAdjust();
+  debug(DEBUG_TRACE, "EmuPalmOS", "UIContrastAdjust()");
+break;
+case sysTrapLocGetNumberSeparators: {
+  // void LocGetNumberSeparators(NumberFormatType numberFormat, Char *thousandSeparator, Char *decimalSeparator)
+  numberFormat = ARG8;
+  thousandSeparatorP = ARG32;
+  decimalSeparatorP = ARG32;
+  emupalmos_trap_in(thousandSeparatorP, trap, 0);
+  emupalmos_trap_in(decimalSeparatorP, trap, 1);
+  LocGetNumberSeparators(numberFormat, &thousandSeparator, &decimalSeparator);
+  if (thousandSeparatorP) m68k_write_memory_8(thousandSeparatorP, thousandSeparator);
+  if (decimalSeparatorP) m68k_write_memory_8(decimalSeparatorP, decimalSeparator);
+  debug(DEBUG_TRACE, "EmuPalmOS", "LocGetNumberSeparators(%d, %u, %u)", numberFormat, thousandSeparatorP, decimalSeparatorP);
+}
+break;
+case sysTrapSndPlaySmf: {
+  // Err SndPlaySmf(void *chanP, SndSmfCmdEnum cmd, UInt8 *smfP, SndSmfOptionsType *selP, SndSmfChanRangeType *chanRangeP, SndSmfCallbacksType *callbacksP, Boolean bNoWait)
+  chanP = ARG32;
+  cmd = ARG8;
+  smfP = ARG32;
+  selP = ARG32;
+  chanRangeP = ARG32;
+  callbacksP = ARG32;
+  bNoWait = ARG8;
+  emupalmos_trap_in(chanP, trap, 0);
+  emupalmos_trap_in(selP, trap, 3);
+  emupalmos_trap_in(chanRangeP, trap, 4);
+  emupalmos_trap_in(callbacksP, trap, 5);
+  SndSmfOptionsType options;
+  decode_smfoptions(selP, &options);
+  res = SndPlaySmf(NULL, (uint8_t)cmd, (UInt8 *)emupalmos_trap_in(smfP, trap, 2), selP ? &options : NULL, NULL, NULL, bNoWait);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndPlaySmf(0x%08X, %d, 0x%08X, 0x%08X, 0x%08X, 0x%08X, %d): %d", chanP, (uint8_t)cmd, smfP, selP, chanRangeP, callbacksP, bNoWait, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSndPlaySmfResource: {
+  //Err SndPlaySmfResource(UInt32 resType, Int16 resID, SystemPreferencesChoice volumeSelector)
+  resType = ARG32;
+  resID = ARG32;
+  volumeSelector = ARG8;
+  res = SndPlaySmfResource(resType, resID, volumeSelector);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndPlaySmfResource(0x%08X, %d, %d): %d", resType, resID, volumeSelector, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSndCreateMidiList: {
+  // Boolean SndCreateMidiList(UInt32 creator, Boolean multipleDBs, UInt16 *wCountP, MemHandle *entHP)
+  creator = ARG32;
+  multipleDBs = ARG8;
+  wCountP = ARG32;
+  entHP = ARG32;
+  emupalmos_trap_in(wCountP, trap, 2);
+  emupalmos_trap_in(entHP, trap, 3);
+  UInt16 wCount;
+  MemHandle entH;
+  resb = SndCreateMidiList(creator, multipleDBs, wCountP ? &wCount : NULL, entHP ? &entH : NULL);
+  if (wCountP) m68k_write_memory_16(wCountP, wCount);
+  if (entHP) m68k_write_memory_32(entHP, emupalmos_trap_out(entH));
+  pumpkin_id2s(creator, buf);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndCreateMidiList('%s', %d, 0x%08X, 0x%08X): %d", buf, multipleDBs, wCountP, entHP, resb);
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapSndPlaySystemSound: {
+  // void SndPlaySystemSound(SndSysBeepType beepID)
+  uint8_t beepID = ARG8;
+  SndPlaySystemSound(beepID);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndSysBeepType(%d)", beepID);
+}
+break;
+case sysTrapSndPlayResource: {
+  // Err SndPlayResource(SndPtr sndP, Int32 volume, UInt32 flags)
+  uint32_t sndP = ARG32;
+  int32_t volume = ARG32;
+  uint32_t flags = ARG32;
+  void *sndPtr = (void *)emupalmos_trap_in(sndP, trap, 0);
+  res = SndPlayResource(sndPtr, volume, flags);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndPlayResource(0x%08X, %d, 0x%08X): %d", sndP, volume, flags, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapSysKeyboardDialogV10: {
+  // void SysKeyboardDialogV10(void)
+  SysKeyboardDialogV10();
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysKeyboardDialogV10()");
+}
+break;
+case sysTrapSysKeyboardDialog: {
+  // void SysKeyboardDialog(KeyboardType kbd)
+  kbd = ARG8;
+  SysKeyboardDialog(kbd);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysKeyboardDialog(%d)", kbd);
+}
+break;
+case sysTrapSndDoCmd: {
+  // Err SndDoCmd(void *channelP, SndCommandPtr cmdP, Boolean noWait)
+  channelP = ARG32;
+  cmdP = ARG32;
+  noWait = ARG8;
+  emupalmos_trap_in(channelP, trap, 0);
+  SndCommandType cmd;
+  decode_sndcmd(cmdP, &cmd);
+  err = SndDoCmd(NULL, cmdP ? &cmd : NULL, noWait);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndDoCmd(0x%08X, 0x%08X, %d): %d", channelP, cmdP, noWait, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSndGetDefaultVolume: {
+  // void SndGetDefaultVolume(UInt16 *alarmAmpP, UInt16 *sysAmpP, UInt16 *masterAmpP)
+  alarmAmpP = ARG32;
+  sysAmpP = ARG32;
+  masterAmpP = ARG32;
+  emupalmos_trap_in(alarmAmpP, trap, 0);
+  emupalmos_trap_in(sysAmpP, trap, 1);
+  emupalmos_trap_in(masterAmpP, trap, 2);
+  SndGetDefaultVolume(alarmAmpP ? &alarmAmp : NULL, sysAmpP ? &sysAmp : NULL, masterAmpP ? &masterAmp : NULL);
+  if (alarmAmpP) m68k_write_memory_16(alarmAmpP, alarmAmp);
+  if (sysAmpP) m68k_write_memory_16(sysAmpP, sysAmp);
+  if (masterAmpP) m68k_write_memory_16(masterAmpP, masterAmp);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndGetDefaultVolume(0x%08X, 0x%08X, 0x%08X)", alarmAmpP, sysAmpP, masterAmpP);
+}
+break;
+case sysTrapSndSetDefaultVolume: {
+  // void SndSetDefaultVolume(UInt16 *alarmAmpP, UInt16 *sysAmpP, UInt16 *defAmpP)
+  alarmAmpP = ARG32;
+  sysAmpP = ARG32;
+  defAmpP = ARG32;
+  emupalmos_trap_in(alarmAmpP, trap, 0);
+  emupalmos_trap_in(sysAmpP, trap, 1);
+  emupalmos_trap_in(defAmpP, trap, 2);
+  alarmAmp = alarmAmpP ? m68k_read_memory_16(alarmAmpP) : 0;
+  sysAmp = sysAmpP ? m68k_read_memory_16(sysAmpP) : 0;
+  defAmp = defAmpP ? m68k_read_memory_16(defAmpP) : 0;
+  SndSetDefaultVolume(alarmAmpP ? &alarmAmp : NULL, sysAmpP ? &sysAmp : NULL, defAmpP ? &defAmp : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndSetDefaultVolume(0x%08X, 0x%08X, 0x%08X)", alarmAmpP, sysAmpP, defAmpP);
+}
+break;
+case sysTrapSndStreamCreate: {
+  // Err SndStreamCreate(SndStreamRef *channel, SndStreamMode mode, UInt32 samplerate, SndSampleType type, SndStreamWidth width, func, userData, UInt32 buffsize, Boolean armNative)
+  channelP = ARG32;
+  mode = ARG8;
+  samplerate = ARG32;
+  type = ARG16;
+  width = ARG8;
+  funcP = ARG32;
+  userDataP = ARG32;
+  buffsize = ARG32;
+  armNative = ARG8;
+  channelr = (SndStreamRef *)emupalmos_trap_in(channelP, trap, 0);
+  func = (SndStreamBufferCallback)emupalmos_trap_in(funcP, trap, 5);
+  userData = emupalmos_trap_in(userDataP, trap, 6);
+  err = SndStreamCreate(channelr, mode, samplerate, type, width, func, userData, buffsize, armNative);
+  if (channelP) m68k_write_memory_32(channelP, *channelr);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndStreamCreate(0x%08X, %d, %d, %d, %d, 0x%08X, 0x%08X, %d, %d): %d",
+    channelP, mode, samplerate, type, width, funcP, userDataP, buffsize, armNative, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSndStreamCreateExtended: {
+  // Err SndStreamCreateExtended(SndStreamRef *channel, SndStreamMode mode, SndFormatType format, UInt32 samplerate, SndSampleType type, SndStreamWidth width, SndStreamVariableBufferCallback func, userData, UInt32 buffsize, Boolean armNative)
+  channelP = ARG32;
+  mode = ARG8;
+  format = ARG32;
+  samplerate = ARG32;
+  type = ARG16;
+  width = ARG8;
+  funcP = ARG32;
+  userDataP = ARG32;
+  buffsize = ARG32;
+  armNative = ARG8;
+  channelr = (SndStreamRef *)emupalmos_trap_in(channelP, trap, 0);
+  funcv = (SndStreamVariableBufferCallback)emupalmos_trap_in(funcP, trap, 6);
+  userData = emupalmos_trap_in(userDataP, trap, 7);
+  err = SndStreamCreateExtended(channelr, mode, format, samplerate, type, (uint8_t)width, funcv, userData, buffsize, armNative);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndStreamCreateExtented(0x%08X, %d, %d, %d %d, %d, 0x%08X, 0x%08X, %d, %d): %d",
+    channelP, mode, format, samplerate, type, width, funcP, userDataP, buffsize, armNative, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSndStreamDelete: {
+  // Err SndStreamDelete(SndStreamRef channel)
+  channel = ARG32;
+  err = SndStreamDelete(channel);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndStreamDelete(0x%08X): %d", channel, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSndStreamSetVolume: {
+  // Err SndStreamSetVolume(SndStreamRef channel, Int32 volume)
+  channel = ARG32;
+  uint32_t volume = ARG32;
+  err = SndStreamSetVolume(channel, volume);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndStreamSetVolume(0x%08X, %d): %d", channel, volume, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSndStreamStart: {
+  // Err SndStreamStart(SndStreamRef channel)
+  channel = ARG32;
+  err = SndStreamStart(channel);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndStreamStart(0x%08X): %d", channel, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSndStreamStop: {
+  // Err SndStreamStop(SndStreamRef channel)
+  channel = ARG32;
+  err = SndStreamStop(channel);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SndStreamStop(0x%08X): %d", channel, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapGrfGetState: {
+  // Err GrfGetState(Boolean *capsLockP, Boolean *numLockP, UInt16 *tempShiftP, Boolean *autoShiftedP)
+  capsLockP = ARG32;
+  numLockP = ARG32;
+  tempShiftP = ARG32;
+  autoShiftedP = ARG32;
+  emupalmos_trap_in(capsLockP, trap, 0);
+  emupalmos_trap_in(numLockP, trap, 1);
+  emupalmos_trap_in(tempShiftP, trap, 2);
+  emupalmos_trap_in(autoShiftedP, trap, 3);
+  tempShift = 0;
+  err = GrfGetState(&capsLock, &numLock, &tempShift, &autoShifted);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GrfGetState(%d, %d, %d, %d): %d", capsLock, numLock, tempShift, autoShifted, err);
+  if (capsLockP) m68k_write_memory_8(capsLockP, capsLock);
+  if (numLockP) m68k_write_memory_8(numLockP, numLock);
+  if (tempShiftP) m68k_write_memory_16(tempShiftP, tempShift);
+  if (autoShiftedP) m68k_write_memory_8(autoShiftedP, autoShifted);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapGrfSetState: {
+  // Err GrfSetState(Boolean capsLock, Boolean numLock, Boolean upperShift)
+  capsLock = ARG8;
+  numLock = ARG8;
+  upperShift = ARG8;
+  err = GrfSetState(capsLock, numLock, upperShift);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GrfSetState(%d, %d, %d): %d", capsLock, numLock, upperShift, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapSysNotifyBroadcastDeferred: {
+  // Err SysNotifyBroadcastDeferred(SysNotifyParamType *notify, Int16 paramSize)
+  notifyP = ARG32;
+  paramSize = ARG16;
+  emupalmos_trap_in(notifyP, trap, 0);
+  decode_notify(notifyP, &notify);
+  err = SysNotifyBroadcastDeferred(notifyP ? &notify : NULL, paramSize);
+  debug(DEBUG_TRACE, "EmuPalmOS", "SysNotifyBroadcastDeferred(0x%08X, %d): %d", notifyP, paramSize, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapCrc16CalcBlock: {
+  // UInt16 Crc16CalcBlock(const void *bufP, UInt16 count, UInt16 crc)
+  bufP = ARG32;
+  count = ARG16;
+  crc = ARG16;
+  bufp = emupalmos_trap_in(bufP, trap, 0);
+  res16 = Crc16CalcBlock(bufp, count, crc);
+  debug(DEBUG_TRACE, "EmuPalmOS", "Crc16CalcBlock(0x%08X, %d, 0x%04X): 0x%04X", bufP, count, crc, res16);
+  m68k_set_reg(M68K_REG_D0, res16);
+}
+break;
+case sysTrapGsiInitialize: {
+  // void GsiInitialize(void)
+  GsiInitialize();
+  debug(DEBUG_TRACE, "EmuPalmOS", "GsiInitialize()");
+}
+break;
+case sysTrapGsiSetShiftState: {
+  // void GsiSetShiftState(const UInt16 lockFlags, const UInt16 tempShift)
+  lockFlags = ARG16;
+  tempShift = ARG16;
+  GsiSetShiftState(lockFlags, tempShift);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GsiSetShiftState(0x%04X, 0x%04X)", lockFlags, tempShift);
+}
+break;
+case sysTrapGsiEnable: {
+  // void GsiEnable(const Boolean enableIt)
+  enableIt = ARG8;
+  GsiEnable((const Boolean)enableIt);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GsiEnable(%d)", enableIt);
+}
+break;
+case sysTrapGsiSetLocation: {
+  // void GsiSetLocation(const Int16 x, const Int16 y)
+  x = ARG16;
+  y = ARG16;
+  GsiSetLocation(x, y);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GsiSetLocation(%d, %d)", x, y);
+}
+break;
+case sysTrapPrgStartDialogV31: {
+  // prgStartDialogV31(const title, PrgCallbackFunc textCallback)
+  titleP = ARG32;
+  textCallbackP = ARG32;
+  title = emupalmos_trap_in(titleP, trap, 0);
+  textCallback = emupalmos_trap_in(textCallbackP, trap, 1);
+  prg = PrgStartDialogV31(title, textCallback);
+  prgP = emupalmos_trap_out(prg);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrgStartDialogV31(0x%08X [%s], 0x%08X): 0x%08X", titleP, title ? title : "", textCallbackP, prgP);
+  m68k_set_reg(M68K_REG_A0, prgP);
+}
+break;
+case sysTrapPrgStartDialog: {
+  // prgStartDialog(const title, PrgCallbackFunc textCallback, userDataP)
+  titleP = ARG32;
+  textCallbackP = ARG32;
+  userDataP = ARG32;
+  title = emupalmos_trap_in(titleP, trap, 0);
+  textCallback = emupalmos_trap_in(textCallbackP, trap, 1);
+  userData = emupalmos_trap_in(userDataP, trap, 2);
+  prg = PrgStartDialog(title, textCallback, userData);
+  prgP = emupalmos_trap_out(prg);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrgStartDialog(0x%08X [%s], 0x%08X, 0x%08X): 0x%08X", titleP, title ? title : "", textCallbackP, userDataP, prgP);
+  m68k_set_reg(M68K_REG_A0, prgP);
+}
+break;
+case sysTrapPrgStopDialog: {
+  // void PrgStopDialog(prgP, Boolean force)
+  prgP = ARG32;
+  force = ARG8;
+  prgv = emupalmos_trap_in(prgP, trap, 0);
+  PrgStopDialog(prgv, force);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrgStopDialog(0x%08X)", prgP);
+}
+break;
+case sysTrapPrgHandleEvent: {
+  // Boolean PrgHandleEvent(prgGP, EventType *eventP)
+  prgP = ARG32;
+  eventP = ARG32;
+  prgv = emupalmos_trap_in(prgP, trap, 0);
+  emupalmos_trap_in(eventP, trap, 1);
+
+  if (eventP) decode_event(eventP, &l_eventP);
+  resb = PrgHandleEvent(prgv, &l_eventP);
+  eventName = EvtGetEventName(l_eventP.eType);
+  if (eventName) {
+    debug(DEBUG_TRACE, "EmuPalmOS", "PrgHandleEvent(0x%08X, 0x%08X [%s]): %d", prgP, eventP, eventName, resb);
+  } else {
+    debug(DEBUG_TRACE, "EmuPalmOS", "PrgHandleEvent(0x%08X, 0x%08X [0x%04X]): %d", prgP, eventP, l_eventP.eType, resb);
+  }
+  m68k_set_reg(M68K_REG_D0, resb);
+}
+break;
+case sysTrapPrgUpdateDialog: {
+  // void PrgUpdateDialog(prgGP, UInt16 err, UInt16 stage, const Char *messageP, Boolean updateNow)
+  prgP = ARG32;
+  err = ARG16;
+  stage = ARG16;
+  messageP = ARG32;
+  updateNow = ARG8;
+  void *prg = emupalmos_trap_in(prgP, trap, 0);
+  char *message = emupalmos_trap_in(messageP, trap, 3);
+  PrgUpdateDialog(prg, err, stage, message, updateNow);
+  debug(DEBUG_TRACE, "EmuPalmOS", "PrgUpdateDialog(0x%08X, %d, %d, 0x%08X [%s], %d)", prgP, err, stage, messageP, messageP ? message : "", updateNow);
+}
+break;
+case sysTrapEncDigestMD5: {
+  // Err EncDigestMD5(UInt8 *strP, UInt16 strLen, UInt8 digestP[16])
+  strP = ARG32;
+  strLen = ARG16;
+  digestP = ARG32;
+  strc = emupalmos_trap_in(strP, trap, 0);
+  digest = emupalmos_trap_in(digestP, trap, 2);
+  res = EncDigestMD5((uint8_t *)strc, strLen, digest);
+  debug(DEBUG_TRACE, "EmuPalmOS", "EncDigestMD5(0x%08X, %u, 0x%08X): %d", strP, strLen, digestP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapGetCharCaselessValue: {
+  // const UInt8 *GetCharCaselessValue(void)
+  res8 = (UInt8 *)GetCharCaselessValue();
+  a = emupalmos_trap_out(res8);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GetCharCaselessValue(): 0x%08X", a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapGetCharSortValue: {
+  // const UInt8 *GetCharSortValue(void) 
+  res8 = (UInt8 *)GetCharSortValue();
+  a = emupalmos_trap_out(res8);
+  debug(DEBUG_TRACE, "EmuPalmOS", "GetCharSortValue(): 0x%08X", a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapAlmSetAlarm: {
+  // Err AlmSetAlarm(UInt16 cardNo, LocalID dbID, UInt32 ref, UInt32 alarmSeconds, Boolean quiet)
+  cardNo = ARG16;
+  dbID = ARG32;
+  uint32_t ref = ARG32;
+  alarmSeconds = ARG32;
+  uint8_t quiet = ARG8;
+  err = AlmSetAlarm(cardNo, dbID, ref, alarmSeconds, quiet);
+  debug(DEBUG_TRACE, "EmuPalmOS", "AlmSetAlarm(%d, 0x%08X, %u, %u, %u): %d", cardNo, dbID, ref, alarmSeconds, quiet, err);
+  m68k_set_reg(M68K_REG_D0, err);
+}
+break;
+case sysTrapAlmGetAlarm: {
+  // UInt32 AlmGetAlarm(UInt16 cardNo, LocalID dbID, UInt32 *refP)
+  cardNo = ARG16;
+  dbID = ARG32;
+  refP = ARG32;
+  emupalmos_trap_in(refP, trap, 2);
+  ref = 0;
+  res = AlmGetAlarm(cardNo, dbID, refP ? &ref : NULL);
+  if (refP) m68k_write_memory_32(refP, ref);
+  debug(DEBUG_TRACE, "EmuPalmOS", "AlmGetAlarm(%d, 0x%08X, 0x%08X): %u", cardNo, dbID, refP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
+case sysTrapErrExceptionList: {
+  // MemPtr *ErrExceptionList(void)
+  e = (uint8_t *)ErrExceptionList();
+  a = emupalmos_trap_out(e);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ErrExceptionList(): 0x%08X", a);
+  m68k_set_reg(M68K_REG_A0, a);
+}
+break;
+case sysTrapErrThrow: {
+  // void ErrThrow(Int32 err)
+  code = ARG32;
+  e = (uint8_t *)ErrExceptionList();
+  a = emupalmos_trap_out(e);
+  exceptionP = m68k_read_memory_32(a);
+
+  // typedef struct ErrExceptionType {
+  //   struct ErrExceptionType *nextP;  // next exception type
+  //   ErrJumpBuf state;                // setjmp/longjmp storage
+  //   Int32 err;                       // Error code
+  // } ErrExceptionType;
+  nextP = m68k_read_memory_32(exceptionP);
+  m68k_write_memory_32(a, nextP);
+  bufP = exceptionP + 4;
+  aux = m68k_read_memory_32(bufP);
+  m68k_set_reg(M68K_REG_D3, aux);
+  aux = m68k_read_memory_32(bufP + 4);
+  m68k_set_reg(M68K_REG_D4, aux);
+  aux = m68k_read_memory_32(bufP + 8);
+  m68k_set_reg(M68K_REG_D5, aux);
+  aux = m68k_read_memory_32(bufP + 12);
+  m68k_set_reg(M68K_REG_D6, aux);
+  aux = m68k_read_memory_32(bufP + 16);
+  m68k_set_reg(M68K_REG_D7, aux);
+  aux = m68k_read_memory_32(bufP + 20);
+  m68k_set_reg(M68K_REG_PC, aux);
+  aux = m68k_read_memory_32(bufP + 24);
+  m68k_set_reg(M68K_REG_A2, aux);
+  aux = m68k_read_memory_32(bufP + 28);
+  m68k_set_reg(M68K_REG_A3, aux);
+  aux = m68k_read_memory_32(bufP + 32);
+  m68k_set_reg(M68K_REG_A4, aux);
+  aux = m68k_read_memory_32(bufP + 36);
+  m68k_set_reg(M68K_REG_A5, aux);
+  aux = m68k_read_memory_32(bufP + 40);
+  m68k_set_reg(M68K_REG_A6, aux);
+  aux = m68k_read_memory_32(bufP + 44);
+  m68k_set_reg(M68K_REG_A7, aux);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ErrThrow(%d)", code);
+  m68k_set_reg(M68K_REG_D0, code);
+}
+break;
+case sysTrapErrSetJump: {
+  // Int16 ErrSetJump(ErrJumpBuf buf)
+  bufP = ARG32;
+  emupalmos_trap_in(bufP, trap, 0);
+  // typedef long *ErrJumpBuf[12];  // D3-D7,PC,A2-A7
+  aux = m68k_get_reg(NULL, M68K_REG_D3);
+  m68k_write_memory_32(bufP, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_D4);
+  m68k_write_memory_32(bufP + 4, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_D5);
+  m68k_write_memory_32(bufP + 8, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_D6);
+  m68k_write_memory_32(bufP + 12, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_D7);
+  m68k_write_memory_32(bufP + 16, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_PC);
+  m68k_write_memory_32(bufP + 20, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_A2);
+  m68k_write_memory_32(bufP + 24, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_A3);
+  m68k_write_memory_32(bufP + 28, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_A4);
+  m68k_write_memory_32(bufP + 32, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_A5);
+  m68k_write_memory_32(bufP + 36, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_A6);
+  m68k_write_memory_32(bufP + 40, aux);
+  aux = m68k_get_reg(NULL, M68K_REG_A7);
+  m68k_write_memory_32(bufP + 44, aux);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ErrSetJump(0x%08X): %d", bufP, 0);
+  m68k_set_reg(M68K_REG_D0, 0); // XXX not calling ErrSetJump()
+}
+break;
+case sysTrapErrLongJump: {
+  // void ErrLongJump(ErrJumpBuf buf, Int16 result)
+  bufP = ARG32;
+  result = ARG16;
+  emupalmos_trap_in(bufP, trap, 0);
+  aux = m68k_read_memory_32(bufP);
+  m68k_set_reg(M68K_REG_D3, aux);
+  aux = m68k_read_memory_32(bufP + 4);
+  m68k_set_reg(M68K_REG_D4, aux);
+  aux = m68k_read_memory_32(bufP + 8);
+  m68k_set_reg(M68K_REG_D5, aux);
+  aux = m68k_read_memory_32(bufP + 12);
+  m68k_set_reg(M68K_REG_D6, aux);
+  aux = m68k_read_memory_32(bufP + 16);
+  m68k_set_reg(M68K_REG_D7, aux);
+  aux = m68k_read_memory_32(bufP + 20);
+  m68k_set_reg(M68K_REG_PC, aux);
+  aux = m68k_read_memory_32(bufP + 24);
+  m68k_set_reg(M68K_REG_A2, aux);
+  aux = m68k_read_memory_32(bufP + 28);
+  m68k_set_reg(M68K_REG_A3, aux);
+  aux = m68k_read_memory_32(bufP + 32);
+  m68k_set_reg(M68K_REG_A4, aux);
+  aux = m68k_read_memory_32(bufP + 36);
+  m68k_set_reg(M68K_REG_A5, aux);
+  aux = m68k_read_memory_32(bufP + 40);
+  m68k_set_reg(M68K_REG_A6, aux);
+  aux = m68k_read_memory_32(bufP + 44);
+  m68k_set_reg(M68K_REG_A7, aux);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ErrLongJump(0x%08X, %d)", bufP, result);
+  m68k_set_reg(M68K_REG_D0, result);
+}
+break;
+case sysTrapErrAlertCustom: {
+  // Int16 ErrAlertCustom(Err errCode, Char *errMsgP, Char *preMsgP, Char *postMsgP)
+  errCode = ARG16;
+  errMsgP = ARG32;
+  preMsgP = ARG32;
+  postMsgP = ARG32;
+  errMsg = emupalmos_trap_in(errMsgP, trap, 1);
+  preMsg = emupalmos_trap_in(preMsgP, trap, 2);
+  postMsg = emupalmos_trap_in(postMsgP, trap, 3);
+  res = ErrAlertCustom(errCode, errMsg, preMsg, postMsg);
+  debug(DEBUG_TRACE, "EmuPalmOS", "ErrAlertCustom(%u, 0x%08X, 0x%08X, 0x%08X): %d", errCode, errMsgP, preMsgP, postMsgP, res);
+  m68k_set_reg(M68K_REG_D0, res);
+}
+break;
 case sysTrapMemInit: {
   // Err MemInit(void)
   res = MemInit();
@@ -169,113 +3266,113 @@ case sysTrapMemPtrNew: {
 break;
 case sysTrapMemPtrRecoverHandle: {
   // MemHandle MemPtrRecoverHandle(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  resmem = MemPtrRecoverHandle(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  resmem = MemPtrRecoverHandle(pP ? l_p : 0);
   r_res = emupalmos_trap_out(resmem);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrRecoverHandle(p=0x%08X): %p", p, resmem);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrRecoverHandle(p=0x%08X): %p", pP, resmem);
 }
 break;
 case sysTrapMemPtrFlags: {
   // UInt16 MemPtrFlags(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = (UInt32)MemPtrFlags(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = (UInt32)MemPtrFlags(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrFlags(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrFlags(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrSize: {
   // UInt32 MemPtrSize(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = (UInt32)MemPtrSize(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = (UInt32)MemPtrSize(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrSize(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrSize(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrOwner: {
   // UInt16 MemPtrOwner(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = (UInt32)MemPtrOwner(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = (UInt32)MemPtrOwner(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrOwner(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrOwner(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrHeapID: {
   // UInt16 MemPtrHeapID(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = (UInt32)MemPtrHeapID(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = (UInt32)MemPtrHeapID(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrHeapID(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrHeapID(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrDataStorage: {
   // Boolean MemPtrDataStorage(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = (UInt32)MemPtrDataStorage(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = (UInt32)MemPtrDataStorage(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrDataStorage(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrDataStorage(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrCardNo: {
   // UInt16 MemPtrCardNo(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = (UInt32)MemPtrCardNo(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = (UInt32)MemPtrCardNo(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrCardNo(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrCardNo(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrToLocalID: {
   // LocalID MemPtrToLocalID(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  resid = MemPtrToLocalID(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  resid = MemPtrToLocalID(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, resid);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrToLocalID(p=0x%08X): 0x%08X", p, resid);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrToLocalID(p=0x%08X): 0x%08X", pP, resid);
 }
 break;
 case sysTrapMemPtrSetOwner: {
   // Err MemPtrSetOwner(MemPtr p, UInt16 owner)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
   owner = ARG16;
-  res = MemPtrSetOwner(p ? l_p : 0, owner);
+  res = MemPtrSetOwner(pP ? l_p : 0, owner);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrSetOwner(p=0x%08X, owner=%d): %d", p, owner, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrSetOwner(p=0x%08X, owner=%d): %d", pP, owner, res);
 }
 break;
 case sysTrapMemPtrResize: {
   // Err MemPtrResize(MemPtr p, UInt32 newSize)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
   newSize = ARG32;
-  res = MemPtrResize(p ? l_p : 0, newSize);
+  res = MemPtrResize(pP ? l_p : 0, newSize);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrResize(p=0x%08X, newSize=%d): %d", p, newSize, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrResize(p=0x%08X, newSize=%d): %d", pP, newSize, res);
 }
 break;
 case sysTrapMemPtrResetLock: {
   // Err MemPtrResetLock(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = MemPtrResetLock(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = MemPtrResetLock(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrResetLock(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrResetLock(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemPtrUnlock: {
   // Err MemPtrUnlock(MemPtr p)
-  p = ARG32;
-  l_p = emupalmos_trap_in(p, trap, 0);
-  res = MemPtrUnlock(p ? l_p : 0);
+  pP = ARG32;
+  l_p = emupalmos_trap_in(pP, trap, 0);
+  res = MemPtrUnlock(pP ? l_p : 0);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrUnlock(p=0x%08X): %d", p, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemPtrUnlock(p=0x%08X): %d", pP, res);
 }
 break;
 case sysTrapMemHandleNew: {
@@ -446,14 +3543,14 @@ case sysTrapMemLocalIDToLockedPtr: {
 break;
 case sysTrapMemCmp: {
   // Int16 MemCmp(in void *s1, in void *s2, Int32 numBytes)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   numBytes = ARG32;
   res = MemCmp(s1 ? s_s1 : NULL, s2 ? s_s2 : NULL, numBytes);
   m68k_set_reg(M68K_REG_D0, (Int16)res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MemCmp(s1=0x%08X, s2=0x%08X, numBytes=%d): %d", s1, s2, numBytes, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MemCmp(s1=0x%08X, s2=0x%08X, numBytes=%d): %d", s1_32, s2_32, numBytes, res);
 }
 break;
 case sysTrapMemSemaphoreReserve: {
@@ -1049,7 +4146,7 @@ case sysTrapDmWrite: {
 }
 break;
 case sysTrapDmStrCopy: {
-  // Err DmStrCopy(out void *recordP, UInt32 offset, in Char *srcP)
+  // Err DmStrCopy(out void *recordP, UInt32 offset, in srcP)
   recordP = ARG32;
   s_recordP = emupalmos_trap_in(recordP, trap, 0);
   offset = ARG32;
@@ -1346,14 +4443,14 @@ case sysTrapWinEraseWindow: {
 break;
 case sysTrapWinSaveBits: {
   // WinHandle WinSaveBits(in RectangleType *source, out UInt16 *error)
-  source = ARG32;
-  decode_rectangle(source, &l_source);
+  source32 = ARG32;
+  decode_rectangle(source32, &l_source);
   error = ARG32;
-  reswh = WinSaveBits(source ? &l_source : NULL, error ? &l_error : NULL);
+  reswh = WinSaveBits(source32 ? &l_source : NULL, error ? &l_error : NULL);
   if (error) m68k_write_memory_16(error, l_error);
   r_res = emupalmos_trap_out(reswh);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "WinSaveBits(source=0x%08X [%d,%d,%d,%d], error=0x%08X [%d]): 0x%08X", source, l_source.topLeft.x, l_source.topLeft.y, l_source.extent.x, l_source.extent.y, error, l_error, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "WinSaveBits(source=0x%08X [%d,%d,%d,%d], error=0x%08X [%d]): 0x%08X", source32, l_source.topLeft.x, l_source.topLeft.y, l_source.extent.x, l_source.extent.y, error, l_error, r_res);
 }
 break;
 case sysTrapWinRestoreBits: {
@@ -1705,7 +4802,7 @@ case sysTrapWinFillRectangle: {
 break;
 case sysTrapWinPaintRectangleFrame: {
   // void WinPaintRectangleFrame(FrameType frame, in RectangleType *rP)
-  uint16_t frame = ARG16;
+  frame = ARG16;
   rP = ARG32;
 
   decode_rectangle(rP, &l_rP);
@@ -1715,7 +4812,7 @@ case sysTrapWinPaintRectangleFrame: {
 break;
 case sysTrapWinDrawRectangleFrame: {
   // void WinDrawRectangleFrame(FrameType frame, in RectangleType *rP)
-  uint16_t frame = ARG16;
+  frame = ARG16;
   rP = ARG32;
 
   decode_rectangle(rP, &l_rP);
@@ -1725,7 +4822,7 @@ case sysTrapWinDrawRectangleFrame: {
 break;
 case sysTrapWinDrawGrayRectangleFrame: {
   // void WinDrawGrayRectangleFrame(FrameType frame, in RectangleType *rP)
-  uint16_t frame = ARG16;
+  frame = ARG16;
   rP = ARG32;
 
   decode_rectangle(rP, &l_rP);
@@ -1735,7 +4832,7 @@ case sysTrapWinDrawGrayRectangleFrame: {
 break;
 case sysTrapWinEraseRectangleFrame: {
   // void WinEraseRectangleFrame(FrameType frame, in RectangleType *rP)
-  uint16_t frame = ARG16;
+  frame = ARG16;
   rP = ARG32;
 
   decode_rectangle(rP, &l_rP);
@@ -1745,7 +4842,7 @@ case sysTrapWinEraseRectangleFrame: {
 break;
 case sysTrapWinInvertRectangleFrame: {
   // void WinInvertRectangleFrame(FrameType frame, in RectangleType *rP)
-  uint16_t frame = ARG16;
+  frame = ARG16;
   rP = ARG32;
 
   decode_rectangle(rP, &l_rP);
@@ -1754,7 +4851,7 @@ case sysTrapWinInvertRectangleFrame: {
 }
 break;
 case sysTrapWinDrawBitmap: {
-  // void WinDrawBitmap(in BitmapType *bitmapP, Coord x, Coord y)
+  // void WinDrawBitmap(in bitmapP, Coord x, Coord y)
   bitmapP = ARG32;
   //l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   l_bitmapP = emupalmos_trap_in(bitmapP, trap, 0);
@@ -1765,7 +4862,7 @@ case sysTrapWinDrawBitmap: {
 }
 break;
 case sysTrapWinPaintBitmap: {
-  // void WinPaintBitmap(in BitmapType *bitmapP, Coord x, Coord y)
+  // void WinPaintBitmap(in bitmapP, Coord x, Coord y)
   bitmapP = ARG32;
   //l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   l_bitmapP = emupalmos_trap_in(bitmapP, trap, 0);
@@ -2033,7 +5130,7 @@ case sysTrapWinScreenUnlock: {
 }
 break;
 case sysTrapBmpCompress: {
-  // Err BmpCompress(in BitmapType *bitmapP, BitmapCompressionType compType)
+  // Err BmpCompress(in bitmapP, BitmapCompressionType compType)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   compType = ARG8;
@@ -2043,7 +5140,7 @@ case sysTrapBmpCompress: {
 }
 break;
 case sysTrapBmpGetBits: {
-  // void *BmpGetBits(in BitmapType *bitmapP)
+  // void *BmpGetBits(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   resv = BmpGetBits(bitmapP ? l_bitmapP : NULL);
@@ -2053,7 +5150,7 @@ case sysTrapBmpGetBits: {
 }
 break;
 case sysTrapBmpGetColortable: {
-  // ColorTableType *BmpGetColortable(in BitmapType *bitmapP)
+  // ColorTableType *BmpGetColortable(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   resctt = BmpGetColortable(bitmapP ? l_bitmapP : NULL);
@@ -2063,7 +5160,7 @@ case sysTrapBmpGetColortable: {
 }
 break;
 case sysTrapBmpSize: {
-  // UInt16 BmpSize(in BitmapType *bitmapP)
+  // UInt16 BmpSize(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   res = (UInt32)BmpSize(bitmapP ? l_bitmapP : NULL);
@@ -2072,7 +5169,7 @@ case sysTrapBmpSize: {
 }
 break;
 case sysTrapBmpBitsSize: {
-  // UInt16 BmpBitsSize(in BitmapType *bitmapP)
+  // UInt16 BmpBitsSize(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   res = (UInt32)BmpBitsSize(bitmapP ? l_bitmapP : NULL);
@@ -2081,7 +5178,7 @@ case sysTrapBmpBitsSize: {
 }
 break;
 case sysTrapBmpGetSizes: {
-  // void BmpGetSizes(in BitmapType *bitmapP, out UInt32 *dataSizeP, out UInt32 *headerSizeP)
+  // void BmpGetSizes(in bitmapP, out UInt32 *dataSizeP, out UInt32 *headerSizeP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   dataSizeP = ARG32;
@@ -2093,7 +5190,7 @@ case sysTrapBmpGetSizes: {
 }
 break;
 case sysTrapBmpColortableSize: {
-  // UInt16 BmpColortableSize(in BitmapType *bitmapP)
+  // UInt16 BmpColortableSize(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   res = (UInt32)BmpColortableSize(bitmapP ? l_bitmapP : NULL);
@@ -2102,7 +5199,7 @@ case sysTrapBmpColortableSize: {
 }
 break;
 case sysTrapBmpGetDimensions: {
-  // void BmpGetDimensions(in BitmapType *bitmapP, out Coord *widthP, out Coord *heightP, out UInt16 *rowBytesP)
+  // void BmpGetDimensions(in bitmapP, out Coord *widthP, out Coord *heightP, out UInt16 *rowBytesP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   widthP = ARG32;
@@ -2119,7 +5216,7 @@ case sysTrapBmpGetDimensions: {
 }
 break;
 case sysTrapBmpGetBitDepth: {
-  // UInt8 BmpGetBitDepth(in BitmapType *bitmapP)
+  // UInt8 BmpGetBitDepth(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   res = BmpGetBitDepth(bitmapP ? l_bitmapP : NULL);
@@ -2128,7 +5225,7 @@ case sysTrapBmpGetBitDepth: {
 }
 break;
 case sysTrapBmpGetNextBitmap: {
-  // BitmapType *BmpGetNextBitmap(in BitmapType *bitmapP)
+  // BitmapType *BmpGetNextBitmap(in bitmapP)
   bitmapP = ARG32;
   l_bitmapP = bitmapP ? (BitmapType *)(ram + bitmapP) : NULL;
   resbm = BmpGetNextBitmap(bitmapP ? l_bitmapP : NULL);
@@ -2230,9 +5327,9 @@ case sysTrapFntWidthToOffset: {
 }
 break;
 case sysTrapFntCharsInWidth: {
-  // void FntCharsInWidth(in Char *string, inout Int16 *stringWidthP, inout Int16 *stringLengthP, out Boolean *fitWithinWidth)
-  string = ARG32;
-  s_string = emupalmos_trap_in(string, trap, 0);
+  // void FntCharsInWidth(in string, inout Int16 *stringWidthP, inout Int16 *stringLengthP, out Boolean *fitWithinWidth)
+  string32 = ARG32;
+  s_string = emupalmos_trap_in(string32, trap, 0);
   stringWidthP = ARG32;
   if (stringWidthP) l_stringWidthP = m68k_read_memory_16(stringWidthP);
   stringLengthP = ARG32;
@@ -2242,7 +5339,7 @@ case sysTrapFntCharsInWidth: {
   if (stringWidthP) m68k_write_memory_16(stringWidthP, l_stringWidthP);
   if (stringLengthP) m68k_write_memory_16(stringLengthP, l_stringLengthP);
   if (fitWithinWidth) m68k_write_memory_8(fitWithinWidth, l_fitWithinWidth);
-  debug(DEBUG_TRACE, "EmuPalmOS", "FntCharsInWidth(string=0x%08X [%s], stringWidthP=0x%08X [%d], stringLengthP=0x%08X [%d], fitWithinWidth=0x%08X [%d])", string, s_string, stringWidthP, l_stringWidthP, stringLengthP, l_stringLengthP, fitWithinWidth, l_fitWithinWidth);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FntCharsInWidth(string=0x%08X [%s], stringWidthP=0x%08X [%d], stringLengthP=0x%08X [%d], fitWithinWidth=0x%08X [%d])", string32, s_string, stringWidthP, l_stringWidthP, stringLengthP, l_stringLengthP, fitWithinWidth, l_fitWithinWidth);
 }
 break;
 case sysTrapFntDescenderHeight: {
@@ -2302,205 +5399,205 @@ case sysTrapFntGetScrollValues: {
 }
 break;
 case sysTrapStrCopy: {
-  // Char *StrCopy(out Char *dst, in Char *src)
-  dst = ARG32;
-  s_dst = emupalmos_trap_in(dst, trap, 0);
-  src = ARG32;
-  s_src = emupalmos_trap_in(src, trap, 1);
+  // strCopy(out Char *dst, in src)
+  dst32 = ARG32;
+  s_dst = emupalmos_trap_in(dst32, trap, 0);
+  src32 = ARG32;
+  s_src = emupalmos_trap_in(src32, trap, 1);
   resc = NULL;
   if (s_dst && s_src) {
-    if (emupalmos_check_address(dst, (uint32_t)(sys_strlen(s_src)+1), 0)) {
+    if (emupalmos_check_address(dst32, (uint32_t)(sys_strlen(s_src)+1), 0)) {
       debug(DEBUG_TRACE, "EmuPalmOS", "StrCopy %d bytes", (int)sys_strlen(s_src)+1);
       resc = StrCopy(s_dst, s_src);
     }
   }
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrCopy(dst=0x%08X [%s], src=0x%08X [%s]): 0x%08X", dst, s_dst, src, s_src, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrCopy(dst=0x%08X [%s], src=0x%08X [%s]): 0x%08X", dst32, s_dst, src32, s_src, r_res);
 }
 break;
 case sysTrapStrNCopy: {
-  // Char *StrNCopy(out Char *dst, in Char *src, Int16 n)
-  dst = ARG32;
-  s_dst = emupalmos_trap_in(dst, trap, 0);
-  src = ARG32;
-  s_src = emupalmos_trap_in(src, trap, 1);
+  // strNCopy(out Char *dst, in src, Int16 n)
+  dst32 = ARG32;
+  s_dst = emupalmos_trap_in(dst32, trap, 0);
+  src32 = ARG32;
+  s_src = emupalmos_trap_in(src32, trap, 1);
   n = ARG16;
   resc = s_dst && s_src ? StrNCopy(s_dst, s_src, (int16_t)n) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCopy(dst=0x%08X [%s], src=0x%08X [%s], n=%d): 0x%08X", dst, s_dst, src, s_src, n, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCopy(dst=0x%08X [%s], src=0x%08X [%s], n=%d): 0x%08X", dst32, s_dst, src32, s_src, n, r_res);
 }
 break;
 case sysTrapStrCat: {
-  // Char *StrCat(out Char *dst, in Char *src)
-  dst = ARG32;
-  s_dst = emupalmos_trap_in(dst, trap, 0);
-  src = ARG32;
-  s_src = emupalmos_trap_in(src, trap, 1);
+  // strCat(out Char *dst, in src)
+  dst32 = ARG32;
+  s_dst = emupalmos_trap_in(dst32, trap, 0);
+  src32 = ARG32;
+  s_src = emupalmos_trap_in(src32, trap, 1);
   resc = NULL;
   if (s_dst && s_src) {
-    if (emupalmos_check_address((uint32_t)(dst + sys_strlen(s_dst)), (uint32_t)(sys_strlen(s_src)+1), 0)) {
+    if (emupalmos_check_address((uint32_t)(dst32 + sys_strlen(s_dst)), (uint32_t)(sys_strlen(s_src)+1), 0)) {
       debug(DEBUG_TRACE, "EmuPalmOS", "StrCat %d bytes into %d bytes with %d total", (int)sys_strlen(s_src)+1, (int)sys_strlen(s_dst), (int)sys_strlen(s_dst) + (int)sys_strlen(s_src)+1);
       resc = StrCat(s_dst, s_src);
     }
   }
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrCat(dst=0x%08X [%s], src=0x%08X [%s]): 0x%08X", dst, s_dst, src, s_src, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrCat(dst=0x%08X [%s], src=0x%08X [%s]): 0x%08X", dst32, s_dst, src32, s_src, r_res);
 }
 break;
 case sysTrapStrNCat: {
-  // Char *StrNCat(out Char *dst, in Char *src, Int16 n)
-  dst = ARG32;
-  s_dst = emupalmos_trap_in(dst, trap, 0);
-  src = ARG32;
-  s_src = emupalmos_trap_in(src, trap, 1);
+  // strNCat(out Char *dst, in src, Int16 n)
+  dst32 = ARG32;
+  s_dst = emupalmos_trap_in(dst32, trap, 0);
+  src32 = ARG32;
+  s_src = emupalmos_trap_in(src32, trap, 1);
   n = ARG16;
   resc = s_dst && s_src ? StrNCat(s_dst, s_src, (int16_t)n) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCat(dst=0x%08X [%s], src=0x%08X [%s], n=%d): 0x%08X", dst, s_dst, src, s_src, n, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCat(dst=0x%08X [%s], src=0x%08X [%s], n=%d): 0x%08X", dst32, s_dst, src32, s_src, n, r_res);
 }
 break;
 case sysTrapStrLen: {
-  // UInt16 StrLen(in Char *src)
-  src = ARG32;
-  s_src = emupalmos_trap_in(src, trap, 0);
+  // UInt16 StrLen(in src)
+  src32 = ARG32;
+  s_src = emupalmos_trap_in(src32, trap, 0);
   res = s_src ? StrLen(s_src) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrLen(src=0x%08X [%s]): %d", src, s_src, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrLen(src=0x%08X [%s]): %d", src32, s_src, res);
 }
 break;
 case sysTrapStrCompareAscii: {
-  // Int16 StrCompareAscii(in Char *s1, in Char *s2)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  // Int16 StrCompareAscii(in s1, in s2)
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   res = s_s1 && s_s2 ? StrCompareAscii(s_s1, s_s2) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrCompareAscii(s1=0x%08X [%s], s2=0x%08X [%s]): %d", s1, s_s1, s2, s_s2, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrCompareAscii(s1=0x%08X [%s], s2=0x%08X [%s]): %d", s1_32, s_s1, s2_32, s_s2, res);
 }
 break;
 case sysTrapStrCompare: {
-  // Int16 StrCompare(in Char *s1, in Char *s2)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  // Int16 StrCompare(in s1, in s2)
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   res = s_s1 && s_s2 ? StrCompare(s_s1, s_s2) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrCompare(s1=0x%08X [%s], s2=0x%08X [%s]): %d", s1, s_s1, s2, s_s2, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrCompare(s1=0x%08X [%s], s2=0x%08X [%s]): %d", s1_32, s_s1, s2_32, s_s2, res);
 }
 break;
 case sysTrapStrNCompareAscii: {
-  // Int16 StrNCompareAscii(in Char *s1, in Char *s2, Int32 n)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  // Int16 StrNCompareAscii(in s1, in s2, Int32 n)
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   n = ARG32;
   res = s_s1 && s_s2 ? StrNCompareAscii(s_s1, s_s2, n) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCompareAscii(s1=0x%08X [%s], s2=0x%08X [%s], n=%d): %d", s1, s_s1, s2, s_s2, n, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCompareAscii(s1=0x%08X [%s], s2=0x%08X [%s], n=%d): %d", s1_32, s_s1, s2_32, s_s2, n, res);
 }
 break;
 case sysTrapStrNCompare: {
-  // Int16 StrNCompare(in Char *s1, in Char *s2, Int32 n)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  // Int16 StrNCompare(in s1, in s2, Int32 n)
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   n = ARG32;
   res = s_s1 && s_s2 ? StrNCompare(s_s1, s_s2, n) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCompare(s1=0x%08X [%s], s2=0x%08X [%s], n=%d): %d", s1, s_s1, s2, s_s2, n, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCompare(s1=0x%08X [%s], s2=0x%08X [%s], n=%d): %d", s1_32, s_s1, s2_32, s_s2, n, res);
 }
 break;
 case sysTrapStrCaselessCompare: {
-  // Int16 StrCaselessCompare(in Char *s1, in Char *s2)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  // Int16 StrCaselessCompare(in s1, in s2)
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   res = s_s1 && s_s2 ? StrCaselessCompare(s_s1, s_s2) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrCaselessCompare(s1=0x%08X [%s], s2=0x%08X [%s]): %d", s1, s_s1, s2, s_s2, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrCaselessCompare(s1=0x%08X [%s], s2=0x%08X [%s]): %d", s1_32, s_s1, s2_32, s_s2, res);
 }
 break;
 case sysTrapStrNCaselessCompare: {
-  // Int16 StrNCaselessCompare(in Char *s1, in Char *s2, Int32 n)
-  s1 = ARG32;
-  s_s1 = emupalmos_trap_in(s1, trap, 0);
-  s2 = ARG32;
-  s_s2 = emupalmos_trap_in(s2, trap, 1);
+  // Int16 StrNCaselessCompare(in s1, in s2, Int32 n)
+  s1_32 = ARG32;
+  s_s1 = emupalmos_trap_in(s1_32, trap, 0);
+  s2_32 = ARG32;
+  s_s2 = emupalmos_trap_in(s2_32, trap, 1);
   n = ARG32;
   res = s_s1 && s_s2 ?StrNCaselessCompare(s_s1, s_s2, n) : 0;
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCaselessCompare(s1=0x%08X [%s], s2=0x%08X [%s], n=%d): %d", s1, s_s1, s2, s_s2, n, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrNCaselessCompare(s1=0x%08X [%s], s2=0x%08X [%s], n=%d): %d", s1_32, s_s1, s2_32, s_s2, n, res);
 }
 break;
 case sysTrapStrToLower: {
-  // Char *StrToLower(out Char *dst, in Char *src)
-  dst = ARG32;
-  s_dst = emupalmos_trap_in(dst, trap, 0);
-  src = ARG32;
-  s_src = emupalmos_trap_in(src, trap, 1);
+  // strToLower(out Char *dst, in src)
+  dst32 = ARG32;
+  s_dst = emupalmos_trap_in(dst32, trap, 0);
+  src32 = ARG32;
+  s_src = emupalmos_trap_in(src32, trap, 1);
   resc = s_dst && s_src ? StrToLower(s_dst, s_src) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrToLower(dst=0x%08X [%s], src=0x%08X [%s]): 0x%08X", dst, s_dst, src, s_src, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrToLower(dst=0x%08X [%s], src=0x%08X [%s]): 0x%08X", dst32, s_dst, src32, s_src, r_res);
 }
 break;
 case sysTrapStrIToA: {
-  // Char *StrIToA(out Char *s, Int32 i)
-  s = ARG32;
-  s_s = emupalmos_trap_in(s, trap, 0);
+  // strIToA(out s, Int32 i)
+  s32 = ARG32;
+  s_s = emupalmos_trap_in(s32, trap, 0);
   i = ARG32;
   resc = s_s ? StrIToA(s_s, i) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrIToA(s=0x%08X [%s], i=%d): 0x%08X", s, s_s, i, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrIToA(s=0x%08X [%s], i=%d): 0x%08X", s32, s_s, i, r_res);
 }
 break;
 case sysTrapStrIToH: {
-  // Char *StrIToH(out Char *s, UInt32 i)
-  s = ARG32;
-  s_s = emupalmos_trap_in(s, trap, 0);
+  // strIToH(out s, UInt32 i)
+  s32 = ARG32;
+  s_s = emupalmos_trap_in(s32, trap, 0);
   i = ARG32;
   resc = s_s ? StrIToH(s_s, i) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrIToH(s=0x%08X [%s], i=%d): 0x%08X", s, s_s, i, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrIToH(s=0x%08X [%s], i=%d): 0x%08X", s32, s_s, i, r_res);
 }
 break;
 case sysTrapStrLocalizeNumber: {
-  // Char *StrLocalizeNumber(out Char *s, Char thousandSeparator, Char decimalSeparator)
-  s = ARG32;
-  s_s = emupalmos_trap_in(s, trap, 0);
+  // strLocalizeNumber(out s, Char thousandSeparator, Char decimalSeparator)
+  s32 = ARG32;
+  s_s = emupalmos_trap_in(s32, trap, 0);
   thousandSeparator = ARG8;
   decimalSeparator = ARG8;
   resc = s_s ? StrLocalizeNumber(s_s, thousandSeparator, decimalSeparator) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrLocalizeNumber(s=0x%08X [%s], thousandSeparator=%d, decimalSeparator=%d): 0x%08X", s, s_s, thousandSeparator, decimalSeparator, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrLocalizeNumber(s=0x%08X [%s], thousandSeparator=%d, decimalSeparator=%d): 0x%08X", s32, s_s, thousandSeparator, decimalSeparator, r_res);
 }
 break;
 case sysTrapStrDelocalizeNumber: {
-  // Char *StrDelocalizeNumber(out Char *s, Char thousandSeparator, Char decimalSeparator)
-  s = ARG32;
-  s_s = emupalmos_trap_in(s, trap, 0);
+  // strDelocalizeNumber(out s, Char thousandSeparator, Char decimalSeparator)
+  s32 = ARG32;
+  s_s = emupalmos_trap_in(s32, trap, 0);
   thousandSeparator = ARG8;
   decimalSeparator = ARG8;
   resc = s_s ? StrDelocalizeNumber(s_s, thousandSeparator, decimalSeparator) : NULL;
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "StrDelocalizeNumber(s=0x%08X [%s], thousandSeparator=%d, decimalSeparator=%d): 0x%08X", s, s_s, thousandSeparator, decimalSeparator, r_res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "StrDelocalizeNumber(s=0x%08X [%s], thousandSeparator=%d, decimalSeparator=%d): 0x%08X", s32, s_s, thousandSeparator, decimalSeparator, r_res);
 }
 break;
 case sysTrapStrChr: {
-  // Char *StrChr(in Char *str, WChar chr)
+  // strChr(in str, WChar chr)
   str = ARG32;
   s_str = emupalmos_trap_in(str, trap, 0);
   chr = ARG16;
@@ -2511,7 +5608,7 @@ case sysTrapStrChr: {
 }
 break;
 case sysTrapStrStr: {
-  // Char *StrStr(in Char *str, in Char *token)
+  // strStr(in str, in Char *token)
   str = ARG32;
   s_str = emupalmos_trap_in(str, trap, 0);
   token = ARG32;
@@ -2523,7 +5620,7 @@ case sysTrapStrStr: {
 }
 break;
 case sysTrapStrAToI: {
-  // Int32 StrAToI(in Char *str)
+  // Int32 StrAToI(in str)
   str = ARG32;
   s_str = emupalmos_trap_in(str, trap, 0);
   res = s_str ? StrAToI(s_str) : 0;
@@ -2575,10 +5672,10 @@ case sysTrapFldGetBounds: {
   // void FldGetBounds(in fldP, out RectangleType *rect)
   fldP = ARG32;
   s_fldP = emupalmos_trap_in(fldP, trap, 0);
-  rect = ARG32;
-  FldGetBounds(fldP ? s_fldP : NULL, rect ? &l_rect : NULL);
-  encode_rectangle(rect, &l_rect);
-  debug(DEBUG_TRACE, "EmuPalmOS", "FldGetBounds(fldP=0x%08X, rect=0x%08X [%d,%d,%d,%d])", fldP, rect, l_rect.topLeft.x, l_rect.topLeft.y, l_rect.extent.x, l_rect.extent.y);
+  rect32 = ARG32;
+  FldGetBounds(fldP ? s_fldP : NULL, rect32 ? &l_rect : NULL);
+  encode_rectangle(rect32, &l_rect);
+  debug(DEBUG_TRACE, "EmuPalmOS", "FldGetBounds(fldP=0x%08X, rect=0x%08X [%d,%d,%d,%d])", fldP, rect32, l_rect.topLeft.x, l_rect.topLeft.y, l_rect.extent.x, l_rect.extent.y);
 }
 break;
 case sysTrapFldGetFont: {
@@ -2693,7 +5790,7 @@ case sysTrapFldSetTextHandle: {
 }
 break;
 case sysTrapFldSetTextPtr: {
-  // void FldSetTextPtr(in fldP, in Char *textP)
+  // void FldSetTextPtr(in fldP, in textP)
   fldP = ARG32;
   s_fldP = emupalmos_trap_in(fldP, trap, 0);
   textP = ARG32;
@@ -3077,7 +6174,7 @@ case sysTrapFldNewField: {
   numeric = ARG8;
   formP = formPP ? m68k_read_memory_32(formPP) : 0;
   form = emupalmos_trap_in(formP, trap, 0);
-  fld = FldNewField(&form, id, (uint16_t)x, (uint16_t)y, width, height,
+  fld = FldNewField((void **)&form, id, (uint16_t)x, (uint16_t)y, width, height,
     font, maxChars, editable, underlined,
     singleLine, dynamicSize, justification,
     autoShift, hasScrollBar, numeric);
@@ -3633,7 +6730,7 @@ case sysTrapTblSetSelection: {
 }
 break;
 case sysTrapLstEraseList: {
-  // void LstEraseList(in ListType *listP)
+  // void LstEraseList(in listP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   LstEraseList(listP ? s_listP : NULL);
@@ -3641,7 +6738,7 @@ case sysTrapLstEraseList: {
 }
 break;
 case sysTrapLstGetSelection: {
-  // Int16 LstGetSelection(in ListType *listP)
+  // Int16 LstGetSelection(in listP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   res = LstGetSelection(listP ? s_listP : NULL);
@@ -3650,7 +6747,7 @@ case sysTrapLstGetSelection: {
 }
 break;
 case sysTrapLstGetSelectionText: {
-  // Char *LstGetSelectionText(in ListType *listP, Int16 itemNum)
+  // Char *LstGetSelectionText(in listP, Int16 itemNum)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   itemNum = ARG16;
@@ -3661,7 +6758,7 @@ case sysTrapLstGetSelectionText: {
 }
 break;
 case sysTrapLstHandleEvent: {
-  // Boolean LstHandleEvent(in ListType *listP, in EventType *eventP)
+  // Boolean LstHandleEvent(in listP, in EventType *eventP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   eventP = ARG32;
@@ -3673,7 +6770,7 @@ case sysTrapLstHandleEvent: {
 }
 break;
 case sysTrapLstSetHeight: {
-  // void LstSetHeight(in ListType *listP, Int16 visibleItems)
+  // void LstSetHeight(in listP, Int16 visibleItems)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   visibleItems = ARG16;
@@ -3682,7 +6779,7 @@ case sysTrapLstSetHeight: {
 }
 break;
 case sysTrapLstSetPosition: {
-  // void LstSetPosition(in ListType *listP, Coord x, Coord y)
+  // void LstSetPosition(in listP, Coord x, Coord y)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   x = ARG16;
@@ -3692,7 +6789,7 @@ case sysTrapLstSetPosition: {
 }
 break;
 case sysTrapLstSetSelection: {
-  // void LstSetSelection(in ListType *listP, Int16 itemNum)
+  // void LstSetSelection(in listP, Int16 itemNum)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   itemNum = ARG16;
@@ -3701,7 +6798,7 @@ case sysTrapLstSetSelection: {
 }
 break;
 case sysTrapLstSetListChoices: {
-  // void LstSetListChoices(in ListType *listP, in Char **itemsText, Int16 numItems)
+  // void LstSetListChoices(in listP, in Char **itemsText, Int16 numItems)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   itemsText = ARG32;
@@ -3712,7 +6809,7 @@ case sysTrapLstSetListChoices: {
 }
 break;
 case sysTrapLstSetTopItem: {
-  // void LstSetTopItem(in ListType *listP, Int16 itemNum)
+  // void LstSetTopItem(in listP, Int16 itemNum)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   itemNum = ARG16;
@@ -3721,7 +6818,7 @@ case sysTrapLstSetTopItem: {
 }
 break;
 case sysTrapLstMakeItemVisible: {
-  // void LstMakeItemVisible(in ListType *listP, Int16 itemNum)
+  // void LstMakeItemVisible(in listP, Int16 itemNum)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   itemNum = ARG16;
@@ -3730,7 +6827,7 @@ case sysTrapLstMakeItemVisible: {
 }
 break;
 case sysTrapLstGetNumberOfItems: {
-  // Int16 LstGetNumberOfItems(in ListType *listP)
+  // Int16 LstGetNumberOfItems(in listP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   res = LstGetNumberOfItems(listP ? s_listP : NULL);
@@ -3739,7 +6836,7 @@ case sysTrapLstGetNumberOfItems: {
 }
 break;
 case sysTrapLstPopupList: {
-  // Int16 LstPopupList(in ListType *listP)
+  // Int16 LstPopupList(in listP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   res = LstPopupList(listP ? s_listP : NULL);
@@ -3748,7 +6845,7 @@ case sysTrapLstPopupList: {
 }
 break;
 case sysTrapLstScrollList: {
-  // Boolean LstScrollList(in ListType *listP, WinDirectionType direction, Int16 itemCount)
+  // Boolean LstScrollList(in listP, WinDirectionType direction, Int16 itemCount)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   direction = ARG8;
@@ -3759,7 +6856,7 @@ case sysTrapLstScrollList: {
 }
 break;
 case sysTrapLstGetVisibleItems: {
-  // Int16 LstGetVisibleItems(in ListType *listP)
+  // Int16 LstGetVisibleItems(in listP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   res = LstGetVisibleItems(listP ? s_listP : NULL);
@@ -3768,7 +6865,7 @@ case sysTrapLstGetVisibleItems: {
 }
 break;
 case sysTrapLstGetTopItem: {
-  // Int16 LstGetTopItem(in ListType *listP)
+  // Int16 LstGetTopItem(in listP)
   listP = ARG32;
   s_listP = emupalmos_trap_in(listP, trap, 0);
   res = LstGetTopItem(listP ? s_listP : NULL);
@@ -3900,7 +6997,7 @@ case sysTrapMenuHideItem: {
 }
 break;
 case sysTrapMenuAddItem: {
-  // Err MenuAddItem(UInt16 positionId, UInt16 id, Char cmd, in Char *textP)
+  // Err MenuAddItem(UInt16 positionId, UInt16 id, Char cmd, in textP)
   positionId = ARG16;
   id = ARG16;
   cmd = ARG8;
@@ -3908,7 +7005,7 @@ case sysTrapMenuAddItem: {
   s_textP = textP ? (char *)(ram + textP) : NULL;
   res = MenuAddItem(positionId, id, (uint8_t)cmd, textP ? s_textP : NULL);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "MenuAddItem(positionId=%d, id=%d, cmd=%d, textP=0x%08X [%s]): %d", positionId, id, cmd, textP, s_textP, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "MenuAddItem(positionId=%d, id=%d, cmd=%d, textP=0x%08X [%s]): %d", positionId, id, (uint8_t)cmd, textP, s_textP, res);
 }
 break;
 case sysTrapInsPtInitialize: {
@@ -3937,8 +7034,8 @@ case sysTrapInsPtGetLocation: {
 break;
 case sysTrapInsPtEnable: {
   // void InsPtEnable(Boolean enableIt)
-  uint8_t enableIt = ARG8;
-  InsPtEnable(enableIt);
+  enableIt = ARG8;
+  InsPtEnable((Boolean)enableIt);
   debug(DEBUG_TRACE, "EmuPalmOS", "InsPtEnable(enableIt=%d)", enableIt);
 }
 break;
@@ -3970,7 +7067,7 @@ case sysTrapInsPtCheckBlink: {
 }
 break;
 case sysTrapCtlDrawControl: {
-  // void CtlDrawControl(in ControlType *controlP)
+  // void CtlDrawControl(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   CtlDrawControl(controlP ? s_controlP : NULL);
@@ -3978,7 +7075,7 @@ case sysTrapCtlDrawControl: {
 }
 break;
 case sysTrapCtlEraseControl: {
-  // void CtlEraseControl(in ControlType *controlP)
+  // void CtlEraseControl(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   CtlEraseControl(controlP ? s_controlP : NULL);
@@ -3986,7 +7083,7 @@ case sysTrapCtlEraseControl: {
 }
 break;
 case sysTrapCtlHideControl: {
-  // void CtlHideControl(in ControlType *controlP)
+  // void CtlHideControl(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   CtlHideControl(controlP ? s_controlP : NULL);
@@ -3994,7 +7091,7 @@ case sysTrapCtlHideControl: {
 }
 break;
 case sysTrapCtlShowControl: {
-  // void CtlShowControl(in ControlType *controlP)
+  // void CtlShowControl(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   CtlShowControl(controlP ? s_controlP : NULL);
@@ -4002,7 +7099,7 @@ case sysTrapCtlShowControl: {
 }
 break;
 case sysTrapCtlEnabled: {
-  // Boolean CtlEnabled(in ControlType *controlP)
+  // Boolean CtlEnabled(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   res = (UInt32)CtlEnabled(controlP ? s_controlP : NULL);
@@ -4011,7 +7108,7 @@ case sysTrapCtlEnabled: {
 }
 break;
 case sysTrapCtlSetEnabled: {
-  // void CtlSetEnabled(in ControlType *controlP, Boolean usable)
+  // void CtlSetEnabled(in controlP, Boolean usable)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   usable = ARG8;
@@ -4020,7 +7117,7 @@ case sysTrapCtlSetEnabled: {
 }
 break;
 case sysTrapCtlSetUsable: {
-  // void CtlSetUsable(in ControlType *controlP, Boolean usable)
+  // void CtlSetUsable(in controlP, Boolean usable)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   usable = ARG8;
@@ -4029,7 +7126,7 @@ case sysTrapCtlSetUsable: {
 }
 break;
 case sysTrapCtlGetValue: {
-  // Int16 CtlGetValue(in ControlType *controlP)
+  // Int16 CtlGetValue(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   res = CtlGetValue(controlP ? s_controlP : NULL);
@@ -4038,7 +7135,7 @@ case sysTrapCtlGetValue: {
 }
 break;
 case sysTrapCtlSetValue: {
-  // void CtlSetValue(in ControlType *controlP, Int16 newValue)
+  // void CtlSetValue(in controlP, Int16 newValue)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   newValue = ARG16;
@@ -4047,7 +7144,7 @@ case sysTrapCtlSetValue: {
 }
 break;
 case sysTrapCtlSetLabel: {
-  // void CtlSetLabel(in ControlType *controlP, in Char *newLabel)
+  // void CtlSetLabel(in controlP, in Char *newLabel)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   newLabel = ARG32;
@@ -4057,7 +7154,7 @@ case sysTrapCtlSetLabel: {
 }
 break;
 case sysTrapCtlSetGraphics: {
-  // void CtlSetGraphics(in ControlType *ctlP, DmResID newBitmapID, DmResID newSelectedBitmapID)
+  // void CtlSetGraphics(in ctlP, DmResID newBitmapID, DmResID newSelectedBitmapID)
   ctlP = ARG32;
   s_ctlP = ctlP ? (ControlType *)(ram + ctlP) : NULL;
   newBitmapID = ARG16;
@@ -4067,7 +7164,7 @@ case sysTrapCtlSetGraphics: {
 }
 break;
 case sysTrapCtlSetSliderValues: {
-  // void CtlSetSliderValues(in ControlType *ctlP, in UInt16 *minValueP, in UInt16 *maxValueP, in UInt16 *pageSizeP, in UInt16 *valueP)
+  // void CtlSetSliderValues(in ctlP, in UInt16 *minValueP, in UInt16 *maxValueP, in UInt16 *pageSizeP, in UInt16 *valueP)
   ctlP = ARG32;
   s_ctlP = ctlP ? (ControlType *)(ram + ctlP) : NULL;
   minValueP = ARG32;
@@ -4087,7 +7184,7 @@ case sysTrapCtlSetSliderValues: {
 }
 break;
 case sysTrapCtlGetSliderValues: {
-  // void CtlGetSliderValues(in ControlType *ctlP, out UInt16 *minValueP, out UInt16 *maxValueP, out UInt16 *pageSizeP, out UInt16 *valueP)
+  // void CtlGetSliderValues(in ctlP, out UInt16 *minValueP, out UInt16 *maxValueP, out UInt16 *pageSizeP, out UInt16 *valueP)
   ctlP = ARG32;
   s_ctlP = ctlP ? (ControlType *)(ram + ctlP) : NULL;
   minValueP = ARG32;
@@ -4103,7 +7200,7 @@ case sysTrapCtlGetSliderValues: {
 }
 break;
 case sysTrapCtlHitControl: {
-  // void CtlHitControl(in ControlType *controlP)
+  // void CtlHitControl(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   CtlHitControl(controlP ? s_controlP : NULL);
@@ -4111,7 +7208,7 @@ case sysTrapCtlHitControl: {
 }
 break;
 case sysTrapCtlHandleEvent: {
-  // Boolean CtlHandleEvent(in ControlType *controlP, in EventType *pEvent)
+  // Boolean CtlHandleEvent(in controlP, in EventType *pEvent)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   pEvent = ARG32;
@@ -4122,7 +7219,7 @@ case sysTrapCtlHandleEvent: {
 }
 break;
 case sysTrapCtlValidatePointer: {
-  // Boolean CtlValidatePointer(in ControlType *controlP)
+  // Boolean CtlValidatePointer(in controlP)
   controlP = ARG32;
   s_controlP = emupalmos_trap_in(controlP, trap, 0);
   res = (UInt32)CtlValidatePointer(controlP ? s_controlP : NULL);
@@ -4332,7 +7429,7 @@ case sysTrapSysLCDBrightness: {
 }
 break;
 case sysTrapSysGetOSVersionString: {
-  // Char *SysGetOSVersionString()
+  // sysGetOSVersionString()
   resc = SysGetOSVersionString();
   r_res = emupalmos_trap_out(resc);
   m68k_set_reg(M68K_REG_A0, r_res);
@@ -4423,7 +7520,7 @@ case sysTrapCategoryCreateListV10: {
 }
 break;
 case sysTrapCategoryCreateList: {
-  // void CategoryCreateList(DmOpenRef db, in ListType *listP, UInt16 currentCategory, Boolean showAll, Boolean showUneditables, UInt8 numUneditableCategories, UInt32 editingStrID, Boolean resizeList)
+  // void CategoryCreateList(DmOpenRef db, in listP, UInt16 currentCategory, Boolean showAll, Boolean showUneditables, UInt8 numUneditableCategories, UInt32 editingStrID, Boolean resizeList)
   db = ARG32;
   l_db = db ? (DmOpenRef)(ram + db) : NULL;
   listP = ARG32;
@@ -4449,7 +7546,7 @@ case sysTrapCategoryFreeListV10: {
 }
 break;
 case sysTrapCategoryFreeList: {
-  // void CategoryFreeList(DmOpenRef db, in ListType *listP, Boolean showAll, UInt32 editingStrID)
+  // void CategoryFreeList(DmOpenRef db, in listP, Boolean showAll, UInt32 editingStrID)
   db = ARG32;
   l_db = db ? (DmOpenRef)(ram + db) : NULL;
   listP = ARG32;
@@ -4464,11 +7561,11 @@ case sysTrapCategoryFind: {
   // UInt16 CategoryFind(DmOpenRef db, in Char *name)
   db = ARG32;
   l_db = db ? (DmOpenRef)(ram + db) : NULL;
-  name = ARG32;
-  s_name = name ? (char *)(ram + name) : NULL;
-  res = (UInt32)CategoryFind(db ? l_db : 0, name ? s_name : NULL);
+  name32 = ARG32;
+  s_name = name32 ? (char *)(ram + name32) : NULL;
+  res = (UInt32)CategoryFind(db ? l_db : 0, name32 ? s_name : NULL);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "CategoryFind(db=0x%08X, name=0x%08X [%s]): %d", db, name, s_name, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CategoryFind(db=0x%08X, name=0x%08X [%s]): %d", db, name32, s_name, res);
 }
 break;
 case sysTrapCategoryGetName: {
@@ -4476,10 +7573,10 @@ case sysTrapCategoryGetName: {
   db = ARG32;
   l_db = db ? (DmOpenRef)(ram + db) : NULL;
   index = ARG16;
-  name = ARG32;
-  s_name = name ? (char *)(ram + name) : NULL;
-  CategoryGetName(db ? l_db : 0, index, name ? s_name : NULL);
-  debug(DEBUG_TRACE, "EmuPalmOS", "CategoryGetName(db=0x%08X, index=%d, name=0x%08X [%s])", db, index, name, s_name);
+  name32 = ARG32;
+  s_name = name32 ? (char *)(ram + name32) : NULL;
+  CategoryGetName(db ? l_db : 0, index, name32 ? s_name : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CategoryGetName(db=0x%08X, index=%d, name=0x%08X [%s])", db, index, name32, s_name);
 }
 break;
 case sysTrapCategoryEditV10: {
@@ -4529,14 +7626,14 @@ case sysTrapCategorySelectV10: {
   s_frm = frm ? (FormType *)(ram + frm) : NULL;
   ctlID = ARG16;
   lstID = ARG16;
-  title = ARG8;
+  title8 = ARG8;
   categoryP = ARG32;
   categoryName = ARG32;
   s_categoryName = categoryName ? (char *)(ram + categoryName) : NULL;
-  res = (UInt32)CategorySelectV10(db ? l_db : 0, frm ? s_frm : NULL, ctlID, lstID, title, categoryP ? &l_categoryP : NULL, categoryName ? s_categoryName : NULL);
+  res = (UInt32)CategorySelectV10(db ? l_db : 0, frm ? s_frm : NULL, ctlID, lstID, title8, categoryP ? &l_categoryP : NULL, categoryName ? s_categoryName : NULL);
   if (categoryP) m68k_write_memory_16(categoryP, l_categoryP);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "CategorySelectV10(db=0x%08X, frm=0x%08X, ctlID=%d, lstID=%d, title=%d, categoryP=0x%08X [%d], categoryName=0x%08X [%s]): %d", db, frm, ctlID, lstID, title, categoryP, l_categoryP, categoryName, s_categoryName, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CategorySelectV10(db=0x%08X, frm=0x%08X, ctlID=%d, lstID=%d, title=%d, categoryP=0x%08X [%d], categoryName=0x%08X [%s]): %d", db, frm, ctlID, lstID, title8, categoryP, l_categoryP, categoryName, s_categoryName, res);
 }
 break;
 case sysTrapCategorySelect: {
@@ -4547,16 +7644,16 @@ case sysTrapCategorySelect: {
   s_frm = frm ? (FormType *)(ram + frm) : NULL;
   ctlID = ARG16;
   lstID = ARG16;
-  title = ARG8;
+  title8 = ARG8;
   categoryP = ARG32;
   categoryName = ARG32;
   s_categoryName = categoryName ? (char *)(ram + categoryName) : NULL;
   numUneditableCategories = ARG8;
   editingStrID = ARG32;
-  res = (UInt32)CategorySelect(db ? l_db : 0, frm ? s_frm : NULL, ctlID, lstID, title, categoryP ? &l_categoryP : NULL, categoryName ? s_categoryName : NULL, numUneditableCategories, editingStrID);
+  res = (UInt32)CategorySelect(db ? l_db : 0, frm ? s_frm : NULL, ctlID, lstID, title8, categoryP ? &l_categoryP : NULL, categoryName ? s_categoryName : NULL, numUneditableCategories, editingStrID);
   if (categoryP) m68k_write_memory_16(categoryP, l_categoryP);
   m68k_set_reg(M68K_REG_D0, res);
-  debug(DEBUG_TRACE, "EmuPalmOS", "CategorySelect(db=0x%08X, frm=0x%08X, ctlID=%d, lstID=%d, title=%d, categoryP=0x%08X [%d], categoryName=0x%08X [%s], numUneditableCategories=%d, editingStrID=%d): %d", db, frm, ctlID, lstID, title, categoryP, l_categoryP, categoryName, s_categoryName, numUneditableCategories, editingStrID, res);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CategorySelect(db=0x%08X, frm=0x%08X, ctlID=%d, lstID=%d, title=%d, categoryP=0x%08X [%d], categoryName=0x%08X [%s], numUneditableCategories=%d, editingStrID=%d): %d", db, frm, ctlID, lstID, title8, categoryP, l_categoryP, categoryName, s_categoryName, numUneditableCategories, editingStrID, res);
 }
 break;
 case sysTrapCategoryGetNext: {
@@ -4570,22 +7667,22 @@ case sysTrapCategoryGetNext: {
 }
 break;
 case sysTrapCategorySetTriggerLabel: {
-  // void CategorySetTriggerLabel(in ControlType *ctl, Char *name)
+  // void CategorySetTriggerLabel(in ctl, Char *name)
   ctl = ARG32;
   s_ctl = ctl ? (ControlType *)(ram + ctl) : NULL;
-  name = ARG32;
-  s_name = name ? (char *)(ram + name) : NULL;
-  CategorySetTriggerLabel(ctl ? s_ctl : NULL, name ? s_name : NULL);
-  debug(DEBUG_TRACE, "EmuPalmOS", "CategorySetTriggerLabel(ctl=0x%08X, name=0x%08X [%s])", ctl, name, s_name);
+  name32 = ARG32;
+  s_name = name32 ? (char *)(ram + name32) : NULL;
+  CategorySetTriggerLabel(ctl ? s_ctl : NULL, name32 ? s_name : NULL);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CategorySetTriggerLabel(ctl=0x%08X, name=0x%08X [%s])", ctl, name32, s_name);
 }
 break;
 case sysTrapCategoryTruncateName: {
   // void CategoryTruncateName(inout Char *name, UInt16 maxWidth)
-  name = ARG32;
-  s_name = name ? (char *)(ram + name) : NULL;
+  name32 = ARG32;
+  s_name = name32 ? (char *)(ram + name32) : NULL;
   maxWidth = ARG16;
-  CategoryTruncateName(name ? s_name : NULL, maxWidth);
-  debug(DEBUG_TRACE, "EmuPalmOS", "CategoryTruncateName(name=0x%08X [%s], maxWidth=%d)", name, s_name, maxWidth);
+  CategoryTruncateName(name32 ? s_name : NULL, maxWidth);
+  debug(DEBUG_TRACE, "EmuPalmOS", "CategoryTruncateName(name=0x%08X [%s], maxWidth=%d)", name32, s_name, maxWidth);
 }
 break;
 case sysTrapCategoryInitialize: {

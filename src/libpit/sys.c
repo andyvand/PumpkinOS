@@ -239,7 +239,7 @@ static void fd_destructor(void *p) {
   f = (fd_t *)p;
 
   if (f) {
-    debug(DEBUG_TRACE, "SYS", "fd_destructor type=%d f=%p", f->type, f);
+    debug(DEBUG_INFO, "SYS", "fd_destructor type=%d f=%p", f->type, f);
 
     switch (f->type) {
       case FD_FILE:
@@ -268,7 +268,7 @@ static int fd_open(int type, FIL *fil, char *name) {
     sys_free(f);
     return -1;
   }
-  debug(DEBUG_TRACE, "SYS", "fd_open type=%d ptr=%d f=%p", type, fd, f);
+  debug(DEBUG_INFO, "SYS", "fd_open type=%d ptr=%d f=%p", type, fd, f);
 
   return fd;
 }
@@ -336,7 +336,7 @@ static void fd_destructor(void *p) {
   f = (fd_t *)p;
 
   if (f) {
-    debug(DEBUG_TRACE, "SYS", "fd_destructor type=%d f=%p", f->type, f);
+    debug(DEBUG_INFO, "SYS", "fd_destructor type=%d f=%p", f->type, f);
 
     switch (f->type) {
       case FD_FILE:
@@ -377,7 +377,7 @@ static int fd_open(int type, HANDLE handle, HANDLE eventr, HANDLE eventw, int so
     sys_free(f);
     return -1;
   }
-  debug(DEBUG_TRACE, "SYS", "fd_open type=%d ptr=%d f=%p", type, fd, f);
+  debug(DEBUG_INFO, "SYS", "fd_open type=%d ptr=%d f=%p", type, fd, f);
 
   return fd;
 }
@@ -2794,7 +2794,7 @@ int sys_set_thread_name(char *name) {
 #if defined(DARWIN)
   pthread_setname_np(name);
 #else
-#if defined(LINUX)
+#if defined(LINUX) || defined(ESP32)
   pthread_setname_np(pthread_self(), name);
 #endif
 #endif
@@ -3267,7 +3267,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
             if (s) {
               addr->sin_family = AF_INET;
               addr->sin_port = sys_htobe16(port);
-              debug(DEBUG_TRACE, "SYS", "host %s resolves to ipv4 address %s len %d", host, s, (int)pr->ai_addrlen);
+              debug(DEBUG_INFO, "SYS", "host %s resolves to ipv4 address %s len %d", host, s, (int)pr->ai_addrlen);
               *len = (int)pr->ai_addrlen;
               r = 0;
             }
@@ -3280,7 +3280,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
               if (sys_inet_ntop(AF_INET6, &(addr6->sin6_addr), name, sizeof(name)-1)) {
                 addr6->sin6_family = AF_INET6;
                 addr6->sin6_port = sys_htobe16(port);
-                debug(DEBUG_TRACE, "SYS", "host %s resolves to ipv6 address %s len %d", host, name, (int)pr->ai_addrlen);
+                debug(DEBUG_INFO, "SYS", "host %s resolves to ipv6 address %s len %d", host, name, (int)pr->ai_addrlen);
                 *len = (int)pr->ai_addrlen;
                 r = 1;
               }
@@ -3356,7 +3356,7 @@ static int sys_tcpip_socket(char *host, int port, int *type, struct sockaddr_sto
     }
 
     if (label) {
-      debug(DEBUG_TRACE, "SYS", "trying to %s to %s host %s port %d (ipv%d)",
+      debug(DEBUG_INFO, "SYS", "trying to %s to %s host %s port %d (ipv%d)",
             label, *type == SOCK_STREAM ? "TCP" : "UDP", host, port, *ipv6 ? 6 : 4);
     }
   }
@@ -3410,7 +3410,7 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
     }
   }
 
-  debug(DEBUG_TRACE, "SYS", "fd %d connected to %s host %s port %d (ipv%d)",
+  debug(DEBUG_INFO, "SYS", "fd %d connected to %s host %s port %d (ipv%d)",
         sock, type == SOCK_STREAM ? "TCP" : "UDP", host, port, ipv6 ? 6 : 4);
 
   return sock;
@@ -3533,7 +3533,7 @@ static int sys_tcpip_bind(int sock, char *host, int *pport) {
       return -1;
 #endif
     } else {
-      debug(DEBUG_TRACE, "SYS", "broadcast enabled");
+      debug(DEBUG_INFO, "SYS", "broadcast enabled");
     }
   }
 
@@ -3589,7 +3589,7 @@ static int sys_tcpip_bind(int sock, char *host, int *pport) {
       return -1;
   }
 
-  debug(DEBUG_TRACE, "SYS", "fd %d bound to host %s port %d (ipv%d)", sock, s, *pport, ipv6 ? 6 : 4);
+  debug(DEBUG_INFO, "SYS", "fd %d bound to host %s port %d (ipv%d)", sock, s, *pport, ipv6 ? 6 : 4);
 
   return 0;
 }
@@ -3695,7 +3695,7 @@ static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int 
     return -1;
   }
 
-  debug(DEBUG_TRACE, "SYS", "fd %d connected to %s host %s port %d (ipv%d)",
+  debug(DEBUG_INFO, "SYS", "fd %d connected to %s host %s port %d (ipv%d)",
         sock, type == SOCK_STREAM ? "TCP" : "UDP", host, port, ipv6 ? 6 : 4);
 
   return sock;
@@ -3770,7 +3770,7 @@ static int sys_tcpip_accept(int sock, char *host, int hlen, int *port, sys_timev
   }
 #endif
 
-  debug(DEBUG_TRACE, "SYS", "fd %d accepted from host %s port %d (ipv%d)", csock, host, *port, ipv6 ? 6 : 4);
+  debug(DEBUG_INFO, "SYS", "fd %d accepted from host %s port %d (ipv%d)", csock, host, *port, ipv6 ? 6 : 4);
 
   return csock;
 }
@@ -3857,7 +3857,7 @@ static int sys_tcpip_recvfrom(int sock, char *host, int hlen, int *port, unsigne
   r = recvfrom(sock, (char *)buf, n, 0, (struct sockaddr *)&addr, &addrlen);
 
   if (r != -1) {
-    //debug(DEBUG_TRACE, "SYS", "fd %d received %d bytes", sock, r);
+    debug(DEBUG_INFO, "SYS", "fd %d received %d bytes", sock, r);
     sys_memset(host, 0, hlen);
 
     switch (addr.ss_family) {

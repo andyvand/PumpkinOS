@@ -70,6 +70,8 @@ extern "C" {
 #define MSG_WIDGET  12
 #define MSG_NOTIFY  13
 #define MSG_LAUNCHC 14
+#define MSG_AUDIO   15
+#define MSG_RAUDIO  16
 #define MSG_USER    99
 
 #define oemErrNotImplemented (oemErrorClass | 0x7EFF)
@@ -104,6 +106,9 @@ extern "C" {
 #define sysRsrcTypeDlib   'dlib'
 #define sysRsrcTypeWinD   'wind'
 
+#define armPluginType     'armp'
+#define ArmEmulatorAlert  15001
+
 #define sysAnyPluginId  0xFFFFFFFF
 
 #define vchrPumpkinMin     0x4000
@@ -127,6 +132,7 @@ extern "C" {
 #define pLockModifiers         1
 #define pBorderWidth           2
 #define pBackgroundImage       3
+#define pEnableSound           4
 
 #define pMonoBackground        0
 #define pMonoSelectedBorder    1
@@ -220,6 +226,7 @@ typedef enum {
   emu_key,
   charattr_key,
   data_key,
+  emu2_key,
   last_key
 } local_storage_key_t;
 
@@ -497,6 +504,8 @@ Boolean EvtKeyEventAvail(void);
 void ErrDisplayFileLineMsgEx(const Char * const filename, const Char * const function, UInt16 lineNo, const Char * const msg, int finish);
 void SysFatalAlertFinish(void);
 
+Boolean BmpIsEmptySlot(BitmapType *bitmapP);
+BitmapType *BmpSkipEmptySlot(BitmapType *bitmapP);
 Boolean BmpLittleEndian(const BitmapType *bitmapP);
 Boolean BmpGetLittleEndianBits(const BitmapType *bitmapP);
 void BmpSetLittleEndianBits(const BitmapType *bitmapP, Boolean le);
@@ -559,6 +568,7 @@ void LstFreeListChoices(ListType *listP);
 void CtlGetGraphics(ControlType *ctlP, DmResID *newBitmapID, DmResID *newSelectedBitmapID);
 void CtlUpdateGroup(ControlType *controlP, Boolean value);
 void CtlUpdateCheckboxGroup(ControlType *controlP, Boolean value);
+void CtlDirectAccessHack(ControlType *controlP);
 FieldType *FldGetActiveField(void);
 void FldSetActiveField(FieldType *fldP);
 void FldBlinkCursor(void);
@@ -633,6 +643,8 @@ Err SndStreamCreateEx(
   Boolean armNative,
   Boolean m68k,
   Boolean arm);
+
+int SndGetAudioReply(void *data, int len);
 
 typedef Int32 _comparFP (void *, void *, void *otherP);
 typedef _comparFP * CmpFuncPPtr;
@@ -745,6 +757,9 @@ int pumpkin_audio_get(int *pcm, int *channels, int *rate);
 int pumpkin_audio_set(int pcm, int channels, int rate);
 void pumpkin_audio_task_init(void);
 void pumpkin_audio_task_finish(void);
+int pumpkin_audio_check(int op);
+void pumpkin_sound_enable(int enable);
+int pumpkin_sound_enabled(void);
 
 int pumpkin_shader(char *vertex_shader, int vlen, char *fragment_shader, int flen, float (*getvar)(char *name, void *data), void *data);
 

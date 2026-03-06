@@ -33,7 +33,7 @@ void palmos_navtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
 
   switch (sel) {
     case NavSelectorFrmNavObjectTakeFocus: {
-      // void FrmNavObjectTakeFocus(const FormType* formP, UInt16 objID)
+      // void FrmNavObjectTakeFocus(const FormType *formP, UInt16 objID)
       formP = ARG32;
       objID = ARG16;
       form = emupalmos_trap_sel_in(formP, sysTrapNavSelector, sel, 0);
@@ -42,7 +42,7 @@ void palmos_navtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       }
       break;
     case NavSelectorFrmNavDrawFocusRing: {
-      // Err FrmNavDrawFocusRing(FormType* formP, UInt16 objectID, Int16 extraInfo,
+      // Err FrmNavDrawFocusRing(FormType *formP, UInt16 objectID, Int16 extraInfo,
       //    RectangleType* boundsInsideRingP,
       //    FrmNavFocusRingStyleEnum ringStyle, Boolean forceRestore)
       formP = ARG32;
@@ -56,6 +56,15 @@ void palmos_navtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       err = errNone;
       debug(DEBUG_TRACE, "EmuPalmOS", "FrmNavDrawFocusRing(0x%08X, %u, %d, 0x%08X, %u, %u): %d",
         formP, objectID, extraInfo, boundsInsideRingP, ringStyle, forceRestore, err);
+      m68k_set_reg(M68K_REG_D0, err);
+      }
+      break;
+    case NavSelectorFrmNavRemoveFocusRing: {
+      // Err FrmNavRemoveFocusRing(FormType *formP)
+      uint32_t formP = ARG32;
+      emupalmos_trap_sel_in(formP, sysTrapNavSelector, sel, 0);
+      err = errNone;
+      debug(DEBUG_TRACE, "EmuPalmOS", "FrmNavRemoveFocusRing(0x%08X): %d", formP, err);
       m68k_set_reg(M68K_REG_D0, err);
       }
       break;
@@ -85,6 +94,28 @@ void palmos_navtrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       err = uilibErrObjectNotFound;
       debug(DEBUG_TRACE, "EmuPalmOS", "FrmNavGetFocusRingInfo(0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X): %d",
         formP, objectIDP, extraInfoP, boundsInsideRingP, ringStyleP, err);
+      m68k_set_reg(M68K_REG_D0, err);
+      }
+      break;
+    case NavSelectorFrmGetNavState: {
+      // Err FrmGetNavState(const FormType* formP, FrmNavStateFlagsType *stateFlagsP)
+      uint32_t formP = ARG32;
+      uint32_t stateFlagsP = ARG32;
+      emupalmos_trap_sel_in(formP, sysTrapNavSelector, sel, 0);
+      emupalmos_trap_sel_in(stateFlagsP, sysTrapNavSelector, sel, 1);
+      if (stateFlagsP) m68k_write_memory_32(stateFlagsP, 0);
+      debug(DEBUG_TRACE, "EmuPalmOS", "FrmGetNavState(0x%08X, 0x%08X)", formP, stateFlagsP);
+      err = errNone;
+      m68k_set_reg(M68K_REG_D0, err);
+      }
+      break;
+    case NavSelectorFrmSetNavState: {
+      // Err FrmSetNavState(FormType* formP, FrmNavStateFlagsType stateFlags)
+      uint32_t formP = ARG32;
+      uint32_t stateFlags = ARG32;
+      emupalmos_trap_sel_in(formP, sysTrapNavSelector, sel, 0);
+      debug(DEBUG_TRACE, "EmuPalmOS", "FrmSetNavState(0x%08X, 0x%08X)", formP, stateFlags);
+      err = errNone;
       m68k_set_reg(M68K_REG_D0, err);
       }
       break;

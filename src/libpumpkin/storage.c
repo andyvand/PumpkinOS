@@ -1769,12 +1769,14 @@ Err DmCloseDatabase(DmOpenRef dbP) {
           db->mode = 0;
           StoWriteHeader(sto, db);
 
+/*
           if (db->elements) {
             sys_free(db->elements);
             db->elements = NULL;
             db->totalElements = 0;
             db->numRecs = 0;
           }
+*/
         }
 
         if (dbRef->prev) {
@@ -4577,7 +4579,7 @@ Err MemMove(void *dstP, const void *sP, Int32 numBytes) {
   storage_t *sto = (storage_t *)pumpkin_get_local_storage(sto_key);
   //if (dstP == NULL || sP == NULL) ErrFatalDisplayEx("MemMove NULL", 1);
   // XXX TealPaint calls MemMove with sp == NULL
-  if (dstP && sP) sys_memmove(dstP, sP, numBytes);
+  if (dstP && sP && numBytes > 0) sys_memmove(dstP, sP, numBytes);
   StoCheckErr(errNone);
   return errNone;
 }
@@ -4585,7 +4587,9 @@ Err MemMove(void *dstP, const void *sP, Int32 numBytes) {
 Err MemSet(void *dstP, Int32 numBytes, UInt8 value) {
   storage_t *sto = (storage_t *)pumpkin_get_local_storage(sto_key);
   if (dstP == NULL) ErrFatalDisplayEx("MemSet NULL", 1);
-  sys_memset(dstP, value, numBytes);
+  if (numBytes > 0) {
+    sys_memset(dstP, value, numBytes);
+  }
   StoCheckErr(errNone);
   return errNone;
 }

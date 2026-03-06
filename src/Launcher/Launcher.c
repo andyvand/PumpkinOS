@@ -122,6 +122,7 @@ typedef struct {
   launcher_notify_t notifications[MAX_NOTIFICATIONS];
   UInt16 numNotifications;
   Boolean useTaskbar, appCrashed, appQuit;
+  Boolean armPluginWarning;
 } launcher_data_t;
 
 static const dynamic_form_item_t dbFilterItems[] = {
@@ -1614,7 +1615,7 @@ static Boolean ItemsGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
       switch (data->mode) {
         case launcher_app:
           i = row * ncols + col + data->topItem;
-          if (i >= 0 && i < data->numItems) {
+          if (i >= 0 && i < data->numItems && col < ncols && row < nrows) {
             WinSetDrawMode(winOverlay);
             x = gad->rect.topLeft.x + col * iw;
             y = gad->rect.topLeft.y + 2 + row * ih;
@@ -2612,6 +2613,14 @@ static Boolean MainFormHandleEvent(EventPtr event) {
       data->top = true;
       frm = FrmGetActiveForm();
       UpdateStatus(frm, data, true);
+
+      if (!data->armPluginWarning) {
+        if (pumpkin_get_plugin(armPluginType, sysAnyPluginId) == NULL) {
+          FrmAlert(ArmEmulatorAlert);
+        }
+        data->armPluginWarning = true;
+      }
+
       handled = true; 
       break;
 
@@ -2960,6 +2969,9 @@ static void addWidgets(launcher_data_t *data) {
   i = 0;
   for (newSearch = true; i < MAX_WIDGETS; newSearch = false) {
     if (DmGetNextDatabaseByTypeCreator(newSearch, &stateInfo, sysFileTypeWidget, 0, false, NULL, &dbID) != errNone) break;
+    widgetFinish = NULL;
+    widgetData = NULL;
+    sys_memset(&aux, 0, sizeof(aux));
 
     if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == errNone) {
       debug(DEBUG_INFO, "Launcher", "loading widgets from \"%s\"", name);

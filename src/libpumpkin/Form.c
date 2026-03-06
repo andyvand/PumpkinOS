@@ -347,7 +347,7 @@ void FrmEraseObject(FormType *formP, UInt16 objIndex, Boolean setUsable) {
   FontID old;
   Coord width, height;
   UInt16 totalLines, max;
-  Boolean erase = false;
+  Boolean handled, erase = false;
 
   if (formP && objIndex < formP->numObjects) {
     pumpkin_dirty_region_mode(dirtyRegionBegin);
@@ -405,18 +405,25 @@ void FrmEraseObject(FormType *formP, UInt16 objIndex, Boolean setUsable) {
 
       case frmGadgetObj:
         if (setUsable) obj.gadget->attr.usable = false;
-        if (obj.gadget->attr.visible && (obj.gadget->handler || obj.gadget->m68k_handler)) {
-          formFill = UIColorGetTableEntryIndex(UIFormFill);
-          oldb = WinSetBackColor(formFill);
-          WinPushDrawState();
-          if (obj.gadget->m68k_handler) {
-            CallGadgetHandler(obj.gadget->m68k_handler, (FormGadgetTypeInCallback *)obj.gadget, formGadgetEraseCmd, NULL);
-          } else {
-            obj.gadget->handler((FormGadgetTypeInCallback *)obj.gadget, formGadgetEraseCmd, NULL);
+        if (obj.gadget->attr.visible) {
+          handled = false;
+          if (obj.gadget->handler || obj.gadget->m68k_handler) {
+            formFill = UIColorGetTableEntryIndex(UIFormFill);
+            oldb = WinSetBackColor(formFill);
+            WinPushDrawState();
+            if (obj.gadget->m68k_handler) {
+              handled = CallGadgetHandler(obj.gadget->m68k_handler, (FormGadgetTypeInCallback *)obj.gadget, formGadgetEraseCmd, NULL);
+            } else {
+              handled = obj.gadget->handler((FormGadgetTypeInCallback *)obj.gadget, formGadgetEraseCmd, NULL);
+            }
+            WinPopDrawState();
+            WinSetBackColor(oldb);
+            obj.gadget->attr.visible = 0;
           }
-          WinPopDrawState();
-          WinSetBackColor(oldb);
-          obj.gadget->attr.visible = 0;
+          if (!handled) {
+            MemMove(&rect, &obj.gadget->rect, sizeof(RectangleType));
+            erase = true;
+          }
         }
         break;
 
@@ -529,7 +536,8 @@ void FrmDrawObject(FormType *formP, UInt16 objIndex, Boolean setUsable) {
         break;
       case frmListObj:
         if (setUsable) obj.list->attr.usable = 1;
-        if (!obj.list->bitsBehind && obj.list->attr.usable && (formP->attr.drawing || formP->attr.visible)) {
+        // XXX why pop up lists should not be drawn here ? commenting this test for now
+        if (/*!obj.list->bitsBehind &&*/ obj.list->attr.usable && (formP->attr.drawing || formP->attr.visible)) {
           LstDrawList(obj.list);
         }
         break;
@@ -1464,6 +1472,10 @@ void FrmHideObject(FormType *formP, UInt16 objIndex) {
 void FrmShowObject(FormType *formP, UInt16 objIndex) {
   if (formP && objIndex < formP->numObjects) {
     debug(DEBUG_TRACE, "Form", "FrmShowObject form %d object %d %s", formP->formId, objIndex, FrmObjectTypeName(formP->objects[objIndex].objectType));
+    if (formP->objects[objIndex].objectType == frmListObj && formP->objects[objIndex].object.list->bitsBehind) {
+      // XXX apparently it is possible to pop up a list with FrmShowObject
+      formP->objects[objIndex].object.list->attr.poppedUp = true;
+    }
     FrmDrawObject(formP, objIndex, true);
   }
 }
@@ -2327,8 +2339,8 @@ void FrmSetGadgetData(FormType *formP, UInt16 objIndex, const void *data) {
 // For the following objects, this sets only the position of the top-left corner: label, bitmap, and Graffiti state indicator.
 
 void FrmSetObjectBounds(FormType *formP, UInt16 objIndex, const RectangleType *bounds) {
-  ListType *lst;
-  FontID old;
+  //ListType *lst;
+  //FontID old;
   Err err;
 
   if (formP && objIndex < formP->numObjects) {
@@ -2338,6 +2350,7 @@ void FrmSetObjectBounds(FormType *formP, UInt16 objIndex, const RectangleType *b
         break;
       case frmControlObj:
         MemMove(&formP->objects[objIndex].object.control->bounds, bounds, sizeof(RectangleType));
+        CtlDirectAccessHack(formP->objects[objIndex].object.control);
         break;
       case frmLabelObj:
         formP->objects[objIndex].object.label->pos.x = bounds->topLeft.x;
@@ -2358,10 +2371,14 @@ void FrmSetObjectBounds(FormType *formP, UInt16 objIndex, const RectangleType *b
         formP->objects[objIndex].object.list->popupWin->windowBounds.topLeft.x = formP->window.windowBounds.topLeft.x + bounds->topLeft.x;
         formP->objects[objIndex].object.list->popupWin->windowBounds.topLeft.y = formP->window.windowBounds.topLeft.y + bounds->topLeft.y;
 
+        /*
+        XXX this code was commented out because it was causing problems in PalmFiction.
+        Until a good reason is found to call LstSetHeight here, it will remain commented.
         lst = (ListType *)FrmGetObjectPtr(formP, objIndex);
         old = FntSetFont(lst->font);
         LstSetHeight(lst, bounds->extent.y / FntCharHeight());
         FntSetFont(old);
+        */
         break;
       case frmGadgetObj:
         MemMove(&formP->objects[objIndex].object.gadget->rect, bounds, sizeof(RectangleType));
@@ -2409,8 +2426,18 @@ void FrmGetObjectBounds(const FormType *formP, UInt16 objIndex, RectangleType *r
       case frmLabelObj:
         rP->topLeft.x = formP->objects[objIndex].object.label->pos.x;
         rP->topLeft.y = formP->objects[objIndex].object.label->pos.y;
-        rP->extent.x = formP->objects[objIndex].object.label->extent.x;
-        rP->extent.y = formP->objects[objIndex].object.label->extent.y;
+        if (formP->objects[objIndex].object.label->extent.x) {
+          rP->extent.x = formP->objects[objIndex].object.label->extent.x;
+          rP->extent.y = formP->objects[objIndex].object.label->extent.y;
+        } else if (formP->objects[objIndex].object.label->text) {
+          old = FntSetFont(formP->objects[objIndex].object.label->fontID);
+          rP->extent.x = FntCharsWidth(formP->objects[objIndex].object.label->text, StrLen(formP->objects[objIndex].object.label->text));
+          rP->extent.y = FntCharHeight();
+          FntSetFont(old);
+        } else {
+          rP->extent.x = 0;
+          rP->extent.y = 0;
+        }
         break;
       case frmListObj:
         MemMove(rP, &formP->objects[objIndex].object.list->bounds, sizeof(RectangleType));
@@ -2754,7 +2781,7 @@ static FieldType *pumpkin_create_field(uint8_t *p, int *i) {
   return c;
 }
 
-static void fill_attr(uint16_t attr, ControlAttrType *ctlAttr) {
+static void CtlDecodeAttr(uint16_t attr, ControlAttrType *ctlAttr) {
   ctlAttr->usable          = (attr & 0x8000) ? 1 : 0;
   ctlAttr->enabled         = (attr & 0x4000) ? 1 : 0;
   ctlAttr->visible         = (attr & 0x2000) ? 1 : 0;
@@ -2765,6 +2792,61 @@ static void fill_attr(uint16_t attr, ControlAttrType *ctlAttr) {
   ctlAttr->graphical       = (attr & 0x0040) ? 1 : 0;
   ctlAttr->vertical        = (attr & 0x0020) ? 1 : 0;
   ctlAttr->reserved        = 0;
+}
+
+static void CtlEncodeAttr(uint16_t *attr, ControlAttrType *ctlAttr) {
+  *attr = 0;
+  if (ctlAttr->usable)          *attr |= 0x8000;
+  if (ctlAttr->enabled)         *attr |= 0x4000;
+  if (ctlAttr->visible)         *attr |= 0x2000;
+  if (ctlAttr->on)              *attr |= 0x1000;
+  if (ctlAttr->leftAnchor)      *attr |= 0x0800;
+  *attr |= (ctlAttr->frame & 7) << 8;
+  if (ctlAttr->drawnAsSelected) *attr |= 0x0080;
+  if (ctlAttr->graphical)       *attr |= 0x0040;
+  if (ctlAttr->vertical)        *attr |= 0x0020;
+}
+
+// fill in the m68k fields for apps that access the Control structure directly
+void CtlDirectAccessHack(ControlType *c) {
+  SliderControlType *sc;
+  uint16_t attr;
+  uint8_t *ram;
+
+  put2b(c->id, (uint8_t *)c, 0);
+  put2b(c->bounds.topLeft.x, (uint8_t *)c, 2);
+  put2b(c->bounds.topLeft.y, (uint8_t *)c, 4);
+  put2b(c->bounds.extent.x,  (uint8_t *)c, 6);
+  put2b(c->bounds.extent.y,  (uint8_t *)c, 8);
+
+  CtlEncodeAttr(&attr, &c->attr);
+  put2b(attr, (uint8_t *)c, 14);
+  put1(c->style, (uint8_t *)c, 16);
+
+  if (c->style == sliderCtl && c->style == feedbackSliderCtl) {
+    sc = (SliderControlType *)c;
+    put2b(sc->thumbID, (uint8_t *)sc, 10);
+    put2b(sc->backgroundID, (uint8_t *)sc, 12);
+    put1(0, (uint8_t *)sc, 17); // reserved
+    put2b(sc->minValue, (uint8_t *)sc, 18);
+    put2b(sc->maxValue, (uint8_t *)sc, 20);
+    put2b(sc->pageSize, (uint8_t *)sc, 22);
+    put2b(sc->value, (uint8_t *)sc, 24);
+
+  } else if (c->attr.graphical) {
+    put2b(c->bitmapID, (uint8_t *)c, 10);
+    put2b(c->selectedBitmapID, (uint8_t *)c, 12);
+    put1(0, (uint8_t *)c, 17); // font unused
+    put1(c->group, (uint8_t *)c, 18);
+    put1(0, (uint8_t *)c, 19); // reserved
+
+  } else {
+    ram = pumpkin_heap_base();
+    put4b((uint8_t *)c->text - ram, (uint8_t *)c, 10);
+    put1(c->font,  (uint8_t *)c, 17);
+    put1(c->group, (uint8_t *)c, 18);
+    put1(0, (uint8_t *)c, 19); // reserved
+  }
 }
 
 static ControlType *pumpkin_create_control(uint8_t *p, int *i) {
@@ -2815,7 +2897,7 @@ static ControlType *pumpkin_create_control(uint8_t *p, int *i) {
       sc->backgroundID = selBitmapId;
       if (sc->thumbID == 0) sc->thumbID = 13350;
       if (sc->backgroundID == 0) sc->backgroundID = 13351;
-      fill_attr(attr, &sc->attr);
+      CtlDecodeAttr(attr, &sc->attr);
       sc->style = style;
       sc->minValue = minValue;
       sc->maxValue = maxValue;
@@ -2833,7 +2915,7 @@ static ControlType *pumpkin_create_control(uint8_t *p, int *i) {
       c->bounds.extent.y = h;
       c->bitmapID = bitmapId;
       c->selectedBitmapID = selBitmapId;
-      fill_attr(attr, &c->attr);
+      CtlDecodeAttr(attr, &c->attr);
       c->style = style;
       c->group = group;
     }
@@ -2847,7 +2929,7 @@ static ControlType *pumpkin_create_control(uint8_t *p, int *i) {
       c->bounds.topLeft.y = y;
       c->bounds.extent.x = w;
       c->bounds.extent.y = h;
-      fill_attr(attr, &c->attr);
+      CtlDecodeAttr(attr, &c->attr);
       c->style = style;
       c->group = group;
       c->font = font;
@@ -2861,7 +2943,7 @@ static ControlType *pumpkin_create_control(uint8_t *p, int *i) {
     }
   }
 
-  put2b(id, (uint8_t *)c, 0);
+  CtlDirectAccessHack(c);
 
   return c;
 }
@@ -3211,6 +3293,8 @@ static FormPopupType *pumpkin_create_popup(uint8_t *p, int *i) {
   if ((c = pumpkin_heap_alloc(sizeof(FormPopupType), "Popup")) != NULL) {
     c->controlID = controlId;
     c->listID = listId;
+    put2b(controlId, (uint8_t *)c, 0);
+    put2b(listId,    (uint8_t *)c, 2);
   }
 
   return c;

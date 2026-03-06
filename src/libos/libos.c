@@ -210,7 +210,7 @@ static int libos_action(void *arg) {
   if (data->wp) {
     encoding = data->hdepth == 16 ? ENC_RGB565 : ENC_RGBA;
 #ifdef ESP32
-    height = data->dia ? (data->height - BUTTONS_HEIGHT) : data->height;
+    height = data->dia ? (data->height - BUTTONS_HEIGHT - 16) : data->height;
 #else
     height = data->dia ? ((data->height - BUTTONS_HEIGHT) * 2) / 3 : data->height;
 #endif
@@ -417,7 +417,7 @@ static int libos_start(int pe) {
       }
       if (data->height == 0) {
 #ifdef ESP32
-        data->height = data->dia ? data->width + BUTTONS_HEIGHT : data->width;
+        data->height = data->dia ? data->width + BUTTONS_HEIGHT + 16 : data->width;
 #else
         data->height = data->dia ? (data->width * 3 ) / 2 + BUTTONS_HEIGHT : data->width;
 #endif

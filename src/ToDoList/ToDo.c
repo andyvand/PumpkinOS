@@ -1354,7 +1354,7 @@ static void OptionsApply (void)
  ***********************************************************************/
 static void OptionsInit (void)
 {
-	UInt8 sortOrder;
+	UInt8 sortOrder = 0;
 	UInt16 listItem;
 	Char* label;
 	ListPtr lst;
@@ -2947,7 +2947,8 @@ static void ListViewDrawDueDate (void * table, Int16 row, Int16 UNUSED_PARAM(col
 
 
 	// Get the due date to the item being drawn.
-	*((Int16 *) (&date)) = TblGetItemInt (table, row, dueDateColumn);
+	//*((Int16 *) (&date)) = TblGetItemInt (table, row, dueDateColumn);
+        IntToDate(date, TblGetItemInt (table, row, dueDateColumn));
 
 
 	// If there is no date draw a dash to indicate such.
@@ -3169,7 +3170,8 @@ static void ListInitTableRow (TablePtr table, Int16 row, UInt16 recordNum,
 		toDoRec->priority & priorityOnly);
 
 	// Store the due date in the table.
-	TblSetItemInt (table, row, dueDateColumn, (*(Int16 *) &toDoRec->dueDate));
+	//TblSetItemInt (table, row, dueDateColumn, (*(Int16 *) &toDoRec->dueDate));
+	TblSetItemInt (table, row, dueDateColumn, DateToInt(toDoRec->dueDate));
 
 	// Set the table item type for the description, it will differ depending
 	// on the presents of a note.
@@ -3619,7 +3621,8 @@ static Boolean ListViewNewToDo (EventPtr event)
 	else
 		{
 		newToDo.priority = defaultPriority;
-		*((UInt16 *) &newToDo.dueDate) = toDoNoDueDate;
+		//*((UInt16 *) &newToDo.dueDate) = toDoNoDueDate;
+                IntToDate(newToDo.dueDate, toDoNoDueDate);
 		newToDo.description = desc;
 		newToDo.note = NULL;
 
@@ -5914,7 +5917,7 @@ PUBLIC UInt32   ToDoPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #endif
 {
-	Err error = 0;
+	Err error = errNone;
 	DmOpenRef dbP = NULL;
 
 	// Normal Launch

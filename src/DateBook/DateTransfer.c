@@ -902,7 +902,7 @@ static RepeatInfoPtr DateImportRepeatingRule(Char * ruleTextP)
                     {
                         // Monthly by position
                         UInt32		position = 0;
-                        Boolean				fromEndOfMonth = 0;
+                        Boolean				fromEndOfMonth = false;
 
                         repeatInfoP->repeatType = repeatMonthlyByDay;
 						repeatInfoP->repeatFrequency = (UInt8)repeatFrequency;

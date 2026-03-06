@@ -70,9 +70,9 @@ void WinDirectAccessHack(WinHandle wh, uint16_t x, uint16_t y, uint16_t width, u
 }
 
 static void WinFillPalette(DmResType id, RGBColorType *rgb, UInt16 n) {
-  ColorTableType *colorTableP;
-  MemHandle h;
-  UInt16 i;
+  ColorTableType *colorTableP = NULL;
+  MemHandle h = NULL;
+  UInt16 i = 0;
 
   MemSet(rgb, sizeof(RGBColorType) * n, 0);
   if ((h = DmGetResource(colorTableRsc, id)) != NULL) {
@@ -87,13 +87,13 @@ static void WinFillPalette(DmResType id, RGBColorType *rgb, UInt16 n) {
 }
 
 int WinInitModule(UInt16 density, UInt16 width, UInt16 height, UInt16 depth, Boolean littleEndian, WinHandle displayWindow) {
-  win_module_t *module;
-  ColorTableType *colorTable;
-  UInt16 i, entry;
+  win_module_t *module = NULL;
+  ColorTableType *colorTable = NULL;
+  UInt16 i = 0, entry = 0;
 #ifndef MUTE_DEBUG
   char buf[64];
 #endif
-  Err err;
+  Err err = errNone;
 
   if ((module = xcalloc(1, sizeof(win_module_t))) == NULL) {
     return -1;
@@ -1741,7 +1741,7 @@ void WinBlitBitmap(BitmapType *bitmapP, WinHandle wh, const RectangleType *rect,
   Coord i, j, iw, id, remwx, remwy, remdx, remdy;
   Coord x1, y1, x2, y2, wx, wy, dx, dy, dx0, wx0, x0, y0;
   BitmapCompressionType compression;
-  Boolean windowEndianness, bitmapEndianness, displayEndianness, bitmapTransp, blitDisplay, delete, dblw, dbld, hlfw, hlfd, display;
+  Boolean windowEndianness, bitmapEndianness, displayEndianness, bitmapTransp, blitDisplay, delete, dblw, dbld, hlfw, hlfd, display, scaleBitmapOff;
 #ifndef MUTE_DEBUG
   char wbuf[64], bbuf[32];
 #endif
@@ -1758,6 +1758,8 @@ void WinBlitBitmap(BitmapType *bitmapP, WinHandle wh, const RectangleType *rect,
     displayEndianness = BmpGetLittleEndianBits(displayBitmap);
     blitDisplay = wh == module->activeWindow && wh != module->displayWindow;
 
+    scaleBitmapOff = (module->drawState.scalingMode & kBitmapScalingOff) != 0;
+
     compression = BmpGetCompressionType(bitmapP);
     delete = false;
 
@@ -1772,50 +1774,57 @@ void WinBlitBitmap(BitmapType *bitmapP, WinHandle wh, const RectangleType *rect,
     bitmapTransp = BmpGetTransparentValue(bitmapP, &transparentValue);
 
     RctCopyRectangle(rect, &srcRect);
+    x0 = wh->windowBounds.topLeft.x;
+    y0 = wh->windowBounds.topLeft.y;
 
-    if (bitmapDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
-      module->drawState.coordinateSystem = kCoordinatesDouble;
-      WinScaleRectangle(&srcRect);
-      module->drawState.coordinateSystem = kCoordinatesStandard;
-    } else if (bitmapDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
-      WinUnscaleRectangle(&srcRect);
-    }
-
-    if (windowDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
-      module->drawState.coordinateSystem = kCoordinatesDouble;
-      wx = WinScaleCoord(x, false);
-      wy = WinScaleCoord(y, false);
-      module->drawState.coordinateSystem = kCoordinatesStandard;
-    } else if (windowDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
-      wx = WinUnscaleCoord(x, false);
-      wy = WinUnscaleCoord(y, false);
-    } else {
+    if (scaleBitmapOff) {
       wx = x;
       wy = y;
-    }
-
-    if (displayDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
-      module->drawState.coordinateSystem = kCoordinatesDouble;
-      dx = WinScaleCoord(x, false);
-      dy = WinScaleCoord(y, false);
-      module->drawState.coordinateSystem = kCoordinatesStandard;
-    } else if (displayDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
-      dx = WinUnscaleCoord(x, false);
-      dy = WinUnscaleCoord(y, false);
-    } else {
       dx = x;
       dy = y;
+    } else {
+      if (bitmapDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
+        module->drawState.coordinateSystem = kCoordinatesDouble;
+        WinScaleRectangle(&srcRect);
+        module->drawState.coordinateSystem = kCoordinatesStandard;
+      } else if (bitmapDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
+        WinUnscaleRectangle(&srcRect);
+      }
+
+      if (windowDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
+        module->drawState.coordinateSystem = kCoordinatesDouble;
+        wx = WinScaleCoord(x, false);
+        wy = WinScaleCoord(y, false);
+        module->drawState.coordinateSystem = kCoordinatesStandard;
+      } else if (windowDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
+        wx = WinUnscaleCoord(x, false);
+        wy = WinUnscaleCoord(y, false);
+      } else {
+        wx = x;
+        wy = y;
+      }
+
+      if (displayDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
+        module->drawState.coordinateSystem = kCoordinatesDouble;
+        dx = WinScaleCoord(x, false);
+        dy = WinScaleCoord(y, false);
+        module->drawState.coordinateSystem = kCoordinatesStandard;
+      } else if (displayDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
+        dx = WinUnscaleCoord(x, false);
+        dy = WinUnscaleCoord(y, false);
+      } else {
+        dx = x;
+        dy = y;
+      }
+
+      if (displayDensity == kDensityDouble) {
+        x0 <<= 1;
+        y0 <<= 1;
+      }
     }
 
     wx0 = wx;
     dx0 = dx;
-
-    x0 = wh->windowBounds.topLeft.x;
-    y0 = wh->windowBounds.topLeft.y;
-    if (displayDensity == kDensityDouble) {
-      x0 <<= 1;
-      y0 <<= 1;
-    }
 
     if (bitmapEndianness == windowEndianness && bitmapDensity == windowDensity && bitmapDepth == windowDepth &&
         bitmapEndianness == displayEndianness && bitmapDensity == displayDensity && bitmapDepth == displayDepth &&
@@ -1842,10 +1851,13 @@ void WinBlitBitmap(BitmapType *bitmapP, WinHandle wh, const RectangleType *rect,
     y1 = wh->clippingBounds.top;
     y2 = wh->clippingBounds.bottom;
 
-    dblw = bitmapDensity == kDensityLow && windowDensity == kDensityDouble;
-    hlfw = bitmapDensity == kDensityDouble && windowDensity == kDensityLow;
-    //dbld = bitmapDensity == kDensityLow && displayDensity == kDensityDouble;
-    //hlfd = bitmapDensity == kDensityDouble && displayDensity == kDensityLow;
+    if (scaleBitmapOff) {
+      dblw = false;
+      hlfw = false;
+    } else {
+      dblw = bitmapDensity == kDensityLow && windowDensity == kDensityDouble;
+      hlfw = bitmapDensity == kDensityDouble && windowDensity == kDensityLow;
+    }
     dbld = dblw;
     hlfd = hlfw;
 
@@ -2015,13 +2027,14 @@ void WinPaintBitmapEx(BitmapPtr bitmapP, Coord x, Coord y, Boolean checkAddr) {
     debug(DEBUG_TRACE, "Window", "WinPaintBitmap %s %p %d,%d at %d,%d", BmpGetDescr(bitmapP, bmpBuf, sizeof(bmpBuf)), bitmapP, w, h, x, y);
     windowBitmap = WinGetBitmap(module->drawWindow);
 
-    if ((best = BmpGetBestBitmapEx(bitmapP, BmpGetDensity(windowBitmap), BmpGetBitDepth(windowBitmap), checkAddr)) != NULL) {
+    bitmapDensity = (module->drawState.scalingMode & kBitmapScalingOff) ? kDensityLow : BmpGetDensity(windowBitmap);
+    if ((best = BmpGetBestBitmapEx(bitmapP, bitmapDensity, BmpGetBitDepth(windowBitmap), checkAddr)) != NULL) {
       BmpGetDimensions(best, &w, &h, NULL);
       bitmapDensity = BmpGetDensity(best);
       if (bitmapDensity == kDensityDouble && module->drawState.coordinateSystem == kCoordinatesStandard) {
         w >>= 1;
         h >>= 1;
-      } else if (bitmapDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble) {
+      } else if (bitmapDensity == kDensityLow && module->drawState.coordinateSystem == kCoordinatesDouble && !(module->drawState.scalingMode & kBitmapScalingOff)) {
         w <<= 1;
         h <<= 1;
       }
@@ -2324,8 +2337,8 @@ IndexedColorType WinGetForeColor(void) {
 
 IndexedColorType WinSetForeColor(IndexedColorType foreColor) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  ColorTableType *colorTable;
-  UInt16 numEntries;
+  ColorTableType *colorTable = NULL;
+  UInt16 numEntries = 0;
   IndexedColorType prev;
 
   colorTable = module->drawWindow ? BmpGetColortable(WinGetBitmap(module->drawWindow)) : NULL;
@@ -2353,8 +2366,8 @@ IndexedColorType WinGetBackColor(void) {
 
 IndexedColorType WinSetBackColor(IndexedColorType backColor) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  ColorTableType *colorTable;
-  UInt16 numEntries;
+  ColorTableType *colorTable = NULL;
+  UInt16 numEntries = 0;
   IndexedColorType prev;
 
   colorTable = module->drawWindow ? BmpGetColortable(WinGetBitmap(module->drawWindow)) : NULL;
@@ -2376,8 +2389,8 @@ IndexedColorType WinSetBackColor(IndexedColorType backColor) {
 
 IndexedColorType WinSetTextColor(IndexedColorType textColor) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  ColorTableType *colorTable;
-  UInt16 numEntries;
+  ColorTableType *colorTable = NULL;
+  UInt16 numEntries = 0;
   IndexedColorType prev;
 
   colorTable = module->drawWindow ? BmpGetColortable(WinGetBitmap(module->drawWindow)) : NULL;
@@ -2539,7 +2552,7 @@ void WinSetPatternType(PatternType newPattern) {
 
 IndexedColorType WinRGBToIndex(const RGBColorType *rgbP) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  ColorTableType *colorTable;
+  ColorTableType *colorTable = NULL;
 
   colorTable = module->drawWindow ? BmpGetColortable(WinGetBitmap(module->drawWindow)) : NULL;
   if (colorTable == NULL) colorTable = WinGetColorTable(-1);
@@ -2548,7 +2561,7 @@ IndexedColorType WinRGBToIndex(const RGBColorType *rgbP) {
 
 void WinIndexToRGB(IndexedColorType i, RGBColorType *rgbP) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  ColorTableType *colorTable;
+  ColorTableType *colorTable = NULL;
 
   if (rgbP) {
     colorTable = module->drawWindow ? BmpGetColortable(WinGetBitmap(module->drawWindow)) : NULL;
@@ -2596,28 +2609,30 @@ UInt16 WinSetCoordinateSystem(UInt16 coordSys) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
   UInt16 prev = kCoordinatesStandard;
 
-  if (module->density == kDensityDouble) {
-    debug(DEBUG_TRACE, "Window", "WinSetCoordinateSystem %d", coordSys);
-    prev = module->drawState.coordinateSystem;
+  if (module != NULL) {
+    if (module->density == kDensityDouble) {
+      debug(DEBUG_TRACE, "Window", "WinSetCoordinateSystem %d", coordSys);
+      prev = module->drawState.coordinateSystem;
 
-    switch (coordSys) {
-       case kCoordinatesNative:
-         // If coordSys is kCoordinatesNative, the Window Manager sets the scale field to 1.0,
-         // which to enables 1-to-1 mapping of coordinates to pixels.
-         debug(DEBUG_TRACE, "Window", "WinSetCoordinateSystem native");
-         module->drawState.coordinateSystem = coordSys;
-         break;
-       case kCoordinatesStandard:
-         module->drawState.coordinateSystem = coordSys;
-         break;
-       case kCoordinatesDouble:
-         if (module->density == kDensityDouble) {
+      switch (coordSys) {
+         case kCoordinatesNative:
+           // If coordSys is kCoordinatesNative, the Window Manager sets the scale field to 1.0,
+           // which to enables 1-to-1 mapping of coordinates to pixels.
+           debug(DEBUG_TRACE, "Window", "WinSetCoordinateSystem native");
            module->drawState.coordinateSystem = coordSys;
-         }
-         break;
-       default:
-         debug(DEBUG_ERROR, "Window", "WinSetCoordinateSystem %d unsupported", coordSys);
-         break;
+           break;
+         case kCoordinatesStandard:
+           module->drawState.coordinateSystem = coordSys;
+           break;
+         case kCoordinatesDouble:
+           if (module->density == kDensityDouble) {
+             module->drawState.coordinateSystem = coordSys;
+           }
+           break;
+         default:
+           debug(DEBUG_ERROR, "Window", "WinSetCoordinateSystem %d unsupported", coordSys);
+           break;
+      }
     }
 //debug(1, "XXX", "WinSetCoordinateSystem new=%d (%d), prev=%d", module->drawState.coordinateSystem, coordSys, prev);
   }
@@ -2627,23 +2642,35 @@ UInt16 WinSetCoordinateSystem(UInt16 coordSys) {
 
 UInt16 WinGetCoordinateSystem(void) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  return module->drawState.coordinateSystem;
+
+  if (module != NULL) {
+    return module->drawState.coordinateSystem;
+  }
+
+  return kCoordinatesStandard;
 }
 
 UInt16 WinGetRealCoordinateSystem(void) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  if (module->drawState.coordinateSystem == kCoordinatesNative) {
-    return module->density == kDensityDouble ? kCoordinatesDouble : kCoordinatesStandard;
+
+  if (module != NULL) {
+    if (module->drawState.coordinateSystem == kCoordinatesNative) {
+      return module->density == kDensityDouble ? kCoordinatesDouble : kCoordinatesStandard;
+    }
+    return module->drawState.coordinateSystem;
   }
-  return module->drawState.coordinateSystem;
+
+  return kCoordinatesStandard;
 }
 
 Coord WinScaleCoord(Coord coord, Boolean ceiling) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
 
-  if (module->drawState.coordinateSystem == kCoordinatesDouble || (module->drawState.coordinateSystem == kCoordinatesNative && module->density == kDensityDouble)) {
-    coord *= 2;
-    if (ceiling) coord++;
+  if (module != NULL) {
+    if (module->drawState.coordinateSystem == kCoordinatesDouble || (module->drawState.coordinateSystem == kCoordinatesNative && module->density == kDensityDouble)) {
+      coord *= 2;
+      if (ceiling) coord++;
+    }
   }
 
   return coord;
@@ -2652,8 +2679,10 @@ Coord WinScaleCoord(Coord coord, Boolean ceiling) {
 Coord WinUnscaleCoord(Coord coord, Boolean ceiling) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
 
-  if (module->drawState.coordinateSystem == kCoordinatesDouble || (module->drawState.coordinateSystem == kCoordinatesNative && module->density == kDensityDouble)) {
-    coord /= 2;
+  if (module != NULL) {
+    if (module->drawState.coordinateSystem == kCoordinatesDouble || (module->drawState.coordinateSystem == kCoordinatesNative && module->density == kDensityDouble)) {
+      coord /= 2;
+    }
   }
 
   return coord;
@@ -2834,13 +2863,16 @@ void WinPaintRoundedRectangleFrame(const RectangleType *rP, Coord width, Coord c
 }
 
 UInt32 WinSetScalingMode(UInt32 mode) {
-  debug(DEBUG_ERROR, "Window", "WinSetScalingMode not implemented");
-  return 0;
+  win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
+  UInt32 old = module->drawState.scalingMode;
+  mode &= kBitmapScalingOff | kTextScalingOff | kTextPaddingOff;
+  module->drawState.scalingMode = mode;
+  return old;
 }
 
 UInt32 WinGetScalingMode(void) {
-  debug(DEBUG_ERROR, "Window", "WinGetScalingMode not implemented");
-  return 0;
+  win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
+  return module->drawState.scalingMode;
 }
 
 void WinSaveRectangle(WinHandle dstWin, const RectangleType *srcRect) {
@@ -3072,10 +3104,10 @@ static void broadcastDisplayChange(UInt32 oldDepth, UInt32 newDepth) {
 // Set or retrieve the palette for the draw window
 Err WinPalette(UInt8 operation, Int16 startIndex, UInt16 paletteEntries, RGBColorType *tableP) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  WinHandle wh;
-  ColorTableType *colorTable;
-  UInt16 i, index;
-  UInt16 numEntries;
+  WinHandle wh = NULL;
+  ColorTableType *colorTable = NULL;
+  UInt16 i = 0, index = 0;
+  UInt16 numEntries = 0;
 #ifndef MUTE_DEBUG
   char buf[64];
 #endif
@@ -3642,11 +3674,11 @@ static UInt32 WinLegacyGetPixel(win_module_t *module, BitmapType *bitmapP, Color
 
 UInt8 WinLegacyRead(UInt32 offset) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
-  BitmapType *bitmapP;
-  ColorTableType *colorTable, *srcColorTable;
-  Boolean isSrcDefault;
-  UInt16 i, cols, c, density, realDepth;
-  Coord x, y;
+  BitmapType *bitmapP = NULL;
+  ColorTableType *colorTable = NULL, *srcColorTable = NULL;
+  Boolean isSrcDefault = false;
+  UInt16 i = 0, cols = 0, c = 0, density = 0, realDepth = 0;
+  Coord x = 0, y = 0;
   UInt8 value = 0;
 
   bitmapP = WinGetBitmap(module->displayWindow);
