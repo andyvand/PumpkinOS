@@ -14,6 +14,9 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on ESP32:
 ![](/screenshots/PumpkinOS_ESP32.png)
 
+# Last sync with repo
+Up to date to commit 66a98f9
+
 # Support for MSVC and macOS
 The folder VCProject contains a MSVC buildable project.
 Support for Application Builder (Windows CE) was added in the form of makefiles and sources files to be able to build it for Windows CE.
