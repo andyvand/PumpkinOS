@@ -86,6 +86,11 @@ int EvtInitModule(void) {
 
   pumpkin_set_local_storage(evt_key, module);
 
+  // Set events to 0
+  module->numEvents = 0;
+  module->idxIn = 0;
+  module->idxOut = 0;
+
   return 0;
 }
 
@@ -163,7 +168,7 @@ void EvtAddEventToQueue(const EventType *event) {
     module->numEvents++;
     xmemcpy(&module->events[module->idxIn++], event, sizeof(EventType));
     EvtPrintEvent("Put", (EventType *)event);
-    if (module->idxIn == MAX_EVENTS) module->idxIn = 0;
+    if (module->idxIn >= MAX_EVENTS) module->idxIn = 0;
   } else {
     debug(DEBUG_ERROR, PALMOS_MODULE, "EvtAddEventToQueue event queue overflow");
   }
@@ -828,7 +833,7 @@ void EvtGetEventUs(EventType *event, Int32 timeoutUs) {
   if (module->numEvents > 0) {
     // get the next event
     xmemcpy(event, &module->events[module->idxOut++], sizeof(EventType));
-    if (module->idxOut == MAX_EVENTS) module->idxOut = 0;
+    if (module->idxOut >= MAX_EVENTS) module->idxOut = 0;
     module->numEvents--;
     EvtPrintEvent("Get", event);
     return;

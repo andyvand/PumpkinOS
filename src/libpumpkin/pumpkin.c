@@ -71,6 +71,8 @@
 
 #ifdef ESP32
 #define HEAP_SIZE (448*1024)
+#elif defined(_WIN32_WCE)
+#define HEAP_SIZE (8*1024*1024)
 #else
 #define HEAP_SIZE (16*1024*1024)
 #endif
