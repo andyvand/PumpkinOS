@@ -58,6 +58,18 @@ ifeq ($(BITS),)
 BITS=32
 endif
 MBITS=-m$(BITS)
+else ifeq ($(MACHINE),riscv32)
+SYS_ENDIAN=1
+SYS_CPU=3
+ifeq ($(BITS),)
+BITS=32
+endif
+else ifeq ($(MACHINE),riscv64)
+SYS_ENDIAN=1
+SYS_CPU=3
+ifeq ($(BITS),)
+BITS=64
+endif
 else ifeq ($(MACHINE),ppc64le)
 SYS_ENDIAN=1
 SYS_CPU=3
@@ -140,17 +152,25 @@ ifeq ($(NDK),)
 $(error You must define the NDK environment variable)
 endif
 SYS_OS=4
-ifeq ($(BITS),32)
-ARM_ARCH=--target=armv7-none-linux-androideabi26 -march=armv7-a -mthumb
+ifeq ($(MACHINE),i686)
+ANDROID_ARCH=--target=i686-none-linux-androideabi26
+else ifeq ($(MACHINE),x86_64)
+ANDROID_ARCH=--target=x86_64-none-linux-android26
+else ifeq ($(MACHINE),riscv64)
+ANDROID_ARCH=--target=riscv64-none-linux-android35
 else
-ARM_ARCH=--target=aarch64-none-linux-android26
+ifeq ($(BITS),32)
+ANDROID_ARCH=--target=armv7-none-linux-androideabi26 -march=armv7-a -mthumb
+else
+ANDROID_ARCH=--target=aarch64-none-linux-android26
 endif
-OSLDEFS=$(ARM_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fPIC -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libgcc_real.a -Wl,--exclude-libs,libatomic.a -static-libstdc++ -Wl,--build-id -Wl,--fatal-warnings -Wl,--exclude-libs,libunwind.a -Wl,--no-undefined -Qunused-arguments
+endif
+OSLDEFS=$(ANDROID_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fPIC -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libgcc_real.a -Wl,--exclude-libs,libatomic.a -static-libstdc++ -Wl,--build-id -Wl,--fatal-warnings -Wl,--exclude-libs,libunwind.a -Wl,--no-undefined -Qunused-arguments
 EXTLIBS=-llog -latomic
 SOEXT=.so
 LUAPLAT=linux
 OS=Android
-OSDEFS=$(ARM_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -DANDROID -DSOEXT=\"$(SOEXT)\"
+OSDEFS=$(ANDROID_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -DANDROID -DSOEXT=\"$(SOEXT)\"
 CC=$(NDK)/bin/clang
 
 else ifeq ($(OSNAME),Emscripten)

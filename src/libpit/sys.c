@@ -26,10 +26,6 @@
 #define _WINSOCK2API_
 #include <stdio.h>
 
-#ifdef __GNUC__
-#include <unistd.h>
-#endif
-
 #include <time.h>
 #include <pthread.h>
 #include <signal.h>
@@ -39,11 +35,15 @@
 #include <sys/time.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#else
-#include <stdio.h>
+#elif defined(__GNUC__) || defined(__clang__)
+#ifdef ANDROID
+#ifndef SSIZE_MAX
+#define SSIZE_MAX UINT32_MAX
+#endif
+#endif
+
 #include <unistd.h>
+#include <stdio.h>
 #include <time.h>
 #define __USE_GNU
 #include <pthread.h>
@@ -141,6 +141,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
+#endif
+
+#ifdef ANDROID
+#include <errno.h>
+#include <dirent.h>
 #endif
 
 struct sys_dir_t {

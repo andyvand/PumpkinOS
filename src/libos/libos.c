@@ -314,7 +314,7 @@ static param_t params[] = {
   { 0, 0, NULL }
 };
 
-#if defined(KERNEL) || defined(ESP32)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID)
 int libos_start(int pe) {
 #else
 static int libos_start(int pe) {
@@ -449,7 +449,7 @@ static int libos_start(int pe) {
   return r;
 }
 
-#if defined(KERNEL) || defined(ESP32)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID)
 int libos_app_init(int pe) {
 #else
 static int libos_app_init(int pe) {

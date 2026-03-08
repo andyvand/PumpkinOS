@@ -25,6 +25,14 @@ endif
 
 EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) libaalsa linux
 
+else ifeq ($(OSNAME),Android)
+ifneq ($(UNICORN),)
+UNICORN_MODULE=UnicornArm
+else ifneq ($(wildcard $(NDK)/sysroot/usr/include/unicorn/unicorn.h),)
+UNICORN_MODULE=UnicornArm
+endif
+
+EXTRA_MODULES=$(UNICORN_MODULE)
 else ifeq ($(OSNAME),Darwin)
 ifneq ($(wildcard /usr/local/include/SDL3/SDL.h),)
 WINDOW_MODULE=liblsdl3

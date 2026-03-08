@@ -1,5 +1,9 @@
 #include <PalmOS.h>
 
+#ifdef ANDROID
+#include <wchar.h>
+#endif
+
 #include <unicorn/unicorn.h>
 
 #include "sys.h"

@@ -13,6 +13,12 @@ typedef enum {
   SYS_SEEK_SET, SYS_SEEK_CUR, SYS_SEEK_END
 } sys_seek_t;
 
+#ifdef ANDROID
+#ifndef SSIZE_MAX
+#define SSIZE_MAX UINT32_MAX
+#endif
+#endif
+
 #define SYS_READ     0x01
 #define SYS_WRITE    0x02
 #define SYS_NONBLOCK 0x04

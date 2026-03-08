@@ -52,7 +52,7 @@ $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 else
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 	@echo Linking $(PROGRAM).dlib
-	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS)
+	@$(CC) $(OSDEFS) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS)
 endif
 
 $(STUBS_OPT): $(STUBS).c
