@@ -314,6 +314,55 @@ static param_t params[] = {
   { 0, 0, NULL }
 };
 
+#ifdef ANDROID
+int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int width, int height, int depth, int fullscreen, int dia, int single, char *launcher) {
+  libos_t *data;
+  int mono, r = -1;
+
+  if (dia) {
+    width = APP_SCREEN_WIDTH;
+    height = (width * 3 ) / 2 + BUTTONS_HEIGHT;
+  } else if (single) {
+    width = APP_SCREEN_WIDTH;
+    height = width;
+  }
+
+  if (depth < 16) {
+    mono = depth;
+    depth = 16;
+  } else {
+    mono = 0;
+  }
+
+  if (width > 0 && height > 0 && (depth == 16 || depth == 32)) {
+    if ((data = sys_malloc(sizeof(libos_t))) != NULL) {
+      data->wp = wp;
+      data->secure = secure;
+      data->width = width;
+      data->height = height;
+      data->depth = depth;
+      data->hdepth = depth;
+      data->abgr = 0;
+      data->mono = mono;
+      data->fullscreen = fullscreen;
+      data->dia = dia;
+      data->mode = 1;
+      data->density = kDensityDouble;
+      data->xfactor = 1;
+      data->yfactor = 1;
+
+      sys_strncpy(data->launcher, launcher, 256);
+
+      // Calling in the same thread. As a result, the script engine will remain locked.
+      // This could be a problem only if an application calls the engine, which is unlikely.
+      libos_action(data);
+    }
+  }
+
+  return r;
+}
+#endif
+
 #if defined(KERNEL) || defined(ESP32) || defined(ANDROID)
 int libos_start(int pe) {
 #else

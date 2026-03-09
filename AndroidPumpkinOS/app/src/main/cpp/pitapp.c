@@ -30,12 +30,15 @@
 #include "xalloc.h"
 #include "pitapp.h"
 
-extern int libos_app_init(int pe);
-extern int libos_start(int pe);
+extern int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int width, int height, int depth, int fullscreen, int dia, int single, char *launcher);
 
 int pitInit(void) {
   script_engine_t *engine;
   int pe = -1;
+  window_provider_t *wp = NULL;
+  audio_provider_t *ap = NULL;
+  bt_provider_t *bt = NULL;
+  gps_parse_line_f gps_parse_line;
 
   debug_setsyslevel(NULL, DEBUG_INFO);
   sys_init();
@@ -53,8 +56,12 @@ int pitInit(void) {
   if (script_init(engine) != -1) {
     if ((pe = script_create(engine)) != -1) {
       window_init(pe);
-      libos_app_init(pe);
-      libos_start(pe);
+      wp = script_get_pointer(pe, WINDOW_PROVIDER);
+      ap = script_get_pointer(pe, AUDIO_PROVIDER);
+      bt = script_get_pointer(pe, BT_PROVIDER);
+      gps_parse_line = script_get_pointer(pe, GPS_PARSE_LINE_PROVIDER);
+      pumpkin_global_init(engine, wp, ap, bt, gps_parse_line);
+      libos_start_direct(wp, NULL, 0, 0, 16, 0, 1, 0, "Launcher");
     }
   }
 

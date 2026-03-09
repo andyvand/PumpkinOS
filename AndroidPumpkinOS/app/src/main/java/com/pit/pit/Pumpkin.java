@@ -149,11 +149,21 @@ public class Pumpkin extends Application {
             getDir("card", Context.MODE_PRIVATE);
             getDir("registry", Context.MODE_PRIVATE);
             File dir = getDir("install", Context.MODE_PRIVATE);
+            // Default is arm64-v8a resources
+            // NOTE: If you have a different architecture
+            //       replace the res/raw files with the
+            //       renamed .prc files for your architecture
             copyFile(R.raw.boot, dir, "BOOT.prc");
             copyFile(R.raw.launcher, dir, "Launcher.prc");
-            copyFile(R.raw.minehunt, dir, "MINEHUNT.prc");
+            copyFile(R.raw.datebook, dir, "DateBook.prc");
             copyFile(R.raw.memopad, dir, "MemoPad.prc");
-
+            copyFile(R.raw.command, dir, "Command.prc");
+            copyFile(R.raw.datebook, dir, "DateBook.prc");
+            copyFile(R.raw.luasyntax, dir, "LuaSyntax.prc");
+            copyFile(R.raw.vi, dir, "vi.prc");
+            copyFile(R.raw.preferences, dir, "Preferences.prc");
+            copyFile(R.raw.todolist, dir, "ToDoList.prc");
+            copyFile(R.raw.unicornarm, dir, "UnicornArm.prc");
         } catch (Exception ex) {
             Log.e("Pumpkin", Objects.requireNonNull(ex.getMessage()));
         }

@@ -147,7 +147,7 @@ static void *ptr_access(const char *file, const char *func, int line, int id, ch
   p = NULL;
   ok = 0;
 
-#ifndef ESP32
+#if !defined(ESP32) && !defined(ANDROID)
   if (mutex_lock(mutex) == 0) {
 #endif
     if (index > 0 && index < MAX_PTRS) {
@@ -202,7 +202,7 @@ static void *ptr_access(const char *file, const char *func, int line, int id, ch
       } else {
         debug(DEBUG_ERROR, "PTR", "attempt to %s unused handle %d (%d)", op_name[op], id, index);
       }
-#ifndef ESP32
+#if !defined(ESP32) && !defined(ANDROID)
     } else {
       debug(DEBUG_ERROR, "PTR", "attempt to %s invalid handle %d (%d)", op_name[op], id, index);
     }
