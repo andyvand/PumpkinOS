@@ -155,6 +155,7 @@ public class Pumpkin extends Application {
             //       renamed .prc files for your architecture
             copyFile(R.raw.boot, dir, "BOOT.prc");
             copyFile(R.raw.launcher, dir, "Launcher.prc");
+            copyFile(R.raw.addressbook, dir, "AddressBook.prc");
             copyFile(R.raw.datebook, dir, "DateBook.prc");
             copyFile(R.raw.memopad, dir, "MemoPad.prc");
             copyFile(R.raw.command, dir, "Command.prc");
