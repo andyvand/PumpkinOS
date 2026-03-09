@@ -3167,7 +3167,11 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   FrmGotoForm(MainForm);
   EventLoop(data);
   formP = FrmGetActiveForm();
-  formP->mbar = NULL;
+
+  if (formP != NULL) {
+    formP->mbar = NULL;
+  }
+
   FrmCloseAllForms();
 
   if (data->useTaskbar) {

@@ -353,9 +353,14 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
 
       sys_strncpy(data->launcher, launcher, 256);
 
-      // Calling in the same thread. As a result, the script engine will remain locked.
-      // This could be a problem only if an application calls the engine, which is unlikely.
-      libos_action(data);
+      if (thread_needs_run()) {
+        r = thread_begin(PUMPKINOS, libos_action, data);
+        thread_run();
+      } else {
+        // Calling in the same thread. As a result, the script engine will remain locked.
+        // This could be a problem only if an application calls the engine, which is unlikely.
+        r = libos_action(data);
+      }
     }
   }
 

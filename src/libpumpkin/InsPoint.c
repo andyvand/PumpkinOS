@@ -48,10 +48,12 @@ static void drawCursor(Boolean on) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
   IndexedColorType oldf;
 
-  if (module->height > 0) {
-    oldf = WinSetForeColor(UIColorGetTableEntryIndex(on ? UIFieldCaret : UIFieldBackground));
-    WinDrawLine(module->x, module->y, module->x, module->y + module->height - 1);
-    WinSetForeColor(oldf);
+  if (module != NULL) {
+    if (module->height > 0) {
+      oldf = WinSetForeColor(UIColorGetTableEntryIndex(on ? UIFieldCaret : UIFieldBackground));
+      WinDrawLine(module->x, module->y, module->x, module->y + module->height - 1);
+      WinSetForeColor(oldf);
+    }
   }
 }
 
@@ -68,13 +70,15 @@ void InsPtInitialize(void) {
 void InsPtSetLocation(const Int16 x, const Int16 y) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
 
-  if (module->enabled && module->on) {
-    debug(DEBUG_TRACE, "Field", "InsPtSetLocation (%d,%d) erase caret", x, y);
-    drawCursor(false);
-    module->on = false;
+  if (module != NULL) {
+    if (module->enabled && module->on) {
+      debug(DEBUG_TRACE, "Field", "InsPtSetLocation (%d,%d) erase caret", x, y);
+      drawCursor(false);
+      module->on = false;
+    }
+    module->x = x;
+    module->y = y;
   }
-  module->x = x;
-  module->y = y;
 }
 
 // Return the screen-relative position of the insertion point.
@@ -83,8 +87,13 @@ void InsPtSetLocation(const Int16 x, const Int16 y) {
 void InsPtGetLocation(Int16 *x, Int16 *y) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
 
-  if (x) *x = module->x;
-  if (y) *x = module->y;
+  if (module != NULL) {
+    if (x) *x = module->x;
+    if (y) *x = module->y;
+  } else {
+    if (x) *x = 0;
+    if (y) *y = 0;
+  }
 }
 
 // Enable or disable the insertion point. When the insertion point is disabled, it’s invisible; when it’s enabled, it blinks.
@@ -95,12 +104,14 @@ void InsPtGetLocation(Int16 *x, Int16 *y) {
 void InsPtEnable(Boolean enableIt) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
 
-  module->enabled = enableIt;
+  if (module != NULL) {
+    module->enabled = enableIt;
 //debug(1, "XXX", "InsPtEnable %d", module->enabled);
-  if (!module->enabled && module->on) {
-    debug(DEBUG_TRACE, "Field", "InsPtEnable erase caret");
-    drawCursor(false);
-    module->on = false;
+    if (!module->enabled && module->on) {
+      debug(DEBUG_TRACE, "Field", "InsPtEnable erase caret");
+      drawCursor(false);
+      module->on = false;
+    }
   }
 }
 
@@ -109,7 +120,11 @@ void InsPtEnable(Boolean enableIt) {
 Boolean InsPtEnabled(void) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
 
-  return module->enabled;
+  if (module != NULL) {
+    return module->enabled;
+  }
+
+  return false;
 }
 
 // Set the height of the insertion point to match the character height of the font used in the field that the insertion point is in.
@@ -119,12 +134,14 @@ Boolean InsPtEnabled(void) {
 void InsPtSetHeight(const Int16 height) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
 
-  if (module->enabled && module->on) {
-    debug(DEBUG_TRACE, "Field", "InsSetheight %d erase caret", height);
-    drawCursor(false);
-    module->on = false;
+  if (module != NULL) {
+    if (module->enabled && module->on) {
+      debug(DEBUG_TRACE, "Field", "InsSetheight %d erase caret", height);
+      drawCursor(false);
+      module->on = false;
+    }
+    module->height = height;
   }
-  module->height = height;
 }
 
 // Returns the height of the insertion point, in pixels.
@@ -132,7 +149,11 @@ void InsPtSetHeight(const Int16 height) {
 Int16 InsPtGetHeight(void) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
 
-  return module->height;
+  if (module != NULL) {
+    return module->height;
+  }
+
+  return APP_SCREEN_HEIGHT;
 }
 
 // system use only
@@ -141,14 +162,16 @@ void InsPtCheckBlink(void) {
   inspt_module_t *module = (inspt_module_t *)pumpkin_get_local_storage(ins_key);
   UInt32 t;
 
-  if (module->enabled) {
-    t = TimGetTicks();
+  if (module != NULL) {
+    if (module->enabled) {
+      t = TimGetTicks();
 
-    if ((t - module->lastBlink) >= module->tps / 2) {
-      module->on = !module->on;
+      if ((t - module->lastBlink) >= module->tps / 2) {
+        module->on = !module->on;
 //debug(1, "XXX", "InsPtCheckBlink %d", module->on);
-      drawCursor(module->on);
-      module->lastBlink = t;
+        drawCursor(module->on);
+        module->lastBlink = t;
+      }
     }
   }
 }

@@ -149,22 +149,68 @@ public class Pumpkin extends Application {
             getDir("card", Context.MODE_PRIVATE);
             getDir("registry", Context.MODE_PRIVATE);
             File dir = getDir("install", Context.MODE_PRIVATE);
-            // Default is arm64-v8a resources
-            // NOTE: If you have a different architecture
-            //       replace the res/raw files with the
-            //       renamed .prc files for your architecture
             copyFile(R.raw.boot, dir, "BOOT.prc");
-            copyFile(R.raw.launcher, dir, "Launcher.prc");
-            copyFile(R.raw.addressbook, dir, "AddressBook.prc");
-            copyFile(R.raw.datebook, dir, "DateBook.prc");
-            copyFile(R.raw.memopad, dir, "MemoPad.prc");
-            copyFile(R.raw.command, dir, "Command.prc");
-            copyFile(R.raw.datebook, dir, "DateBook.prc");
-            copyFile(R.raw.luasyntax, dir, "LuaSyntax.prc");
-            copyFile(R.raw.vi, dir, "vi.prc");
-            copyFile(R.raw.preferences, dir, "Preferences.prc");
-            copyFile(R.raw.todolist, dir, "ToDoList.prc");
-            copyFile(R.raw.unicornarm, dir, "UnicornArm.prc");
+            if (getArch() == 9) { // armv7-a
+                copyFile(R.raw.launcher_a32, dir, "Launcher.prc");
+                copyFile(R.raw.addressbook_a32, dir, "AddressBook.prc");
+                copyFile(R.raw.datebook_a32, dir, "DateBook.prc");
+                copyFile(R.raw.memopad_a32, dir, "MemoPad.prc");
+                copyFile(R.raw.command_a32, dir, "Command.prc");
+                copyFile(R.raw.datebook_a32, dir, "DateBook.prc");
+                copyFile(R.raw.luasyntax_a32, dir, "LuaSyntax.prc");
+                copyFile(R.raw.vi_a32, dir, "vi.prc");
+                copyFile(R.raw.preferences_a32, dir, "Preferences.prc");
+                copyFile(R.raw.todolist_a32, dir, "ToDoList.prc");
+                copyFile(R.raw.unicornarm_a32, dir, "UnicornArm.prc");
+            } else if (getArch() == 10) { // arm64-v8a
+                copyFile(R.raw.launcher_a64, dir, "Launcher.prc");
+                copyFile(R.raw.addressbook_a64, dir, "AddressBook.prc");
+                copyFile(R.raw.datebook_a64, dir, "DateBook.prc");
+                copyFile(R.raw.memopad_a64, dir, "MemoPad.prc");
+                copyFile(R.raw.command_a64, dir, "Command.prc");
+                copyFile(R.raw.datebook_a64, dir, "DateBook.prc");
+                copyFile(R.raw.luasyntax_a64, dir, "LuaSyntax.prc");
+                copyFile(R.raw.vi_a64, dir, "vi.prc");
+                copyFile(R.raw.preferences_a64, dir, "Preferences.prc");
+                copyFile(R.raw.todolist_a64, dir, "ToDoList.prc");
+                copyFile(R.raw.unicornarm_a64, dir, "UnicornArm.prc");
+            } else if (getArch() == 17) { // x86
+                copyFile(R.raw.launcher_i32, dir, "Launcher.prc");
+                copyFile(R.raw.addressbook_i32, dir, "AddressBook.prc");
+                copyFile(R.raw.datebook_i32, dir, "DateBook.prc");
+                copyFile(R.raw.memopad_i32, dir, "MemoPad.prc");
+                copyFile(R.raw.command_i32, dir, "Command.prc");
+                copyFile(R.raw.datebook_i32, dir, "DateBook.prc");
+                copyFile(R.raw.luasyntax_i32, dir, "LuaSyntax.prc");
+                copyFile(R.raw.vi_i32, dir, "vi.prc");
+                copyFile(R.raw.preferences_i32, dir, "Preferences.prc");
+                copyFile(R.raw.todolist_i32, dir, "ToDoList.prc");
+                copyFile(R.raw.unicornarm_i32, dir, "UnicornArm.prc");
+            } else if (getArch() == 18) { // x86_64
+                copyFile(R.raw.launcher_i64, dir, "Launcher.prc");
+                copyFile(R.raw.addressbook_i64, dir, "AddressBook.prc");
+                copyFile(R.raw.datebook_i64, dir, "DateBook.prc");
+                copyFile(R.raw.memopad_i64, dir, "MemoPad.prc");
+                copyFile(R.raw.command_i64, dir, "Command.prc");
+                copyFile(R.raw.datebook_i64, dir, "DateBook.prc");
+                copyFile(R.raw.luasyntax_i64, dir, "LuaSyntax.prc");
+                copyFile(R.raw.vi_i64, dir, "vi.prc");
+                copyFile(R.raw.preferences_i64, dir, "Preferences.prc");
+                copyFile(R.raw.todolist_i64, dir, "ToDoList.prc");
+                copyFile(R.raw.unicornarm_i64, dir, "UnicornArm.prc");
+            } else if (getArch() == 26) { // riscv64
+                copyFile(R.raw.launcher_r64, dir, "Launcher.prc");
+                copyFile(R.raw.addressbook_r64, dir, "AddressBook.prc");
+                copyFile(R.raw.datebook_r64, dir, "DateBook.prc");
+                copyFile(R.raw.memopad_r64, dir, "MemoPad.prc");
+                copyFile(R.raw.command_r64, dir, "Command.prc");
+                copyFile(R.raw.datebook_r64, dir, "DateBook.prc");
+                copyFile(R.raw.luasyntax_r64, dir, "LuaSyntax.prc");
+                copyFile(R.raw.vi_r64, dir, "vi.prc");
+                copyFile(R.raw.preferences_r64, dir, "Preferences.prc");
+                copyFile(R.raw.todolist_r64, dir, "ToDoList.prc");
+                copyFile(R.raw.unicornarm_r64, dir, "UnicornArm.prc");
+            }
         } catch (Exception ex) {
             Log.e("Pumpkin", Objects.requireNonNull(ex.getMessage()));
         }
@@ -223,4 +269,5 @@ public class Pumpkin extends Application {
     public native void pitPause(boolean paused);
     public native void pitTouch(int action, int x, int y);
     public native void pitSetBattery(int level);
+    public native int getArch();
 }

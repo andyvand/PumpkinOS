@@ -113,3 +113,7 @@ void pitPause(int paused) {
 void pitSetBattery(int level) {
   pumpkin_set_battery(level);
 }
+
+int getArch(void) {
+    return SYS_CPU * 8 + SYS_SIZE;
+}

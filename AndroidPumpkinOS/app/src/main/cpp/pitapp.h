@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+int getArch(void);
 int pitInit(void);
 void pitFinish(int pe);
 void pitRequestFinish(void);
