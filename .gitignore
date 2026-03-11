@@ -27,7 +27,6 @@ xdg-*.c
 xdg-*.h
 syscalls_stubs.txt
 syscalls_stubs.c
-res
 res.flag
 tools.flag
 .zig-cache
