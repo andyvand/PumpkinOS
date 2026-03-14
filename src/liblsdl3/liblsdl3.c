@@ -30,6 +30,10 @@
 
 #define TAG_AUDIO  "audio"
 
+#ifdef SDL_MIXER
+MIX_Mixer *mixer = NULL;
+#endif
+
 struct texture_t {
   SDL_Texture *t;
   int width, height;
@@ -161,36 +165,31 @@ static libsdl_keymap_t keymap[] = {
 };
 
 static window_provider_t window_provider;
-//static audio_provider_t audio_provider;
 
-#if 0
+#ifndef ESP32
+static audio_provider_t audio_provider;
+
 static int libsdl_init_audio(void) {
   const char *name;
   int i, n, r = -1;
 
-  if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+  if (SDL_InitSubSystem(SDL_INIT_AUDIO) == false) {
     debug(DEBUG_ERROR, "SDL", "init audio failed: %s", SDL_GetError());
   } else {
-    if ((n = SDL_GetNumAudioDevices(0)) == -1) {
-      debug(DEBUG_ERROR, "SDL", "SDL_GetNumAudioDevices failed: %s", SDL_GetError());
-    } else {
-      debug(DEBUG_INFO, "SDL", "%d audio device(s) found", n);
-      for (i = 0; i < n; i++) {
-        name = SDL_GetAudioDeviceName(i, 0);
-        debug(DEBUG_INFO, "SDL", "audio device %d \"%s\"", i, name);
+    if (SDL_Init(SDL_INIT_AUDIO) == true) {
+      SDL_AudioDeviceID *devices = SDL_GetAudioPlaybackDevices(&n);
+      if (n == -1) {
+        debug(DEBUG_ERROR, "SDL", "SDL_GetAudioPlaybackDevices failed: %s", SDL_GetError());
+      } else {
+        debug(DEBUG_INFO, "SDL", "%d audio device(s) found", n);
+        for (i = 0; i < n; i++) {
+          name = SDL_GetAudioDeviceName(devices[i]);
+          debug(DEBUG_INFO, "SDL", "audio device %d \"%s\"", i, name);
+        }
       }
-    }
 
-#ifdef SDL_MIXER
-    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096) != 0) {
-      debug(DEBUG_ERROR, "SDL", "mixer open failed: %s", SDL_GetError());
-    } else {
-      debug(DEBUG_INFO, "SDL", "audio inited");
       r = 0;
     }
-#else
-    r = 0;
-#endif
   }
 
   return r;
@@ -207,22 +206,24 @@ static int libsdl_init_video(void) {
   flags |= SDL_VIDEO_OPENGL;
 #endif
 
-  if (!SDL_InitSubSystem(flags)) {
+  if (SDL_InitSubSystem(flags) == false) {
     debug(DEBUG_ERROR, "SDL", "init video failed: %s", SDL_GetError());
 
   } else {
-    if ((n = SDL_GetNumRenderDrivers()) == -1) {
-      debug(DEBUG_ERROR, "SDL", "SDL_GetNumRenderDrivers failed: %s", SDL_GetError());
-    } else {
-      debug(DEBUG_INFO, "SDL", "%d driver(s) found", n);
-      for (i = 0; i < n; i++) {
-        if ((s = SDL_GetRenderDriver(i)) != NULL) {
-          debug(DEBUG_INFO, "SDL", "driver %s found", s);
-          if ((cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT)) != NULL) {
-            SDL_SetCursor(cursor);
+    if (SDL_Init(flags) == true) {
+      if ((n = SDL_GetNumRenderDrivers()) == -1) {
+        debug(DEBUG_ERROR, "SDL", "SDL_GetNumRenderDrivers failed: %s", SDL_GetError());
+      } else {
+        debug(DEBUG_INFO, "SDL", "%d driver(s) found", n);
+        for (i = 0; i < n; i++) {
+          if ((s = SDL_GetRenderDriver(i)) != NULL) {
+            debug(DEBUG_INFO, "SDL", "driver %s found", s);
+            if ((cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT)) != NULL) {
+              SDL_SetCursor(cursor);
+            }
+            //SDL_ShowCursor(SDL_DISABLE);
+            r = 0;
           }
-          //SDL_ShowCursor(SDL_DISABLE);
-          r = 0;
         }
       }
     }
@@ -832,7 +833,7 @@ static window_t *libsdl_window_create(int encoding, int *width, int *height, int
     window->spixel = spixel;
     window->rotate = rotate;
 
-#ifdef ESP32
+#if defined(ESP32) || defined(ANDROID)
     sys_strncpy(window->driver, "software", MAX_DRIVER);
 #else
     sys_strncpy(window->driver, driver, MAX_DRIVER);
@@ -1113,7 +1114,7 @@ static int libsdl_window_draw_texture(window_t *_window, texture_t *texture, int
   return r;
 }
 
-#if 0
+#ifndef ESP32
 static void audio_destructor(void *p) {
   sdl_audio_t *audio = (sdl_audio_t *)p;
 
@@ -1192,16 +1193,11 @@ static int libsdl_mixer_init(void) {
   int i, n;
   char *s;
 
-  if (Mix_Init(MIX_INIT_MID) == MIX_INIT_MID) {
-    n = Mix_GetNumChunkDecoders();
+  if (MIX_Init() != false) {
+    n = MIX_GetNumAudioDecoders();
     for (i = 0; i < n; i++) {
-      s = (char *)Mix_GetChunkDecoder(i);
-      if (s) debug(DEBUG_INFO, "SDL", "mixer chunk decoder %s", s);
-    }
-    n = Mix_GetNumMusicDecoders();
-    for (i = 0; i < n; i++) {
-      s = (char *)Mix_GetMusicDecoder(i);
-      if (s) debug(DEBUG_INFO, "SDL", "mixer music decoder %s", s);
+      s = (char *)MIX_GetAudioDecoder(i);
+      if (s) debug(DEBUG_INFO, "SDL", "mixer audio decoder %s", s);
     }
     r = 0;
   }
@@ -1213,27 +1209,28 @@ static int libsdl_mixer_init(void) {
 
 static int libsdl_mixer_play(uint8_t *buf, uint32_t len, int volume) {
 #ifdef SDL_MIXER
-  SDL_RWops *rwops;
-  Mix_Music *music;
+  MIX_Track *track;
 
   debug(DEBUG_INFO, "SDL", "mixer play begin");
-  if ((rwops = SDL_RWFromMem(buf, len)) != NULL) {
-    debug(DEBUG_INFO, "SDL", "mixer play rwops done");
-    if ((music = Mix_LoadMUSType_RW(rwops, MUS_MID, 0)) != NULL) {
-      debug(DEBUG_INFO, "SDL", "mixer play load music done");
-      if (volume >= 0) {
-        Mix_VolumeMusic(volume); // 0-128
+  if (mixer != NULL) {
+    if ((track = MIX_CreateTrack(mixer)) != NULL) {
+      debug(DEBUG_INFO, "SDL", "mixer create track done");
+      if (MIX_SetTrackIOStream(track, SDL_IOFromConstMem(buf, len), false) != false) {
+        debug(DEBUG_INFO, "SDL", "mixer set track IO stream done");
+        if (volume >= 0) {
+          MIX_SetTrackGain(track, ((float)volume) / 100); // 0-128
+        }
+        if (MIX_PlayTrack(track, 0) != false) {
+          debug(DEBUG_INFO, "SDL", "mixer play track done");
+          for (; MIX_TrackPlaying(track) && !thread_must_end();) {
+            sys_usleep(1000);
+          }
+          debug(DEBUG_INFO, "SDL", "mixer play track loop done");
+        }
       }
-      Mix_PlayMusic(music, 0);
-      debug(DEBUG_INFO, "SDL", "mixer play play music done");
-      for (; Mix_PlayingMusic() && !thread_must_end();) {
-        sys_usleep(1000);
-      }
-      debug(DEBUG_INFO, "SDL", "mixer play loop done");
-      Mix_FreeMusic(music);
-      debug(DEBUG_INFO, "SDL", "mixer free music done");
+      MIX_DestroyTrack(track);
+      debug(DEBUG_INFO, "SDL", "mixer free track done");
     }
-    SDL_RWclose(rwops);
   }
 #endif
 
@@ -1243,14 +1240,17 @@ static int libsdl_mixer_play(uint8_t *buf, uint32_t len, int volume) {
 static int libsdl_mixer_stop(void) {
 #ifdef SDL_MIXER
   debug(DEBUG_INFO, "SDL", "mixer stop");
-  Mix_HaltMusic();
+  MIX_StopAllTracks(mixer, 0);
 #endif
   return 0;
 }
 
 void libsdl_midi_finish(void) {
 #ifdef SDL_MIXER
-  Mix_Quit();
+  if (mixer != NULL) {
+    MIX_DestroyMixer(mixer);
+  }
+  MIX_Quit();
 #endif
 }
 #endif
@@ -1429,12 +1429,12 @@ static int set_video_driver(char *video_driver) {
   return 1;
 }
 
-#if 0
+#ifndef ESP32
 static int audio_action(void *_arg) {
   sdl_audio_arg_t *arg = (sdl_audio_arg_t *)_arg;
   SDL_AudioDeviceID dev = 0;
+  SDL_AudioStream *audioStream;
   SDL_AudioSpec desired, obtained;
-  SDL_AudioCVT cvt;
   sdl_audio_t *audio;
   unsigned char *msg;
   unsigned int msglen;
@@ -1460,18 +1460,31 @@ static int audio_action(void *_arg) {
         }
         desired.freq = arg->rate; // DSP frequency -- samples per second
         desired.channels = arg->channels; // Number of channels: 1 mono, 2 stereo
-        desired.silence = 0;      // Audio buffer silence value (calculated)
-        desired.samples = 1024;   // Audio buffer size in sample FRAMES (total samples divided by channel count)
-        desired.padding = 0;      // Necessary for some compile environments
-        desired.callback = NULL;  // Callback that feeds the audio device (NULL to use SDL_QueueAudio())
-        desired.userdata = NULL;  //  Userdata passed to callback (ignored for NULL callbacks)
 
-        if ((dev = SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0)) == -1) {
-          debug(DEBUG_ERROR, "SDL", "SDL_OpenAudioDevice failed: %s", SDL_GetError());
+        audioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, NULL, NULL);
+        if (audioStream == NULL) {
+          debug(DEBUG_ERROR, "SDL", "SDL_OpenAudioDeviceStream failed: %s", SDL_GetError());
           break;
         }
-        SDL_PauseAudioDevice(dev, 0);
+
+        if ((dev = SDL_GetAudioStreamDevice(audioStream)) == -1) {
+          debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamDevice failed: %s", SDL_GetError());
+          break;
+        }
+
+        SDL_GetAudioStreamFormat(audioStream, &desired, &obtained);
+        SDL_ResumeAudioStreamDevice(audioStream);
+        SDL_ResumeAudioDevice(dev);
+
         debug(DEBUG_INFO, "SDL", "open device %d", dev);
+
+#ifdef SDL_MIXER
+      if ((mixer = MIX_CreateMixerDevice(dev, &obtained)) == NULL) {
+        debug(DEBUG_ERROR, "SDL", "create mixer failed: %s", SDL_GetError());
+      } else {
+        debug(DEBUG_INFO, "SDL", "mixer inited");
+      }
+#endif
       }
 
       if (msg) {
@@ -1487,27 +1500,38 @@ static int audio_action(void *_arg) {
               if (audio->format != obtained.format ||
                   audio->channels != obtained.channels ||
                   audio->rate != obtained.freq) {
-                if (SDL_BuildAudioCVT(&cvt, audio->format, audio->channels, audio->rate, obtained.format, obtained.channels, obtained.freq) == 1) {
-                  cvt.len = len2;
-                  newlen = len2 * cvt.len_mult;
-                  if (newlen > buflen) {
-                    if (buf) sys_free(buf);
-                    debug(DEBUG_INFO, "SDL", "increasing buffer to %d bytes", newlen);
-                    buflen = newlen;
-                    buf = sys_calloc(1, buflen);
-                  }
-                  cvt.buf = buf;
-                  sys_memcpy(cvt.buf, audio->buffer, len2);
+                SDL_AudioStream *cvtstream = NULL;
+                SDL_AudioSpec inspec;
+                SDL_AudioSpec outspec;
+                inspec.format = audio->format;
+                inspec.channels = audio->channels;
+                inspec.freq = audio->rate;
+                outspec.format = obtained.format;
+                outspec.channels = obtained.channels;
+                outspec.freq = obtained.freq;
+                cvtstream = SDL_CreateAudioStream(&inspec, &outspec);
+                if (cvtstream != NULL) {
+                  const double mult = ((double)obtained.freq / (double)audio->rate);
+                  newlen = len2 * mult;
+                  if (buf) sys_free(buf);
+                  debug(DEBUG_INFO, "SDL", "increasing buffer to %d bytes", newlen);
+                  buflen = newlen;
+                  buf = sys_calloc(1, buflen);
                   debug(DEBUG_INFO, "SDL", "converting audio src=%d bytes, dst=%d bytes", len2, newlen);
-                  if (SDL_ConvertAudio(&cvt) != 0) {
-                    debug(DEBUG_ERROR, "SDL", "SDL_ConvertAudio failed: %s", SDL_GetError());
+                  if ((SDL_PutAudioStreamData(cvtstream, audio->buffer, len2) == false) ||
+                      (SDL_FlushAudioStream(cvtstream) == false)) {
+                    debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
                   }
-                  if (SDL_QueueAudio(dev, cvt.buf, cvt.len_cvt) != 0) {
+                  if (SDL_GetAudioStreamData(cvtstream, buf, buflen) == false) {
+                    debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamData failed: %s", SDL_GetError());
+                  }
+                  SDL_DestroyAudioStream(cvtstream);
+                  if (SDL_PutAudioStreamData(audioStream, buf, newlen) == false) {
                     debug(DEBUG_ERROR, "SDL", "SDL_QueueAudio failed: %s", SDL_GetError());
                   }
                 }
               } else {
-                if (SDL_QueueAudio(dev, audio->buffer, len2) != 0) {
+                if (SDL_PutAudioStreamData(audioStream, audio->buffer, len2) == false) {
                   debug(DEBUG_ERROR, "SDL", "SDL_QueueAudio failed: %s", SDL_GetError());
                 }
               }
@@ -1527,6 +1551,11 @@ static int audio_action(void *_arg) {
   if (dev > 0) {
     debug(DEBUG_INFO, "SDL", "close device %d", dev);
     SDL_CloseAudioDevice(dev);
+  }
+
+  if (audioStream != NULL) {
+    debug(DEBUG_INFO, "SDL", "close stream %p", audioStream);
+    SDL_DestroyAudioStream(audioStream);
   }
 
   debug(DEBUG_INFO, "SDL", "audio thread exiting");
@@ -1558,7 +1587,9 @@ int liblsdl3_load(void) {
     set = set_video_driver("wayland");
   }
 
-  //libsdl_init_audio();
+#ifndef ESP32
+  libsdl_init_audio();
+#endif
 
   if (libsdl_init_video() != 0) {
     SDL_Quit();
@@ -1595,7 +1626,7 @@ int liblsdl3_load(void) {
 #endif
   window_provider.drop_file = libsdl_window_drop_file;
 
-#if 0
+#ifndef ESP32
   sys_memset(&audio_provider, 0, sizeof(audio_provider));
   audio_provider.init = libsdl_audio_init;
   audio_provider.finish = libsdl_audio_finish;
@@ -1614,8 +1645,10 @@ int liblsdl3_init(int pe, script_ref_t obj) {
   debug(DEBUG_INFO, "SDL", "registering provider %s", WINDOW_PROVIDER);
   script_set_pointer(pe, WINDOW_PROVIDER, &window_provider);
 
-  //debug(DEBUG_INFO, "SDL", "registering provider %s", AUDIO_PROVIDER);
-  //script_set_pointer(pe, AUDIO_PROVIDER, &audio_provider);
+#ifndef ESP32
+  debug(DEBUG_INFO, "SDL", "registering provider %s", AUDIO_PROVIDER);
+  script_set_pointer(pe, AUDIO_PROVIDER, &audio_provider);
+#endif
 
   script_add_iconst(pe, obj, "motion", WINDOW_MOTION);
   script_add_iconst(pe, obj, "down", WINDOW_BUTTONDOWN);
@@ -1628,11 +1661,6 @@ int liblsdl3_init(int pe, script_ref_t obj) {
 }
 
 int liblsdl3_unload(void) {
-#if 0
-#ifdef SDL_MIXER
-  Mix_CloseAudio();
-#endif
-#endif
   SDL_Quit();
   return 0;
 }

@@ -112,11 +112,19 @@ static void schedule(void) {
 
   current = next->id;
   if (next->status == TASK_CREATED) {
+#if defined(__x86_64__)
     register void *top = next->stack_top;
     asm volatile (
       "mov %[rs], %%rsp \n"
       : [rs] "+r" (top)
     );
+#elif defined(__i686__)
+    register void *top = next->stack_top;
+    asm volatile (
+      "mov %[es], %%esp \n"
+        : [es] "+r" (top)
+    );
+#endif
 
     next->status = TASK_RUNNING;
 

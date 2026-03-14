@@ -2643,7 +2643,7 @@ static int pumpkin_resume_task(int handle) {
   return r;
 }
 
-/*
+#ifdef ESP32
 static void pumpkin_forward_launch_code(UInt32 creator, char *name, UInt16 cmd, launch_union_t *param, UInt16 flags) {
   launch_request_t request;
   launch_msg_t msg;
@@ -2687,7 +2687,7 @@ static void pumpkin_forward_launch_code(UInt32 creator, char *name, UInt16 cmd, 
     thread_client_write(pumpkin_module.tasks[i].handle, buf, size);
   }
 }
-*/
+#endif
 
 static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, launch_union_t *param, UInt16 flags, PilotMainF pilotMain, UInt16 opendb) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
@@ -2704,7 +2704,9 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
   int handle, call_sub, m68k, launched;
   uint32_t r = 0;
   void *data;
-
+#ifdef ESP32
+  uint32_t creator = 0;
+#endif
   sys_memset(&creq, 0, sizeof(client_request_t));
   creq.type = MSG_LAUNCH;
   sys_strncpy(creq.data.launch.name, name, dmDBNameLength-1);
@@ -2726,7 +2728,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
       // XXX set sysAppLaunchFlagNewGlobals so that the app initializes properly
       creq.data.launch.flags |= sysAppLaunchFlagNewGlobals;
       break;
-/*
+#ifdef ESP32
     case sysAppLaunchCmdSystemReset:
       debug(DEBUG_INFO, PUMPKINOS, "sending launch code %d to \"%s\" using call or message", cmd, name);
       if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator) == errNone) {
@@ -2736,7 +2738,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
         }
       }
       return r;
-*/
+#endif
     default:
       if (cmd >= sysAppLaunchCmdCustomBase || task == NULL) {
         break;

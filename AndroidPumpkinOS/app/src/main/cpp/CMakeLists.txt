@@ -114,7 +114,7 @@ add_library( # Sets the name of the library.
         PumpkinOS/src/libpit/average.c
         PumpkinOS/src/libpit/custom_malloc.c
         PumpkinOS/src/libpit/script.c
-        PumpkinOS/src/libpit/threadudp.c
+        PumpkinOS/src/libpit/threadptr.c
         PumpkinOS/src/libpit/mutex.c
         PumpkinOS/src/libpit/httpc.c
         PumpkinOS/src/libpit/httpd.c

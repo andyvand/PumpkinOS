@@ -65,7 +65,11 @@ PROGRAM=$(BIN)/libpumpkin$(SOEXT)
 OBJS=$(SOURCE:%.c=%.o)
 $(PROGRAM): $(OBJS)
 	@echo Linking libpumpkin$(SOEXT)
+ifeq ($(OSNAME),Darwin)
+	@$(CC) $(OSDEFS) -dynamiclib -o $(PROGRAM) -install_name @rpath/libpumpkin$(SOEXT) -o $(PROGRAM) $(OBJS) $(EXTLIBS) -L$(BIN) -lpit
+else
 	@$(CC) $(OSDEFS) -shared -o $(PROGRAM) $(OBJS) $(EXTLIBS) -L$(BIN) -lpit -lm
+endif
 	@$(STRIP) $(PROGRAM)
 
 systrap.o: systrap.c switch.c

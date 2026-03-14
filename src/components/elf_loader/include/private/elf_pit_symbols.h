@@ -530,9 +530,6 @@ extern int CustomFree;
 extern int CustomMalloc;
 extern int CustomMallocInit;
 extern int thread_begin;
-extern int thread_begin2;
-extern int thread_client_read;
-extern int thread_client_read_timeout;
 extern int thread_client_write;
 extern int thread_close;
 extern int thread_end;
@@ -554,14 +551,11 @@ extern int thread_server_peek;
 extern int thread_server_read;
 extern int thread_server_read_timeout;
 extern int thread_server_read_timeout_from;
-extern int thread_server_write;
 extern int thread_set;
 extern int thread_set_flags;
 extern int thread_set_name;
 extern int thread_set_status;
 extern int thread_setmain;
-extern int thread_setup;
-extern int thread_unsetup;
 extern int thread_wait_all;
 extern int thread_yield;
 extern int cond_broadcast;
@@ -1124,9 +1118,6 @@ const struct esp_elfsym g_PitSyms_elfsyms[] = {
     ESP_ELFSYM_EXPORT(CustomMalloc),
     ESP_ELFSYM_EXPORT(CustomMallocInit),
     ESP_ELFSYM_EXPORT(thread_begin),
-    ESP_ELFSYM_EXPORT(thread_begin2),
-    ESP_ELFSYM_EXPORT(thread_client_read),
-    ESP_ELFSYM_EXPORT(thread_client_read_timeout),
     ESP_ELFSYM_EXPORT(thread_client_write),
     ESP_ELFSYM_EXPORT(thread_close),
     ESP_ELFSYM_EXPORT(thread_end),
@@ -1148,14 +1139,11 @@ const struct esp_elfsym g_PitSyms_elfsyms[] = {
     ESP_ELFSYM_EXPORT(thread_server_read),
     ESP_ELFSYM_EXPORT(thread_server_read_timeout),
     ESP_ELFSYM_EXPORT(thread_server_read_timeout_from),
-    ESP_ELFSYM_EXPORT(thread_server_write),
     ESP_ELFSYM_EXPORT(thread_set),
     ESP_ELFSYM_EXPORT(thread_set_flags),
     ESP_ELFSYM_EXPORT(thread_set_name),
     ESP_ELFSYM_EXPORT(thread_set_status),
     ESP_ELFSYM_EXPORT(thread_setmain),
-    ESP_ELFSYM_EXPORT(thread_setup),
-    ESP_ELFSYM_EXPORT(thread_unsetup),
     ESP_ELFSYM_EXPORT(thread_wait_all),
     ESP_ELFSYM_EXPORT(thread_yield),
     ESP_ELFSYM_EXPORT(cond_broadcast),

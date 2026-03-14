@@ -314,7 +314,7 @@ static param_t params[] = {
   { 0, 0, NULL }
 };
 
-#ifdef ANDROID
+#if defined(ANDROID) || defined(DARWIN)
 int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int width, int height, int depth, int fullscreen, int dia, int single, char *launcher) {
   libos_t *data;
   int mono, r = -1;

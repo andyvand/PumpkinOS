@@ -465,7 +465,7 @@ WinHandle WinSetDrawWindow(WinHandle winHandle) {
 #endif
 
   if (module != NULL) {
-    WinHandle prev = module->drawWindow;
+    prev = module->drawWindow;
         
     module->drawWindow = winHandle;
     debug(DEBUG_TRACE, "Window", "WinSetDrawWindow %s", WinGetDescr(module->drawWindow, buf, sizeof(buf)));

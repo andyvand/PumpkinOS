@@ -2,6 +2,10 @@
 #include "thread.h"
 #include "debug.h"
 
+#ifdef ESP32
+#include "esp_attr.h"
+#endif
+
 #define MAX_KEYS     256
 #define MAX_THREADS  256
 #define MAX_MESSAGES 256
@@ -32,7 +36,12 @@ typedef struct {
   jmp_buf jbuf;
 } thread_arg_t;
 
+#ifdef ESP32
+static EXT_RAM_BSS_ATTR thread_arg_t tasks[MAX_THREADS];
+#else
 static thread_arg_t tasks[MAX_THREADS];
+#endif
+
 static thread_key_t *local;
 static thread_key_t *tname;
 static int flags, status;
@@ -40,10 +49,20 @@ static int flags, status;
 static int current;
 
 static uint32_t num_threads;
+
+#ifdef ESP32
+static EXT_RAM_BSS_ATTR thread_ps_t ps[MAX_THREADS];
+#else
 static thread_ps_t ps[MAX_THREADS];
+#endif
 
 static uint32_t num_keys;
+
+#ifdef ESP32
+static EXT_RAM_BSS_ATTR thread_key_t keys[MAX_KEYS];
+#else
 static thread_key_t keys[MAX_KEYS];
+#endif
 
 void thread_init(void) {
   sys_memset(tasks, 0, sizeof(tasks));
@@ -252,11 +271,13 @@ int thread_server_peek(void) {
 
 int thread_end(char *tag, int id) {
   uint8_t packet;
-  int r;
+  int r = 0;
 
-  debug(DEBUG_INFO, "THREAD", "closing thread with id %d", id);
-  packet = 0;
-  r = thread_client_write(id, &packet, 1);
+  if (id >= 0) {
+    debug(DEBUG_INFO, "THREAD", "closing thread with id %d", id);
+    packet = 0;
+    r = thread_client_write(id, &packet, 1);
+  }
 
   return r;
 }

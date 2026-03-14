@@ -59,12 +59,16 @@ static texture_t *window_create_texture(window_t *window, int width, int height)
       xfree(texture);
       texture = NULL;
     }
+
+    xmemset(texture->buf, 0xFF, width * height * sizeof(pixel_t));
   }
 
   return texture;
 }
 
 int window_update_texture(window_t *_window, texture_t *texture, uint8_t *raw) {
+  xmemset(texture->buf, 0xFF, texture->width * texture->height * sizeof(pixel_t));
+
   if (texture && raw) {
     //debug(DEBUG_INFO, "MAIN", "window_update_texture");
     xmemcpy(texture->buf, raw, texture->width * texture->height * sizeof(pixel_t));
@@ -189,6 +193,7 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
   void *pixels;
   pixel_t *p, *src;
   int i, n;
+
 
   if (env && bitmap && texture && ty < texture->height && tx < texture->width && (tx + w) <= texture->width) {
     AndroidBitmap_getInfo(env, bitmap, &bi);

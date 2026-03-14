@@ -3066,13 +3066,6 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   FormType *formP = NULL;
   UInt32 value = 0;
 
-#if defined(WINDOWS) || defined(DARWIN)
-  if (!(launchFlags & sysAppLaunchFlagFork)) {
-    pumpkin_set_mode(0, 1, 16);
-    pumpkin_set_taskbar(1);
-  }
-#endif
-
   switch (cmd) {
     case sysAppLaunchCmdNormalLaunch:
       break;
