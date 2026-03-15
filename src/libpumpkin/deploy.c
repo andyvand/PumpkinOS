@@ -85,7 +85,7 @@ void pumpkin_registry_create(UInt32 creator) {
   regEnd.littleEndian = 0;
   pumpkin_reg_set(creator, regEndianID, &regEnd, sizeof(RegDisplayEndianType));
 
-  regSnd.enableSound = 0;
+  regSnd.enableSound = 1;
   pumpkin_reg_set(creator, regSoundID, &regSnd, sizeof(RegSoundType));
 }
 

@@ -1043,7 +1043,7 @@ Err SndPlayResource(SndPtr sndP, Int32 volume, UInt32 flags) {
 static Err playFrequency(Int32 frequency, UInt32 numSamples, UInt16 volume) {
   snd_module_t *module = (snd_module_t *)pumpkin_get_local_storage(snd_key);
   UInt32 size, i;
-  UInt16 *buffer;
+  UInt16 *buffer = NULL;
   double angle, pi2;
   SndStreamRef channel;
   Err err = sndErrBadParam;
@@ -1054,7 +1054,9 @@ static Err playFrequency(Int32 frequency, UInt32 numSamples, UInt16 volume) {
     pi2 = 2.0 * sys_pi();
     for (i = 0; i < numSamples; i++) {
       angle = (i * pi2 * frequency) / DOCMD_SAMPLE_RATE;
-      buffer[i] = (UInt16)(sys_sin(angle) * 32767.0);
+      if (buffer != NULL) {
+        buffer[i] = (UInt16)(sys_sin(angle) * 32767.0);
+      }
     }
     if (module->lastChannel) {
       debug(DEBUG_TRACE, "Sound", "playFrequency delete previous channel %d", module->lastChannel);
@@ -1103,7 +1105,7 @@ Err SndDoCmd(void * /*SndChanPtr*/ channelP, SndCommandPtr cmdP, Boolean noWait)
           if (volume > sndMaxAmp) volume = sndMaxAmp;
           volume <<= 4; // 0..64 -> 0..1024
           module->lastFrequency = cmdP->param1;
-          size = (cmdP->param2 * DOCMD_SAMPLE_RATE) / 1000;
+          size = (UInt32)(((double)cmdP->param2 * DOCMD_SAMPLE_RATE) / 1000);
           err = playFrequency(cmdP->param1, size, volume);
         }
         break;
@@ -1122,7 +1124,7 @@ Err SndDoCmd(void * /*SndChanPtr*/ channelP, SndCommandPtr cmdP, Boolean noWait)
           volume <<= 4; // 0..64 -> 0..1024
           module->lastVolume = volume;
           module->lastFrequency = cmdP->param1;
-          size = (cmdP->param2 * DOCMD_SAMPLE_RATE) / 1000;
+          size = (UInt32)(((double)cmdP->param2 * DOCMD_SAMPLE_RATE) / 1000);
           err = playFrequency(cmdP->param1, size, volume);
         }
         break;
@@ -1142,7 +1144,7 @@ Err SndDoCmd(void * /*SndChanPtr*/ channelP, SndCommandPtr cmdP, Boolean noWait)
           volume <<= 3; // 0..127 -> 0..1016
           if (volume >= 1016) volume = 1024;
           module->lastFrequency = module->midiNoteFreqency[cmdP->param1];
-          size = (cmdP->param2 * DOCMD_SAMPLE_RATE) / 1000;
+          size = (UInt32)(((double)cmdP->param2 * DOCMD_SAMPLE_RATE) / 1000);
           err = playFrequency(module->lastFrequency, size, volume);
         }
         break;

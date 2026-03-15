@@ -186,9 +186,9 @@ static int libsdl_init_audio(void) {
           name = SDL_GetAudioDeviceName(devices[i]);
           debug(DEBUG_INFO, "SDL", "audio device %d \"%s\"", i, name);
         }
+        r = 0;
       }
 
-      r = 0;
     }
   }
 
@@ -1513,21 +1513,23 @@ static int audio_action(void *_arg) {
                 if (cvtstream != NULL) {
                   const double mult = ((double)obtained.freq / (double)audio->rate);
                   newlen = len2 * mult;
-                  if (buf) sys_free(buf);
                   debug(DEBUG_INFO, "SDL", "increasing buffer to %d bytes", newlen);
                   buflen = newlen;
                   buf = sys_calloc(1, buflen);
-                  debug(DEBUG_INFO, "SDL", "converting audio src=%d bytes, dst=%d bytes", len2, newlen);
-                  if ((SDL_PutAudioStreamData(cvtstream, audio->buffer, len2) == false) ||
-                      (SDL_FlushAudioStream(cvtstream) == false)) {
-                    debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
-                  }
-                  if (SDL_GetAudioStreamData(cvtstream, buf, buflen) == false) {
-                    debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamData failed: %s", SDL_GetError());
-                  }
-                  SDL_DestroyAudioStream(cvtstream);
-                  if (SDL_PutAudioStreamData(audioStream, buf, newlen) == false) {
-                    debug(DEBUG_ERROR, "SDL", "SDL_QueueAudio failed: %s", SDL_GetError());
+                  if (buf) {
+                    debug(DEBUG_INFO, "SDL", "converting audio src=%d bytes, dst=%d bytes", len2, newlen);
+                    if ((SDL_PutAudioStreamData(cvtstream, audio->buffer, len2) == false) ||
+                        (SDL_FlushAudioStream(cvtstream) == false)) {
+                      debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
+                    }
+                    if (SDL_GetAudioStreamData(cvtstream, buf, buflen) == false) {
+                      debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamData failed: %s", SDL_GetError());
+                    }
+                    SDL_DestroyAudioStream(cvtstream);
+                    if (SDL_PutAudioStreamData(audioStream, buf, newlen) == false) {
+                      debug(DEBUG_ERROR, "SDL", "SDL_QueueAudio failed: %s", SDL_GetError());
+                    }
+                    sys_free(buf);
                   }
                 }
               } else {
@@ -1538,7 +1540,6 @@ static int audio_action(void *_arg) {
               if (len2 != len1) break;
             }
             ptr_unlock(ptr, TAG_AUDIO);
-            if (buf) sys_free(buf);
           }
           ptr_free(ptr, TAG_AUDIO);
           debug(DEBUG_INFO, "SDL", "handled ptr %d", ptr);

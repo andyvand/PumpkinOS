@@ -795,7 +795,7 @@ void pumpkin_init_misc(void) {
     prefs.value[pLockModifiers] = WINDOW_MOD_SHIFT;
     prefs.value[pBorderWidth] = BORDER_SIZE;
     prefs.value[pBackgroundImage] = 0;
-    prefs.value[pEnableSound] = 0;
+    prefs.value[pEnableSound] = 1;
     prefs.color[pMonoBackground] = monoBackground;
     prefs.color[pMonoSelectedBorder] = monoSelectedBorder;
     prefs.color[pMonoUnselectedBorder] = monoUnselectedBorder;
