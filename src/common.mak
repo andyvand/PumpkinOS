@@ -125,7 +125,7 @@ FC=gfortran
 else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS (DJGPP cross compiler). Everything is linked statically into a
 # single pumpkinos.exe (see src/msdos), there are no shared objects.
-SYS_OS=7
+SYS_OS=8
 EXTLIBS=-lm
 SOEXT=.a
 LUAPLAT=linux
@@ -222,6 +222,16 @@ OS=Linux
 OSDEFS=$(MBITS) -DKERNEL $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
 PILRCDEFS=-D KERNEL
 CC=gcc
+
+else ifeq ($(OSNAME),Haiku)
+SYS_OS=7
+EXTLIBS=-lnetwork
+SOEXT=.so
+LUAPLAT=posix
+OS=Haiku
+OSDEFS=$(MBITS) -DHAIKU -DSOEXT=\"$(SOEXT)\"
+CC=gcc
+FC=gfortran
 
 else
 $(error Unknown OS $(OSNAME))

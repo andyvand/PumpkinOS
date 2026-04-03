@@ -94,7 +94,7 @@ typedef uint32_t in_addr_t;
 #include <sys/statvfs.h>
 #endif
 #else
-#ifndef DOS
+#if !defined(DOS) && !defined(HAIKU)
 #include <sys/syscall.h>
 #endif
 
@@ -115,6 +115,9 @@ typedef uint32_t in_addr_t;
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#if defined(HAIKU)
+#include <OS.h>
+#endif
 #endif
 
 #ifdef DOS
@@ -853,6 +856,10 @@ uint32_t sys_get_tid(void) {
 #endif
 #if defined(EMSCRIPTEN)
   return 0;
+#endif
+#if defined(HAIKU)
+  thread_id id = find_thread(NULL);
+  return id;
 #endif
 #if defined(KERNEL) || defined(ESP32) || defined(DOS)
   return 0;
@@ -2817,7 +2824,7 @@ int64_t sys_get_clock(void) {
   ts = (int64_t)((now * info.numer) / (info.denom * 1000));
 #elif defined(ESP32)
   ts = esp_timer_get_time();
-#elif defined(EMSCRIPTEN)
+#elif defined(EMSCRIPTEN) || defined(HAIKU)
   ts = gettime(CLOCK_MONOTONIC);
 #else
 #if _POSIX_TIMERS > 0

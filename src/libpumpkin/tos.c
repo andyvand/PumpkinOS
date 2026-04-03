@@ -1234,7 +1234,7 @@ static uint32_t tos_gemdos_systrap(void) {
   uint32_t atv = 0;
   struct g_timeval *tv = NULL;
   uint32_t atzp = 0;
-  timezone *tzp = NULL;
+  timezone_t *tzp = NULL;
   struct g_timeval *deltat = NULL;
   int32_t aolddelta = 0;
   struct g_timeval *olddelta = NULL;

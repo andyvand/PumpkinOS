@@ -1646,7 +1646,7 @@
         tv = (struct g_timeval *)(memory + atv);
         valid |= (uint8_t *)tv >= data->memory && (uint8_t *)tv < data->memory + data->memorySize;
         atzp = ARG32;
-        tzp = (timezone *)(memory + atzp);
+        tzp = (timezone_t *)(memory + atzp);
         valid |= (uint8_t *)tzp >= data->memory && (uint8_t *)tzp < data->memory + data->memorySize;
         res = 0;
         if (valid) {
@@ -1663,7 +1663,7 @@
         tv = (struct g_timeval *)(memory + atv);
         valid |= (uint8_t *)tv >= data->memory && (uint8_t *)tv < data->memory + data->memorySize;
         atzp = ARG32;
-        tzp = (timezone *)(memory + atzp);
+        tzp = (timezone_t *)(memory + atzp);
         valid |= (uint8_t *)tzp >= data->memory && (uint8_t *)tzp < data->memory + data->memorySize;
         res = 0;
         if (valid) {

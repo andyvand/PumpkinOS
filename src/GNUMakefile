@@ -80,6 +80,10 @@ else ifeq ($(OSNAME),msdosdjgpp)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
 EXTRA_MODULES=msdos
 
+else ifeq ($(OSNAME),Haiku)
+
+EXTRA_MODULES=liblsdl2 haiku
+
 else ifeq ($(OSNAME),Emscripten)
 
 EMCC=$(shell which emcc)

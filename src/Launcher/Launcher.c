@@ -3189,6 +3189,9 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
       debug(DEBUG_INFO, PUMPKINOS, "Host OS is Kernel");
       break;
     case 7:
+      debug(DEBUG_INFO, PUMPKINOS, "Host OS is Haiku");
+      break;
+    case 8:
       debug(DEBUG_INFO, PUMPKINOS, "Host OS is MS-DOS");
       break;
     default:

@@ -52,6 +52,11 @@ if not lib then
   return
 end
 
+fullrefresh = false
+if pit.getenv("BE_HOST_CPU") then
+  fullrefresh = true
+end
+
 pit.mount("./vfs/", "/")
 
 -- TLS provider: makes https:// work in the HTTP client (e.g. the Browser app).
@@ -69,6 +74,7 @@ pumpkin.start {
   width    = 640,
   height   = 480,
   abgr     = abgr,
+  fullrefresh = fullrefresh,
   depth    = 16,
   hdepth   = 16,
 }
