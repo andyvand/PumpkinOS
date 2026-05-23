@@ -1,3 +1,0 @@
-(c) uARM project    https://github.com/uARM-Palm/uARM    uARM@dmitry.gr
-
-See GPLv3.txt for license information.

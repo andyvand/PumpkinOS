@@ -13,3 +13,9 @@ CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0=n
 CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=n
 CONFIG_FREERTOS_USE_TRACE_FACILITY=y
 CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y
+
+# Touch rotation must match display rotation. The display config sets
+# CONFIG_BSP_DISPLAY_ROTATION_MIRROR_X; touch needs the same MIRROR_X
+# (not MIRROR_Y) so taps line up with what's drawn underneath them.
+CONFIG_BSP_TOUCH_ROTATION_MIRROR_X=y
+# CONFIG_BSP_TOUCH_ROTATION_MIRROR_Y is not set

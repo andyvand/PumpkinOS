@@ -29,53 +29,63 @@ void ESPIDF_InitTouch(void)
 #endif
 }
 
+#if CONFIG_BSP_TOUCH_ENABLED
+static SDL_Window *espidf_get_window(void)
+{
+    SDL_VideoDevice *device = SDL_GetVideoDevice();
+    if (!device) {
+        return NULL;
+    }
+    return device->windows;
+}
+#endif
+
 void ESPIDF_PumpTouchEvent(void)
 {
 #if CONFIG_BSP_TOUCH_ENABLED
     SDL_Window *window;
-    SDL_VideoDisplay *display;
     static bool was_pressed = false;
+    static uint16_t last_x = 0;
+    static uint16_t last_y = 0;
     bool pressed;
 
     uint16_t touchpad_x[1] = {0};
     uint16_t touchpad_y[1] = {0};
     uint8_t touchpad_cnt = 0;
 
+    if (!touch_handle) {
+        return;
+    }
+
     esp_lcd_touch_read_data(touch_handle);
     bool touchpad_pressed = esp_lcd_touch_get_coordinates(touch_handle, touchpad_x, touchpad_y, NULL, &touchpad_cnt, 1);
-    pressed = (touchpad_x[0] != 0 || touchpad_y[0] != 0);
+    pressed = touchpad_pressed && touchpad_cnt > 0;
 
-    display = NULL;
-    window = display ? display->fullscreen_window : NULL;
+    window = espidf_get_window();
+    if (!window) {
+        return;
+    }
 
     if (pressed != was_pressed) {
         was_pressed = pressed;
-        ESP_LOGI("SDL", "touchpad_pressed: %d, [%d, %d]", touchpad_pressed, touchpad_x[0], touchpad_y[0]);
-#if 1
-        if (pressed)
-        {
-            SDL_PerformWarpMouseInWindow(window, touchpad_x[0], touchpad_y[0], false);
+        ESP_LOGI("SDL", "touchpad_pressed: %d, [%d, %d]", pressed, touchpad_x[0], touchpad_y[0]);
+        if (pressed) {
+            last_x = touchpad_x[0];
+            last_y = touchpad_y[0];
+            SDL_PerformWarpMouseInWindow(window, (float)touchpad_x[0], (float)touchpad_y[0], false);
+            SDL_SendMouseButton(0, window, SDL_TOUCH_MOUSEID, SDL_BUTTON_LEFT, true);
+        } else {
+            // Release: report up at last known position; don't warp to (0,0)
+            SDL_SendMouseButton(0, window, SDL_TOUCH_MOUSEID, SDL_BUTTON_LEFT, false);
         }
-        SDL_SendMouseButton(0, window, SDL_MOUSE_TOUCHID, 1, pressed);
-#else
-        SDL_SendTouch(0, SDL_MOUSE_TOUCHID, ESPIDF_TOUCH_FINGER,
-                      window,
-                      pressed,
-                      touchpad_x[0],
-                      touchpad_y[0],
-                      pressed ? 1.0f : 0.0f);
-#endif
     } else if (pressed) {
-#if 0
-        SDL_SendTouchMotion(0, SDL_MOUSE_TOUCHID, ESPIDF_TOUCH_FINGER,
-                            window,
-                            touchpad_x[0],
-                            touchpad_y[0],
-                            1.0f);
-#else
-        SDL_PerformWarpMouseInWindow(window, touchpad_x[0], touchpad_y[0], false);
-        SDL_SendMouseButton(0, window, SDL_MOUSE_TOUCHID, 1, pressed);
-#endif
+        // Held: emit motion only when the position actually changed
+        if (touchpad_x[0] != last_x || touchpad_y[0] != last_y) {
+            last_x = touchpad_x[0];
+            last_y = touchpad_y[0];
+            SDL_SendMouseMotion(0, window, SDL_TOUCH_MOUSEID, false,
+                                (float)touchpad_x[0], (float)touchpad_y[0]);
+        }
     }
 #endif
 }

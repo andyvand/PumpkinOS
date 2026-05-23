@@ -179,8 +179,9 @@ IRAM_ATTR bool SDL_ESPIDF_UpdateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Wi
     // Without PPA, send chunks directly from src_pixels
     for (int y = 0; y < surface->h; y += max_chunk_height) {
         int height = (y + max_chunk_height > surface->h) ? (surface->h - y) : max_chunk_height;
+        int pixels_in_chunk = surface->w * height;
 
-        for (int i = 0; i < surface->w * max_chunk_height; i++) {
+        for (int i = 0; i < pixels_in_chunk; i++) {
             uint16_t rgba = ((uint16_t *)surface->pixels)[y * surface->w + i];
             uint8_t g = (rgba >> 11) & 0xFF;
             uint8_t r = (rgba >> 5) & 0xFF;

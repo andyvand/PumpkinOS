@@ -155,8 +155,15 @@ static void EventLoop(libos_t *data) {
   set_main_loop(callback, data);
   // not reached
 #else
+#if defined(ESP32)
+  // No host OS pumps SDL events for us; the only poll is in
+  // pumpkin_sys_event(), so a 1s message timeout would stall touch.
+  const uint32_t loop_timeout_ms = 16;
+#else
+  const uint32_t loop_timeout_ms = 1000;
+#endif
   for (; !thread_get_flags(FLAG_FINISH);) {
-    if (LoopIteration(data, 1000) == -1) break;
+    if (LoopIteration(data, loop_timeout_ms) == -1) break;
   }
 #endif
 }

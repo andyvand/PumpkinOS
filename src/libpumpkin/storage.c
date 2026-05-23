@@ -705,7 +705,13 @@ int StoInit(char *path, mutex_t *mutex) {
     sto->end = sto->base + sto->size;
     sys_strncpy(sto->path, path, MAX_STORAGE_PATH - 1);
     if ((sto->session = vfs_open_session()) != NULL) {
-      if ((dir = StoVfsOpendir(sto->session, sto->path)) != NULL) {
+      dir = StoVfsOpendir(sto->session, sto->path);
+      if (dir == NULL) {
+        // First boot: storage dir doesn't exist yet. Create it and retry.
+        StoVfsMkdir(sto->session, sto->path);
+        dir = StoVfsOpendir(sto->session, sto->path);
+      }
+      if (dir != NULL) {
         for (;;) {
           ent = StoReadEnt(dir);
           if (ent == NULL) break;
@@ -1058,7 +1064,7 @@ LocalID DmFindDatabase(UInt16 cardNo, const Char *nameP) {
   LocalID dbID = 0;
   Err err = dmErrCantFind;
 
-  if (nameP) {
+  if (nameP && sto) {
     for (db = sto->list; db; db = db->next) {
       if (sys_strcmp(db->name, nameP) == 0) {
         dbID = (LocalID)((uint8_t *)db - sto->base);
