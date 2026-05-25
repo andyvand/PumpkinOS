@@ -146,6 +146,7 @@ typedef struct {
   uint32_t eventKeyMask;
   uint64_t lastMotion;
   int dirty_level;
+  int updating_single_app;
   texture_t *texture;
   LocalID dbID;
   UInt32 creator;
@@ -4290,6 +4291,22 @@ void pumpkin_dirty_region_mode(dirty_region_e d) {
               screen->dirty = 1;
             }
             ptr_unlock(task->screen_ptr, TAG_SCREEN);
+          }
+          // In single-app mode the only thing that flushes screen->dirty to
+          // the texture is pumpkin_update_single_app called from
+          // pumpkin_screen_dirty. While a dirty region is open, those calls
+          // see dirty=0 and skip the upload. Without this end-of-batch flush
+          // a freshly-launched app's FrmDrawForm pixels never reach the
+          // display until the next stray draw — leaving the screen white.
+          //
+          // Re-entrance guard: pumpkin_update_single_app -> dia_update calls
+          // WinPaintBitmap, which opens its own dirty region and would
+          // recursively call us here, blowing the stack.
+          if (pumpkin_module.mode == 1 && pumpkin_module.launched &&
+              !task->updating_single_app) {
+            task->updating_single_app = 1;
+            pumpkin_update_single_app();
+            task->updating_single_app = 0;
           }
         }
         break;
