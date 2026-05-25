@@ -211,5 +211,5 @@ void app_main(void)
     ESP_LOGI(__func__, "SD card mounted.\n");
 #endif
 
-    xTaskCreatePinnedToCore(&app_task, "app_task", 40000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
+    xTaskCreatePinnedToCore(&app_task, "app_task", 20000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
 }

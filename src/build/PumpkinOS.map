@@ -70863,9 +70863,10 @@ LOAD /Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-
                 0x4200e5ec       0xc3 esp-idf/main/libmain.a(main.c.obj)
  *fill*         0x4200e6af        0x1 
  .text.app_main
-                0x4200e6b0       0x98 esp-idf/main/libmain.a(main.c.obj)
-                                 0x9c (size before relaxing)
+                0x4200e6b0       0x97 esp-idf/main/libmain.a(main.c.obj)
+                                 0x9b (size before relaxing)
                 0x4200e6b0                app_main
+ *fill*         0x4200e747        0x1 
  .text.libos_app_init
                 0x4200e748       0x53 esp-idf/libos/liblibos.a(libos.c.obj)
                                  0x5f (size before relaxing)
@@ -142233,6 +142234,7 @@ LOAD /Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-
  .text.esp_vfs_include_nullfs_register
                 0x42224890        0x5 esp-idf/vfs/libvfs.a(nullfs.c.obj)
                 0x42224890                esp_vfs_include_nullfs_register
+ *fill*         0x42224895        0x0 
  *fill*         0x42224895        0x0 
  *fill*         0x42224895        0x0 
  *fill*         0x42224895        0x0 

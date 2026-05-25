@@ -1,0 +1,27 @@
+Command: ninja all
+[1/5] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-6.0/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/andyvand/Downloads/PumpkinOS/src/build/partition_table/partition-table.bin /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+PumpkinOS.bin binary size 0x33a400 bytes. Smallest app partition is 0x3f0000 bytes. 0xb5c00 bytes (18%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-6.0/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/bootloader.bin
+Bootloader binary size 0x5320 bytes. 0x2ce0 bytes (35%) free.
+[3/5] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/Downloads/PumpkinOS/src/build/littlefs_py_venv/bin/littlefs-python create /Users/andyvand/Downloads/PumpkinOS/src/data /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin -v --fs-size=0xc00000 --name-max=64 --block-size=4096
+LittleFS Configuration:
+  Block Size:       4096  /  0x1000
+  Image Size:   12582912  /  0xC00000
+  Block Count:      3072
+  Name Max:           64
+  Image:       /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin
+Adding Directory: vfs
+Adding Directory: vfs/app_install
+Adding File:      vfs/app_install/ToDoList.prc
+Adding File:      vfs/app_install/BOOT.prc
+Adding File:      vfs/app_install/Preferences.prc
+Adding File:      vfs/app_install/AddressBook.prc
+Adding File:      vfs/app_install/Command.prc
+Adding File:      vfs/app_install/SpaceTrader.prc
+Adding File:      vfs/app_install/MineHunt.prc
+Adding File:      vfs/app_install/MemoPad.prc
+Adding File:      vfs/app_install/Launcher.prc
+Adding File:      vfs/app_install/DateBook.prc
+[4/5] No install step for 'bootloader'
+[5/5] Completed 'bootloader'
