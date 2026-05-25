@@ -32,6 +32,10 @@
  *
  **********************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 
 // *************************************************************************
@@ -91,7 +95,7 @@ void DrawShortRange( int Index )
     FormPtr frmP;
 	RectangleType bounds;
 	int i, j, Xs, Ys, Xp, Yp, delta;
-	int dX, dY, dX3, dY3, distToTracked;
+	int dX, dY, dX3, dY3, distToTracked = 0;
 
 	frmP = FrmGetActiveForm();
 

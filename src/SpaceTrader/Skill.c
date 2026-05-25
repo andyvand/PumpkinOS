@@ -51,6 +51,10 @@
 // mm/dd/yy - description - author
 // *************************************************************************
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 
 

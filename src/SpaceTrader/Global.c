@@ -38,6 +38,10 @@
 // access to the global variable
 //
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #define PILOT_PRECOMPILED_HEADERS_OFF 1
 
 #include <PalmOS.h>

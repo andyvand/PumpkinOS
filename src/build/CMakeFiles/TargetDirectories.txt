@@ -1265,6 +1265,13 @@
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/LuaSyntax/CMakeFiles/install.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/LuaSyntax/CMakeFiles/install/local.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/LuaSyntax/CMakeFiles/install/strip.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/edit_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/rebuild_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/list_install_components.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/install.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/install/local.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/install/strip.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/edit_cache.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/rebuild_cache.dir

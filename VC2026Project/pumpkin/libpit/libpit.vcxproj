@@ -1,0 +1,427 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64EC">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64EC</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64EC">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64EC</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F5AFB33F-49D4-4A4A-BC0C-A7AD7CFD06AE}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libpit</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS32;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows" ;APPNAME="" ;APPID='';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64; SOEXT=".dll" ;LOGTRAP_SYSWIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=1;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.15063.0\um\arm</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS32;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows" ;APPNAME="" ;APPID='';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64; SOEXT=".dll" ;LOGTRAP_SYSWIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=1;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.15063.0\um\arm</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>HAS_TIMESPEC;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPIT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>..\..\..\src\libpit\libpit.def</ModuleDefinitionFile>
+      <AdditionalDependencies>$(SolutionDir)\$(Platform)\$(Configuration)\winpthread.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\libpit\main.c" />
+    <ClCompile Include="..\..\..\src\libpit\sig.c" />
+    <ClCompile Include="..\..\..\src\libpit\sys.c" />
+    <ClCompile Include="..\..\..\src\libpit\math.c" />
+    <ClCompile Include="..\..\..\src\libpit\malloc.c" />
+    <ClCompile Include="..\..\..\src\libpit\strtol.c" />
+    <ClCompile Include="..\..\..\src\libpit\strtoul.c" />
+    <ClCompile Include="..\..\..\src\libpit\ctype.c" />
+    <ClCompile Include="..\..\..\src\libpit\bsearch.c" />
+    <ClCompile Include="..\..\..\src\libpit\printf.c" />
+    <ClCompile Include="..\..\..\src\libpit\string.c" />
+    <ClCompile Include="..\..\..\src\libpit\ptr.c" />
+    <ClCompile Include="..\..\..\src\libpit\debug.c" />
+    <ClCompile Include="..\..\..\src\libpit\builtin.c" />
+    <ClCompile Include="..\..\..\src\libpit\list.c" />
+    <ClCompile Include="..\..\..\src\libpit\sock.c" />
+    <ClCompile Include="..\..\..\src\libpit\io.c" />
+    <ClCompile Include="..\..\..\src\libpit\loadfile.c" />
+    <ClCompile Include="..\..\..\src\libpit\util.c" />
+    <ClCompile Include="..\..\..\src\libpit\bytes.c" />
+    <ClCompile Include="..\..\..\src\libpit\ts.c" />
+    <ClCompile Include="..\..\..\src\libpit\yuv.c" />
+    <ClCompile Include="..\..\..\src\libpit\graphic.c" />
+    <ClCompile Include="..\..\..\src\libpit\vfont.c" />
+    <ClCompile Include="..\..\..\src\libpit\surface.c" />
+    <ClCompile Include="..\..\..\src\libpit\time.c" />
+    <ClCompile Include="..\..\..\src\libpit\timeutc.c" />
+    <ClCompile Include="..\..\..\src\libpit\media.c" />
+    <ClCompile Include="..\..\..\src\libpit\xalloc.c" />
+    <ClCompile Include="..\..\..\src\libpit\endianness.c" />
+    <ClCompile Include="..\..\..\src\libpit\gps.c" />
+    <ClCompile Include="..\..\..\src\libpit\vfs.c" />
+    <ClCompile Include="..\..\..\src\libpit\vfslocal.c" />
+    <ClCompile Include="..\..\..\src\libpit\filter.c" />
+    <ClCompile Include="..\..\..\src\libpit\telnet.c" />
+    <ClCompile Include="..\..\..\src\libpit\ctelnet.c" />
+    <ClCompile Include="..\..\..\src\libpit\login.c" />
+    <ClCompile Include="..\..\..\src\libpit\pterm.c" />
+    <ClCompile Include="..\..\..\src\libpit\bmp.c" />
+    <ClCompile Include="..\..\..\src\libpit\findargs.c" />
+    <ClCompile Include="..\..\..\src\libpit\rgb.c" />
+    <ClCompile Include="..\..\..\src\libpit\average.c" />
+    <ClCompile Include="..\..\..\src\libpit\custom_malloc.c" />
+    <ClCompile Include="..\..\..\src\libpit\script.c" />
+    <ClCompile Include="..\..\..\src\libpit\threadudp.c" />
+    <ClCompile Include="..\..\..\src\libpit\mutex.c" />
+    <ClCompile Include="..\..\..\src\libpit\httpc.c" />
+    <ClCompile Include="..\..\..\src\libpit\httpd.c" />
+    <ClCompile Include="..\..\..\src\libpit\template.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

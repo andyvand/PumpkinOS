@@ -85,6 +85,10 @@
 //
 // *************************************************************************
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 
 static char* HIGHSCORENAME = "SpaceTraderDB";
@@ -478,7 +482,7 @@ static void DeterminePrices( Byte SystemID )
 // *************************************************************************
 void DoWarp( Boolean viaSingularity )
 {
-	int i, Distance;
+	int i = 0, Distance = 0;
 
 	// if Wild is aboard, make sure ship is armed!
 	if (WildStatus == 1)
@@ -602,7 +606,7 @@ void DoWarp( Boolean viaSingularity )
 static void ShowExecuteWarp( void )
 {
 	FormPtr frmP;
-	int Distance;
+	int Distance = 0;
 
 	frmP = FrmGetActiveForm();
 

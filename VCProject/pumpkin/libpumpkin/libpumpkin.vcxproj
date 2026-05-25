@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{50587DCF-A799-4628-B878-671D9789132E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libpumpkin</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS32;SOEXT=".dll";LOGTRAP_SYS;_WIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPUMPKIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src\libpumpkin;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)$(Configuration)\winpthread.lib;$(SolutionDir)$(Configuration)\libpit.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>..\..\..\src\libpumpkin\libpumpkin.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows" ;APPNAME="" ;APPID='';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64; SOEXT=".dll" ;LOGTRAP_SYS;_WIN32;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBPUMPKIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\libpumpkin;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)$(Platform)\$(Configuration)\winpthread.lib;$(SolutionDir)$(Platform)\$(Configuration)\libpit.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>..\..\..\src\libpumpkin\libpumpkin.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="";APPID='';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS32;SOEXT=".dll";LOGTRAP_SYS;_WIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPUMPKIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src\libpumpkin;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>$(SolutionDir)$(Configuration)\winpthread.lib;$(SolutionDir)$(Configuration)\libpit.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>..\..\..\src\libpumpkin\libpumpkin.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows" ;APPNAME="" ;APPID='';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64; SOEXT=".dll" ;LOGTRAP_SYS;_WIN32;WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBPUMPKIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\src\libpumpkin;..\..\..\src\emulation;..\..\..\emulation\arm;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOs\PalmOne;..\..\..\src\PalmOs\PalmOne\Common;..\..\..\src\PalmOs\PalmOne\Common\System;..\..\..\src\PalmOs\PalmOne\68K;..\..\..\src\PalmOs\PalmOne\68K\System;..\..\..\src\PalmOS\PalmOne\Common\Libraries\filebrowser;..\..\..\src\PalmOS\PalmOne\68K\Libraries\filebrowser;..\..\..\src\PalmOS\Libraries\SSL;..\..\..\src\PalmOS\Libraries\CPMLib;..\..\..\src\PalmOS\Libraries\Pdi;..\..\..\src\PalmOS\Garmin;..\..\..\src\PalmOS\Libraries\PalmOSGlue;..\..\..\src\PalmOS\Libraries\INet;..\..\..\src\PalmOS\Core\Hardware;..\..\..\src\PalmOS\Extensions\ExpansionMgr;..\..\..\src\PalmOS\Extensions\Bluetooth;..\..\..\src\PalmOS;..\..\..\src\PalmOS\Libraries;..\..\..\src\PalmOS\Core;..\..\..\src\PalmOS\Core\UI;..\..\..\src\PalmOS\Core\System;..\..\..\src\PalmOS\Dynamic;..\..\..\src\libpit;..\..\..\src\libemulation;..\..\..\src\font;..\..\..\src\libpumpkin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>$(SolutionDir)$(Platform)\$(Configuration)\winpthread.lib;$(SolutionDir)$(Platform)\$(Configuration)\libpit.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>..\..\..\src\libpumpkin\libpumpkin.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\libpumpkin\launch_serde_wce.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\notif_serde_wce.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\build.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\pumpkin.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\pumpkin_syscall.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\deploy.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\storage.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\script.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\fill.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\AboutBox.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\AddressSortLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\AlarmMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\AttentionMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Bitmap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\CharAttr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ColorTable.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\BtLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Category.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Clipboard.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ConnectionMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ConsoleMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Control.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\CPMLib68KInterface.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Crc.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\DateTime.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Day.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\DebugMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\DLServer.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Encrypt.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\md5.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\sha1.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ErrorBase.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Event.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ExgLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ExgMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ExpansionMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FatalAlert.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FeatureMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Field.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FileStream.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Find.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FixedMath.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FloatMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Font.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FontSelect.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Form.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FSLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Graffiti.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\GraffitiReference.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\GraffitiShift.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\HAL.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\HostControl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\IMCUtils.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\INetMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\InsPoint.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\IntlMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\IrLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Keyboard.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\KeyMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Launcher.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\List.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\LocaleMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Localize.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Lz77Mgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Menu.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ModemMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\NetBitUtils.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\NetMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\OverlayMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Password.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\PceNativeCall.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\PdiLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\PenInputMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\PenMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\PhoneLookup.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Preferences.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\PrivateRecords.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Progress.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Rect.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ScrollBar.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SelTime.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SelDay.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SelTimeZone.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SerialLinkMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SerialMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SerialMgrOld.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SerialSdrv.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SerialVdrv.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SlotDrvrLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SoundMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SslLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\StringMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SysEvtMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SystemMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\SysUtils.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Table.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\TelephonyMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\TextMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\TextServicesMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\TimeMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\UDAMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\UIColor.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\UIControls.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\UIResources.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\VFSMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\VFSExplorer.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FileBrowser.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Window.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\Chat.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\cmheap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\grail.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\wav.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\dia.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\taskbar.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\wman.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\peditor.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\syntax.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\edit.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\RegistryMgr.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\language.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\calibrate.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\unzip.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\junzip.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\puff.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\plibc.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\dosbox.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\ssfn_font.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\logtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\BmpGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\CtlGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\DateGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FldGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FntGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\FrmGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\LstGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\MemGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\TblGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\TxtGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\WinGlue.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\GPSLib68K.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\GPDLib.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\emupalmos.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\armsyscall.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\omtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\pinstrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\hdtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\serialtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\fstrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\intltrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\flpemtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\flptrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\accessortrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\expansiontrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\tsmtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\lmtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\navtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\netlibtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\gpdlibtrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\systrap.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\m68kcpu.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\softfloat.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\m68kops.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\disasm.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\emu_notif_serde.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\emu_launch_serde.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\armem.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\armemu.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\CPU.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\icache.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\MMU.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\RAM.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\pxa_IC.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\cp15.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\armv7.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\armv7-tbl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\darm.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\darm-tbl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\thumb.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\thumb2.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\thumb2-decoder.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\thumb2-tbl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\thumb-tbl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\emulator.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\tos.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\gemdos_impl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\bios_impl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\xbios_impl.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\vdi.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\aes.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\kdtree.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\DllMain.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

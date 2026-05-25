@@ -38,6 +38,10 @@
 //#define ALLOW_ACCESS_TO_INTERNALS_OF_BITMAPS 1
 //#endif
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 //#include <scrDriver.h>
 
@@ -98,12 +102,8 @@ static Err GraphicsSupport( void )
 #else
 	UInt32 depth, reqmode, reqmodedec;
 
-#ifdef BPP8	
-	Boolean color;
-#endif
-
-#ifdef BPP16	
-	Boolean color;
+#if defined(BPP8) || defined(BPP16)
+	Boolean color = false;
 #endif
 
 	DWord romVersion;
@@ -138,7 +138,7 @@ static Err GraphicsSupport( void )
 #endif
 #endif
 
-#ifndef BPP4		
+#ifndef BPP4
     WinScreenMode( winScreenModeGetSupportsColor, NULL, NULL, NULL, &color );
 	if (!color)
 	{
@@ -984,7 +984,11 @@ long MerchantPilotMain( Word cmd, Ptr cmdPBP, Word launchFlags )
 // *************************************************************************
 // This is the main entry point for the application.
 // *************************************************************************
+#ifdef ESP_PLATFORM
+DWord SpaceTraderPilotMain( Word cmd, Ptr cmdPBP, Word launchFlags)
+#else
 DWord PilotMain( Word cmd, Ptr cmdPBP, Word launchFlags)
+#endif
 {
     return MerchantPilotMain(cmd, cmdPBP, launchFlags);
 }

@@ -69,6 +69,10 @@
 // 06/30/01 -  Debt is checked in BuyCargo - SRA
 // *************************************************************************
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 
 static char QtyBuf[MAXTRADEITEM][4];  // This variable cannot be moved without

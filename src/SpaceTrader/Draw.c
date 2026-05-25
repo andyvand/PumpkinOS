@@ -54,6 +54,10 @@
 //#define ALLOW_ACCESS_TO_INTERNALS_OF_CONTROLS 1
 //#endif
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 
 // *************************************************************************

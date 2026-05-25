@@ -36,6 +36,10 @@
 // Handling of the events of the Shiptype Information form.
 // *************************************************************************
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include "external.h"
 
 static void DrawShiptypeInfoForm()

@@ -425,6 +425,7 @@ extern UInt32 MemoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 AddrPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 ToDoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 DatePilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 SpaceTraderPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 #endif
 
 static void launcherScanApps(launcher_data_t *data) {
@@ -469,6 +470,8 @@ static void launcherScanApps(launcher_data_t *data) {
             data->item[i].pilot_main = ToDoPilotMain;
         } else if (creator == 'date') {
             data->item[i].pilot_main = DatePilotMain;
+        } else if (creator == 'STra') {
+            data->item[i].pilot_main = SpaceTraderPilotMain;
         }
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
@@ -1609,8 +1612,23 @@ static Boolean ItemsGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
 
     case formGadgetHandleEventCmd:
       event = (EventType *)param;
+
+      // PenUp (frmGadgetMiscEvent) is delivered to the gadget even when
+      // the pen lifted outside the gadget rectangle. Treat that as a cancel
+      // so we never resolve out-of-range screen coords to a (wrong) cell.
+      if (event->eType != frmGadgetEnterEvent &&
+          !RctPtInRectangle(event->screenX, event->screenY, &gad->rect)) {
+        ItemsGadgetCallback(gad, formGadgetDrawCmd, NULL);
+        break;
+      }
+
       col = (event->screenX - gad->rect.topLeft.x) / iw;
-      row = (event->screenY - gad->rect.topLeft.y) / ih;
+      // Cells are drawn starting at topLeft.y + 2 (see formGadgetDrawCmd),
+      // so the same 2-px pad must be subtracted here or the bottom 2 px of
+      // every row map to the next row and launch the wrong item.
+      row = (event->screenY - gad->rect.topLeft.y - 2) / ih;
+      if (col < 0) col = 0;
+      if (row < 0) row = 0;
 
       switch (data->mode) {
         case launcher_app:
@@ -1625,7 +1643,13 @@ static Boolean ItemsGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
               data->top = false;
               flags = sysAppLaunchFlagNewGlobals | sysAppLaunchFlagUIApp;
               SysAppLaunchEx(0, data->item[i].dbID, flags, sysAppLaunchCmdNormalLaunch, NULL, &result, data->item[i].pilot_main);
-              printApp(data, &data->item[i], x, y, false);
+              // In the in-process launch mode (ESP32, mode!=0) SysAppLaunchEx
+              // runs the app as a subroutine and returns with the launcher's
+              // window contents clobbered and no appRaiseEvent emitted. Queue
+              // a full form update so the launcher repaints itself instead of
+              // leaving the launched app's residual pixels on screen.
+              data->top = true;
+              FrmUpdateForm(MainForm, 0);
             }
           }
           break;	
@@ -2608,11 +2632,15 @@ static Boolean MainFormHandleEvent(EventPtr event) {
   handled = false;
 
   switch (event->eType) {
-    case appRaiseEvent: 
+    case appRaiseEvent:
       PINSetInputTriggerState(pinInputTriggerEnabled);
       data->top = true;
-      frm = FrmGetActiveForm();
-      UpdateStatus(frm, data, true);
+      // A launched app has returned: its window/menu state was on top and the
+      // launcher's surface was overwritten. Queue a frmUpdateEvent so the
+      // existing handler reinstalls the menu bar, refreshes object bounds,
+      // and redraws the form. Without this the launcher stays blank and
+      // tap/menu events have nothing valid to dispatch against.
+      FrmUpdateForm(MainForm, 0);
 
       if (!data->armPluginWarning) {
         if (pumpkin_get_plugin(armPluginType, sysAnyPluginId) == NULL) {
@@ -2621,7 +2649,7 @@ static Boolean MainFormHandleEvent(EventPtr event) {
         data->armPluginWarning = true;
       }
 
-      handled = true; 
+      handled = true;
       break;
 
     case frmOpenEvent:
