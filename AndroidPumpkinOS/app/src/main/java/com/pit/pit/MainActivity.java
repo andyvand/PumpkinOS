@@ -6,6 +6,7 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
 
@@ -79,9 +80,9 @@ public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
         long t = System.currentTimeMillis();
         if ((t - lastCheck) >= BATTERY_CHECK_PERIOD) {
             IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-            Intent status = registerReceiver(null, filter);
-            int level = status.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            int scale = status.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
+            Intent status = ContextCompat.registerReceiver(this, null, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+            int level = status != null ? status.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) : -1;
+            int scale = status != null ? status.getIntExtra(BatteryManager.EXTRA_SCALE, 0) : 0;
             if (level >= 0 && scale > 0) {
                 int battery = level * 100 / scale;
                 PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "battery level " + battery);

@@ -185,13 +185,14 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
       dia->button_width = 45;
       dia->icon_width = 29;  // 11*29 + 1 = 320
     } else {
-#ifdef ESP32
-      dia->button_width = 11;
-      dia->icon_width = 7;  // 11*21 + 1 = 232
-#else
+      // The taskbar/graffiti bitmap resources (32500/32501) are 160px wide
+      // at low density. On ESP32's 240x320 panel we still render them at
+      // native size, so icon and button widths must match the bitmap's
+      // 14/22-px layout — otherwise tap hit zones don't line up with the
+      // icons drawn. 11*14+1=155 occupies the left 160px of the 240px DIA;
+      // the right ~80px is dead space until a 240-wide bitmap is provided.
       dia->button_width = 22;
       dia->icon_width = 14;  // 11*14 + 1 = 155
-#endif
     }
 
     dia_color(&fg, &bg);

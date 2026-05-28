@@ -67,10 +67,7 @@ static texture_t *window_create_texture(window_t *window, int width, int height)
 }
 
 int window_update_texture(window_t *_window, texture_t *texture, uint8_t *raw) {
-  xmemset(texture->buf, 0xFF, texture->width * texture->height * sizeof(pixel_t));
-
   if (texture && raw) {
-    //debug(DEBUG_INFO, "MAIN", "window_update_texture");
     xmemcpy(texture->buf, raw, texture->width * texture->height * sizeof(pixel_t));
   }
 
@@ -79,16 +76,23 @@ int window_update_texture(window_t *_window, texture_t *texture, uint8_t *raw) {
 
 int window_draw_texture(window_t *_window, texture_t *texture, int x, int y) {
   AndroidBitmapInfo bi;
-  pixel_t *p;
+  pixel_t *p, *src;
   void *pixels;
+  int i, dst_stride_px, n;
 
   if (env && bitmap && texture) {
     AndroidBitmap_getInfo(env, bitmap, &bi);
-    //debug(DEBUG_INFO, "PALMOS", "draw texture %dx%d on bitmap %dx%d", texture->width, texture->height, androidBitmapInfo.width, androidBitmapInfo.height);
     AndroidBitmap_lockPixels(env, bitmap, &pixels);
+    dst_stride_px = bi.stride / sizeof(pixel_t);
     p = (pixel_t *)pixels;
-    p = &p[y * bi.width + x];
-    xmemcpy(p, texture->buf, texture->width * texture->height * sizeof(pixel_t));
+    p = &p[y * dst_stride_px + x];
+    src = texture->buf;
+    n = texture->width * sizeof(pixel_t);
+    for (i = 0; i < texture->height && (y + i) < (int)bi.height; i++) {
+      xmemcpy(p, src, n);
+      p += dst_stride_px;
+      src += texture->width;
+    }
     AndroidBitmap_unlockPixels(env, bitmap);
   }
 
@@ -192,19 +196,19 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
   AndroidBitmapInfo bi;
   void *pixels;
   pixel_t *p, *src;
-  int i, n;
-
+  int i, n, dst_stride_px;
 
   if (env && bitmap && texture && ty < texture->height && tx < texture->width && (tx + w) <= texture->width) {
     AndroidBitmap_getInfo(env, bitmap, &bi);
     AndroidBitmap_lockPixels(env, bitmap, &pixels);
+    dst_stride_px = bi.stride / sizeof(pixel_t);
     p = (pixel_t *)pixels;
-    p = &p[y * bi.width + x];
+    p = &p[y * dst_stride_px + x];
     src = &texture->buf[ty * texture->width + tx];
     n = w * sizeof(pixel_t);
     for (i = 0; i < h && (ty + i) < texture->height; i++) {
         xmemcpy(p, src, n);
-        p += bi.width;
+        p += dst_stride_px;
         src += texture->width;
     }
     AndroidBitmap_unlockPixels(env, bitmap);
@@ -217,7 +221,7 @@ static int window_update_texture_rect(window_t *_window, texture_t *texture, uin
   pixel_t *p, *src;
   int i, n;
 
-  if (texture && src && ty < texture->height && tx < texture->width && (tx + w) <= texture->width) {
+  if (texture && raw && ty < texture->height && tx < texture->width && (tx + w) <= texture->width) {
     p = (pixel_t *)&texture->buf[ty * texture->width + tx];
     src = (pixel_t *)raw;
     src = &src[ty * texture->width + tx];

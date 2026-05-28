@@ -42,6 +42,17 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    // 16 KB page support: keep .so files uncompressed and page-aligned in
+    // the APK so Android 15+ devices with 16 KB pages can mmap them
+    // directly. AGP 8.5+ does this by default, but we set it explicitly
+    // because the Gradle defaults can silently flip back when buildToolsVersion
+    // or other settings change.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 dependencies {

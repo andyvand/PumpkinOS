@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
@@ -41,7 +42,7 @@ public class Pumpkin extends Application {
         on = false;
         paused = true;
         exited = false;
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper());
         installFiles();
 
         r = new Runnable() {
@@ -162,6 +163,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.preferences_a32, dir, "Preferences.prc");
                 copyFile(R.raw.todolist_a32, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_a32, dir, "UnicornArm.prc");
+                copyFile(R.raw.spacetrader_a32, dir, "SpaceTrader.prc");
             } else if (getArch() == 10) { // arm64-v8a
                 copyFile(R.raw.launcher_a64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_a64, dir, "AddressBook.prc");
@@ -174,6 +176,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.preferences_a64, dir, "Preferences.prc");
                 copyFile(R.raw.todolist_a64, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_a64, dir, "UnicornArm.prc");
+                copyFile(R.raw.spacetrader_a64, dir, "SpaceTrader.prc");
             } else if (getArch() == 17) { // x86
                 copyFile(R.raw.launcher_i32, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_i32, dir, "AddressBook.prc");
@@ -186,6 +189,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.preferences_i32, dir, "Preferences.prc");
                 copyFile(R.raw.todolist_i32, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_i32, dir, "UnicornArm.prc");
+                copyFile(R.raw.spacetrader_i32, dir, "SpaceTrader.prc");
             } else if (getArch() == 18) { // x86_64
                 copyFile(R.raw.launcher_i64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_i64, dir, "AddressBook.prc");
@@ -198,6 +202,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.preferences_i64, dir, "Preferences.prc");
                 copyFile(R.raw.todolist_i64, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_i64, dir, "UnicornArm.prc");
+                copyFile(R.raw.spacetrader_i64, dir, "SpaceTrader.prc");
             } else if (getArch() == 26) { // riscv64
                 copyFile(R.raw.launcher_r64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_r64, dir, "AddressBook.prc");
@@ -210,6 +215,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.preferences_r64, dir, "Preferences.prc");
                 copyFile(R.raw.todolist_r64, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_r64, dir, "UnicornArm.prc");
+                copyFile(R.raw.spacetrader_r64, dir, "SpaceTrader.prc");
             }
         } catch (Exception ex) {
             Log.e("Pumpkin", Objects.requireNonNull(ex.getMessage()));

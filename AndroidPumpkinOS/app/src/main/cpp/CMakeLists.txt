@@ -2,12 +2,30 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 
 # Sets the minimum version of CMake required to build the native library.
+# NDK 29 ships and is exercised against CMake 3.22.1+; bumping the floor
+# unlocks modern policies and matches the version pinned in build.gradle.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.22.1)
 
 # Declares and names the project.
 
-project("pit")
+project("pit" C CXX)
+
+# Match NDK 29's defaults explicitly so older policies don't accidentally
+# silence stricter Clang 19 diagnostics.
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 16 KB page size alignment is required for apps running on Android 15+
+# (Pixel 8/9 and other devices already ship with 16 KB pages). NDK 28+
+# defaults the 64-bit linker to 16 KB max-page-size, but stating it
+# explicitly keeps the build correct on older toolchains and on 32-bit
+# ABIs where the default is still 4 KB. The flag is a no-op when the
+# linker already defaults to >= 16 KB.
+add_link_options(-Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384)
 
 if (CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
 add_definitions(-DSYS_CPU=1 -DSYS_SIZE=1 -DSYS_ENDIAN=1)
@@ -29,6 +47,19 @@ add_definitions(-DSYSTEM_NAME=\"pit\" -DSYSTEM_VERSION=\"1.0\" -DSYS_OS=4 -DSOEX
         -DUSE_DL_PREFIX=1 -DHAVE_MMAP=0 -DMORECORE_CONTIGUOUS=0 -DMORECORE_CANNOT_TRIM=1 -DMORECORE_FAILURE=0 -DDL_DEBUG=1 -DMORECORE=heap_morecore
         -g
         )
+
+# NDK 29 / Clang 19 promotes a handful of long-standing warnings to errors
+# by default. The PumpkinOS tree pre-dates several of them (it relies on
+# implicit-int, K&R-style declarations, and freely casts function pointer
+# types via the trap dispatcher). Until those are cleaned up, demote the
+# blockers back to warnings so the legacy code keeps compiling under
+# NDK 29 without weakening real diagnostics on new code.
+add_compile_options(
+        -Wno-error=implicit-function-declaration
+        -Wno-error=incompatible-function-pointer-types
+        -Wno-error=int-conversion
+        -Wno-error=deprecated-non-prototype
+)
 
 include_directories(PumpkinOS/src/libpit)
 include_directories(PumpkinOS/src/libemulation)

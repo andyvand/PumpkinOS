@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.IntentCompat;
 
 import android.Manifest;
 import android.content.Intent;
@@ -32,7 +33,7 @@ public class ReceiveActivity extends AppCompatActivity implements ConfirmationLi
         String action = intent.getAction();
 
         if (action != null && action.equals(Intent.ACTION_SEND)) {
-            Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            Uri uri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class);
             Log.i("ReceiveActivity", "onCreate received type [" + intent.getType() + "], file [" + uri + "]");
             if (uri != null && uri.getPath() != null) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

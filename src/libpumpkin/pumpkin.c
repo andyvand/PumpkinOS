@@ -3667,8 +3667,17 @@ int pumpkin_event_peek(void) {
 }
 
 static void pumpkin_update_single_app(void) {
+  pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   int x, y, w, h;
   uint64_t now;
+
+  // Re-entrance guard. dia_update below calls WinPaintBitmap, which opens its
+  // own dirty region; both dirtyRegionEnd and pumpkin_screen_dirty try to call
+  // back here, which without this guard recurses infinitely through DIA.
+  if (task && task->updating_single_app) {
+    return;
+  }
+  if (task) task->updating_single_app = 1;
 
   now = sys_get_clock();
 
@@ -3695,6 +3704,8 @@ static void pumpkin_update_single_app(void) {
     }
     pumpkin_module.lastUpdate = now;
   }
+
+  if (task) task->updating_single_app = 0;
 }
 
 static int pumpkin_event_single_app(int *key, int *mods, int *buttons, uint8_t *data, uint32_t *n, uint32_t usec) {
@@ -4292,21 +4303,17 @@ void pumpkin_dirty_region_mode(dirty_region_e d) {
             }
             ptr_unlock(task->screen_ptr, TAG_SCREEN);
           }
-          // In single-app mode the only thing that flushes screen->dirty to
-          // the texture is pumpkin_update_single_app called from
-          // pumpkin_screen_dirty. While a dirty region is open, those calls
-          // see dirty=0 and skip the upload. Without this end-of-batch flush
-          // a freshly-launched app's FrmDrawForm pixels never reach the
-          // display until the next stray draw — leaving the screen white.
-          //
-          // Re-entrance guard: pumpkin_update_single_app -> dia_update calls
-          // WinPaintBitmap, which opens its own dirty region and would
-          // recursively call us here, blowing the stack.
-          if (pumpkin_module.mode == 1 && pumpkin_module.launched &&
-              !task->updating_single_app) {
-            task->updating_single_app = 1;
+          // End-of-batch flush so a freshly-launched app's FrmDrawForm pixels
+          // actually reach the display. While the dirty region was open, every
+          // pumpkin_screen_dirty saw screen->dirty=0 and skipped the upload;
+          // we set dirty=1 just above, so this call finally pushes the frame.
+          // Both mode 1 and mode 2 use synchronous in-process launches, and
+          // pumpkin_module.launched is what marks "an app is currently
+          // running on this task" — that's what we actually need to gate on.
+          // pumpkin_update_single_app has its own re-entrance guard against
+          // the DIA -> WinPaintBitmap -> dirtyRegionEnd recursion path.
+          if (pumpkin_module.launched && pumpkin_module.mode != 0) {
             pumpkin_update_single_app();
-            task->updating_single_app = 0;
           }
         }
         break;

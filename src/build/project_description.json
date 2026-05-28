@@ -1,7 +1,7 @@
 {
     "version":            "1.3",
     "project_name":       "PumpkinOS",
-    "project_version":    "1.0-53-gf9e77d5c-dirty",
+    "project_version":    "1.0-54-gb53c23d3-dirty",
     "project_path":       "/Users/andyvand/Downloads/PumpkinOS/src",
     "idf_path":           "/Users/andyvand/Downloads/esp-idf-6.0",
     "build_dir":          "/Users/andyvand/Downloads/PumpkinOS/src/build",
