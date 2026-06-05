@@ -78,16 +78,25 @@ int window_draw_texture(window_t *_window, texture_t *texture, int x, int y) {
   AndroidBitmapInfo bi;
   pixel_t *p, *src;
   void *pixels;
-  int i, dst_stride_px, n;
+  int i, dst_stride_px, n, w;
 
   if (env && bitmap && texture) {
     AndroidBitmap_getInfo(env, bitmap, &bi);
+
+    // Clamp the copy width to whatever fits on the destination bitmap,
+    // mirroring SDL_RenderCopy's automatic clipping. Without this an
+    // over-wide memcpy spills past the row into adjacent memory.
+    w = texture->width;
+    if (x < 0 || y < 0 || x >= (int)bi.width) return 0;
+    if (x + w > (int)bi.width) w = (int)bi.width - x;
+    if (w <= 0) return 0;
+
     AndroidBitmap_lockPixels(env, bitmap, &pixels);
     dst_stride_px = bi.stride / sizeof(pixel_t);
     p = (pixel_t *)pixels;
     p = &p[y * dst_stride_px + x];
     src = texture->buf;
-    n = texture->width * sizeof(pixel_t);
+    n = w * sizeof(pixel_t);
     for (i = 0; i < texture->height && (y + i) < (int)bi.height; i++) {
       xmemcpy(p, src, n);
       p += dst_stride_px;
@@ -198,15 +207,30 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
   pixel_t *p, *src;
   int i, n, dst_stride_px;
 
-  if (env && bitmap && texture && ty < texture->height && tx < texture->width && (tx + w) <= texture->width) {
+  if (env && bitmap && texture && tx >= 0 && ty >= 0 && tx < texture->width && ty < texture->height) {
     AndroidBitmap_getInfo(env, bitmap, &bi);
+
+    // Clamp both the source rect (against the texture) and the destination
+    // rect (against the bitmap), the way SDL_RenderCopy does. After an app
+    // launch pumpkin_changed_display can recreate the texture at a smaller
+    // size while wman still hands us the old (larger) region; without these
+    // clamps the memcpy reads past the texture buffer into adjacent heap,
+    // which is what shows up on screen as garbled "blue blocks".
+    if (x < 0) { tx -= x; w += x; x = 0; }
+    if (y < 0) { ty -= y; h += y; y = 0; }
+    if (tx + w > texture->width)  w = texture->width  - tx;
+    if (ty + h > texture->height) h = texture->height - ty;
+    if (x + w > (int)bi.width)    w = (int)bi.width   - x;
+    if (y + h > (int)bi.height)   h = (int)bi.height  - y;
+    if (w <= 0 || h <= 0) return 0;
+
     AndroidBitmap_lockPixels(env, bitmap, &pixels);
     dst_stride_px = bi.stride / sizeof(pixel_t);
     p = (pixel_t *)pixels;
     p = &p[y * dst_stride_px + x];
     src = &texture->buf[ty * texture->width + tx];
     n = w * sizeof(pixel_t);
-    for (i = 0; i < h && (ty + i) < texture->height; i++) {
+    for (i = 0; i < h; i++) {
         xmemcpy(p, src, n);
         p += dst_stride_px;
         src += texture->width;
@@ -221,12 +245,19 @@ static int window_update_texture_rect(window_t *_window, texture_t *texture, uin
   pixel_t *p, *src;
   int i, n;
 
-  if (texture && raw && ty < texture->height && tx < texture->width && (tx + w) <= texture->width) {
+  if (texture && raw && tx >= 0 && ty >= 0 && tx < texture->width && ty < texture->height) {
+    // Clamp the rect to the texture so a too-wide/too-tall dirty region
+    // updates as much as fits instead of being skipped entirely (which
+    // would leave stale pixels on screen).
+    if (tx + w > texture->width)  w = texture->width  - tx;
+    if (ty + h > texture->height) h = texture->height - ty;
+    if (w <= 0 || h <= 0) return 0;
+
     p = (pixel_t *)&texture->buf[ty * texture->width + tx];
     src = (pixel_t *)raw;
     src = &src[ty * texture->width + tx];
     n = w * sizeof(pixel_t);
-    for (i = 0; i < h && (ty + i) < texture->height; i++) {
+    for (i = 0; i < h; i++) {
       xmemcpy(p, src, n);
       p += texture->width;
       src += texture->width;

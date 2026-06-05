@@ -63,5 +63,5 @@ pumpkin.start {
   height   = 480,
   abgr     = abgr,
   depth    = 16,
-  hdepth   = lib.hdepth
+  hdepth   = 16,
 }
