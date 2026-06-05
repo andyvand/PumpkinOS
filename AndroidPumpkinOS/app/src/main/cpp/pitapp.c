@@ -61,6 +61,8 @@ int pitInit(void) {
       bt = script_get_pointer(pe, BT_PROVIDER);
       gps_parse_line = script_get_pointer(pe, GPS_PARSE_LINE_PROVIDER);
       pumpkin_global_init(engine, wp, ap, bt, gps_parse_line);
+      // depth 16 = application drawing depth (the well-tested path, same as the
+      // desktop); libos_start_direct forces a 32-bit ARGB host surface.
       libos_start_direct(wp, NULL, 0, 0, 16, 0, 1, 0, "Launcher");
     }
   }

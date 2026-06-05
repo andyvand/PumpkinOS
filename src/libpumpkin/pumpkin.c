@@ -2867,6 +2867,15 @@ static int pumpkin_changed_display(pumpkin_task_t *task, task_screen_t *screen, 
   int r = -1;
 
   if ((surface = surface_create(width, height, pumpkin_module.encoding)) != NULL) {
+    // Fill the new surface with the background color first. surface_create()
+    // zeroes the buffer, which on an RGB565 surface (no alpha) is opaque
+    // black; if the display grew, the newly exposed area would show as black
+    // blocks until the app repaints it. On the desktop's 32-bit ARGB surface
+    // the zeroed area is transparent and composites over the background, which
+    // is why this only shows up in the 16-bit (Android/DIA) configuration.
+    // Match the initial fill done when the task surface is first created.
+    uint32_t bg = surface->color_rgb(surface->data, 255, 255, 255, 255);
+    surface_rectangle(surface, 0, 0, width - 1, height - 1, 1, bg);
     surface_draw(surface, 0, 0, screen->surface, 0, 0, task->width, task->height);
     surface_destroy(screen->surface);
     screen->surface = surface;
@@ -2953,6 +2962,16 @@ static int draw_task(int i, int *x, int *y, int *w, int *h) {
       *y = screen->y0;
       *w = screen->x1 - screen->x0 + 1;
       *h = screen->y1 - screen->y0 + 1;
+      {
+        // Log the surface's encoding and a sample pixel at the center of the
+        // dirty rect, so we can tell whether the (white) form background reached
+        // the composited task surface or turned black somewhere upstream.
+        int cx = *x + (*w)/2, cy = *y + (*h)/2;
+        uint32_t *p32 = (uint32_t *)raw;
+        debug(DEBUG_ERROR, PUMPKINOS, "SURFCHK enc=%d sw=%d rect=%d,%d,%d,%d center(%d,%d)=0x%08X",
+          screen->surface->encoding, screen->surface->width, *x, *y, *w, *h, cx, cy,
+          p32[cy * screen->surface->width + cx]);
+      }
       debug(DEBUG_TRACE, PUMPKINOS, "task %d (%s) update texture %d,%d %d,%d", i, pumpkin_module.tasks[i].name, *x, *y, *w, *h);
       pumpkin_module.wp->update_texture_rect(pumpkin_module.w, pumpkin_module.tasks[i].texture, raw, *x, *y, *w, *h);
       screen->x0 = pumpkin_module.tasks[i].width;
@@ -4370,6 +4389,13 @@ void pumpkin_screen_dirty(WinHandle wh, int x, int y, int w, int h) {
       xd += sx;
       yd += sy;
       bmp = WinGetBitmap(wh);
+      {
+        UInt32 _tv = 0; Boolean _tp = BmpGetTransparentValue(bmp, &_tv);
+        UInt8 _bd = BmpGetBitDepth(bmp);
+        Coord _bw, _bh; BmpGetDimensions(bmp, &_bw, &_bh, NULL);
+        debug(DEBUG_ERROR, PUMPKINOS, "DIRTYCHK rect=%d,%d,%d,%d wh=%dx%d depth=%d transp=%d tv=0x%08X srcpix(%d,%d)=0x%08X",
+          x, y, w, h, _bw, _bh, _bd, _tp, _tv, x+w/2, y+h/2, (unsigned)BmpGetPixelValue(bmp, x+w/2, y+h/2));
+      }
       BmpDrawSurface(bmp, x, y, w, h, screen->surface, xd, yd, true, dbl);
 //debug(1, "XXX", "pumpkin_screen_dirty x=%d y=%d", x, y);
 //debug(1, "XXX", "pumpkin_screen_dirty dirty before (%d,%d,%d,%d)", screen->x0, screen->y0, screen->x1, screen->y1);

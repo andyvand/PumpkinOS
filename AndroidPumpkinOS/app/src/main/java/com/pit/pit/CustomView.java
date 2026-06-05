@@ -21,7 +21,7 @@ public class CustomView extends View {
     public CustomView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        Bitmap.Config conf = Bitmap.Config.RGB_565;
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
         bitmap = Bitmap.createBitmap(getScreenWidth(), getScreenHeight() + DIA_HEIGHT + BUTTON_HEIGHT, conf);
         eraseScreen();
 

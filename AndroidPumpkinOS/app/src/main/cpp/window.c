@@ -16,7 +16,10 @@
 #include "xalloc.h"
 #include "pitapp.h"
 
-typedef uint16_t pixel_t;
+// 32-bit ARGB framebuffer (matches Bitmap.Config.ARGB_8888 and PumpkinOS's
+// 32-bit ABGR host encoding). Was uint16_t (RGB565); the 16-bit host path had
+// rendering/corruption issues, so the port now uses the 32-bit path like desktop.
+typedef uint32_t pixel_t;
 
 struct texture_t {
   int width, height;
@@ -35,7 +38,14 @@ typedef struct {
 } touch_event_t;
 
 static window_provider_t window_provider;
-static JNIEnv *env;
+// A JNIEnv* is per-thread and must never be cached and reused on another
+// thread. PumpkinOS renders from its own (long-lived) thread, which is not the
+// thread that handed us the bitmap, and Android can also recreate that thread
+// across onStop/onStart. So we cache the process-global JavaVM* (which IS
+// shareable) plus a global reference to the bitmap, and resolve the calling
+// thread's JNIEnv on demand. Previously the cached JNIEnv* was used cross-thread,
+// which aborts under CheckJNI (debug) and silently corrupts memory in release.
+static JavaVM *javaVM;
 static jobject bitmap;
 
 #define MAX_EVENTS 16
@@ -44,8 +54,21 @@ int numEvents;
 int idxIn;
 int idxOut;
 
+// Return the JNIEnv for the current thread, attaching it to the VM if needed.
+static JNIEnv *window_get_env(void) {
+  JNIEnv *e = NULL;
+
+  if (javaVM == NULL) return NULL;
+  if ((*javaVM)->GetEnv(javaVM, (void **)&e, JNI_VERSION_1_6) == JNI_OK) return e;
+  if ((*javaVM)->AttachCurrentThread(javaVM, &e, NULL) == 0) return e;
+
+  return NULL;
+}
+
 void window_bitmap(JNIEnv *_env, jobject _bitmap) {
-  env = _env;
+  if (_env != NULL && javaVM == NULL) {
+    (*_env)->GetJavaVM(_env, &javaVM);
+  }
   bitmap = _bitmap;
 }
 
@@ -78,6 +101,7 @@ int window_draw_texture(window_t *_window, texture_t *texture, int x, int y) {
   AndroidBitmapInfo bi;
   pixel_t *p, *src;
   void *pixels;
+  JNIEnv *env = window_get_env();
   int i, dst_stride_px, n, w;
 
   if (env && bitmap && texture) {
@@ -205,6 +229,7 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
   AndroidBitmapInfo bi;
   void *pixels;
   pixel_t *p, *src;
+  JNIEnv *env = window_get_env();
   int i, n, dst_stride_px;
 
   if (env && bitmap && texture && tx >= 0 && ty >= 0 && tx < texture->width && ty < texture->height) {

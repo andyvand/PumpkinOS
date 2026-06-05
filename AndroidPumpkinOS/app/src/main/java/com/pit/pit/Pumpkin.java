@@ -66,7 +66,16 @@ public class Pumpkin extends Application {
             PumpkinLog.log(PumpkinLog.INFO, "Application", "pumpkin thread end");
         };
         PumpkinLog.log(PumpkinLog.INFO, "Application", "start");
-        exec = Executors.newSingleThreadExecutor();
+        // PumpkinOS runs an entire OS (launcher + nested app launches + the Lua
+        // script engine + the m68k emulator) on this single native thread. The
+        // default JVM/executor thread stack (~1 MB) is far too small for that
+        // depth of native recursion; overflowing it silently corrupts memory,
+        // which shows up as garbled/black drawing and random SIGSEGVs after an
+        // app is launched. The desktop build runs on a main/pthread with a
+        // multi-MB stack, which is why it doesn't reproduce there. Give the
+        // pumpkin thread an explicit large stack.
+        exec = Executors.newSingleThreadExecutor(
+                runnable -> new Thread(null, runnable, "pumpkin", 32L * 1024 * 1024));
         exec.execute(r);
     }
 

@@ -348,8 +348,16 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
       data->width = width;
       data->height = height;
       data->depth = depth;
-      data->hdepth = depth;
-      data->abgr = 0;
+      // Force a 32-bit ARGB host surface. The application still draws at its
+      // own (16-bit) depth — the same combination the desktop uses — but the
+      // host/composite surface is 32-bit, which avoids the broken 16-bit
+      // (RGB565) host path that rendered black/garbled on Android.
+      data->hdepth = 32;
+      // The host framebuffer byte order must match the encoding. The Android
+      // screen is a Bitmap.Config.ARGB_8888 surface, whose native byte order is
+      // R,G,B,A — i.e. PumpkinOS's ABGR encoding. Selecting ABGR keeps red/blue
+      // from being swapped (which previously showed as a blue tint).
+      data->abgr = 1;
       data->mono = mono;
       data->fullscreen = fullscreen;
       data->dia = dia;

@@ -2,7 +2,7 @@ PROGRAM=SpaceTrader
 SOURCE=AppHandleEvent.c Bank.c BuyEquipEvent.c BuyShipEvent.c Cargo.c CmdrStatusEvent.c Draw.c Encounter.c Field.c Fuel.c Global.c Math.c Merchant.c Money.c OtherEvent.c QuestEvent.c SellEquipEvent.c ShipEvent.c ShipPrice.c ShiptypeInfoEvent.c Shipyard.c Skill.c SpecialEvent.c SystemInfoEvent.c Traveler.c WarpFormEvent.c
 APPNAME=Space Trader
 RCP=resource.rcp
-CUSTOMPFLAGS=-DBPP8
+CUSTOMPFLAGS=-DBPP16
 APPID=STra
 
 include ../common.mak

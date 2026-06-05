@@ -2469,6 +2469,15 @@ IndexedColorType WinSetBackColor(IndexedColorType backColor) {
     CtbGetEntry(colorTable, backColor, &module->drawState.backColorRGB);
     setColors(back, module, backColor);
     module->backColor565 = rgb565(module->drawState.backColorRGB.r, module->drawState.backColorRGB.g, module->drawState.backColorRGB.b);
+    {
+      RGBColorType e0, e1, ewhite;
+      CtbGetEntry(colorTable, 0, &e0);
+      CtbGetEntry(colorTable, numEntries > 1 ? numEntries-1 : 0, &e1);
+      CtbGetEntry(colorTable, 0xff < numEntries ? 0xff : 0, &ewhite);
+      debug(DEBUG_ERROR, "Window", "BGCHECK idx=%d -> rgb=%d,%d,%d depth=%d ne=%d ct0=%d,%d,%d ctlast=%d,%d,%d",
+        backColor, module->drawState.backColorRGB.r, module->drawState.backColorRGB.g, module->drawState.backColorRGB.b,
+        module->depth, numEntries, e0.r,e0.g,e0.b, e1.r,e1.g,e1.b);
+    }
   } else {
     debug(DEBUG_ERROR, "Window", "WinSetBackColor invalid color %d for depth %d (max %d)", backColor, module->depth, numEntries-1);
   }
@@ -3325,6 +3334,11 @@ void WinPushDrawState(void) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
 
   debug(DEBUG_TRACE, "Window", "WinPushDrawState");
+  // The window module can be momentarily NULL — e.g. while an app launch is in
+  // progress, pumpkin_launch_request() does WinReinitModule(NULL), and in
+  // single-app mode (Android) a DIA/screen update can fire during that window.
+  // Match the NULL-guard the rest of the Win* API uses instead of dereferencing.
+  if (module == NULL) return;
   if (module->numPush < DrawStateStackSize) {
     module->state[module->numPush].pattern = module->drawState.pattern;
     module->state[module->numPush].underlineMode = module->drawState.underlineMode;
@@ -3349,6 +3363,7 @@ void WinPopDrawState(void) {
   win_module_t *module = (win_module_t *)pumpkin_get_local_storage(win_key);
 
   debug(DEBUG_TRACE, "Window", "WinPopDrawState");
+  if (module == NULL) return;
   if (module->numPush) {
     module->numPush--;
     WinSetPattern(&module->state[module->numPush].patternData);
