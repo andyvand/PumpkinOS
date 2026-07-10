@@ -343,11 +343,23 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
 
   if (width > 0 && height > 0 && (depth == 16 || depth == 32)) {
     if ((data = sys_malloc(sizeof(libos_t))) != NULL) {
+      // sys_malloc does not zero, so clear first: fields left unset below
+      // (fullrefresh, software, driver, osversion, taskbar, obj, ...) would
+      // otherwise be read as garbage by libos_action/pumpkin_set_*.
+      sys_memset(data, 0, sizeof(libos_t));
       data->wp = wp;
       data->secure = secure;
       data->width = width;
       data->height = height;
       data->depth = depth;
+      // The Android host presents by blitting a single Bitmap; unlike X11/Wayland
+      // it never delivers expose/damage events, so PumpkinOS never sees a
+      // WINDOW_EXPOSE to trigger a full-screen composite. Without that, only
+      // per-widget dirty rects are copied into the (black-initialized) bitmap and
+      // the erased form background never reaches it — the form shows as black
+      // with only the widgets painted. Compositing the full frame every tick
+      // (cheap at this resolution) keeps the background correct.
+      data->fullrefresh = 1;
       // Force a 32-bit ARGB host surface. The application still draws at its
       // own (16-bit) depth — the same combination the desktop uses — but the
       // host/composite surface is 32-bit, which avoids the broken 16-bit

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
+#include <pthread.h>
 
 #include <jni.h>
 #include <android/bitmap.h>
@@ -48,6 +49,52 @@ static window_provider_t window_provider;
 static JavaVM *javaVM;
 static jobject bitmap;
 
+// The PumpkinOS compositor writes the shared bitmap from the render thread(s)
+// via AndroidBitmap_lockPixels, while the UI thread reads it via
+// Canvas.drawBitmap (CustomView.onDraw). AndroidBitmap_lockPixels does NOT
+// exclude the Java-side draw, so without a lock the UI thread can composite a
+// row that is being memcpy'd underneath it -> tearing/garbled scanlines. This
+// mutex is taken by both the native blits below and (through
+// window_lock_bitmap/window_unlock_bitmap, exposed to Java) around drawBitmap,
+// making writer and reader mutually exclusive. It is non-recursive: the render
+// thread never draws to the Canvas and the UI thread never blits a texture, so
+// the two sides never nest.
+static pthread_mutex_t bitmap_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void window_lock_bitmap(void) {
+  pthread_mutex_lock(&bitmap_mutex);
+}
+
+void window_unlock_bitmap(void) {
+  pthread_mutex_unlock(&bitmap_mutex);
+}
+
+// PumpkinOS runs every launched Palm app on its own pthread (threadptr.c), and
+// those threads render through this window provider. The first render on such a
+// thread attaches it to the JVM via AttachCurrentThread. ART *aborts the whole
+// process* ("native thread exited without detaching") if a thread that attached
+// itself exits without calling DetachCurrentThread — and threadptr.c's thread
+// wrapper has no knowledge of the JVM, so it never detaches. That is exactly why
+// the Launcher (running on the already-attached executor thread, which we reach
+// via GetEnv and therefore never attach) works, but launching a nested app —
+// which spawns a new pthread that later exits — crashes with a SIGSEGV.
+//
+// Register a thread-specific key whose destructor runs when each such thread
+// exits and detaches it from the JVM. Only threads we actually attached get the
+// key set, so the destructor never touches threads owned by the JVM itself.
+static pthread_key_t detach_key;
+static pthread_once_t detach_key_once = PTHREAD_ONCE_INIT;
+
+static void window_detach_thread(void *unused) {
+  if (javaVM != NULL) {
+    (*javaVM)->DetachCurrentThread(javaVM);
+  }
+}
+
+static void window_make_detach_key(void) {
+  pthread_key_create(&detach_key, window_detach_thread);
+}
+
 #define MAX_EVENTS 16
 touch_event_t events[MAX_EVENTS];
 int numEvents;
@@ -60,7 +107,13 @@ static JNIEnv *window_get_env(void) {
 
   if (javaVM == NULL) return NULL;
   if ((*javaVM)->GetEnv(javaVM, (void **)&e, JNI_VERSION_1_6) == JNI_OK) return e;
-  if ((*javaVM)->AttachCurrentThread(javaVM, &e, NULL) == 0) return e;
+  if ((*javaVM)->AttachCurrentThread(javaVM, &e, NULL) == 0) {
+    // Arrange for this thread to detach from the JVM when it exits. The value
+    // must be non-NULL for the pthread destructor to fire.
+    pthread_once(&detach_key_once, window_make_detach_key);
+    pthread_setspecific(detach_key, (void *)1);
+    return e;
+  }
 
   return NULL;
 }
@@ -68,6 +121,14 @@ static JNIEnv *window_get_env(void) {
 void window_bitmap(JNIEnv *_env, jobject _bitmap) {
   if (_env != NULL && javaVM == NULL) {
     (*_env)->GetJavaVM(_env, &javaVM);
+  }
+  // _bitmap is a JNI *global* reference (created by the caller in
+  // native-lib.cpp's pitUpdate). Release the previous one before overwriting it:
+  // start() -> pitUpdate() runs on every onStart, so without this each
+  // background/foreground cycle would leak a global ref, and the JNI global
+  // reference table is finite (~51k) — exhausting it aborts the process.
+  if (_env != NULL && bitmap != NULL && bitmap != _bitmap) {
+    (*_env)->DeleteGlobalRef(_env, bitmap);
   }
   bitmap = _bitmap;
 }
@@ -105,7 +166,11 @@ int window_draw_texture(window_t *_window, texture_t *texture, int x, int y) {
   int i, dst_stride_px, n, w;
 
   if (env && bitmap && texture) {
-    AndroidBitmap_getInfo(env, bitmap, &bi);
+    // On failure bi is left uninitialized; using its garbage width/height/stride
+    // for the clamps and destination pointer below would corrupt memory. This
+    // matters most during the onStop teardown race, when the Java bitmap can be
+    // recycled while this render thread is still running.
+    if (AndroidBitmap_getInfo(env, bitmap, &bi) != 0) return 0;
 
     // Clamp the copy width to whatever fits on the destination bitmap,
     // mirroring SDL_RenderCopy's automatic clipping. Without this an
@@ -115,7 +180,15 @@ int window_draw_texture(window_t *_window, texture_t *texture, int x, int y) {
     if (x + w > (int)bi.width) w = (int)bi.width - x;
     if (w <= 0) return 0;
 
-    AndroidBitmap_lockPixels(env, bitmap, &pixels);
+    // Exclude the UI thread's Canvas.drawBitmap for the duration of the write
+    // so it never reads a half-written scanline (see bitmap_mutex).
+    window_lock_bitmap();
+    // A failed lock (e.g. the bitmap is already locked by another compositing
+    // thread) leaves pixels undefined; writing to it would segfault.
+    if (AndroidBitmap_lockPixels(env, bitmap, &pixels) != 0 || pixels == NULL) {
+      window_unlock_bitmap();
+      return 0;
+    }
     dst_stride_px = bi.stride / sizeof(pixel_t);
     p = (pixel_t *)pixels;
     p = &p[y * dst_stride_px + x];
@@ -127,6 +200,7 @@ int window_draw_texture(window_t *_window, texture_t *texture, int x, int y) {
       src += texture->width;
     }
     AndroidBitmap_unlockPixels(env, bitmap);
+    window_unlock_bitmap();
   }
 
   return 0;
@@ -233,7 +307,9 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
   int i, n, dst_stride_px;
 
   if (env && bitmap && texture && tx >= 0 && ty >= 0 && tx < texture->width && ty < texture->height) {
-    AndroidBitmap_getInfo(env, bitmap, &bi);
+    // A failed getInfo leaves bi uninitialized; its garbage stride/dimensions
+    // would drive out-of-bounds writes below (see window_draw_texture).
+    if (AndroidBitmap_getInfo(env, bitmap, &bi) != 0) return 0;
 
     // Clamp both the source rect (against the texture) and the destination
     // rect (against the bitmap), the way SDL_RenderCopy does. After an app
@@ -249,7 +325,12 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
     if (y + h > (int)bi.height)   h = (int)bi.height  - y;
     if (w <= 0 || h <= 0) return 0;
 
-    AndroidBitmap_lockPixels(env, bitmap, &pixels);
+    // Exclude the UI thread's Canvas.drawBitmap while writing (see bitmap_mutex).
+    window_lock_bitmap();
+    if (AndroidBitmap_lockPixels(env, bitmap, &pixels) != 0 || pixels == NULL) {
+      window_unlock_bitmap();
+      return 0;
+    }
     dst_stride_px = bi.stride / sizeof(pixel_t);
     p = (pixel_t *)pixels;
     p = &p[y * dst_stride_px + x];
@@ -261,6 +342,7 @@ static int window_draw_texture_rect(window_t *window, texture_t *texture, int tx
         src += texture->width;
     }
     AndroidBitmap_unlockPixels(env, bitmap);
+    window_unlock_bitmap();
   }
 
   return 0;

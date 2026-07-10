@@ -43,6 +43,10 @@ android {
         viewBinding true
     }
 
+    androidResources {
+        noCompress 'unicornarm_a32', 'unicornarm_a64', 'unicornarm_i32', 'unicornarm_i64', 'unicornarm_r64'
+    }
+
     // 16 KB page support: keep .so files uncompressed and page-aligned in
     // the APK so Android 15+ devices with 16 KB pages can mmap them
     // directly. AGP 8.5+ does this by default, but we set it explicitly

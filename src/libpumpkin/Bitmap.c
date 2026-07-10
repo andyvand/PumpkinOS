@@ -2681,13 +2681,15 @@ static void BmpCopyBit32(UInt32 b, Boolean transp, BitmapType *dst, Coord dx, Co
     case winErase:        // write backColor if the source pixel is transparent
       if (transp) {
         WinSetBackColorRGB(NULL, &rgb);
-        BmpSetBit32(offset, dataSize, rgb32(rgb.r, rgb.g, rgb.b), dbl);
+        // Opaque alpha (0xFF): put4b stores the high byte as alpha, and rgb32()
+        // leaves it 0, which renders transparent (black) on the 32-bit host.
+        BmpSetBit32(offset, dataSize, rgba32(rgb.r, rgb.g, rgb.b, 0xFF), dbl);
       }
       break;
     case winMask:         // write backColor if the source pixel is not transparent
       if (!transp) {
         WinSetBackColorRGB(NULL, &rgb);
-        BmpSetBit32(offset, dataSize, rgb32(rgb.r, rgb.g, rgb.b), dbl);
+        BmpSetBit32(offset, dataSize, rgba32(rgb.r, rgb.g, rgb.b, 0xFF), dbl);
       }
       break;
     case winInvert:       // bitwise XOR the color-matched source pixel onto the destination (this mode does not honor the transparent color in any way)
@@ -2697,7 +2699,9 @@ static void BmpCopyBit32(UInt32 b, Boolean transp, BitmapType *dst, Coord dx, Co
       rgb.r ^= bits[offset+1];
       rgb.g ^= bits[offset+2];
       rgb.b ^= bits[offset+3];
-      b = rgb32(rgb.r, rgb.g, rgb.b);
+      // Opaque: an inverted (e.g. tapped/selected) region must not become
+      // transparent — rgb32() would zero the alpha byte.
+      b = rgba32(rgb.r, rgb.g, rgb.b, 0xFF);
       BmpSetBit32(offset, dataSize, b, dbl);
       break;
     case winOverlay:      // write color-matched source pixel to the destination if the source pixel is not transparent. Transparent pixels are skipped.
@@ -2713,7 +2717,8 @@ static void BmpCopyBit32(UInt32 b, Boolean transp, BitmapType *dst, Coord dx, Co
         rgb.r ^= 0xff;
         rgb.g ^= 0xff;
         rgb.b ^= 0xff;
-        BmpSetBit32(offset, dataSize, rgb24(rgb.r, rgb.g, rgb.b), dbl);
+        // Opaque alpha; rgb24() would leave the high (alpha) byte 0.
+        BmpSetBit32(offset, dataSize, rgba32(rgb.r, rgb.g, rgb.b, 0xFF), dbl);
       }
       break;
     case winSwap:         // Swap the backColor and foreColor destination colors if the source is a pattern (the type of pattern is disregarded).

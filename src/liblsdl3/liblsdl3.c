@@ -1207,25 +1207,85 @@ static int libsdl_mixer_init(void) {
   return r;
 }
 
+#ifdef SDL_MIXER
+// The FluidSynth MIDI decoder in SDL3_mixer needs an instrument bank (a
+// SoundFont). It only auto-searches a single hardcoded path and there is no
+// SDL_SOUNDFONT fallback in this build, so we locate one ourselves and hand
+// it to the decoder through MIX_LoadAudioWithProperties(). Resolution order:
+// the SDL_SOUNDFONT environment variable, then a soundfont bundled with
+// PumpkinOS (looked up relative to the current working directory), then the
+// FluidSynth default location.
+static const char *libsdl_find_soundfont(void) {
+  static const char *const candidates[] = {
+    "soundfont.sf2",
+    "./soundfont.sf2",
+    "/usr/local/share/soundfonts/default.sf2",
+    NULL
+  };
+  sys_stat_t st;
+  char *env;
+  int i;
+
+  if ((env = sys_getenv("SDL_SOUNDFONT")) != NULL && env[0]) {
+    return env;
+  }
+
+  for (i = 0; candidates[i]; i++) {
+    if (sys_stat(candidates[i], &st) == 0) {
+      return candidates[i];
+    }
+  }
+
+  return NULL;
+}
+#endif
+
 static int libsdl_mixer_play(uint8_t *buf, uint32_t len, int volume) {
 #ifdef SDL_MIXER
   MIX_Track *track;
+  MIX_Audio *audio;
+  SDL_PropertiesID props;
+  SDL_IOStream *io;
+  const char *soundfont;
 
   debug(DEBUG_INFO, "SDL", "mixer play begin");
   if (mixer != NULL) {
     if ((track = MIX_CreateTrack(mixer)) != NULL) {
       debug(DEBUG_INFO, "SDL", "mixer create track done");
-      if (MIX_SetTrackIOStream(track, SDL_IOFromConstMem(buf, len), false) != false) {
-        debug(DEBUG_INFO, "SDL", "mixer set track IO stream done");
-        if (volume >= 0) {
-          MIX_SetTrackGain(track, ((float)volume) / 100); // 0-128
-        }
-        if (MIX_PlayTrack(track, 0) != false) {
-          debug(DEBUG_INFO, "SDL", "mixer play track done");
-          for (; MIX_TrackPlaying(track) && !thread_must_end();) {
-            sys_usleep(1000);
+      if ((io = SDL_IOFromConstMem(buf, len)) != NULL) {
+        if ((props = SDL_CreateProperties()) != 0) {
+          SDL_SetPointerProperty(props, MIX_PROP_AUDIO_LOAD_IOSTREAM_POINTER, io);
+          SDL_SetBooleanProperty(props, MIX_PROP_AUDIO_LOAD_CLOSEIO_BOOLEAN, true);
+          if ((soundfont = libsdl_find_soundfont()) != NULL) {
+            SDL_SetStringProperty(props, "SDL_mixer.decoder.fluidsynth.soundfont_path", soundfont);
+            debug(DEBUG_INFO, "SDL", "mixer using soundfont %s", soundfont);
+          } else {
+            debug(DEBUG_ERROR, "SDL", "no soundfont found; MIDI playback will be silent");
           }
-          debug(DEBUG_INFO, "SDL", "mixer play track loop done");
+
+          audio = MIX_LoadAudioWithProperties(props);
+          SDL_DestroyProperties(props); // does not close the IO stream
+          if (audio != NULL) {
+            debug(DEBUG_INFO, "SDL", "mixer load audio done");
+            if (MIX_SetTrackAudio(track, audio) != false) {
+              if (volume >= 0) {
+                MIX_SetTrackGain(track, ((float)volume) / 128.0f); // volume 0-128 -> gain 0.0-1.0
+              }
+              if (MIX_PlayTrack(track, 0) != false) {
+                debug(DEBUG_INFO, "SDL", "mixer play track done");
+                for (; MIX_TrackPlaying(track) && !thread_must_end();) {
+                  sys_usleep(1000);
+                }
+                debug(DEBUG_INFO, "SDL", "mixer play track loop done");
+              }
+              MIX_SetTrackAudio(track, NULL); // detach before destroying the audio
+            }
+            MIX_DestroyAudio(audio);
+          } else {
+            debug(DEBUG_ERROR, "SDL", "mixer load audio failed: %s", SDL_GetError());
+          }
+        } else {
+          SDL_CloseIO(io);
         }
       }
       MIX_DestroyTrack(track);

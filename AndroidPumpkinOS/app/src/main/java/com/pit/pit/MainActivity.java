@@ -40,7 +40,14 @@ public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
     protected void onStart() {
         super.onStart();
         PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "onStart");
+        // The content view is only inflated for ACTION_MAIN launches (see
+        // onCreate). If this activity was started with any other intent, the
+        // CustomView doesn't exist — bail out instead of NPE'ing on getBitmap().
         CustomView cv = findViewById(R.id.customView);
+        if (cv == null) {
+            PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "no content view; not starting");
+            return;
+        }
         Pumpkin pumpkin = getPumpkin();
         pumpkin.start(cv.getBitmap());
     }
@@ -93,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
         }
 
         CustomView cv = findViewById(R.id.customView);
-        cv.invalidate();
+        if (cv != null) cv.invalidate();
         if (finish) {
             PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "finishAndRemoveTask");
             finishAndRemoveTask();

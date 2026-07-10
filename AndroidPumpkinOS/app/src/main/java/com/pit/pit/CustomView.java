@@ -51,7 +51,15 @@ public class CustomView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawBitmap(bitmap, null, rect, null);
+        // Lock out the native compositor for the blit so we never read a
+        // half-written frame (tearing/garbled scanlines).
+        Pumpkin pumpkin = getPumpkin();
+        pumpkin.pitLockBitmap();
+        try {
+            canvas.drawBitmap(bitmap, null, rect, null);
+        } finally {
+            pumpkin.pitUnlockBitmap();
+        }
     }
 
     @Override

@@ -18,6 +18,8 @@ void pitSetBattery(int level);
 
 void window_init(int pe);
 void window_bitmap(JNIEnv *env, jobject bitmap);
+void window_lock_bitmap(void);
+void window_unlock_bitmap(void);
 
 #ifdef __cplusplus
 }

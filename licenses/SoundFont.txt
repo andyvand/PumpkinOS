@@ -1,0 +1,15 @@
+soundfont.sf2 (TimGM6mb.sf2)
+============================
+
+The bundled General MIDI instrument bank used for MIDI playback
+(soundfont.sf2, in the repository root) is "TimGM6mb.sf2", a small but
+complete GM SoundFont by Tim Brechbill.
+
+Some of the samples were created by Tim Brechbill himself; all others are
+either in the public domain or fall under the terms of the GNU General
+Public License. The SoundFont as a whole is distributed under the GNU
+General Public License, version 2 (GPL-2).
+
+It was originally shipped with MuseScore 1.0.
+
+Source / mirror: https://github.com/arbruijn/TimGM6mb

@@ -26,6 +26,14 @@ extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitUpdate(JNIEnv *env
     pitUpdate(env, obj);
 }
 
+extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitLockBitmap(JNIEnv *env, jobject /* this */) {
+    window_lock_bitmap();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitUnlockBitmap(JNIEnv *env, jobject /* this */) {
+    window_unlock_bitmap();
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitTouch(JNIEnv *env, jobject /* this */, int action, int x, int y) {
     pitTouch(action, x, y);
 }

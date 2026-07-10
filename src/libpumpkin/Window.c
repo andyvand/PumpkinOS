@@ -1040,10 +1040,17 @@ static UInt32 getColor(win_module_t *module, UInt16 depth, Boolean back) {
       }
       break;
     case 32:
+      // Must be opaque (alpha 0xFF): rgb32() leaves alpha=0, which on a 32-bit
+      // host surface (Android forces one) makes every rectangle/line fill fully
+      // transparent. The composite memcpy's it straight into the ARGB_8888
+      // bitmap, and Canvas.drawBitmap then renders alpha=0 as transparent — so
+      // the erased form background dropped out to black while text (drawn via
+      // BmpSurfaceColorRgb, which sets alpha=0xFF) stayed opaque. Desktop never
+      // hit this because its host surface is 16-bit RGB565 (no alpha channel).
       if (back) {
-        c = rgb32(module->drawState.backColorRGB.r, module->drawState.backColorRGB.g, module->drawState.backColorRGB.b);
+        c = rgba32(module->drawState.backColorRGB.r, module->drawState.backColorRGB.g, module->drawState.backColorRGB.b, 0xFF);
       } else {
-        c = rgb32(module->drawState.foreColorRGB.r, module->drawState.foreColorRGB.g, module->drawState.foreColorRGB.b);
+        c = rgba32(module->drawState.foreColorRGB.r, module->drawState.foreColorRGB.g, module->drawState.foreColorRGB.b, 0xFF);
       }
       break;
   }
@@ -2469,15 +2476,6 @@ IndexedColorType WinSetBackColor(IndexedColorType backColor) {
     CtbGetEntry(colorTable, backColor, &module->drawState.backColorRGB);
     setColors(back, module, backColor);
     module->backColor565 = rgb565(module->drawState.backColorRGB.r, module->drawState.backColorRGB.g, module->drawState.backColorRGB.b);
-    {
-      RGBColorType e0, e1, ewhite;
-      CtbGetEntry(colorTable, 0, &e0);
-      CtbGetEntry(colorTable, numEntries > 1 ? numEntries-1 : 0, &e1);
-      CtbGetEntry(colorTable, 0xff < numEntries ? 0xff : 0, &ewhite);
-      debug(DEBUG_ERROR, "Window", "BGCHECK idx=%d -> rgb=%d,%d,%d depth=%d ne=%d ct0=%d,%d,%d ctlast=%d,%d,%d",
-        backColor, module->drawState.backColorRGB.r, module->drawState.backColorRGB.g, module->drawState.backColorRGB.b,
-        module->depth, numEntries, e0.r,e0.g,e0.b, e1.r,e1.g,e1.b);
-    }
   } else {
     debug(DEBUG_ERROR, "Window", "WinSetBackColor invalid color %d for depth %d (max %d)", backColor, module->depth, numEntries-1);
   }

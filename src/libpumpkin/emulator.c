@@ -334,7 +334,12 @@ UInt32 EmulatorMain(void) {
                 WinScreenGetAttribute(winScreenWidth, &width);
                 WinScreenGetAttribute(winScreenHeight, &height);
 
-                if ((data.surface = surface_create(width, height, pumpkin_get_encoding())) != NULL) {
+                // The framebuffer is handed to pumpkin_screen_copy(), which
+                // expects RGB565 source pixels. Create the surface as RGB565
+                // regardless of the host encoding (which may be 32-bit on
+                // Android); the emulation core draws through the encoding-aware
+                // surface primitives, so this is transparent to it.
+                if ((data.surface = surface_create(width, height, SURFACE_ENCODING_RGB565)) != NULL) {
                   data.surface->event = emulator_surface_event;
                   data.surface->update = emulator_surface_update;
                   data.surface->udata = &data;

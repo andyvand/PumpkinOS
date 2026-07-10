@@ -155,7 +155,11 @@ static mu_Context *StartApplication(void) {
 
   WinScreenGetAttribute(winScreenWidth, &width);
   WinScreenGetAttribute(winScreenHeight, &height);
-  surface = surface_create(width, height, pumpkin_get_encoding());
+  // r_present() hands this buffer to pumpkin_screen_copy(), which expects
+  // RGB565 source pixels; create it as RGB565 regardless of the (possibly
+  // 32-bit) host encoding. All drawing goes through the encoding-aware
+  // surface primitives, so the change is transparent to the renderer.
+  surface = surface_create(width, height, SURFACE_ENCODING_RGB565);
   old_setpixel = surface->setpixel;
   surface->setpixel = surface_setpixel;
 

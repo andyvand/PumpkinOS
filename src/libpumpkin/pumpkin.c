@@ -2962,16 +2962,6 @@ static int draw_task(int i, int *x, int *y, int *w, int *h) {
       *y = screen->y0;
       *w = screen->x1 - screen->x0 + 1;
       *h = screen->y1 - screen->y0 + 1;
-      {
-        // Log the surface's encoding and a sample pixel at the center of the
-        // dirty rect, so we can tell whether the (white) form background reached
-        // the composited task surface or turned black somewhere upstream.
-        int cx = *x + (*w)/2, cy = *y + (*h)/2;
-        uint32_t *p32 = (uint32_t *)raw;
-        debug(DEBUG_ERROR, PUMPKINOS, "SURFCHK enc=%d sw=%d rect=%d,%d,%d,%d center(%d,%d)=0x%08X",
-          screen->surface->encoding, screen->surface->width, *x, *y, *w, *h, cx, cy,
-          p32[cy * screen->surface->width + cx]);
-      }
       debug(DEBUG_TRACE, PUMPKINOS, "task %d (%s) update texture %d,%d %d,%d", i, pumpkin_module.tasks[i].name, *x, *y, *w, *h);
       pumpkin_module.wp->update_texture_rect(pumpkin_module.w, pumpkin_module.tasks[i].texture, raw, *x, *y, *w, *h);
       screen->x0 = pumpkin_module.tasks[i].width;
@@ -4284,16 +4274,33 @@ void pumpkin_screen_unlock(void *scr, int x0, int y0, int x1, int y1) {
 void pumpkin_screen_copy(uint16_t *src, uint16_t y0, uint16_t y1) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   task_screen_t *screen;
-  uint32_t offset, size;
+  uint32_t offset, size, npixels, i;
   uint16_t *dst;
-  int len;
+  int len, enc, red, green, blue;
 
   if (task) {
     if ((screen = ptr_lock(task->screen_ptr, TAG_SCREEN))) {
       dst = surface_buffer(screen->surface, &len);
-      offset = y0 * task->width;
-      size = (y1 - y0) * task->width * sizeof(uint16_t);
-      sys_memcpy(dst + offset, src, size);
+      // "src" is always an RGB565 (16-bit) framebuffer, as the parameter type
+      // declares. When the host/composite surface is also RGB565 (the desktop
+      // default) this is a straight copy. But on Android the host surface is
+      // 32-bit (ABGR); a raw memcpy there would fill only the top half of the
+      // rows (dst has 4 bytes/pixel, not 2) and mis-map the bytes, which shows
+      // up as a garbled top-half / black bottom-half framebuffer. Convert each
+      // pixel to the destination encoding in that case.
+      enc = screen->surface->encoding;
+      npixels = (uint32_t)(y1 - y0) * task->width;
+      if (enc == SURFACE_ENCODING_ARGB || enc == SURFACE_ENCODING_ABGR) {
+        uint32_t *d32 = (uint32_t *)dst + (uint32_t)y0 * task->width;
+        for (i = 0; i < npixels; i++) {
+          surface_rgb_color(SURFACE_ENCODING_RGB565, NULL, 0, src[i], &red, &green, &blue, NULL);
+          d32[i] = surface_color_rgb(enc, NULL, 0, red, green, blue, 0xFF);
+        }
+      } else {
+        offset = (uint32_t)y0 * task->width;
+        size = npixels * sizeof(uint16_t);
+        sys_memcpy(dst + offset, src, size);
+      }
       screen->x0 = 0;
       screen->x1 = task->width-1;
       if (y0 < screen->y0) screen->y0 = y0;
@@ -4389,13 +4396,6 @@ void pumpkin_screen_dirty(WinHandle wh, int x, int y, int w, int h) {
       xd += sx;
       yd += sy;
       bmp = WinGetBitmap(wh);
-      {
-        UInt32 _tv = 0; Boolean _tp = BmpGetTransparentValue(bmp, &_tv);
-        UInt8 _bd = BmpGetBitDepth(bmp);
-        Coord _bw, _bh; BmpGetDimensions(bmp, &_bw, &_bh, NULL);
-        debug(DEBUG_ERROR, PUMPKINOS, "DIRTYCHK rect=%d,%d,%d,%d wh=%dx%d depth=%d transp=%d tv=0x%08X srcpix(%d,%d)=0x%08X",
-          x, y, w, h, _bw, _bh, _bd, _tp, _tv, x+w/2, y+h/2, (unsigned)BmpGetPixelValue(bmp, x+w/2, y+h/2));
-      }
       BmpDrawSurface(bmp, x, y, w, h, screen->surface, xd, yd, true, dbl);
 //debug(1, "XXX", "pumpkin_screen_dirty x=%d y=%d", x, y);
 //debug(1, "XXX", "pumpkin_screen_dirty dirty before (%d,%d,%d,%d)", screen->x0, screen->y0, screen->x1, screen->y1);

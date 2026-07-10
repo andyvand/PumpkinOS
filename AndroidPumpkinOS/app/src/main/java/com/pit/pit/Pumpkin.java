@@ -26,9 +26,13 @@ public class Pumpkin extends Application {
     }
 
     private int pe = -1;
-    private boolean on;
-    private boolean paused;
-    private boolean exited;
+    // These flags are written on the native "pumpkin" render thread and read on
+    // the main/UI thread (and vice-versa); without volatile the UI thread may
+    // never observe the render thread setting exited=true (so the activity never
+    // finishes) or see a stale paused/on value.
+    private volatile boolean on;
+    private volatile boolean paused;
+    private volatile boolean exited;
     private Handler handler;
     private Runnable r;
     private PumpkinUpdate updater;
@@ -58,6 +62,11 @@ public class Pumpkin extends Application {
     public void start(Bitmap bitmap) {
         Runnable r = () -> {
             PumpkinLog.log(PumpkinLog.INFO, "Application", "pumpkin thread begin");
+            // Mark the OS as running so MainActivity's onPause/onResume actually
+            // forward pitPause() to the native side. Without this pumpkinOn()
+            // is always false, so the native OS is never paused when backgrounded
+            // nor refreshed on return, which left a frozen/stale frame on resume.
+            pumpkinSetOn(true);
             pitUpdate(bitmap);
             pe = pitInit();
             if (pe != -1) pitFinish(pe);
@@ -66,6 +75,30 @@ public class Pumpkin extends Application {
             PumpkinLog.log(PumpkinLog.INFO, "Application", "pumpkin thread end");
         };
         PumpkinLog.log(PumpkinLog.INFO, "Application", "start");
+        // A previous native session may still be tearing down: stop() only
+        // requests exit and waits a bounded time, so on a fast onStop/onStart
+        // cycle the old "pumpkin" thread can still be alive here. Launching a
+        // second pitInit() while the first is running re-runs sys_init()/
+        // thread_init()/pumpkin_global_init() over shared global state, which
+        // corrupts it (garbled drawing, SIGSEGV). Wait for the old thread to
+        // finish; if it refuses to, skip this start rather than double-init.
+        if (exec != null) {
+            exec.shutdown();
+            try {
+                if (!exec.awaitTermination(3, TimeUnit.SECONDS)) {
+                    PumpkinLog.log(PumpkinLog.ERROR, "Application", "previous pumpkin thread still running; skipping start");
+                    return;
+                }
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            exec = null;
+        }
+        // Fresh boot: clear the "OS thread has exited" flag so a restart (e.g.
+        // after background/foreground) isn't immediately treated as finished,
+        // which would stop display updates and tear down the activity.
+        exited = false;
         // PumpkinOS runs an entire OS (launcher + nested app launches + the Lua
         // script engine + the m68k emulator) on this single native thread. The
         // default JVM/executor thread stack (~1 MB) is far too small for that
@@ -83,13 +116,25 @@ public class Pumpkin extends Application {
         PumpkinLog.log(PumpkinLog.INFO, "Application", "stop");
         pumpkinSetOn(false);
         if (!exited) pitRequestFinish();
+        if (exec == null) return;
+        // shutdown() is required for awaitTermination() to ever return true:
+        // without it the call always times out, the native OS thread is never
+        // reaped, and the next onStart() stacks a second pitInit() on top of the
+        // first — double-initializing all native global state, which crashes.
+        exec.shutdown();
         try {
-            if (!exec.awaitTermination(1, TimeUnit.SECONDS)) {
-                PumpkinLog.log(PumpkinLog.ERROR, "Application", "stop timeout");
+            if (!exec.awaitTermination(2, TimeUnit.SECONDS)) {
+                // Native teardown (thread_wait_all + pumpkin_global_finish) can
+                // outlast this wait. Leave exec non-null so the next start()
+                // waits for this thread instead of launching a concurrent
+                // pitInit(); do NOT null it here.
+                PumpkinLog.log(PumpkinLog.ERROR, "Application", "stop timeout; deferring teardown to next start");
+                return;
             }
         } catch (Exception ex) {
             PumpkinLog.log(PumpkinLog.ERROR, "Application", "stop error " + ex.getMessage());
         }
+        exec = null;
     }
 
     public void pumpkinSetUpdate(PumpkinUpdate updater) {
@@ -166,7 +211,6 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_a32, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_a32, dir, "MemoPad.prc");
                 copyFile(R.raw.command_a32, dir, "Command.prc");
-                copyFile(R.raw.datebook_a32, dir, "DateBook.prc");
                 copyFile(R.raw.luasyntax_a32, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_a32, dir, "vi.prc");
                 copyFile(R.raw.preferences_a32, dir, "Preferences.prc");
@@ -179,7 +223,6 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_a64, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_a64, dir, "MemoPad.prc");
                 copyFile(R.raw.command_a64, dir, "Command.prc");
-                copyFile(R.raw.datebook_a64, dir, "DateBook.prc");
                 copyFile(R.raw.luasyntax_a64, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_a64, dir, "vi.prc");
                 copyFile(R.raw.preferences_a64, dir, "Preferences.prc");
@@ -192,7 +235,6 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_i32, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_i32, dir, "MemoPad.prc");
                 copyFile(R.raw.command_i32, dir, "Command.prc");
-                copyFile(R.raw.datebook_i32, dir, "DateBook.prc");
                 copyFile(R.raw.luasyntax_i32, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_i32, dir, "vi.prc");
                 copyFile(R.raw.preferences_i32, dir, "Preferences.prc");
@@ -205,7 +247,6 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_i64, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_i64, dir, "MemoPad.prc");
                 copyFile(R.raw.command_i64, dir, "Command.prc");
-                copyFile(R.raw.datebook_i64, dir, "DateBook.prc");
                 copyFile(R.raw.luasyntax_i64, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_i64, dir, "vi.prc");
                 copyFile(R.raw.preferences_i64, dir, "Preferences.prc");
@@ -218,7 +259,6 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_r64, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_r64, dir, "MemoPad.prc");
                 copyFile(R.raw.command_r64, dir, "Command.prc");
-                copyFile(R.raw.datebook_r64, dir, "DateBook.prc");
                 copyFile(R.raw.luasyntax_r64, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_r64, dir, "vi.prc");
                 copyFile(R.raw.preferences_r64, dir, "Preferences.prc");
@@ -283,6 +323,10 @@ public class Pumpkin extends Application {
     public native void pitUpdate(Bitmap bitmap);
     public native void pitPause(boolean paused);
     public native void pitTouch(int action, int x, int y);
+    // Held around Canvas.drawBitmap so the UI thread never reads a scanline
+    // while the native compositor is writing it (prevents tearing).
+    public native void pitLockBitmap();
+    public native void pitUnlockBitmap();
     public native void pitSetBattery(int level);
     public native int getArch();
 }
