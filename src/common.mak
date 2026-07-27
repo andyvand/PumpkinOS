@@ -126,7 +126,8 @@ SOEXT=.so
 LUAPLAT=linux
 OS=Linux
 OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
-CC=gcc
+#CC=gcc
+CC=filcc
 FC=gfortran
 else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS (DJGPP cross compiler). Everything is linked statically into a

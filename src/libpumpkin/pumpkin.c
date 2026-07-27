@@ -68,6 +68,7 @@
 #define VFS_INSTALL   VFS_INSTALL_DIR "/"
 
 #define SMALL_HEAP_SIZE (128*1024)
+#define HEAP_ALIGN 8
 
 #ifdef ESP32
 #define HEAP_SIZE (448*1024)
@@ -538,8 +539,12 @@ pumpkin_plugin_t *pumpkin_get_plugin(UInt32 type, UInt32 id) {
 
   if (plugin == NULL) {
     pumpkin_id2s(type, sType);
-    pumpkin_id2s(id, sId);
-    debug(DEBUG_INFO, PUMPKINOS, "plugin type '%s' id '%s' not found", sType, sId);
+    if (id != sysAnyPluginId) {
+      pumpkin_id2s(id, sId);
+      debug(DEBUG_INFO, PUMPKINOS, "plugin type '%s' id '%s' not found", sType, sId);
+    } else {
+      debug(DEBUG_INFO, PUMPKINOS, "plugin type '%s' id any not found", sType);
+    }
   }
 
   return plugin;
@@ -749,7 +754,7 @@ int pumpkin_global_init(script_engine_t *engine, window_provider_t *wp, audio_pr
 
   pumpkin_remove_locks(pumpkin_module.session, APP_STORAGE);
 
-  pumpkin_module.heap = heap_init(NULL, HEAP_SIZE*8, SMALL_HEAP_SIZE, 4, wp);
+  pumpkin_module.heap = heap_init(NULL, HEAP_SIZE*8, SMALL_HEAP_SIZE, HEAP_ALIGN, wp);
   StoInit(APP_STORAGE, pumpkin_module.fs_mutex);
   //pumpkin_module.dm = DataMgrInit("/app_data/");
   //DataMgrInitModule(pumpkin_module.dm);
@@ -1696,7 +1701,9 @@ static uint32_t pumpkin_launch_sub(launch_request_t *request, int opendb) {
   MemHandle h;
   Boolean firstLoad;
   void *lib;
+#if defined(PUMPKIN_SYSCALL)
   void **pumpkin_system_call_p;
+#endif
   int m68k;
 
   if (request) {
@@ -1716,12 +1723,14 @@ static uint32_t pumpkin_launch_sub(launch_request_t *request, int opendb) {
 			debug(DEBUG_INFO, PUMPKINOS, "pilot_main: 0x%lx)", firstLoad ? 1 : (unsigned long)((uint64_t)pilot_main));
 			if (pilot_main == NULL) {
               debug(DEBUG_ERROR, PUMPKINOS, "PilotMain not found in dlib");
+#if defined(PUMPKIN_SYSCALL)
             } else {
               pumpkin_system_call_p = sys_lib_defsymbol(lib, "pumpkin_system_call_p", 0);
               if (pumpkin_system_call_p) {
                 debug(DEBUG_INFO, PUMPKINOS, "setting syscall address for \"%s\"", request->name);
                 *pumpkin_system_call_p = (void *)pumpkin_system_call;
               }
+#endif
             }
           } else {
             debug(DEBUG_INFO, PUMPKINOS, "dlib resource not loaded");
@@ -2002,7 +2011,7 @@ static int pumpkin_local_init(int i, uint32_t taskId, texture_t *texture, uint32
   if (pumpkin_module.mode != 1) {
     if (heapSize < 0) heapSize = 0;
     else if (heapSize > 64) heapSize = 64;
-    if (heapAlign == 0) heapAlign = 4;
+    if (heapAlign == 0) heapAlign = HEAP_ALIGN;
     task->heap = heap_init(NULL, heapSize ? (heapSize*1024*1024) : HEAP_SIZE, SMALL_HEAP_SIZE, heapAlign, NULL);
     StoInit(APP_STORAGE, pumpkin_module.fs_mutex);
     //DataMgrInitModule(pumpkin_module.dm);
@@ -2363,7 +2372,6 @@ static int pumpkin_launch_action(void *arg) {
   thread_set_name(TAG_APP);
   debug(DEBUG_INFO, PUMPKINOS, "thread exiting");
   StrNCopy(name, data->request.name, dmDBNameLength - 1);
-  sys_free(data);
 
   if (cont) {
     debug(DEBUG_INFO, PUMPKINOS, "switching from \"%s\" to \"%s\" (SysUIAppSwitch)", name, launch.name);
@@ -2372,10 +2380,12 @@ static int pumpkin_launch_action(void *arg) {
       launch.hasParam = true;
       StrNCopy(launch.param.p4.name, name, dmDBNameLength - 1);
     }
+    sys_free(data);
     pumpkin_launch_request(0, launch.name, launch.code, launch.hasParam ? &launch.param : NULL, launch.flags, NULL, 1);
   } else if (data->request.code == sysAppLaunchCmdPanelCalledFromApp) {
     // ... so that the panel knows which app to call on sysAppLaunchCmdReturnFromPanel
     StrNCopy(launch.name, data->request.param.p4.name, dmDBNameLength - 1);
+    sys_free(data);
     debug(DEBUG_INFO, PUMPKINOS, "switching from \"%s\" to \"%s\" (sysAppLaunchCmdReturnFromPanel)", name, launch.name);
     pumpkin_launch_request(0, launch.name, sysAppLaunchCmdReturnFromPanel, NULL, 0, NULL, 1);
   }
@@ -6341,7 +6351,7 @@ void pumpkin_audio_task_init(void) {
 
   if ((task = sys_calloc(1, sizeof(pumpkin_task_t))) != NULL) {
     thread_set(task_key, task);
-    task->heap = heap_init(NULL, 256*1024, 0, 4, NULL);
+    task->heap = heap_init(NULL, 256*1024, 0, HEAP_ALIGN, NULL);
     StoInit(APP_STORAGE, pumpkin_module.fs_mutex);
     VFSInitModule();
     VFSAddVolume(VFS_CARD);

@@ -16,9 +16,11 @@ ARM_SOURCE=armem.c armemu.c CPU.c icache.c MMU.c RAM.c \
 DARM_SOURCE=armv7.c armv7-tbl.c darm.c darm-tbl.c thumb.c \
          thumb2.c thumb2-decoder.c thumb2-tbl.c thumb-tbl.c
 
+EMU_SYSTRAPS=AbtSysTrap.c AlmSysTrap.c AttnSysTrap.c BmpSysTrap.c CategorySysTrap.c ClipboardSysTrap.c CrcSysTrap.c CtlSysTrap.c DateSysTrap.c DaySysTrap.c DaysSysTrap.c DlkSysTrap.c DmSysTrap.c EncSysTrap.c ErrSysTrap.c EvtSysTrap.c ExgSysTrap.c FileSysTrap.c FldSysTrap.c FntSysTrap.c FontSysTrap.c FplSysTrap.c FrmSysTrap.c FtrSysTrap.c GetSysTrap.c GrfSysTrap.c GsiSysTrap.c HostSysTrap.c HwrSysTrap.c InsSysTrap.c KeySysTrap.c LocSysTrap.c LstSysTrap.c MemSysTrap.c MenuSysTrap.c PceSysTrap.c PenSysTrap.c PrefSysTrap.c PrgSysTrap.c PwdSysTrap.c RctSysTrap.c ResSysTrap.c SclSysTrap.c SecSysTrap.c SelectSysTrap.c SndSysTrap.c StrSysTrap.c TblSysTrap.c TimSysTrap.c TimeSysTrap.c UISysTrap.c WinSysTrap.c
+
 EMU_SOURCE=emupalmos.c armsyscall.c omtrap.c pinstrap.c hdtrap.c serialtrap.c fstrap.c intltrap.c \
         flpemtrap.c flptrap.c accessortrap.c expansiontrap.c tsmtrap.c lmtrap.c navtrap.c netlibtrap.c gpdlibtrap.c \
-        systrap.c m68kcpu.c softfloat.c m68kops.c disasm.c \
+        systrap.c $(EMU_SYSTRAPS) m68kcpu.c softfloat.c m68kops.c disasm.c \
         emu_notif_serde.c emu_launch_serde.c $(ARM_SOURCE) $(DARM_SOURCE) emulator.c
 
 TOS_SOURCE=tos.c gemdos_impl.c bios_impl.c xbios_impl.c vdi.c aes.c
@@ -39,7 +41,7 @@ $(PROGRAM): $(OBJS) $(LAUNCHER_OBJS)
 	@echo Creating libpumpkin.a
 	@$(ARCMD) $(PROGRAM) $(OBJS) $(LAUNCHER_OBJS)
 
-systrap.wasm: systrap.c switch.c
+systrap.wasm: systrap.c sc_case.c sc_prot.h
 	@echo Compiling $<
 	@$(EM_CC) $(CFLAGS) -c systrap.c -o systrap.wasm
 
@@ -52,7 +54,7 @@ $(PROGRAM): $(OBJS)
 	@rm -f $(PROGRAM)
 	@$(AR) -cr $(PROGRAM) $(OBJS)
 
-systrap.o: systrap.c switch.c
+systrap.o: systrap.c sc_case.c sc_prot.h
 	@echo Compiling $<
 	@$(CC) $(CFLAGS) -c systrap.c -o systrap.o
 
@@ -68,7 +70,7 @@ $(PROGRAM): $(OBJS) $(LAUNCHER_OBJS)
 	@echo Creating libpumpkin.a
 	@$(ARCMD) $(PROGRAM) $(OBJS) $(LAUNCHER_OBJS)
 
-systrap.o: systrap.c switch.c
+systrap.o: systrap.c sc_case.c sc_prot.h
 	@echo Compiling $<
 	@$(CC) $(CFLAGS) -c systrap.c -o systrap.o
 
@@ -87,7 +89,7 @@ else
 	@codesign -f -s "Developer ID Application" $(PROGRAM)
 endif
 
-systrap.o: systrap.c switch.c
+systrap.o: systrap.c sc_case.c sc_prot.h
 	@echo Compiling $<
 	@$(CC) $(CFLAGS) -c systrap.c -o systrap.o
 

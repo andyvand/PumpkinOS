@@ -17,6 +17,8 @@ ERROR=make_error
 ERROR_MSG=Could not find SDL2, Wayland or XCB development headers
 endif
 
+WINDOW_MODULE=libwnull
+
 ifneq ($(UNICORN),)
 UNICORN_MODULE=UnicornArm
 else ifneq ($(wildcard /usr/include/unicorn/unicorn.h),)

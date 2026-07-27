@@ -2944,6 +2944,9 @@ int sys_set_thread_name(char *name) {
   pthread_setname_np(name);
 #else
 #if defined(LINUX) || defined(ESP32)
+#if defined(LINUX) && !defined pthread_setname_np
+  extern int pthread_setname_np (pthread_t __target_thread, const char *__name);
+#endif
   pthread_setname_np(pthread_self(), name);
 #endif
 #endif

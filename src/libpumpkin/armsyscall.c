@@ -410,7 +410,7 @@ uint32_t emupalmos_arm_syscall(uint32_t group, uint32_t function, uint32_t r0, u
           int vararg = function == 0x7C0;
           Int16 res = 0;
           if (s && f) {
-            int i, j = 0, /*k = 1,*/ t = 0, sz = 0, arglen = 0;
+            int i, j = 0, t = 0, sz = 0, arglen = 0;
             uint32_t arg, v_arg;
             char *p, *q, fmt[16];
             if (vararg) {
@@ -463,7 +463,6 @@ uint32_t emupalmos_arm_syscall(uint32_t group, uint32_t function, uint32_t r0, u
                           default: arg = ARG16; break;
                         }
                       }
-                      //k++;
                       fmt[j++] = f[i];
                       fmt[j] = 0;
                       sys_sprintf(p, fmt, arg);
@@ -478,7 +477,6 @@ uint32_t emupalmos_arm_syscall(uint32_t group, uint32_t function, uint32_t r0, u
                       } else {
                         arg = ARG8;
                       }
-                      //k++;
                       fmt[j++] = f[i];
                       fmt[j] = 0;
                       sys_sprintf(p, fmt, arg);
@@ -492,7 +490,6 @@ uint32_t emupalmos_arm_syscall(uint32_t group, uint32_t function, uint32_t r0, u
                       } else {
                         arg = ARG32;
                       }
-                      //k++;
                       q = (char *)(ram + arg);
                       fmt[j++] = f[i];
                       fmt[j] = 0;
@@ -511,7 +508,6 @@ uint32_t emupalmos_arm_syscall(uint32_t group, uint32_t function, uint32_t r0, u
                       } else {
                         arglen = ARG16;
                       }
-                      //k++;
                       break;
                     case '%':
                       *p++ = f[i];
