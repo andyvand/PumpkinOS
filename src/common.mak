@@ -129,6 +129,15 @@ OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
 #CC=gcc
 CC=filcc
 FC=gfortran
+else ifeq ($(OSNAME),filc)
+SYS_OS=1
+EXTLIBS=-lrt -ldl
+SOEXT=.so
+LUAPLAT=linux
+OS=Linux
+OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
+CC=filcc
+WARN_FLAGS=-Wno-typedef-redefinition -Wno-pragma-pack -DFILC
 else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS (DJGPP cross compiler). Everything is linked statically into a
 # single pumpkinos.exe (see src/msdos), there are no shared objects.
@@ -281,7 +290,7 @@ endif
 
 SYSDEFS=-DSYS_CPU=$(SYS_CPU) -DSYS_SIZE=$(SYS_SIZE) -DSYS_OS=$(SYS_OS) -DSYS_ENDIAN=$(SYS_ENDIAN)
 PICFLAG?=-fPIC
-CPPFLAGS=-Wall -Wno-unknown-pragmas -fsigned-char -Wno-multichar $(OPTIMIZATION) $(PICFLAG) -fno-stack-protector -I$(LIBPIT) -DSYSTEM_NAME=\"$(SYSNAME)\" -DSYSTEM_VERSION=\"$(VERSION)\" -DSYSTEM_OS=\"$(OS)\" -DAPPNAME="\"$(APPNAME)\"" $(FAPPID) $(CUSTOMFLAGS) $(SYSDEFS) $(OSDEFS) $(MUTE_DEBUG) -DLOGTRAP_SYS
+CPPFLAGS=-Wall -Wno-unknown-pragmas -fsigned-char -Wno-multichar $(WARN_FLAGS) $(OPTIMIZATION) $(PICFLAG) -fno-stack-protector -I$(LIBPIT) -DSYSTEM_NAME=\"$(SYSNAME)\" -DSYSTEM_VERSION=\"$(VERSION)\" -DSYSTEM_OS=\"$(OS)\" -DAPPNAME="\"$(APPNAME)\"" $(FAPPID) $(CUSTOMFLAGS) $(SYSDEFS) $(OSDEFS) $(MUTE_DEBUG) -DLOGTRAP_SYS
 CSTD?=$(C99)
 CFLAGS=$(CPPFLAGS) -ffreestanding $(CSTD)
 HOSTCFLAGS=-Wall
