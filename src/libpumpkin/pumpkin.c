@@ -68,7 +68,11 @@
 #define VFS_INSTALL   VFS_INSTALL_DIR "/"
 
 #define SMALL_HEAP_SIZE (128*1024)
+#if defined(FILC)
 #define HEAP_ALIGN 8
+#else
+#define HEAP_ALIGN 4
+#endif
 
 #ifdef ESP32
 #define HEAP_SIZE (448*1024)
