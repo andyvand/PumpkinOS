@@ -17,8 +17,6 @@ ERROR=make_error
 ERROR_MSG=Could not find SDL2, Wayland or XCB development headers
 endif
 
-WINDOW_MODULE=libwnull
-
 ifneq ($(UNICORN),)
 UNICORN_MODULE=UnicornArm
 else ifneq ($(wildcard /usr/include/unicorn/unicorn.h),)
@@ -30,6 +28,12 @@ TLS_MODULE=liblopenssl
 endif
 
 EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) $(TLS_MODULE) libaalsa linux
+
+else ifeq ($(OSNAME),filc)
+
+WINDOW_MODULE=libwnull
+UNICORN_MODULE=
+EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) linux
 
 else ifeq ($(OSNAME),Android)
 ifneq ($(UNICORN),)
