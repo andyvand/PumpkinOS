@@ -1,7 +1,9 @@
 #ifndef _CUSTOM_MALLOC_H_
 #define _CUSTOM_MALLOC_H_
 
+#if !defined(FILC)
 #pragma pack(push, 4)
+#endif
 
 typedef struct BD_t {
   struct BD_t *prev;
@@ -45,6 +47,8 @@ void CustomFree(HEAP_INFO_t *pHeapInfo, void *p);
 
 uint32_t CustomBlockSize(HEAP_INFO_t *pHeapInfo, void *p);
 
+#if !defined(FILC)
 #pragma pack(pop)
+#endif
 
 #endif	
