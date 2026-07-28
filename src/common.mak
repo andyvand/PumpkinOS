@@ -126,8 +126,7 @@ SOEXT=.so
 LUAPLAT=linux
 OS=Linux
 OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
-#CC=gcc
-CC=filcc
+CC=gcc
 FC=gfortran
 else ifeq ($(OSNAME),filc)
 SYS_OS=1
@@ -137,7 +136,8 @@ LUAPLAT=linux
 OS=Linux
 OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
 CC=filcc
-WARN_FLAGS=-Wno-typedef-redefinition -Wno-pragma-pack -DFILC
+WARN_FLAGS=-Wno-typedef-redefinition -DFILC -O2
+
 else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS (DJGPP cross compiler). Everything is linked statically into a
 # single pumpkinos.exe (see src/msdos), there are no shared objects.
