@@ -218,8 +218,7 @@ typedef struct {
 typedef struct {
   uint32_t msg;
   SysNotifyParamType notify;
-  SysNotifyProcPtr callback;
-  uint32_t callback68k;
+  int ptr;
 } notif_msg_t;
 
 typedef struct {
@@ -3111,7 +3110,7 @@ void pumpkin_forward_event(int i, EventType *event) {
   }
 }
 
-static void pumpkin_forward_notif(Int32 taskId, UInt32 creator, SysNotifyParamType *notify, SysNotifyProcPtr callback, UInt32 callback68k) {
+static void pumpkin_forward_notif(Int32 taskId, UInt32 creator, SysNotifyParamType *notify, int ptr) {
   notif_msg_t msg;
   DmSearchStateType stateInfo;
   LocalID dbID;
@@ -3143,8 +3142,7 @@ static void pumpkin_forward_notif(Int32 taskId, UInt32 creator, SysNotifyParamTy
     if (i < (UInt32)pumpkin_module.num_tasks) {
       MemSet(&msg, sizeof(notif_msg_t), 0);
       msg.msg = MSG_NOTIFY;
-      msg.callback = callback;
-      msg.callback68k = callback68k;
+      msg.ptr = ptr;
       sys_memcpy(&msg.notify, notify, sizeof(SysNotifyParamType));
       size = sizeof(notif_msg_t);
       if ((buf = serialize_notif(notify->notifyType, msg.notify.notifyDetailsP, &size)) != NULL) {
@@ -3919,6 +3917,7 @@ static int pumpkin_event_multi_thread(int *key, int *mods, int *buttons, uint8_t
   client_request_t *creq;
   notif_msg_t *notif;
   notif_union_t nparam;
+  notif_ptr_t *np;
   //launch_msg_t *launch;
   //launch_union_t lparam;
   EventType event;
@@ -4008,18 +4007,22 @@ static int pumpkin_event_multi_thread(int *key, int *mods, int *buttons, uint8_t
             deserialize_notif(notif->notify.notifyType, buf + sizeof(notif_msg_t), len - sizeof(notif_msg_t), &nparam);
             debug(DEBUG_INFO, PUMPKINOS, "received notification '%s' (%u bytes)", snotify, len);
             notif->notify.notifyDetailsP = &nparam;
-            if (notif->callback) {
-              debug(DEBUG_INFO, PUMPKINOS, "delivering notification via callback");
-              notif->callback(&notif->notify);
-            } else if (notif->callback68k) {
-              debug(DEBUG_INFO, PUMPKINOS, "delivering notification via 68k callback");
-              CallNotifyProc(notif->callback68k, &notif->notify, len - sizeof(notif_msg_t));
-            } else if (task->pilot_main) {
-              debug(DEBUG_INFO, PUMPKINOS, "delivering notification via PilotMain");
-              task->paramBlockSize = 18 + len - sizeof(notif_msg_t);
-              task->pilot_main(sysAppLaunchCmdNotify, &notif->notify, 0);
-            } else {
-              debug(DEBUG_ERROR, PUMPKINOS, "task has no callback or PilotMain for delivering notifications");
+
+            if ((np = ptr_lock(notif->ptr, TAG_NOTIF)) != NULL) {
+              if (np->callback) {
+                debug(DEBUG_INFO, PUMPKINOS, "delivering notification via callback");
+                np->callback(&notif->notify);
+              } else if (np->callback68k) {
+                debug(DEBUG_INFO, PUMPKINOS, "delivering notification via 68k callback");
+                CallNotifyProc(np->callback68k, &notif->notify, len - sizeof(notif_msg_t));
+              } else if (task->pilot_main) {
+                debug(DEBUG_INFO, PUMPKINOS, "delivering notification via PilotMain");
+                task->paramBlockSize = 18 + len - sizeof(notif_msg_t);
+                task->pilot_main(sysAppLaunchCmdNotify, &notif->notify, 0);
+              } else {
+                debug(DEBUG_ERROR, PUMPKINOS, "task has no callback or PilotMain for delivering notifications");
+              }
+              ptr_unlock(notif->ptr, TAG_NOTIF);
             }
           } else {
             debug(DEBUG_ERROR, PUMPKINOS, "wrong notification message length %u", len);
@@ -6084,7 +6087,7 @@ Err SysNotifyBroadcast(SysNotifyParamType *notify) {
             debug(DEBUG_INFO, PUMPKINOS, "send notification type '%s' priority %d to '%s' taskId %d userData %p",
               stype, pumpkin_module.notif[i].priority, screator, pumpkin_module.notif[i].taskId, notify->userDataP);
             if (pumpkin_module.mode == 0) {
-              pumpkin_forward_notif(pumpkin_module.notif[i].taskId, pumpkin_module.notif[i].appCreator, notify, np->callback, np->callback68k);
+              pumpkin_forward_notif(pumpkin_module.notif[i].taskId, pumpkin_module.notif[i].appCreator, notify, pumpkin_module.notif[i].ptr);
             } else {
               np->callback(notify);
             }
@@ -6094,7 +6097,7 @@ Err SysNotifyBroadcast(SysNotifyParamType *notify) {
           debug(DEBUG_INFO, PUMPKINOS, "send notification type '%s' priority %d to '%s' taskId %d NO userData",
             stype, pumpkin_module.notif[i].priority, screator, pumpkin_module.notif[i].taskId);
           notify->userDataP = NULL;
-          pumpkin_forward_notif(pumpkin_module.notif[i].taskId, pumpkin_module.notif[i].appCreator, notify, NULL, 0);
+          pumpkin_forward_notif(pumpkin_module.notif[i].taskId, pumpkin_module.notif[i].appCreator, notify, 0);
         }
         n++;
       }
