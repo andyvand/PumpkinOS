@@ -74,11 +74,11 @@ void palmos_gpdlibtrap(uint16_t trap) {
     case GPDTrapRead: {
       // Err GPDReadInstant(UInt16 uRefNum, UInt8 *resultP)
       refNum = ARG16;
-      resultP = ARG8;
-	  emupalmos_trap_in((uint8_t)resultP, trap, 1);
+      resultP = ARG32;
+      emupalmos_trap_in(resultP, trap, 1);
       err = GPDReadInstant(refNum, (UChar *)&result);
-	  if (resultP) m68k_write_memory_8((uint8_t)resultP, (uint8_t)result);
-	  debug(DEBUG_TRACE, "EmuPalmOS", "GPDReadInstant(refNum=%d, resultP=0x%08X): %d", refNum, (uint8_t)resultP, err);
+      if (resultP) m68k_write_memory_8(resultP, (uint8_t)result);
+      debug(DEBUG_TRACE, "EmuPalmOS", "GPDReadInstant(refNum=%d, resultP=0x%08X): %d", refNum, resultP, err);
       m68k_set_reg(M68K_REG_D0, err);
       }
       break;

@@ -104,7 +104,7 @@ void palmos_expansiontrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       }
       break;
     case 10: {
-      // Err ExpSlotEnumerate(UInt16 *slotrefnump, UInt32 *slotIteratorP)
+      // Err ExpSlotEnumerate(UInt16 *slotRefNumP, UInt32 *slotIteratorP)
       slotRefNumP = ARG32;
       slotIteratorP = ARG32;
       emupalmos_trap_sel_in(slotRefNumP, sysTrapExpansionDispatch, sel, 0);
