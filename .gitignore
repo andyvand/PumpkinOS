@@ -24,6 +24,7 @@
 *.log
 *.pyc
 *.class
+*.jar
 *.mod
 *.fo
 xdg-*.c
