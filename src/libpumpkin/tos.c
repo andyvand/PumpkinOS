@@ -1261,7 +1261,7 @@ static uint32_t tos_gemdos_systrap(void) {
   struct g_iovec *iov = NULL;
   int32_t niov = 0;
   int32_t number = 0;
-  int32_t cmdl = 0;
+  int16_t cmdl = 0;
   int32_t resl = 0;
   uint32_t adelta = 0;
   uint32_t aaddrlen = 0;

@@ -326,7 +326,7 @@ void palmos_accessortrap(uint32_t sp, uint16_t idx, uint32_t sel) {
     case 23: {
       // Boolean TblGlueGetColumnMasked(const TableType *tableP, Int16 column)
       tableP = ARG32;
-      column = ARG8;
+      column = ARG16;
       tbl = (TableType *)emupalmos_trap_sel_in(tableP, sysTrapAccessorDispatch, sel, 0);
       resb = TblGlueGetColumnMasked(tbl, column);
       debug(DEBUG_TRACE, "EmuPalmOS", "TblGlueGetColumnMasked(0x%08X, %d): %u", tableP, column, resb);
