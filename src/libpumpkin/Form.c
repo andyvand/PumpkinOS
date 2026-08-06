@@ -1221,7 +1221,8 @@ void FrmDrawForm(FormType *formP) {
   Int16 margin;
 
   if (formP) {
-    debug(DEBUG_TRACE, "Form", "FrmDrawForm %d", formP->formId);
+    // XXX hang debug: bracket the whole form draw
+    debug(DEBUG_INFO, "Form", "FrmDrawForm %d begin", formP->formId);
     pumpkin_dirty_region_mode(dirtyRegionBegin);
 
     // if this is not done, SimCity draws scrollbars in white
@@ -1252,6 +1253,8 @@ void FrmDrawForm(FormType *formP) {
         // must be set here, otherwise the inversion routine would produce garbled pixels.
         FrmSetVisible(formP, objIndex, false);
       }
+      // XXX hang debug: identify which object draw does not return
+      debug(DEBUG_INFO, "Form", "FrmDrawForm object %d type %d", objIndex, formP->objects[objIndex].objectType);
       FrmDrawObject(formP, objIndex, false);
     }
     formP->attr.drawing = 0;
@@ -1260,7 +1263,11 @@ void FrmDrawForm(FormType *formP) {
     WinSetDrawWindow(oldd);
     WinSetActiveWindow(olda);
 
+    // XXX hang debug: dirtyRegionEnd below flushes to the display; if "end"
+    // never prints the hang is in the flush/render path
+    debug(DEBUG_INFO, "Form", "FrmDrawForm %d flush", formP->formId);
     pumpkin_dirty_region_mode(dirtyRegionEnd);
+    debug(DEBUG_INFO, "Form", "FrmDrawForm %d end", formP->formId);
   }
 }
 

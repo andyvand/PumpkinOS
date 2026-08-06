@@ -2962,8 +2962,10 @@ static int draw_task(int i, int *x, int *y, int *w, int *h) {
       *y = screen->y0;
       *w = screen->x1 - screen->x0 + 1;
       *h = screen->y1 - screen->y0 + 1;
-      debug(DEBUG_TRACE, PUMPKINOS, "task %d (%s) update texture %d,%d %d,%d", i, pumpkin_module.tasks[i].name, *x, *y, *w, *h);
+      // XXX hang debug: raised from TRACE to INFO, plus an "end" marker
+      debug(DEBUG_INFO, PUMPKINOS, "task %d (%s) update texture %d,%d %d,%d", i, pumpkin_module.tasks[i].name, *x, *y, *w, *h);
       pumpkin_module.wp->update_texture_rect(pumpkin_module.w, pumpkin_module.tasks[i].texture, raw, *x, *y, *w, *h);
+      debug(DEBUG_INFO, PUMPKINOS, "task %d update texture end", i);
       screen->x0 = pumpkin_module.tasks[i].width;
       screen->y0 = pumpkin_module.tasks[i].height;
       screen->x1 = -1;
@@ -3694,9 +3696,11 @@ static void pumpkin_update_single_app(void) {
     if (pumpkin_module.fullrefresh) {
       draw_task(0, &x, &y, &w, &h);
       wman_update(pumpkin_module.wm, 0, 0, 0, pumpkin_module.tasks[0].width, pumpkin_module.tasks[0].height);
+      debug(DEBUG_INFO, PUMPKINOS, "wman update end"); // XXX hang debug
       pumpkin_module.render = 1;
     } else if (draw_task(0, &x, &y, &w, &h)) {
       wman_update(pumpkin_module.wm, 0, x, y, w, h);
+      debug(DEBUG_INFO, PUMPKINOS, "wman update end"); // XXX hang debug
       pumpkin_module.render = 1;
     }
 
@@ -3707,7 +3711,10 @@ static void pumpkin_update_single_app(void) {
 
     if (pumpkin_module.render) {
       if (pumpkin_module.wp->render) {
+        // XXX hang debug: bracket the host present call (SDL_RenderPresent / esp_lcd)
+        debug(DEBUG_INFO, PUMPKINOS, "host render begin");
         pumpkin_module.wp->render(pumpkin_module.w);
+        debug(DEBUG_INFO, PUMPKINOS, "host render end");
       }
       pumpkin_module.render = 0;
     }
@@ -4357,6 +4364,14 @@ void pumpkin_screen_dirty(WinHandle wh, int x, int y, int w, int h) {
   Boolean dbl;
   Coord sx, sy;
   int xd, yd, wd, hd;
+  // XXX hang debug: rate-limited alive marker to detect a loop that keeps drawing
+  static uint64_t lastAlive = 0;
+  uint64_t nowAlive = sys_get_clock();
+
+  if (nowAlive - lastAlive > 2000000) {
+    lastAlive = nowAlive;
+    debug(DEBUG_INFO, PUMPKINOS, "screen dirty alive (%d,%d %dx%d)", x, y, w, h);
+  }
 
   if (!task) return;
 

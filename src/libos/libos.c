@@ -410,6 +410,11 @@ static int libos_start(int pe) {
   }
 
   if ((data = sys_malloc(sizeof(libos_t))) != NULL) {
+    // sys_malloc does not zero. Parameters the script engine does not provide
+    // (fullrefresh, software, rotate, driver, osversion, taskbar, ...) are
+    // never assigned below and would be read as heap garbage by
+    // libos_action/pumpkin_set_* (same fix as in libos_start_direct).
+    sys_memset(data, 0, sizeof(libos_t));
     data->pe = script_create(script_get_engine(pe));
     data->obj = script_create_object(data->pe);
 

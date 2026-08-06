@@ -259,7 +259,16 @@ static int sendKeyDown(UInt16 eType, UInt16 chr, UInt16 keyCode, UInt16 modifier
 
 int EvtPumpEvents(Int32 timeoutUs) {
   evt_module_t *module = (evt_module_t *)pumpkin_get_local_storage(evt_key);
+  // XXX hang debug: rate-limited alive marker for any event-pump loop
+  // (EvtGetEvent, Evt*EventAvail, EvtGetPen all come through here)
+  static uint64_t lastAlive = 0;
+  uint64_t nowAlive = sys_get_clock();
   EventType event;
+
+  if (nowAlive - lastAlive > 2000000) {
+    lastAlive = nowAlive;
+    debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents alive (timeout %d)", timeoutUs);
+  }
   UInt8 buf[1024];
   UInt32 n;
   int32_t wait;
@@ -803,6 +812,15 @@ Boolean EvtEventAvail(void) {
 // timeout: time in us to wait before an event is returned (evtWaitForever means wait indefinitely).
 void EvtGetEventUs(EventType *event, Int32 timeoutUs) {
   evt_module_t *module = (evt_module_t *)pumpkin_get_local_storage(evt_key);
+  // XXX hang debug: rate-limited alive marker; shows whether the app is
+  // sitting in EvtGetEvent and how many events its queue instance holds
+  static uint64_t lastAlive = 0;
+  uint64_t now = sys_get_clock();
+
+  if (now - lastAlive > 2000000) {
+    lastAlive = now;
+    debug(DEBUG_INFO, PALMOS_MODULE, "EvtGetEventUs alive (%d queued, module %p)", module->numEvents, module);
+  }
 
   MemSet(event, sizeof(EventType), 0);
   EvtPumpEvents(0);
