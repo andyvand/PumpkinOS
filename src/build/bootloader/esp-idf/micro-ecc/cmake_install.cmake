@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/bootloader/subproject/components/micro-ecc
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/components/micro-ecc
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/pkgconfig
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/pkgconfig
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

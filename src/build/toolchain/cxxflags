@@ -3,5 +3,5 @@
 -fno-builtin-memset
 -fno-builtin-bzero
 -mdisable-hardware-atomics
--specs=picolibc.specs
+"-specs=/Users/andyvand/Downloads/PumpkinOS/src/build/specs/picolibc.specs"
 -fno-rtti

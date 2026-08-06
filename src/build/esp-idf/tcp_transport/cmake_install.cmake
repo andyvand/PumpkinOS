@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/tcp_transport
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/tcp_transport
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

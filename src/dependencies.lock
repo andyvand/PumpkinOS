@@ -2,7 +2,7 @@ dependencies:
   elf_loader:
     dependencies: []
     source:
-      path: /Users/andyvand/Downloads/PumpkinOS/src/components/elf_loader
+      path: components/elf_loader
       type: local
     version: 1.3.0
   esp_lcd_touch_xpt2046:
@@ -12,13 +12,13 @@ dependencies:
     - name: espressif/esp_lcd_touch
       version: '>=1.0.4'
     source:
-      path: /Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch/esp_lcd_touch_xpt2046
+      path: components/lcd_touch/esp_lcd_touch_xpt2046
       type: local
     version: 1.0.5
   esp_littlefs:
     dependencies: []
     source:
-      path: /Users/andyvand/Downloads/PumpkinOS/src/components/esp_littlefs
+      path: components/esp_littlefs
       type: local
     version: 1.18.1
   espressif/button:
@@ -171,7 +171,7 @@ dependencies:
       public: true
       version: '>=8,<10'
     source:
-      path: /Users/andyvand/Downloads/PumpkinOS/src/components/esp_lvgl_port
+      path: components/esp_lvgl_port
       type: local
     version: 2.5.0
   espressif/led_indicator:
@@ -205,7 +205,7 @@ dependencies:
   idf:
     source:
       type: idf
-    version: 6.0.0
+    version: 6.0.2
   lvgl/lvgl:
     component_hash: 184e532558c1c45fefed631f3e235423d22582aafb4630f3e8885c35281a49ae
     dependencies: []
@@ -233,4 +233,4 @@ direct_dependencies:
 - lvgl/lvgl
 manifest_hash: 9d2ab62aff5a14aa6a8bb841e898c4bc581bacd769befdf809dac8804ef54d3a
 target: esp32s3
-version: 2.0.0
+version: 3.0.0

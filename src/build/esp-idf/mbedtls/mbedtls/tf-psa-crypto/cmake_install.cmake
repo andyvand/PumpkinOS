@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,8 +40,11 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/include/cmake_install.cmake")
-  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/core/cmake_install.cmake")
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/cmake_install.cmake")
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/extras/cmake_install.cmake")
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/platform/cmake_install.cmake")
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/cmake_install.cmake")
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/core/cmake_install.cmake")
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/mbedtls/mbedtls/tf-psa-crypto/pkgconfig/cmake_install.cmake")
 
 endif()

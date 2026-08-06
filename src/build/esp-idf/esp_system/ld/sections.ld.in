@@ -10,11 +10,12 @@
  */
 /*
  * Automatically generated file. DO NOT EDIT.
- * Espressif IoT Development Framework (ESP-IDF) 6.0.0 Configuration Header
+ * Espressif IoT Development Framework (ESP-IDF) 6.0.2 Configuration Header
  */
        
 /* List of deprecated options */
 /* CPU instruction prefetch padding size for flash mmap scenario */
+/* Copy from esp_secure_boot.h */
 /*
  * PMP region granularity size
  * Software may determine the PMP granularity by writing zero to pmp0cfg, then writing all ones
@@ -42,7 +43,10 @@ SECTIONS
  _rtc_text_start = ABSOLUTE(.);
     HIDDEN(_rtc_code_start = .);
     *(.rtc.entry.literal .rtc.entry.text)
-    mapping[rtc_text]
+    
+ arrays[rtc_text] 
+ mapping[rtc_text] 
+ mutable[rtc_text]
     *rtc_wake_stub*.*(.literal .text .literal.* .text.*)
     *(.rtc_text_end_test)
     HIDDEN(_rtc_code_end = .);
@@ -61,7 +65,10 @@ SECTIONS
     
  . = ALIGN(4); 
  _rtc_force_fast_start = ABSOLUTE(.);
-    mapping[rtc_force_fast]
+    
+ arrays[rtc_force_fast] 
+ mapping[rtc_force_fast] 
+ mutable[rtc_force_fast]
     *(.rtc.force_fast .rtc.force_fast.*)
     
  . = ALIGN(4); 
@@ -78,7 +85,10 @@ SECTIONS
   .rtc.data :
   {
     _rtc_data_start = ABSOLUTE(.);
-    mapping[rtc_data]
+    
+ arrays[rtc_data] 
+ mapping[rtc_data] 
+ mutable[rtc_data]
     *rtc_wake_stub*.*(.data .rodata .data.* .rodata.*)
     _rtc_data_end = ABSOLUTE(.);
   } > rtc_data_location
@@ -88,7 +98,10 @@ SECTIONS
     _rtc_bss_start = ABSOLUTE(.);
     *rtc_wake_stub*.*(.bss .bss.*)
     *rtc_wake_stub*.*(COMMON)
-    mapping[rtc_bss]
+    
+ arrays[rtc_bss] 
+ mapping[rtc_bss] 
+ mutable[rtc_bss]
     _rtc_bss_end = ABSOLUTE(.);
   } > rtc_data_location
   /**
@@ -104,6 +117,10 @@ SECTIONS
     
  . = ALIGN(4); 
  _rtc_noinit_start = ABSOLUTE(.);
+    
+ arrays[rtc_noinit] 
+ mapping[rtc_noinit] 
+ mutable[rtc_noinit]
     *(.rtc_noinit .rtc_noinit.*)
     
  . = ALIGN(4); 
@@ -192,7 +209,10 @@ SECTIONS
   {
     /* Code marked as running out of IRAM */
     _iram_text_start = ABSOLUTE(.);
-    mapping[iram0_text]
+    
+ arrays[iram0_text] 
+ mapping[iram0_text] 
+ mutable[iram0_text]
   } > iram0_0_seg
   /**
    * This section is required to skip .iram0.text area because iram0_0_seg and
@@ -200,8 +220,7 @@ SECTIONS
    */
   .dram0.dummy (NOLOAD):
   {
-    /* MAX() uses unsigned long arithmetic. Add offset to prevent underflow when _iram_end < _diram_i_start */
-    . = ORIGIN(dram0_0_seg) + MAX(_iram_end - _diram_i_start + (_diram_i_start - ORIGIN(iram0_0_seg)), (_diram_i_start - ORIGIN(iram0_0_seg))) - (_diram_i_start - ORIGIN(iram0_0_seg));
+    . = ORIGIN(dram0_0_seg) + ((_iram_end > _diram_i_start) ? (_iram_end - _diram_i_start) : 0);
   } > dram0_0_seg
   .dram0.data :
   {
@@ -213,7 +232,10 @@ SECTIONS
     *(.gnu.linkonce.s.*)
     *(.gnu.linkonce.s2.*)
     *(.jcr)
-    mapping[dram0_data]
+    
+ arrays[dram0_data] 
+ mapping[dram0_data] 
+ mutable[dram0_data]
     _data_end = ABSOLUTE(.);
   } > dram0_0_seg
   /**
@@ -238,13 +260,12 @@ SECTIONS
     
  . = ALIGN(8); 
  _bss_start = ABSOLUTE(.);
-    /**
-     * ldgen places all bss-related data to mapping[dram0_bss]
-     * (See components/esp_system/app.lf).
-     */
-    mapping[dram0_bss]
     
- . = ALIGN(8); 
+ arrays[dram0_bss] 
+ mapping[dram0_bss] 
+ mutable[dram0_bss]
+    
+ . = ALIGN(16); 
  _bss_end = ABSOLUTE(.);
   } > dram0_0_seg
   ASSERT(((_bss_end - ORIGIN(dram0_0_seg)) <= LENGTH(dram0_0_seg)),
@@ -258,7 +279,10 @@ SECTIONS
      */
     _instruction_reserved_start = ABSOLUTE(.);
     _text_start = ABSOLUTE(.);
-    mapping[flash_text]
+    
+ arrays[flash_text] 
+ mapping[flash_text] 
+ mutable[flash_text]
     *(.stub)
     *(.gnu.warning)
     *(.gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
@@ -319,7 +343,10 @@ SECTIONS
   .flash.rodata : ALIGN(0x10)
   {
     _flash_rodata_start = ABSOLUTE(.);
-    mapping[flash_rodata]
+    
+ arrays[flash_rodata] 
+ mapping[flash_rodata] 
+ mutable[flash_rodata]
     *(.irom1.text) /* catch stray ICACHE_RODATA_ATTR */
     *(.gnu.linkonce.r.*)
     *(.rodata1)
@@ -376,10 +403,18 @@ SECTIONS
     *(.lit4.*)
     *(.gnu.linkonce.lit4.*)
     _lit4_end = ABSOLUTE(.);
-    /* TLS data. */
-    
- . = ALIGN(4); 
- _thread_local_start = ABSOLUTE(.);
+    . = ALIGN(ALIGNOF(.flash.tdata));
+  } > default_rodata_seg
+  ASSERT((ADDR(.flash.tdata) == ADDR(.flash.rodata) + SIZEOF(.flash.rodata)), "The gap between .flash.rodata and .flash.tdata must not exist to produce the final bin image.")
+  .flash.tdata :
+  {
+    /* Keep tdata and tbss sections contiguous (no gaps between them).
+     * The TLS runtime code calculates offsets assuming these sections are
+     * adjacent. Gaps would cause incorrect address calculations, leading
+     * to accessing wrong memory.
+     */
+    /* tdata sections */
+    _thread_local_data_start = ABSOLUTE(.);
     _picolibc_reent_stub_start = ABSOLUTE(.);
     KEEP(*(.tdata.errno))
     /* Reproduce the public fields from struct _reent. */
@@ -387,14 +422,18 @@ SECTIONS
     KEEP(*(.tdata.tls_stdout))
     KEEP(*(.tdata.tls_stderr))
     _picolibc_reent_stub_end = ABSOLUTE(.);
-    *(.tdata)
-    *(.tdata.*)
-    *(.tbss)
-    *(.tbss.*)
-    _thread_local_end = ABSOLUTE(.);
+    *(.tdata .tdata.* .gnu.linkonce.td.*)
+    _thread_local_data_end = ABSOLUTE(.);
+    /* tbss sections */
+    _thread_local_bss_start = ABSOLUTE(.);
+    *(.tbss .tbss.* .gnu.linkonce.tb.*)
+    *(.tcommon .tcommon.*)
+    _thread_local_bss_end = ABSOLUTE(.);
   } > default_rodata_seg
+  _tls_section_alignment = ALIGNOF(.flash.tdata);
   ASSERT((_picolibc_reent_stub_end - _picolibc_reent_stub_start) == 16, "Newlib _reent stub have wrong size")
-  _flash_rodata_align = ALIGNOF(.flash.rodata);
+  ASSERT(_thread_local_data_end == _thread_local_bss_start,
+         "tdata and tbss must be contiguous.")
   /**
    * This section contains all the rodata that is not used
    * at runtime, helping to avoid an increase in binary size.
@@ -407,7 +446,10 @@ SECTIONS
      * NOLOAD rodata may not be included in this section.
      */
     _rodata_reserved_end = ABSOLUTE(.);
-    mapping[rodata_noload]
+    
+ arrays[rodata_noload] 
+ mapping[rodata_noload] 
+ mutable[rodata_noload]
   } > default_rodata_seg
   /**
    * Dummy section to skip flash rodata sections.
@@ -423,7 +465,10 @@ SECTIONS
   .ext_ram.bss (NOLOAD) :
   {
     _ext_ram_bss_start = ABSOLUTE(.);
-    mapping[extern_ram]
+    
+ arrays[extern_ram] 
+ mapping[extern_ram] 
+ mutable[extern_ram]
     
  . = ALIGN(4); 
  _ext_ram_bss_end = ABSOLUTE(.);
@@ -443,7 +488,10 @@ SECTIONS
     
  . = ALIGN(4); 
  _iram_data_start = ABSOLUTE(.);
-    mapping[iram0_data]
+    
+ arrays[iram0_data] 
+ mapping[iram0_data] 
+ mutable[iram0_data]
     
  . = ALIGN(4); 
  _iram_data_end = ABSOLUTE(.);
@@ -453,7 +501,10 @@ SECTIONS
     
  . = ALIGN(4); 
  _iram_bss_start = ABSOLUTE(.);
-    mapping[iram0_bss]
+    
+ arrays[iram0_bss] 
+ mapping[iram0_bss] 
+ mutable[iram0_bss]
     _iram_bss_end = ABSOLUTE(.);
     
  . = ALIGN(4); 
@@ -467,6 +518,22 @@ SECTIONS
  . = ALIGN(8); 
  _heap_low_start = ABSOLUTE(.);
   } > dram0_0_seg
+/*
+ * SPDX-FileCopyrightText: 2021-2024 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/* CPU instruction prefetch padding size for flash mmap scenario */
+/* Copy from esp_secure_boot.h */
+/*
+ * PMP region granularity size
+ * Software may determine the PMP granularity by writing zero to pmp0cfg, then writing all ones
+ * to pmpaddr0, then reading back pmpaddr0. If G is the index of the least-significant bit set,
+ * the PMP granularity is 2^G+2 bytes.
+ */
+/* CPU instruction prefetch padding size for memory protection scenario */
+/* Memory alignment size for PMS */
+    /* rtc timer data (s_rtc_timer_retain_mem, see esp_clk.c files). For rtc_timer_data_in_rtc_mem section. */
   /**
    * This section is not included in the binary image; it is only present in the ELF file.
    * It is used to keep certain symbols in the ELF file.
@@ -477,8 +544,11 @@ SECTIONS
     . = 0;
     LONG(0);
     _noload_keep_in_elf_start = ABSOLUTE(.);
+    
+ arrays[noload_keep_in_elf] 
+ mapping[noload_keep_in_elf] 
+ mutable[noload_keep_in_elf]
     KEEP(*(.noload_keep_in_elf .noload_keep_in_elf.*))
-    mapping[noload_keep_in_elf]
     _noload_keep_in_elf_end = ABSOLUTE(.);
   }
   /* DWARF 1 */
@@ -519,8 +589,12 @@ SECTIONS
   .debug_names 0 : { *(.debug_names) }
   .debug_rnglists 0 : { *(.debug_rnglists) }
   .debug_str_offsets 0 : { *(.debug_str_offsets) }
+  /**
+   * Miscellaneous sections
+   */
   .comment 0 : { *(.comment) }
-  .note.GNU-stack 0: { *(.note.GNU-stack) }
+  .note.GNU-stack 0 : { *(.note.GNU-stack) }
+  .riscv.attributes 0 : { *(.riscv.attributes) }
 /**
  * .xt.prop and .xt.lit sections will be used by the debugger and disassembler
  * to get more information about raw data present in the code.
@@ -531,12 +605,36 @@ SECTIONS
  * This section will only be present in the ELF file, not in the final binary
  * For more details, check GCC-212
  */
-  .xtensa.info 0: { *(.xtensa.info) }
+  .xtensa.info 0 : { *(.xtensa.info) }
   .xt.prop 0 : { *(.xt.prop .xt.prop.* .gnu.linkonce.prop.*) }
   .xt.lit 0 : { *(.xt.lit .xt.lit.* .gnu.linkonce.p.*) }
+/*
+ * SPDX-FileCopyrightText: 2021-2024 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/* CPU instruction prefetch padding size for flash mmap scenario */
+/* Copy from esp_secure_boot.h */
+/*
+ * PMP region granularity size
+ * Software may determine the PMP granularity by writing zero to pmp0cfg, then writing all ones
+ * to pmpaddr0, then reading back pmpaddr0. If G is the index of the least-significant bit set,
+ * the PMP granularity is 2^G+2 bytes.
+ */
+/* CPU instruction prefetch padding size for memory protection scenario */
+/* Memory alignment size for PMS */
+    /* rtc timer data (s_rtc_timer_retain_mem, see esp_clk.c files). For rtc_timer_data_in_rtc_mem section. */
   /DISCARD/ :
   {
+   /**
+    * Discarding .rela.* sections results in the following mapping:
+    * .rela.text.* -> .text.*
+    * .rela.data.* -> .data.*
+    * And so forth...
+    */
+   *(.rela.*)
    *(.fini)
+   *(.eh_frame_hdr)
    *(.eh_frame_hdr)
    *(.eh_frame)
   }

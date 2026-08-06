@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/esp_usb_cdc_rom_console
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_usb_cdc_rom_console
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/drivers/p256-m
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto/drivers/p256-m
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

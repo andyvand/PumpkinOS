@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/esp_driver_sd_intf
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sd_intf
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

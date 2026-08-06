@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/rt
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/rt
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

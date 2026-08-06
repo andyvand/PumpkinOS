@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto/include
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,60 +38,11 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/psa" TYPE FILE PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ FILES
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_adjust_auto_enabled.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_adjust_config_dependencies.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_adjust_config_derived.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_adjust_config_key_pair_types.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_adjust_config_synonyms.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_builtin_composites.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_builtin_key_derivation.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_builtin_primitives.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_compat.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_config.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_driver_common.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_driver_contexts_composites.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_driver_contexts_key_derivation.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_driver_contexts_primitives.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_driver_random.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_extra.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_platform.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_sizes.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_struct.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_types.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_values.h"
-    )
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto/include/." FILES_MATCHING REGEX "/[^/]*\\.h$" REGEX "/crypto\\_config\\.h$" EXCLUDE)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/tf-psa-crypto" TYPE FILE PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ FILES
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/tf-psa-crypto/build_info.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/tf-psa-crypto/version.h"
-    )
-endif()
-
-if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/mbedtls" TYPE FILE PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ FILES
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/../drivers/builtin/include/mbedtls/config_adjust_legacy_crypto.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/../drivers/builtin/include/mbedtls/private_access.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/asn1.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/asn1write.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/base64.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/compat-3-crypto.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/constant_time.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/lms.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/md.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/memory_buffer_alloc.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/nist_kw.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/pem.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/pk.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/platform.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/platform_time.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/platform_util.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/psa_util.h"
-    "/Users/andyvand/Downloads/esp-idf-6.0/components/mbedtls/mbedtls/tf-psa-crypto/include/mbedtls/threading.h"
-    )
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/psa" TYPE FILE FILES "/Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto/include/psa/crypto_config.h")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -54,17 +54,12 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_gpio/cmake_install.cmake")
-endif()
-
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/hal/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_dma/cmake_install.cmake")
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_gpio/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
@@ -74,12 +69,22 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/micro-ecc/cmake_install.cmake")
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_pmu/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_dma/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_gpspi/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_clock/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
@@ -119,6 +124,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/micro-ecc/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_timg/cmake_install.cmake")
 endif()
 
@@ -135,6 +145,16 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_ana_conv/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_rtc_timer/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/esp-idf/esp_hal_security/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)

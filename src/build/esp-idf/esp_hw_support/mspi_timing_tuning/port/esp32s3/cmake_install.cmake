@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/esp_hw_support/mspi_timing_tuning/port/esp32s3
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/mspi_timing_tuning/port/esp32s3
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

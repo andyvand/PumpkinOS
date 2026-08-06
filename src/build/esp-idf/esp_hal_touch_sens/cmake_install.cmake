@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/esp_hal_touch_sens
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_touch_sens
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

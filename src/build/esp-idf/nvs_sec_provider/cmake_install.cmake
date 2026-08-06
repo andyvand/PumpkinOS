@@ -1,4 +1,4 @@
-# Install script for directory: /Users/andyvand/Downloads/esp-idf-6.0/components/nvs_sec_provider
+# Install script for directory: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/nvs_sec_provider
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
