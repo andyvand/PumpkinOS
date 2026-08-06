@@ -1,4 +1,5 @@
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_wifi.h"
 #include "esp_system.h"
 #include "esp_event.h"
@@ -184,6 +185,25 @@ void app_task(void *arg)
     debug_close();
 }
 
+static TaskHandle_t app_task_handle = NULL;
+
+// In single-app mode the whole OS runs nested on app_task's stack:
+// libos -> Launcher PilotMain -> (launch) -> app PilotMain -> AppEventLoop
+// -> FrmDrawForm -> SDL render. Log the minimum free stack ever seen so
+// overflows show up as numbers instead of silent hangs.
+void stack_monitor_task(void *arg)
+{
+    UBaseType_t hwm;
+
+    for (;;) {
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        if (app_task_handle != NULL) {
+            hwm = uxTaskGetStackHighWaterMark(app_task_handle);
+            ESP_LOGI("stack_monitor", "app_task stack low watermark: %u bytes free", (unsigned)hwm);
+        }
+    }
+}
+
 void app_main(void)
 {
     esp_log_level_set("*", ESP_LOG_DEBUG);
@@ -212,5 +232,10 @@ void app_main(void)
     ESP_LOGI(__func__, "SD card mounted.\n");
 #endif
 
-    xTaskCreatePinnedToCore(&app_task, "app_task", 20000, NULL, /*5*/2 | portPRIVILEGE_BIT, NULL, 0);
+    if (xTaskCreatePinnedToCore(&app_task, "app_task", 30000, NULL, /*5*/2 | portPRIVILEGE_BIT, &app_task_handle, 0) != pdPASS) {
+        ESP_LOGE(__func__, "failed to create app_task (out of internal RAM for stack?)");
+        return;
+    }
+
+    xTaskCreatePinnedToCore(&stack_monitor_task, "stack_mon", 2560, NULL, 1, NULL, 1);
 }

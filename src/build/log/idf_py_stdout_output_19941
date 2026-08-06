@@ -1,0 +1,151 @@
+Command: ninja all
+[0/1] Re-running CMake...
+-- Component directory /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mqtt does not contain a CMakeLists.txt file. No component will be added
+-- Component directory /Users/andyvand/Downloads/PumpkinOS/src/components/lcd does not contain a CMakeLists.txt file. No component will be added
+-- Component directory /Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch does not contain a CMakeLists.txt file. No component will be added
+-- Minimal build - OFF
+-- Building ESP-IDF components for target esp32s3
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch/esp_lcd_touch_xpt2046 for dependency "esp_lcd_touch_xpt2046"(introduced by component "esp_bsp_generic")
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/esp_littlefs for dependency "espressif/esp_littlefs"(introduced by component "esp_bsp_generic")
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/esp_lvgl_port for dependency "espressif/esp_lvgl_port"(introduced by component "esp_bsp_generic")
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch/esp_lcd_touch_xpt2046 for dependency "esp_lcd_touch_xpt2046", specified in /Users/andyvand/Downloads/PumpkinOS/src/components/esp_bsp_generic/idf_component.yml
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/esp_littlefs for dependency "espressif/esp_littlefs", specified in /Users/andyvand/Downloads/PumpkinOS/src/components/esp_bsp_generic/idf_component.yml
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/esp_lvgl_port for dependency "espressif/esp_lvgl_port", specified in /Users/andyvand/Downloads/PumpkinOS/src/components/esp_bsp_generic/idf_component.yml
+NOTICE: Using component placed at /Users/andyvand/Downloads/PumpkinOS/src/components/elf_loader for dependency "elf_loader", specified in /Users/andyvand/Downloads/PumpkinOS/src/components/libpit/idf_component.yml
+NOTICE: 
+Following dependencies have new versions available:
+Dependency "espressif/button": "4.1.5" -> "4.2.0"
+Dependency "espressif/esp_lcd_touch_cst816s": "1.1.1" -> "1.1.1~2"
+Dependency "espressif/esp_lcd_touch_ft5x06": "1.1.0" -> "1.1.0~2"
+Dependency "espressif/esp_lcd_touch_gt1151": "1.1.0" -> "1.1.0~2"
+Dependency "espressif/esp_lcd_touch_gt911": "1.2.0~1" -> "1.2.0~3"
+Dependency "espressif/esp_lcd_touch_tt21100": "1.2.0" -> "1.2.0~2"
+Consider running "idf.py update-dependencies" to update your lock file.
+NOTICE: Processing 16 dependencies:
+NOTICE: [1/16] esp_lcd_touch_xpt2046 (1.0.5) (/Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch/esp_lcd_touch_xpt2046)
+NOTICE: [2/16] espressif/button (4.1.5)
+NOTICE: [3/16] espressif/cmake_utilities (0.5.3)
+NOTICE: [4/16] espressif/esp_lcd_gc9a01 (1.2.0)
+NOTICE: [5/16] espressif/esp_lcd_ili9341 (1.2.0)
+NOTICE: [6/16] espressif/esp_lcd_qemu_rgb (1.0.2)
+NOTICE: [7/16] espressif/esp_lcd_touch (1.2.1)
+NOTICE: [8/16] espressif/esp_lcd_touch_cst816s (1.1.1)
+NOTICE: [9/16] espressif/esp_lcd_touch_ft5x06 (1.1.0)
+NOTICE: [10/16] espressif/esp_lcd_touch_gt1151 (1.1.0)
+NOTICE: [11/16] espressif/esp_lcd_touch_gt911 (1.2.0~1)
+NOTICE: [12/16] espressif/esp_lcd_touch_tt21100 (1.2.0)
+NOTICE: [13/16] espressif/led_indicator (1.1.1)
+NOTICE: [14/16] espressif/led_strip (2.5.5)
+NOTICE: [15/16] lvgl/lvgl (9.5.0)
+NOTICE: [16/16] idf (6.0.2)
+-- ESP-TEE is currently supported only on the esp32c6;esp32h2;esp32c5;esp32c61 SoCs
+-- KCONFIG_REPORT_VERBOSITY not set, using default
+-- Project sdkconfig file /Users/andyvand/Downloads/PumpkinOS/src/sdkconfig
+-- Compiler supported targets: xtensa-esp-elf
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- App "PumpkinOS" version: 1.0-61-g2d248860-dirty
+-- Setting up mbedtls configuration
+-- Linkage type is PUBLIC
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_wdt/esp32s3/rom.wdt.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/ld/esp32s3/memory.ld.in
+--   -> Preprocessing .in script: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/ld/esp32s3/memory.ld.in
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/ld/esp32s3/sections.ld.in
+--   -> Preprocessing .in script: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/ld/esp32s3/sections.ld.in
+--   -> Applying ldgen processing: /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/esp_system/ld/sections.ld.in
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.api.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.bt_funcs.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.libgcc.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.version.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ble_master.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ble_50.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ble_smp.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ble_dtm.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ble_test.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ble_scan.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.libc.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc/esp32s3/ld/esp32s3.peripherals.ld
+-- BUTTON: 4.1.5
+-- LVGL version: 9.5.0
+-- LED_INDICATOR: 1.1.1
+-- ESP_LCD_GC9A01: 1.2.0
+-- ESP_LCD_ILI9341: 1.2.0
+-- ELF_LOADER: 1.3.0
+-- Component idf::esp_trace will be linked with -Wl,--whole-archive
+-- Components: AddressBook Command DateBook Launcher LuaSyntax MemoPad Preferences SDL SDL3_net SpaceTrader ToDoList app_trace app_update bootloader bootloader_support bt cmock console cxx driver efuse elf_loader esp-tls esp_adc esp_app_format esp_blockdev esp_blockdev_util esp_bootloader_format esp_bsp_generic esp_coex esp_common esp_driver_ana_cmpr esp_driver_bitscrambler esp_driver_cam esp_driver_dac esp_driver_dma esp_driver_gpio esp_driver_gptimer esp_driver_i2c esp_driver_i2s esp_driver_i3c esp_driver_isp esp_driver_jpeg esp_driver_ledc esp_driver_mcpwm esp_driver_parlio esp_driver_pcnt esp_driver_ppa esp_driver_rmt esp_driver_sd_intf esp_driver_sdio esp_driver_sdm esp_driver_sdmmc esp_driver_sdspi esp_driver_spi esp_driver_touch_sens esp_driver_tsens esp_driver_twai esp_driver_uart esp_driver_usb_serial_jtag esp_eth esp_event esp_gdbstub esp_hal_ana_cmpr esp_hal_ana_conv esp_hal_cam esp_hal_clock esp_hal_dma esp_hal_gpio esp_hal_gpspi esp_hal_i2c esp_hal_i2s esp_hal_ieee802154 esp_hal_jpeg esp_hal_lcd esp_hal_ledc esp_hal_mcpwm esp_hal_mspi esp_hal_parlio esp_hal_pcnt esp_hal_pmu esp_hal_ppa esp_hal_rmt esp_hal_rtc_timer esp_hal_sd esp_hal_security esp_hal_timg esp_hal_touch_sens esp_hal_twai esp_hal_uart esp_hal_usb esp_hal_wdt esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_lcd_touch_xpt2046 esp_libc esp_littlefs esp_local_ctrl esp_lvgl_port esp_mm esp_netif esp_netif_stack esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_security esp_stdio esp_system esp_timer esp_trace esp_usb_cdc_rom_console esp_wifi espcoredump espressif__button espressif__cmake_utilities espressif__esp_lcd_gc9a01 espressif__esp_lcd_ili9341 espressif__esp_lcd_qemu_rgb espressif__esp_lcd_touch espressif__esp_lcd_touch_cst816s espressif__esp_lcd_touch_ft5x06 espressif__esp_lcd_touch_gt1151 espressif__esp_lcd_touch_gt911 espressif__esp_lcd_touch_tt21100 espressif__led_indicator espressif__led_strip esptool_py fatfs freertos hal heap http_parser idf_test ieee802154 liblsdl3 libmath libos libpit libpumpkin libshell log lvgl__lvgl lwip main mbedtls nvs_flash nvs_sec_provider openthread partition_table perfmon protobuf-c protocomm pthread rt sdmmc soc spi_flash spiffs tcp_transport ulp unity vfs vi wear_levelling wpa_supplicant xtensa
+-- Component paths: /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook /Users/andyvand/Downloads/PumpkinOS/src/components/Command /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher /Users/andyvand/Downloads/PumpkinOS/src/components/LuaSyntax /Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad /Users/andyvand/Downloads/PumpkinOS/src/components/Preferences /Users/andyvand/Downloads/PumpkinOS/src/components/SDL /Users/andyvand/Downloads/PumpkinOS/src/components/SDL3_net /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader /Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList /Users/andyvand/Downloads/esp-idf-v6.0.2/components/app_trace /Users/andyvand/Downloads/esp-idf-v6.0.2/components/app_update /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader_support /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/cmock /Users/andyvand/Downloads/esp-idf-v6.0.2/components/console /Users/andyvand/Downloads/esp-idf-v6.0.2/components/cxx /Users/andyvand/Downloads/esp-idf-v6.0.2/components/driver /Users/andyvand/Downloads/esp-idf-v6.0.2/components/efuse /Users/andyvand/Downloads/PumpkinOS/src/components/elf_loader /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp-tls /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_adc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_app_format /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_blockdev /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_blockdev_util /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_bootloader_format /Users/andyvand/Downloads/PumpkinOS/src/components/esp_bsp_generic /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_coex /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_common /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_ana_cmpr /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_bitscrambler /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_cam /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_dac /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_dma /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_gpio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_gptimer /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_i2c /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_i2s /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_i3c /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_isp /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_jpeg /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_ledc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_mcpwm /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_parlio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_pcnt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_ppa /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_rmt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sd_intf /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdm /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdmmc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdspi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_spi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_touch_sens /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_tsens /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_twai /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_uart /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_usb_serial_jtag /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_eth /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_event /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_gdbstub /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ana_cmpr /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ana_conv /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_cam /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_clock /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_dma /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpspi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_i2c /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_i2s /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ieee802154 /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_jpeg /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_lcd /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ledc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_mcpwm /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_mspi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_parlio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_pcnt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_pmu /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ppa /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_rmt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_rtc_timer /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_sd /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_security /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_timg /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_touch_sens /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_twai /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_uart /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_usb /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_wdt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hid /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_http_client /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_http_server /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_https_ota /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_https_server /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_lcd /Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch/esp_lcd_touch_xpt2046 /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_libc /Users/andyvand/Downloads/PumpkinOS/src/components/esp_littlefs /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_local_ctrl /Users/andyvand/Downloads/PumpkinOS/src/components/esp_lvgl_port /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_mm /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_netif /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_netif_stack /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_partition /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_phy /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_pm /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_psram /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_ringbuf /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_security /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_stdio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_timer /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_trace /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_usb_cdc_rom_console /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_wifi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/espcoredump /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__button /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__cmake_utilities /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_gc9a01 /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_ili9341 /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_qemu_rgb /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch_cst816s /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch_ft5x06 /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch_gt1151 /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch_gt911 /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch_tt21100 /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__led_indicator /Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__led_strip /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esptool_py /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs /Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos /Users/andyvand/Downloads/esp-idf-v6.0.2/components/hal /Users/andyvand/Downloads/esp-idf-v6.0.2/components/heap /Users/andyvand/Downloads/esp-idf-v6.0.2/components/http_parser /Users/andyvand/Downloads/esp-idf-v6.0.2/components/idf_test /Users/andyvand/Downloads/esp-idf-v6.0.2/components/ieee802154 /Users/andyvand/Downloads/PumpkinOS/src/components/liblsdl3 /Users/andyvand/Downloads/PumpkinOS/src/components/libmath /Users/andyvand/Downloads/PumpkinOS/src/components/libos /Users/andyvand/Downloads/PumpkinOS/src/components/libpit /Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin /Users/andyvand/Downloads/PumpkinOS/src/components/libshell /Users/andyvand/Downloads/esp-idf-v6.0.2/components/log /Users/andyvand/Downloads/PumpkinOS/src/managed_components/lvgl__lvgl /Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip /Users/andyvand/Downloads/PumpkinOS/src/main /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls /Users/andyvand/Downloads/esp-idf-v6.0.2/components/nvs_flash /Users/andyvand/Downloads/esp-idf-v6.0.2/components/nvs_sec_provider /Users/andyvand/Downloads/esp-idf-v6.0.2/components/openthread /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table /Users/andyvand/Downloads/esp-idf-v6.0.2/components/perfmon /Users/andyvand/Downloads/esp-idf-v6.0.2/components/protobuf-c /Users/andyvand/Downloads/esp-idf-v6.0.2/components/protocomm /Users/andyvand/Downloads/esp-idf-v6.0.2/components/pthread /Users/andyvand/Downloads/esp-idf-v6.0.2/components/rt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/sdmmc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/spi_flash /Users/andyvand/Downloads/esp-idf-v6.0.2/components/spiffs /Users/andyvand/Downloads/esp-idf-v6.0.2/components/tcp_transport /Users/andyvand/Downloads/esp-idf-v6.0.2/components/ulp /Users/andyvand/Downloads/esp-idf-v6.0.2/components/unity /Users/andyvand/Downloads/esp-idf-v6.0.2/components/vfs /Users/andyvand/Downloads/PumpkinOS/src/components/vi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/wear_levelling /Users/andyvand/Downloads/esp-idf-v6.0.2/components/wpa_supplicant /Users/andyvand/Downloads/esp-idf-v6.0.2/components/xtensa
+-- Configuring done (19.5s)
+-- Generating done (0.7s)
+-- Build files have been written to: /Users/andyvand/Downloads/PumpkinOS/src/build
+[1/13] Performing build step for 'bootloader'
+[1/1] cd /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/bootloader.bin
+Bootloader binary size 0x5240 bytes. 0x2dc0 bytes (36%) free.
+[2/13] No install step for 'bootloader'
+[3/13] Building C object esp-idf/esp_app_format/CMakeFiles/__idf_esp_app_format.dir/esp_app_desc.c.obj
+[4/13] Completed 'bootloader'
+[5/13] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/Downloads/PumpkinOS/src/build/littlefs_py_venv/bin/littlefs-python create /Users/andyvand/Downloads/PumpkinOS/src/data /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin -v --fs-size=0xc00000 --name-max=64 --block-size=4096
+LittleFS Configuration:
+  Block Size:       4096  /  0x1000
+  Image Size:   12582912  /  0xC00000
+  Block Count:      3072
+  Name Max:           64
+  Image:       /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin
+Adding Directory: vfs
+Adding Directory: vfs/app_storage
+Adding Directory: vfs/app_install
+Adding Directory: vfs/app_card
+Adding File:      vfs/app_install/ToDoList.prc
+Adding File:      vfs/app_install/BOOT.prc
+Adding File:      vfs/app_install/Preferences.prc
+Adding File:      vfs/app_install/AddressBook.prc
+Adding File:      vfs/app_install/Command.prc
+Adding File:      vfs/app_install/SpaceTrader.prc
+Adding File:      vfs/app_install/MineHunt.prc
+Adding File:      vfs/app_install/MemoPad.prc
+Adding File:      vfs/app_install/Launcher.prc
+Adding File:      vfs/app_install/DateBook.prc
+Adding Directory: vfs/app_card/PALM
+Adding Directory: vfs/app_card/PALM/Programs
+[6/13] Linking C static library esp-idf/esp_app_format/libesp_app_format.a
+[7/13] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+[8/13] Linking C static library esp-idf/main/libmain.a
+[9/13] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/Users/andyvand/Downloads/esp-idf-v6.0.2/components/bt/host/nimble/Kconfig.in:14
+21: BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' 
+and 'n' are allowed). Value is treated as 'n'.
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/Kconfig:230: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/Kconfig:235: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Default value for MBEDTLS_ARIA_C in sdkconfig is y but it is n 
+according to Kconfig.
+Using default value from sdkconfig (y).
+Default value for MBEDTLS_THREADING_C in sdkconfig is n but it is y
+according to Kconfig.
+Using default value from sdkconfig (n).
+Default value for MBEDTLS_SHA3_C in sdkconfig is y but it is n 
+according to Kconfig.
+Using default value from sdkconfig (y).
+[10/13] Linking CXX executable PumpkinOS.elf
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/SDL/libSDL.a(SDL_systhread.c.obj):(.literal.SDL_SYS_SetupThread+0x8): warning: pthread_setcanceltype is not implemented and will always fail
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/SDL/libSDL.a(SDL_systhread.c.obj): note: the message above does not take linker garbage collection into account
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/libpit/liblibpit.a(sys.c.obj):(.literal.sys_set_thread_name+0x4): warning: pthread_setname_np is not implemented and will always fail
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/libpit/liblibpit.a(sys.c.obj): note: the message above does not take linker garbage collection into account
+[11/13] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+[12/13] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/andyvand/Downloads/PumpkinOS/src/build/partition_table/partition-table.bin /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+PumpkinOS.bin binary size 0x33f200 bytes. Smallest app partition is 0x3f0000 bytes. 0xb0e00 bytes (18%) free.

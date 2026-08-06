@@ -1,0 +1,12 @@
+Command: ninja flash
+[1;31m
+A fatal error occurred: Could not open /dev/cu.usbmodem11101, the port is busy or doesn't exist.
+([Errno 16] could not open port /dev/cu.usbmodem11101: [Errno 16] Resource busy: '/dev/cu.usbmodem11101')
+[0m
+[31mCMake Error at /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esptool_py/run_serial_tool.cmake:67 (message):
+  
+  /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python;-m;esptool;--chip;esp32s3
+  failed.
+
+
+[0m

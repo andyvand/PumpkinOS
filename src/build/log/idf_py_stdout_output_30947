@@ -1,0 +1,38 @@
+Command: ninja flash
+[1/6] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/andyvand/Downloads/PumpkinOS/src/build/partition_table/partition-table.bin /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+PumpkinOS.bin binary size 0x33f540 bytes. Smallest app partition is 0x3f0000 bytes. 0xb0ac0 bytes (18%) free.
+[2/6] Performing build step for 'bootloader'
+[1/1] cd /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/bootloader.bin
+Bootloader binary size 0x5240 bytes. 0x2dc0 bytes (36%) free.
+[3/6] No install step for 'bootloader'
+[4/6] Completed 'bootloader'
+[5/6] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/Downloads/PumpkinOS/src/build/littlefs_py_venv/bin/littlefs-python create /Users/andyvand/Downloads/PumpkinOS/src/data /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin -v --fs-size=0xc00000 --name-max=64 --block-size=4096
+LittleFS Configuration:
+  Block Size:       4096  /  0x1000
+  Image Size:   12582912  /  0xC00000
+  Block Count:      3072
+  Name Max:           64
+  Image:       /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin
+Adding Directory: vfs
+Adding Directory: vfs/app_storage
+Adding Directory: vfs/app_install
+Adding Directory: vfs/app_card
+Adding File:      vfs/app_install/ToDoList.prc
+Adding File:      vfs/app_install/BOOT.prc
+Adding File:      vfs/app_install/Preferences.prc
+Adding File:      vfs/app_install/AddressBook.prc
+Adding File:      vfs/app_install/Command.prc
+Adding File:      vfs/app_install/SpaceTrader.prc
+Adding File:      vfs/app_install/MineHunt.prc
+Adding File:      vfs/app_install/MemoPad.prc
+Adding File:      vfs/app_install/Launcher.prc
+Adding File:      vfs/app_install/DateBook.prc
+Adding Directory: vfs/app_card/PALM
+Adding Directory: vfs/app_card/PALM/Programs
+[5/6] Running utility command for flash
+esptool --chip esp32s3 -p /dev/cu.usbmodem11101 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 PumpkinOS.bin 0x400000 storage.bin
+esptool v5.3.1
+Serial port /dev/cu.usbmodem11101:
+[31mFAILED: [code=1] [0mCMakeFiles/flash.util 
+cd /Users/andyvand/Downloads/PumpkinOS/src && /Applications/CMake.app/Contents/bin/cmake -D IDF_PATH=/Users/andyvand/Downloads/esp-idf-v6.0.2 -D "SERIAL_TOOL=/Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python;-m;esptool;--chip;esp32s3" -D "SERIAL_TOOL_ARGS=--before=default-reset;--after=hard-reset;write-flash;@flash_args" -D WORKING_DIRECTORY=/Users/andyvand/Downloads/PumpkinOS/src/build -P /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esptool_py/run_serial_tool.cmake
+ninja: build stopped: subcommand failed.
