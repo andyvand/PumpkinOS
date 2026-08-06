@@ -217,7 +217,9 @@ static int libos_action(void *arg) {
   if (data->wp) {
     encoding = data->hdepth == 16 ? ENC_RGB565 : ENC_RGBA;
 #ifdef ESP32
-    height = data->dia ? (data->height - BUTTONS_HEIGHT - 16) : data->height;
+    // application area = panel height minus the DIA strip (graffiti area +
+    // taskbar artwork at native size); must match dia_get_main_dimension()
+    height = data->dia ? (data->height - (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)) : data->height;
 #else
     height = data->dia ? ((data->height - BUTTONS_HEIGHT) * 2) / 3 : data->height;
 #endif

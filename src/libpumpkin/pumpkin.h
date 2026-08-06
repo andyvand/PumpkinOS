@@ -64,6 +64,13 @@ extern "C" {
 
 #define BUTTONS_HEIGHT 64
 
+// Native size of the DIA artwork (BOOT bitmaps 32500/32501) at low density:
+// the graffiti writing area is 160x65 and the taskbar below it is 160x47
+// (double these at high density). DIA layout and hit-testing must slice the
+// DIA strip using these values or taps will not land on what is drawn.
+#define DIA_GRAFFITI_HEIGHT 65
+#define DIA_TASKBAR_HEIGHT  47
+
 #define MSG_KEY     1
 #define MSG_BUTTON  2
 #define MSG_MOTION  3

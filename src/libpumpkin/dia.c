@@ -13,11 +13,17 @@
 #include "xalloc.h"
 
 #ifdef ESP32
+// The window spans the whole panel (e.g. 240x320). The DIA strip at the
+// bottom shows the same low-density 160px-wide artwork as the desktop, drawn
+// left-aligned at native size, so all vertical slicing and the alpha/numeric
+// divider must use the artwork's real dimensions (graffiti 160x65 + taskbar
+// 160x47); anything else puts the tap hit zones off the drawn graphics.
+// Columns right of the 160px artwork are dead space.
 #define DIA_WIDTH     APP_SCREEN_WIDTH
 #define DIA_HEIGHT    APP_SCREEN_HEIGHT
-#define DIA_GHEIGHT   DIA_HEIGHT - DIA_WIDTH
-#define ALPHA_WIDTH   168
-#define ALPHA_HEIGHT  32
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272
@@ -169,11 +175,9 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
     dia->alpha_width = ALPHA_WIDTH;
     dia->alpha_height = ALPHA_HEIGHT;
 
-#ifdef ESP32
-    dia->button_height = BUTTONS_HEIGHT / 4;
-#else
+    // the hard-button row in the 160x47 taskbar artwork is 32px tall
+    // (icon strip above it is the remaining 15px), on ESP32 as well
     dia->button_height = BUTTONS_HEIGHT / 2;
-#endif
 
     if (dbl) {
       dia->width *= 2;
