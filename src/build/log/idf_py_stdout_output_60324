@@ -1,0 +1,7 @@
+Command: ninja all
+[0/1] Re-running CMake...
+-- Component directory /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mqtt does not contain a CMakeLists.txt file. No component will be added
+-- Component directory /Users/andyvand/Downloads/PumpkinOS/src/components/lcd does not contain a CMakeLists.txt file. No component will be added
+-- Component directory /Users/andyvand/Downloads/PumpkinOS/src/components/lcd_touch does not contain a CMakeLists.txt file. No component will be added
+-- Minimal build - OFF
+-- Building ESP-IDF components for target esp32s3

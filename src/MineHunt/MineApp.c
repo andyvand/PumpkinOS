@@ -8,6 +8,10 @@
  *
  *****************************************************************************/
 
+#ifdef ESP_PLATFORM
+#include "esp32.h"
+#endif
+
 #include <PalmOS.h>
 #include <PalmUtils.h>
 
@@ -2995,7 +2999,11 @@ static void AppEventLoop()
  *			vmk		10/8/95		Initial Version
  *
  ***********************************************************************/
+#ifdef ESP32
+PUBLIC UInt32 MineHuntPilotMain(UInt16 cmd, void * UNUSED_PARAM(cmdPBP), UInt16 launchFlags)
+#else
 PUBLIC UInt32 PilotMain(UInt16 cmd, void * UNUSED_PARAM(cmdPBP), UInt16 launchFlags)
+#endif
 {
 	Err error;
 	

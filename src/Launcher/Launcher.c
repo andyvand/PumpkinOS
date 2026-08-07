@@ -426,6 +426,7 @@ extern UInt32 AddrPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 ToDoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 DatePilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 SpaceTraderPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 MineHuntPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 #endif
 
 static void launcherScanApps(launcher_data_t *data) {
@@ -472,6 +473,8 @@ static void launcherScanApps(launcher_data_t *data) {
             data->item[i].pilot_main = DatePilotMain;
         } else if (creator == 'STra') {
             data->item[i].pilot_main = SpaceTraderPilotMain;
+        } else if (creator == 'mine') {
+            data->item[i].pilot_main = MineHuntPilotMain;
         }
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
