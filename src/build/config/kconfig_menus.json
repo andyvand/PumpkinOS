@@ -6252,168 +6252,177 @@
                 "type": "bool"
             },
             {
-                "children": [
-                    {
-                        "children": [],
-                        "depends_on": "ENABLE_WIFI",
-                        "help": "SSID (network name) for OpenTyrian2000 to connect to.",
-                        "id": "WIFI_SSID",
-                        "name": "WIFI_SSID",
-                        "range": null,
-                        "title": "WiFi SSID",
-                        "type": "string"
-                    },
-                    {
-                        "children": [],
-                        "depends_on": "ENABLE_WIFI",
-                        "help": "WiFi password (WPA or WPA2) for OpenTyrian2000 to use.",
-                        "id": "WIFI_PASSWORD",
-                        "name": "WIFI_PASSWORD",
-                        "range": null,
-                        "title": "WiFi Password",
-                        "type": "string"
-                    },
-                    {
-                        "children": [
-                            {
-                                "children": [],
-                                "depends_on": "<choice SCAN_METHOD>",
-                                "help": null,
-                                "id": "WIFI_FAST_SCAN",
-                                "name": "WIFI_FAST_SCAN",
-                                "range": null,
-                                "title": "fast",
-                                "type": "bool"
-                            },
-                            {
-                                "children": [],
-                                "depends_on": "<choice SCAN_METHOD>",
-                                "help": null,
-                                "id": "WIFI_ALL_CHANNEL_SCAN",
-                                "name": "WIFI_ALL_CHANNEL_SCAN",
-                                "range": null,
-                                "title": "all",
-                                "type": "bool"
-                            }
-                        ],
-                        "depends_on": "ENABLE_WIFI",
-                        "help": "scan method for the esp32 to use",
-                        "id": "pumpkinos-configuration-enable-wifi-link-scan-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-41",
-                        "name": "SCAN_METHOD",
-                        "title": "scan method",
-                        "type": "choice"
-                    },
-                    {
-                        "children": [
-                            {
-                                "children": [],
-                                "depends_on": "<choice SORT_METHOD>",
-                                "help": null,
-                                "id": "WIFI_CONNECT_AP_BY_SIGNAL",
-                                "name": "WIFI_CONNECT_AP_BY_SIGNAL",
-                                "range": null,
-                                "title": "rssi",
-                                "type": "bool"
-                            },
-                            {
-                                "children": [],
-                                "depends_on": "<choice SORT_METHOD>",
-                                "help": null,
-                                "id": "WIFI_CONNECT_AP_BY_SECURITY",
-                                "name": "WIFI_CONNECT_AP_BY_SECURITY",
-                                "range": null,
-                                "title": "authmode",
-                                "type": "bool"
-                            }
-                        ],
-                        "depends_on": "ENABLE_WIFI",
-                        "help": "sort method for the esp32 to use",
-                        "id": "pumpkinos-configuration-enable-wifi-link-sort-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-54",
-                        "name": "SORT_METHOD",
-                        "title": "sort method",
-                        "type": "choice"
-                    },
-                    {
-                        "children": [
-                            {
-                                "children": [],
-                                "depends_on": "FAST_SCAN_THRESHOLD",
-                                "help": "rssi is use to measure the signal",
-                                "id": "FAST_SCAN_MINIMUM_SIGNAL",
-                                "name": "FAST_SCAN_MINIMUM_SIGNAL",
-                                "range": [
-                                    -127,
-                                    0
-                                ],
-                                "title": "fast scan minimum rssi",
-                                "type": "int"
-                            },
-                            {
-                                "children": [
-                                    {
-                                        "children": [],
-                                        "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
-                                        "help": null,
-                                        "id": "EXAMPLE_OPEN",
-                                        "name": "EXAMPLE_OPEN",
-                                        "range": null,
-                                        "title": "open",
-                                        "type": "bool"
-                                    },
-                                    {
-                                        "children": [],
-                                        "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
-                                        "help": null,
-                                        "id": "EXAMPLE_WEP",
-                                        "name": "EXAMPLE_WEP",
-                                        "range": null,
-                                        "title": "wep",
-                                        "type": "bool"
-                                    },
-                                    {
-                                        "children": [],
-                                        "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
-                                        "help": null,
-                                        "id": "EXAMPLE_WPA",
-                                        "name": "EXAMPLE_WPA",
-                                        "range": null,
-                                        "title": "wpa",
-                                        "type": "bool"
-                                    },
-                                    {
-                                        "children": [],
-                                        "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
-                                        "help": null,
-                                        "id": "EXAMPLE_WPA2",
-                                        "name": "EXAMPLE_WPA2",
-                                        "range": null,
-                                        "title": "wpa2",
-                                        "type": "bool"
-                                    }
-                                ],
-                                "depends_on": "FAST_SCAN_THRESHOLD",
-                                "help": null,
-                                "id": "pumpkinos-configuration-enable-wifi-link-fast-scan-threshold-fast-scan-weakest-authmode-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-82",
-                                "name": "FAST_SCAN_WEAKEST_AUTHMODE",
-                                "title": "fast scan weakest authmode",
-                                "type": "choice"
-                            }
-                        ],
-                        "depends_on": "ENABLE_WIFI",
-                        "help": "wifi fast scan threshold",
-                        "id": "FAST_SCAN_THRESHOLD",
-                        "name": "FAST_SCAN_THRESHOLD",
-                        "range": null,
-                        "title": "fast scan threshold",
-                        "type": "bool"
-                    }
-                ],
+                "children": [],
                 "depends_on": null,
                 "help": "Enable WiFi networking.",
                 "id": "ENABLE_WIFI",
                 "name": "ENABLE_WIFI",
                 "range": null,
                 "title": "Enable WiFi link",
+                "type": "bool"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Enable serial stack networking.",
+                "id": "ENABLE_STACK_MONITOR",
+                "name": "ENABLE_STACK_MONITOR",
+                "range": null,
+                "title": "Enable debug stack monitor",
+                "type": "bool"
+            },
+            {
+                "children": [],
+                "depends_on": "ENABLE_WIFI",
+                "help": "SSID (network name) for OpenTyrian2000 to connect to.",
+                "id": "WIFI_SSID",
+                "name": "WIFI_SSID",
+                "range": null,
+                "title": "WiFi SSID",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": "ENABLE_WIFI",
+                "help": "WiFi password (WPA or WPA2) for OpenTyrian2000 to use.",
+                "id": "WIFI_PASSWORD",
+                "name": "WIFI_PASSWORD",
+                "range": null,
+                "title": "WiFi Password",
+                "type": "string"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice SCAN_METHOD>",
+                        "help": null,
+                        "id": "WIFI_FAST_SCAN",
+                        "name": "WIFI_FAST_SCAN",
+                        "range": null,
+                        "title": "fast",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SCAN_METHOD>",
+                        "help": null,
+                        "id": "WIFI_ALL_CHANNEL_SCAN",
+                        "name": "WIFI_ALL_CHANNEL_SCAN",
+                        "range": null,
+                        "title": "all",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "ENABLE_WIFI",
+                "help": "scan method for the esp32 to use",
+                "id": "pumpkinos-configuration-scan-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-47",
+                "name": "SCAN_METHOD",
+                "title": "scan method",
+                "type": "choice"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice SORT_METHOD>",
+                        "help": null,
+                        "id": "WIFI_CONNECT_AP_BY_SIGNAL",
+                        "name": "WIFI_CONNECT_AP_BY_SIGNAL",
+                        "range": null,
+                        "title": "rssi",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SORT_METHOD>",
+                        "help": null,
+                        "id": "WIFI_CONNECT_AP_BY_SECURITY",
+                        "name": "WIFI_CONNECT_AP_BY_SECURITY",
+                        "range": null,
+                        "title": "authmode",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "ENABLE_WIFI",
+                "help": "sort method for the esp32 to use",
+                "id": "pumpkinos-configuration-sort-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-60",
+                "name": "SORT_METHOD",
+                "title": "sort method",
+                "type": "choice"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "FAST_SCAN_THRESHOLD",
+                        "help": "rssi is use to measure the signal",
+                        "id": "FAST_SCAN_MINIMUM_SIGNAL",
+                        "name": "FAST_SCAN_MINIMUM_SIGNAL",
+                        "range": [
+                            -127,
+                            0
+                        ],
+                        "title": "fast scan minimum rssi",
+                        "type": "int"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
+                                "help": null,
+                                "id": "EXAMPLE_OPEN",
+                                "name": "EXAMPLE_OPEN",
+                                "range": null,
+                                "title": "open",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
+                                "help": null,
+                                "id": "EXAMPLE_WEP",
+                                "name": "EXAMPLE_WEP",
+                                "range": null,
+                                "title": "wep",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
+                                "help": null,
+                                "id": "EXAMPLE_WPA",
+                                "name": "EXAMPLE_WPA",
+                                "range": null,
+                                "title": "wpa",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice FAST_SCAN_WEAKEST_AUTHMODE>",
+                                "help": null,
+                                "id": "EXAMPLE_WPA2",
+                                "name": "EXAMPLE_WPA2",
+                                "range": null,
+                                "title": "wpa2",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "FAST_SCAN_THRESHOLD",
+                        "help": null,
+                        "id": "pumpkinos-configuration-fast-scan-threshold-fast-scan-weakest-authmode-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-88",
+                        "name": "FAST_SCAN_WEAKEST_AUTHMODE",
+                        "title": "fast scan weakest authmode",
+                        "type": "choice"
+                    }
+                ],
+                "depends_on": "ENABLE_WIFI",
+                "help": "wifi fast scan threshold",
+                "id": "FAST_SCAN_THRESHOLD",
+                "name": "FAST_SCAN_THRESHOLD",
+                "range": null,
+                "title": "fast scan threshold",
                 "type": "bool"
             }
         ],

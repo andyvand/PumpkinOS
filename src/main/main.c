@@ -235,7 +235,7 @@ void app_main(void)
 #endif
 
     if (xTaskCreatePinnedToCore(&app_task, "app_task", 30000, NULL, /*5*/2 | portPRIVILEGE_BIT, &app_task_handle, 0) != pdPASS) {
-        ESP_LOGE(__func__, "failed to create app_task (out of internal RAM for stack?)");
+        ESP_LOGE(__func__, "failed to create app_task (out of internal RAM for stack?)\n");
         return;
     }
 
