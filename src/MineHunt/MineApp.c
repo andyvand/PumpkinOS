@@ -369,7 +369,10 @@ static Boolean HandleManualScroll(Boolean* inBoundsP, PieceCoordType* coordP)
 	UInt16 direction = notScrolling;
 	Boolean penDown = true;
 	Boolean cancelUncover = false;
-	
+
+    scrollCoord.row = 0;
+    scrollCoord.col = 0;
+
 	penDownCoord = *coordP;
 	
 	while (penDown)

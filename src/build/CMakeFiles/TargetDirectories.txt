@@ -1354,6 +1354,13 @@
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/install.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/install/local.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SpaceTrader/CMakeFiles/install/strip.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/__idf_MineHunt.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/edit_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/rebuild_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/list_install_components.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/install.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/install/local.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/install/strip.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/edit_cache.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/rebuild_cache.dir
