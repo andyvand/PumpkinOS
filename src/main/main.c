@@ -191,6 +191,7 @@ static TaskHandle_t app_task_handle = NULL;
 // libos -> Launcher PilotMain -> (launch) -> app PilotMain -> AppEventLoop
 // -> FrmDrawForm -> SDL render. Log the minimum free stack ever seen so
 // overflows show up as numbers instead of silent hangs.
+#if CONFIG_ENABLE_STACK_MONITOR
 void stack_monitor_task(void *arg)
 {
     UBaseType_t hwm;
@@ -203,6 +204,7 @@ void stack_monitor_task(void *arg)
         }
     }
 }
+#endif
 
 void app_main(void)
 {
@@ -237,5 +239,7 @@ void app_main(void)
         return;
     }
 
+#if CONFIG_ENABLE_STACK_MONITOR
     xTaskCreatePinnedToCore(&stack_monitor_task, "stack_mon", 2560, NULL, 1, NULL, 1);
+#endif
 }

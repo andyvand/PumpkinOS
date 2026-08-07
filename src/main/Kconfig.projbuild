@@ -24,6 +24,12 @@ menu "PumpkinOS Configuration"
         help
             Enable WiFi networking.
 
+    config ENABLE_STACK_MONITOR
+        bool "Enable debug stack monitor"
+        default n
+        help
+            Enable serial stack networking.
+
     config WIFI_SSID
         string "WiFi SSID"
 	depends on ENABLE_WIFI
