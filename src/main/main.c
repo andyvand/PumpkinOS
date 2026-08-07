@@ -241,5 +241,6 @@ void app_main(void)
 
 #if CONFIG_ENABLE_STACK_MONITOR
     xTaskCreatePinnedToCore(&stack_monitor_task, "stack_mon", 2560, NULL, 1, NULL, 1);
+    ESP_LOGI(__func__, "Stack monitor enabled.\n");
 #endif
 }
