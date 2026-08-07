@@ -38,6 +38,11 @@
 #include <string.h>
 
 #if CONFIG_ENABLE_WIFI
+#if CONFIG_SNTP
+#include "esp_sntp.h"
+#include "esp_netif_sntp.h"
+#endif
+
 #define DEFAULT_SSID CONFIG_WIFI_SSID
 #define DEFAULT_PWD CONFIG_WIFI_PASSWORD
 
@@ -216,6 +221,15 @@ void app_main(void)
 
 #if CONFIG_ENABLE_WIFI
     wifi_scan();
+
+#if CONFIG_SNTP
+    esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
+    esp_netif_sntp_init(&config);
+
+    if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK) {
+        ESP_LOGE(__func__, "Failed to update system time within 10s timeout");
+    }
+#endif
 #endif
 
     ESP_LOGI(__func__, "WiFi scan done.\n");

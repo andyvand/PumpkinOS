@@ -6252,7 +6252,18 @@
                 "type": "bool"
             },
             {
-                "children": [],
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "ENABLE_WIFI",
+                        "help": "Enable time updates using SNTP",
+                        "id": "SNTP",
+                        "name": "SNTP",
+                        "range": null,
+                        "title": "Use SNTP time updates",
+                        "type": "bool"
+                    }
+                ],
                 "depends_on": null,
                 "help": "Enable WiFi networking.",
                 "id": "ENABLE_WIFI",
@@ -6316,7 +6327,7 @@
                 ],
                 "depends_on": "ENABLE_WIFI",
                 "help": "scan method for the esp32 to use",
-                "id": "pumpkinos-configuration-scan-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-47",
+                "id": "pumpkinos-configuration-scan-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-54",
                 "name": "SCAN_METHOD",
                 "title": "scan method",
                 "type": "choice"
@@ -6346,7 +6357,7 @@
                 ],
                 "depends_on": "ENABLE_WIFI",
                 "help": "sort method for the esp32 to use",
-                "id": "pumpkinos-configuration-sort-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-60",
+                "id": "pumpkinos-configuration-sort-method-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-67",
                 "name": "SORT_METHOD",
                 "title": "sort method",
                 "type": "choice"
@@ -6411,7 +6422,7 @@
                         ],
                         "depends_on": "FAST_SCAN_THRESHOLD",
                         "help": null,
-                        "id": "pumpkinos-configuration-fast-scan-threshold-fast-scan-weakest-authmode-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-88",
+                        "id": "pumpkinos-configuration-fast-scan-threshold-fast-scan-weakest-authmode-Users-andyvand-Downloads-PumpkinOS-src-main-Kconfig.projbuild-95",
                         "name": "FAST_SCAN_WEAKEST_AUTHMODE",
                         "title": "fast scan weakest authmode",
                         "type": "choice"
