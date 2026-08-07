@@ -3756,10 +3756,12 @@ static int pumpkin_event_single_app(int *key, int *mods, int *buttons, uint8_t *
             ev = 0;
           } else {
             if (pumpkin_module.dia) {
+              // EvtPumpEvents only generates keyDownEvent for MSG_KEYDOWN;
+              // MSG_KEY is discarded there, so it must not be used for delivery
               *key = pumpkin_reset_key(arg1);
               *mods = pumpkin_module.modMask;
               *buttons = 0;
-              ev = MSG_KEY;
+              ev = MSG_KEYDOWN;
             } else {
               *key = arg1;
               *mods = 0;
@@ -5171,7 +5173,7 @@ void pumpkin_set_m68k(int m68k) {
     }
   }
 
-  pumpkin_forward_msg(0, MSG_KEY, WINDOW_KEY_CUSTOM, vchrRefreshState, 0);
+  pumpkin_forward_msg(0, MSG_KEYDOWN, WINDOW_KEY_CUSTOM, vchrRefreshState, 0);
 }
 
 int pumpkin_is_m68k(void) {
