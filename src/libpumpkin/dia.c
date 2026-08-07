@@ -17,9 +17,9 @@
 // bottom shows the same low-density 160px-wide artwork as the desktop, drawn
 // at native size, so all vertical slicing and the alpha/numeric divider must
 // use the artwork's real dimensions (graffiti 160x65 + taskbar 160x47);
-// anything else puts the tap hit zones off the drawn graphics. The taskbar
-// artwork is centered horizontally (taskbar_offset); the graffiti artwork
-// stays left-aligned. Columns outside the artwork are dead space.
+// anything else puts the tap hit zones off the drawn graphics. Both the
+// taskbar and graffiti artwork are centered horizontally (taskbar_offset /
+// graffiti_offset). Columns outside the artwork are dead space.
 #define DIA_WIDTH     APP_SCREEN_WIDTH
 #define DIA_HEIGHT    APP_SCREEN_HEIGHT
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
@@ -65,6 +65,8 @@ struct dia_t {
   int button_height;
   int icon_width;
   int taskbar_offset;
+  int graffiti_offset;
+  int graffiti_width;
   int graffiti_alpha;
   uint64_t graffiti_t0;
   uint64_t last;
@@ -201,10 +203,13 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
       dia->icon_width = 14;  // 11*14 + 1 = 155
     }
 
-    // when the display is wider than the taskbar artwork (160px at low
-    // density, 320px doubled), center the artwork and its hit zones
-    dia->taskbar_offset = (dia->width - (dbl ? 320 : 160)) / 2;
+    // when the display is wider than the artwork (160px at low density,
+    // 320px doubled), center the taskbar and graffiti artwork and their
+    // hit zones
+    dia->graffiti_width = dbl ? 320 : 160;
+    dia->taskbar_offset = (dia->width - dia->graffiti_width) / 2;
     if (dia->taskbar_offset < 0) dia->taskbar_offset = 0;
+    dia->graffiti_offset = dia->taskbar_offset;
 
     dia_color(&fg, &bg);
     dia->surface = surface_create(dia->width, dia->graffiti_height, encoding);
@@ -275,7 +280,7 @@ void dia_set_wh(dia_t *dia, int mode, WinHandle wh, RectangleType *bounds) {
   if (dia->graffiti_wh == NULL) {
     if ((dia->graffiti_wh = WinCreateOffscreenWindow(dia->width, dia->graffiti_height - dia->taskbar_height, nativeFormat, &err)) != NULL) {
       old = WinSetDrawWindow(dia->graffiti_wh);
-      dia_draw_bmp(32500, 0, 0);
+      dia_draw_bmp(32500, dia->graffiti_offset, 0);
       WinSetDrawWindow(old);
     }
   }
@@ -586,9 +591,10 @@ int dia_clicked(dia_t *dia, int current_task, int x, int y, int down) {
       // graffiti area
 
       if (down) {
-        if (dia->graffiti_alpha == -1) {
-          dia->graffiti_alpha = x < dia->alpha_width;
-          grail_begin(x < dia->alpha_width);
+        // taps outside the centered artwork are consumed but start no stroke
+        if (dia->graffiti_alpha == -1 && x >= dia->graffiti_offset && x < dia->graffiti_offset + dia->graffiti_width) {
+          dia->graffiti_alpha = (x - dia->graffiti_offset) < dia->alpha_width;
+          grail_begin(dia->graffiti_alpha);
         }
       } else {
         if (dia->sel != -1) {
@@ -771,15 +777,15 @@ int dia_stroke(dia_t *dia, int x, int y) {
 
     switch (dia->graffiti_alpha) {
       case 1:
-        if (x < dia->alpha_width) {
+        if (x >= dia->graffiti_offset && x < dia->graffiti_offset + dia->alpha_width) {
           // alpha graffiti area
-          grail_stroke(x, y - (dia->height - dia->graffiti_height));
+          grail_stroke(x - dia->graffiti_offset, y - (dia->height - dia->graffiti_height));
         }
         break;
       case 0:
-        if (x >= dia->alpha_width) {
+        if (x >= dia->graffiti_offset + dia->alpha_width && x < dia->graffiti_offset + dia->graffiti_width) {
           // numeric graffiti area
-          grail_stroke(x - dia->alpha_width, y - (dia->height - dia->graffiti_height));
+          grail_stroke(x - dia->graffiti_offset - dia->alpha_width, y - (dia->height - dia->graffiti_height));
         }
         break;
     }
@@ -793,7 +799,7 @@ void dia_draw_stroke(dia_t *dia, int x1, int y1, int x2, int y2, int alpha) {
   uint32_t c;
   int dx, rx, ry;
 
-  dx = alpha ? 0 : dia->alpha_width;
+  dx = dia->graffiti_offset + (alpha ? 0 : dia->alpha_width);
   rx = x2 - x1;
   ry = y2 - y1;
   if (rx < 0) rx = -rx;
