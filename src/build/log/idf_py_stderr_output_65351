@@ -1,0 +1,14 @@
+Command: ninja flash
+[1;31m
+A fatal error occurred: Could not open /dev/cu.usbmodem111011, the port is busy or doesn't exist.
+([Errno 2] could not open port /dev/cu.usbmodem111011: [Errno 2] No such file or directory: '/dev/cu.usbmodem111011')
+
+Hint: Check if the port is correct and ESP connected
+[0m
+[31mCMake Error at /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esptool_py/run_serial_tool.cmake:67 (message):
+  
+  /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python;-m;esptool;--chip;esp32s3
+  failed.
+
+
+[0m

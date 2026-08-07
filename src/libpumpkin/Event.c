@@ -472,9 +472,12 @@ int EvtPumpEvents(Int32 timeoutUs) {
           if (native) {
             event.data.keyDown.chr = vchrNativeHome;
             event.data.keyDown.modifiers |= commandKeyMask;
-          } else {
-            debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents keyDownEvent vchrLaunch");
-            EvtEnqueueKey(vchrLaunch, 0, commandKeyMask);
+          } else if (pumpkin_is_launched() && pumpkin_get_app_creator() != PrefGetPreference(prefLauncherAppCreator)) {
+            // the home key terminates the current app, but never the Launcher itself
+            debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents keyDownEvent appStopEvent");
+            MemSet(&event, sizeof(EventType), 0);
+            event.eType = appStopEvent;
+            EvtAddEventToQueue(&event);
             return 1;
           }
           break;

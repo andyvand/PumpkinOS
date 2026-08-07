@@ -198,6 +198,11 @@ static void choose_launcher(libos_t *data) {
 
     if (!data->launcher[0]) {
       StrCopy(data->launcher, "Launcher");
+      if ((dbID = DmFindDatabase(0, data->launcher)) != 0) {
+        if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &type, &creator) == errNone && type == sysFileTApplication) {
+          PrefSetPreference(prefLauncherAppCreator, creator);
+        }
+      }
     }
   }
 }
