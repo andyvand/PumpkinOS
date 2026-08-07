@@ -21,8 +21,6 @@
 #ifndef SDL_internal_h_
 #define SDL_internal_h_
 
-#include <stdlib.h>
-
 // Many of SDL's features require _GNU_SOURCE on various platforms
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -32,6 +30,8 @@
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE 1
 #endif
+
+#include <stdlib.h>
 
 /* This is for a variable-length array at the end of a struct:
     struct x { int y; char z[SDL_VARIABLE_LENGTH_ARRAY]; };
