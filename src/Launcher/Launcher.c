@@ -106,6 +106,9 @@ typedef struct {
   Boolean finish, top, deploy, reload;
   Int16 lastMinute;
   RectangleType gadRect, sclRect;
+  // bounds from the form resource (160x160 layout), captured at form open;
+  // resize() always derives the on-screen bounds from these
+  RectangleType origGadRect, origSclRect;
   UInt32 filterDbType, filterCreator, filterResType, filterId;
   Boolean filterRsrc;
   LocalID dbID;
@@ -441,11 +444,17 @@ static void launcherScanApps(launcher_data_t *data) {
   BitmapType *iconBmp;
   WinHandle old;
   char *s;
-  int i;
+  int i, ncols;
 
   launcherResetItems(data);
 
-  data->cellWidth = APP_CELL_WIDTH;
+  // Distribute the columns over the gadget width: keep the classic 50-pixel
+  // cell as the minimum pitch and widen the cells with the left-over pixels,
+  // so the grid fills the screen instead of leaving a dead right margin and
+  // truncating the application names.
+  ncols = data->gadRect.extent.x / APP_CELL_WIDTH;
+  if (ncols < 1) ncols = 1;
+  data->cellWidth = data->gadRect.extent.x / ncols;
   data->cellHeight = APP_CELL_HEIGHT;
 
   for (newSearch = true, i = 0; i < MAX_ITEMS; newSearch = false) {
@@ -990,20 +999,18 @@ static void launcherScan(launcher_data_t *data) {
   }
 }
 
-static void refresh(FormPtr frm, launcher_data_t *data) {
-  FormGadgetTypeInCallback *gad;
+static void updateScrollBar(FormPtr frm, launcher_data_t *data) {
   ScrollBarType *scl;
   UInt16 objIndex;
   Int16 cols, rows, totalRows;
 
-  data->topItem = 0;
-  objIndex = FrmGetObjectIndex(frm, iconsGad);
-  gad = (FormGadgetTypeInCallback *)FrmGetObjectPtr(frm, objIndex);
-  ItemsGadgetCallback(gad, formGadgetDrawCmd, NULL);
+  // cell sizes are only known after the first launcherScan
+  if (data->cellWidth == 0 || data->cellHeight == 0) return;
 
   rows = data->gadRect.extent.y / data->cellHeight;
   if (data->mode != launcher_app) rows--;
   cols = data->gadRect.extent.x / data->cellWidth;
+  if (cols < 1) cols = 1;
   totalRows = (data->numItems + cols - 1) / cols;
 
   objIndex = FrmGetObjectIndex(frm, iconsScl);
@@ -1014,6 +1021,17 @@ static void refresh(FormPtr frm, launcher_data_t *data) {
   } else {
     FrmHideObject(frm, objIndex);
   }
+}
+
+static void refresh(FormPtr frm, launcher_data_t *data) {
+  FormGadgetTypeInCallback *gad;
+  UInt16 objIndex;
+
+  data->topItem = 0;
+  objIndex = FrmGetObjectIndex(frm, iconsGad);
+  gad = (FormGadgetTypeInCallback *)FrmGetObjectPtr(frm, objIndex);
+  ItemsGadgetCallback(gad, formGadgetDrawCmd, NULL);
+  updateScrollBar(frm, data);
 }
 
 static int adjustName(char *buf, int size, char *name, int *width, int max) {
@@ -1652,6 +1670,16 @@ static Boolean ItemsGadgetCallback(FormGadgetTypeInCallback *gad, UInt16 cmd, vo
               // a full form update so the launcher repaints itself instead of
               // leaving the launched app's residual pixels on screen.
               data->top = true;
+              if (pumpkin_get_mode() != 0) {
+                // No sysNotifyAppQuittingEvent reaches the launcher in this
+                // mode: returning from SysAppLaunchEx is the only signal that
+                // the app has quit. Flag it so CheckNotifications rescans the
+                // application list.
+                if (mutex_lock(data->mutex) == 0) {
+                  data->appQuit = true;
+                  mutex_unlock(data->mutex);
+                }
+              }
               FrmUpdateForm(MainForm, 0);
             }
           }
@@ -2526,6 +2554,18 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
         data->top = false;
         flags = sysAppLaunchFlagNewGlobals | sysAppLaunchFlagUIApp;
         SysAppLaunchEx(0, data->item[data->prev].dbID, flags, sysAppLaunchCmdNormalLaunch, NULL, &result, data->item[data->prev].pilot_main);
+        if (pumpkin_get_mode() != 0) {
+          // In-process launch: the app has already run and quit by the time
+          // SysAppLaunchEx returns, and no sysNotifyAppQuittingEvent reaches
+          // the launcher in this mode. Flag the quit so CheckNotifications
+          // rescans the application list, and repaint the launcher.
+          data->top = true;
+          if (mutex_lock(data->mutex) == 0) {
+            data->appQuit = true;
+            mutex_unlock(data->mutex);
+          }
+          FrmUpdateForm(MainForm, 0);
+        }
       }
       break;
     case delCmd:
@@ -2566,15 +2606,14 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
 static void resize(FormType *frm, launcher_data_t *data) {
   WinHandle wh;
   RectangleType rect;
-  ScrollBarType *scl;
   UInt32 swidth, sheight;
-  UInt16 objIndex, rows, cols, totalRows;
+  UInt16 objIndex;
 
   WinScreenMode(winScreenModeGet, &swidth, &sheight, NULL, NULL);
   wh = FrmGetWindowHandle(frm);
 
   RctSetRectangle(&rect, 0, 0, swidth, sheight);
-  WinSetBounds(wh, &rect); 
+  WinSetBounds(wh, &rect);
   WinSetClipingBounds(&frm->window, &rect);
 
   // filter button
@@ -2583,32 +2622,32 @@ static void resize(FormType *frm, launcher_data_t *data) {
   rect.topLeft.x = swidth - rect.extent.x - 1;
   FrmSetObjectBounds(frm, objIndex, &rect);
 
-  // gadget
-  objIndex = FrmGetObjectIndex(frm, iconsGad);
-  rect.topLeft.x = data->gadRect.topLeft.x;
-  rect.topLeft.y = data->gadRect.topLeft.y;
-  rect.extent.x = data->gadRect.extent.x + (swidth  - 160);
-  rect.extent.y = data->gadRect.extent.y + (sheight - 160);
-  FrmSetObjectBounds(frm, objIndex, &rect);
-  FrmGetObjectBounds(frm, objIndex, &data->gadRect);
+  // The bounds below are always derived from the original form resource
+  // bounds (laid out for a 160x160 screen) plus the current screen size:
+  // resize() runs on every form update, so it must be idempotent. Deriving
+  // from the objects' current bounds would grow them on each update.
 
-  // scrollBar
+  // scroll bar: resource width, pinned to the right edge, stretched
+  // vertically by the screen-height delta
   objIndex = FrmGetObjectIndex(frm, iconsScl);
-  scl = (ScrollBarType *)FrmGetObjectPtr(frm, objIndex);
-  rows = rect.extent.y / data->cellHeight;
-  if (data->mode != launcher_app) rows--;
-  cols = rect.extent.x / data->cellWidth;
-  totalRows = (data->numItems + cols - 1) / cols;
-  if (totalRows > rows) {
-    SclSetScrollBar(scl, 0, 0, totalRows - rows, (totalRows - rows) >= rows ? rows - 1 : totalRows - rows);
-  }
-  rect.topLeft.x = swidth - data->sclRect.extent.x;
-  rect.topLeft.y = data->sclRect.topLeft.y;
-  rect.extent.x = data->sclRect.extent.x;
-  rect.extent.y = data->sclRect.extent.y + (sheight - 160);
+  rect.topLeft.x = swidth - data->origSclRect.extent.x;
+  rect.topLeft.y = data->origSclRect.topLeft.y;
+  rect.extent.x = data->origSclRect.extent.x;
+  rect.extent.y = data->origSclRect.extent.y + (sheight - 160);
   FrmSetObjectBounds(frm, objIndex, &rect);
+  data->sclRect = rect;
 
-  FrmSetUsable(frm, objIndex, totalRows > rows);
+  // icons gadget: fill the width up to the scroll bar, stretched
+  // vertically by the screen-height delta
+  objIndex = FrmGetObjectIndex(frm, iconsGad);
+  rect.topLeft.x = data->origGadRect.topLeft.x;
+  rect.topLeft.y = data->origGadRect.topLeft.y;
+  rect.extent.x = swidth - data->origGadRect.topLeft.x - data->sclRect.extent.x;
+  rect.extent.y = data->origGadRect.extent.y + (sheight - 160);
+  FrmSetObjectBounds(frm, objIndex, &rect);
+  data->gadRect = rect;
+
+  updateScrollBar(frm, data);
 }
 
 static Boolean WidgetDialogEventHandler(EventType *event) {
@@ -2661,16 +2700,21 @@ static Boolean MainFormHandleEvent(EventPtr event) {
       frm->mbar = data->mainMenu;
       MenuSetActiveMenu(frm->mbar);
       gadIndex = FrmGetObjectIndex(frm, iconsGad);
-      FrmGetObjectBounds(frm, gadIndex, &data->gadRect);
       sclIndex = FrmGetObjectIndex(frm, iconsScl);
-      FrmGetObjectBounds(frm, sclIndex, &data->sclRect);
       if (event->eType == frmOpenEvent) {
+        // capture the bounds from the form resource exactly once; resize()
+        // derives the on-screen bounds from these and the screen size
+        FrmGetObjectBounds(frm, gadIndex, &data->origGadRect);
+        FrmGetObjectBounds(frm, sclIndex, &data->origSclRect);
         FrmSetDIAPolicyAttr(frm, frmDIAPolicyCustom);
         PINSetInputTriggerState(pinInputTriggerEnabled);
         PINSetInputAreaState(pinInputAreaOpen);
       }
-      launcherScan(data);
+      // resize before scanning: the scan computes the cell sizes from the
+      // gadget bounds, so they must reflect the current screen size
       resize(frm, data);
+      launcherScan(data);
+      updateScrollBar(frm, data);
       FrmSetGadgetHandler(frm, gadIndex, ItemsGadgetCallback);
 
       index = FrmGetObjectIndex(frm, filterCtl);
@@ -2826,8 +2870,22 @@ static void CheckNotifications(void) {
     mutex_unlock(data->mutex);
   }
 
-  if (data->mode == launcher_task && (appCrashed || appQuit)) {
-    MenuEvent(taskCmd, data);
+  if (appCrashed || appQuit) {
+    // An app has quit or crashed: rescan so the current view reflects the
+    // installed applications again instead of a stale (possibly blank) list.
+    switch (data->mode) {
+      case launcher_app:
+        MenuEvent(appCmd, data);
+        break;
+      case launcher_app_small:
+        MenuEvent(appSmallCmd, data);
+        break;
+      case launcher_task:
+        MenuEvent(taskCmd, data);
+        break;
+      default:
+        break;
+    }
   }
 
   if (appCrashed) {
