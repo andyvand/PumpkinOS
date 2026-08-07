@@ -15,10 +15,11 @@
 #ifdef ESP32
 // The window spans the whole panel (e.g. 240x320). The DIA strip at the
 // bottom shows the same low-density 160px-wide artwork as the desktop, drawn
-// left-aligned at native size, so all vertical slicing and the alpha/numeric
-// divider must use the artwork's real dimensions (graffiti 160x65 + taskbar
-// 160x47); anything else puts the tap hit zones off the drawn graphics.
-// Columns right of the 160px artwork are dead space.
+// at native size, so all vertical slicing and the alpha/numeric divider must
+// use the artwork's real dimensions (graffiti 160x65 + taskbar 160x47);
+// anything else puts the tap hit zones off the drawn graphics. The taskbar
+// artwork is centered horizontally (taskbar_offset); the graffiti artwork
+// stays left-aligned. Columns outside the artwork are dead space.
 #define DIA_WIDTH     APP_SCREEN_WIDTH
 #define DIA_HEIGHT    APP_SCREEN_HEIGHT
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
@@ -63,6 +64,7 @@ struct dia_t {
   int button_width;
   int button_height;
   int icon_width;
+  int taskbar_offset;
   int graffiti_alpha;
   uint64_t graffiti_t0;
   uint64_t last;
@@ -110,7 +112,7 @@ static void dia_invert_button(dia_t *dia, int i) {
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
   old = WinSetDrawWindow(dia->wh);
-  RctSetRectangle(&rect, i * dia->icon_width, dia->alpha_height, dia->icon_width, dia->taskbar_height - dia->button_height);
+  RctSetRectangle(&rect, dia->taskbar_offset + i * dia->icon_width, dia->alpha_height, dia->icon_width, dia->taskbar_height - dia->button_height);
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);
   WinSetCoordinateSystem(prev);
@@ -124,7 +126,7 @@ static void dia_invert_hard_button(dia_t *dia, int i) {
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
   old = WinSetDrawWindow(dia->wh);
-  RctSetRectangle(&rect, i * dia->button_width, dia->alpha_height + dia->taskbar_height - dia->button_height, dia->button_width, dia->button_height);
+  RctSetRectangle(&rect, dia->taskbar_offset + i * dia->button_width, dia->alpha_height + dia->taskbar_height - dia->button_height, dia->button_width, dia->button_height);
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);
   WinSetCoordinateSystem(prev);
@@ -138,7 +140,7 @@ static void dia_invert_updown_button(dia_t *dia, int i) {
 
   prev = WinSetCoordinateSystem(dia->dbl ? kCoordinatesDouble : kCoordinatesStandard);
   old = WinSetDrawWindow(dia->wh);
-  RctSetRectangle(&rect, 3 * dia->button_width, dia->alpha_height + dia->taskbar_height - dia->button_height + i * dia->button_height / 2, dia->button_width, dia->button_height / 2);
+  RctSetRectangle(&rect, dia->taskbar_offset + 3 * dia->button_width, dia->alpha_height + dia->taskbar_height - dia->button_height + i * dia->button_height / 2, dia->button_width, dia->button_height / 2);
   WinInvertRectangle(&rect, 0);
   WinSetDrawWindow(old);
   WinSetCoordinateSystem(prev);
@@ -193,11 +195,16 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
       // at low density. On ESP32's 240x320 panel we still render them at
       // native size, so icon and button widths must match the bitmap's
       // 14/22-px layout — otherwise tap hit zones don't line up with the
-      // icons drawn. 11*14+1=155 occupies the left 160px of the 240px DIA;
-      // the right ~80px is dead space until a 240-wide bitmap is provided.
+      // icons drawn. 11*14+1=155 spans the 160px artwork; on a 240px DIA
+      // the remaining ~80px is dead space until a 240-wide bitmap exists.
       dia->button_width = 22;
       dia->icon_width = 14;  // 11*14 + 1 = 155
     }
+
+    // when the display is wider than the taskbar artwork (160px at low
+    // density, 320px doubled), center the artwork and its hit zones
+    dia->taskbar_offset = (dia->width - (dbl ? 320 : 160)) / 2;
+    if (dia->taskbar_offset < 0) dia->taskbar_offset = 0;
 
     dia_color(&fg, &bg);
     dia->surface = surface_create(dia->width, dia->graffiti_height, encoding);
@@ -260,7 +267,7 @@ void dia_set_wh(dia_t *dia, int mode, WinHandle wh, RectangleType *bounds) {
   if (dia->wh == NULL) {
     if ((dia->wh = WinCreateOffscreenWindow(dia->width, dia->graffiti_height, nativeFormat, &err)) != NULL) {
       old = WinSetDrawWindow(dia->wh);
-      dia_draw_bmp(32501, 0, dia->alpha_height);
+      dia_draw_bmp(32501, dia->taskbar_offset, dia->alpha_height);
       WinSetDrawWindow(old);
     }
   }
@@ -301,7 +308,7 @@ static void draw_symbol(dia_t *dia, int cond, int s, int i) {
   FntSetFont(symbolFont);
   fw = FntCharWidth(GRAFFITI_CAPS);
   fh = FntCharHeight();
-  x = i * dia->icon_width + (dia->icon_width - fw) / 2;
+  x = dia->taskbar_offset + i * dia->icon_width + (dia->icon_width - fw) / 2;
   y = dia->alpha_height + (dia->taskbar_height - dia->button_height - fh) / 2;
   RctSetRectangle(&rect, x, y, fw, fh);
   WinEraseRectangle(&rect, 0);
@@ -468,8 +475,8 @@ int dia_clicked(dia_t *dia, int current_task, int x, int y, int down) {
   int i, c, glyph, r = -1;
 
   if (y >= (dia->height - dia->button_height) && y < dia->height && x >= 3 && x < dia->width - 2) {
-    // hard button area
-    i = (x - 3) / dia->button_width;
+    // hard button area (taps outside the centered artwork are consumed but map to no button)
+    i = x >= dia->taskbar_offset + 3 ? (x - dia->taskbar_offset - 3) / dia->button_width : -1;
 
     switch (i) {
       case ICON_HARD1:
@@ -514,8 +521,8 @@ int dia_clicked(dia_t *dia, int current_task, int x, int y, int down) {
     r = 0;
 
   } else if (y >= (dia->height - dia->taskbar_height) && y < dia->height && x >= 0 && x < dia->width) {
-    // taskbar area
-    i = x / dia->icon_width;
+    // taskbar area (taps outside the centered artwork are consumed but map to no icon)
+    i = x >= dia->taskbar_offset ? (x - dia->taskbar_offset) / dia->icon_width : -1;
 
     switch (i) {
       case ICON_HOME:
