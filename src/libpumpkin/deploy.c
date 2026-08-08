@@ -74,6 +74,11 @@ void pumpkin_registry_create(UInt32 creator) {
   regOS.version = pumpkin_get_default_osversion();
   pumpkin_reg_set(creator, regOsID, &regOS, sizeof(RegOsType));
 
+  // an app's 'wind' resource may declare a window bigger than the display;
+  // clamp so the window (and the centered position below) stays on screen
+  if (swidth > 0 && width > swidth) width = swidth;
+  if (sheight > 0 && height > sheight) height = sheight;
+
   regDim.width = width;
   regDim.height = height;
   pumpkin_reg_set(creator, regDimensionID, &regDim, sizeof(RegDimensionType));

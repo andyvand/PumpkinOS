@@ -2428,7 +2428,9 @@ int pumpkin_launch(launch_request_t *request) {
   UInt32 type, creator, regSize;
   launch_data_t *data;
   client_request_t creq;
-  int i, running, index, wait_ack, r = -1;
+  PumpkinPreferencesType prefs;
+  UInt32 border;
+  int i, running, index, wait_ack, maxWidth, maxHeight, r = -1;
 
   running = -1;
   index = -1;
@@ -2528,6 +2530,27 @@ int pumpkin_launch(launch_request_t *request) {
       if (data->width == 0 || data->height == 0) {
         data->width = pumpkin_module.width;
         data->height = pumpkin_module.height;
+      }
+
+      if (pumpkin_module.mode == 0) {
+        // an app can declare a window bigger than the display (through its 'wind'
+        // resource), and the registry may hold stale geometry; clamp so the whole
+        // window, including its border, is visible above the taskbar (if any),
+        // otherwise parts of the app would be unreachable
+        pumpkin_get_preference(BOOT_CREATOR, PUMPKINOS_PREFS_ID, &prefs, sizeof(PumpkinPreferencesType), true);
+        border = prefs.value[pBorderWidth];
+        if (pumpkin_module.density == kDensityLow) border /= 2;
+        maxWidth = pumpkin_module.width - 2*border;
+        maxHeight = pumpkin_module.height - 2*border;
+        if (pumpkin_module.taskbar_enabled && maxHeight > TASKBAR_HEIGHT) {
+          maxHeight -= TASKBAR_HEIGHT;
+        }
+        if (maxWidth > 0 && data->width > maxWidth) data->width = maxWidth;
+        if (maxHeight > 0 && data->height > maxHeight) data->height = maxHeight;
+        if (data->x > pumpkin_module.width - border - data->width) data->x = pumpkin_module.width - border - data->width;
+        if (data->x < border) data->x = border;
+        if (data->y > maxHeight + border - data->height) data->y = maxHeight + border - data->height;
+        if (data->y < border) data->y = border;
       }
 
       if ((regEnd = pumpkin_reg_get(creator, regEndianID, &regSize)) != NULL) {
@@ -4898,7 +4921,7 @@ void pumpkin_set_size(uint32_t creator, uint16_t width, uint16_t height) {
   RegDimensionType regDim;
 
   regDim.width = width;
-  regDim.width = height;
+  regDim.height = height;
   pumpkin_reg_set(creator, regDimensionID, &regDim, sizeof(RegDimensionType));
 }
 
