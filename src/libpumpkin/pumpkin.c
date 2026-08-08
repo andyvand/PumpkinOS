@@ -2532,11 +2532,13 @@ int pumpkin_launch(launch_request_t *request) {
         data->height = pumpkin_module.height;
       }
 
-      if (pumpkin_module.mode == 0) {
+      if (pumpkin_module.mode == 0 &&
+          !(data->x == 0 && data->y == 0 && data->width == pumpkin_module.width && data->height == pumpkin_module.height)) {
         // an app can declare a window bigger than the display (through its 'wind'
         // resource), and the registry may hold stale geometry; clamp so the whole
         // window, including its border, is visible above the taskbar (if any),
-        // otherwise parts of the app would be unreachable
+        // otherwise parts of the app would be unreachable; windows that exactly
+        // fill the display (like the Launcher's) are left alone
         pumpkin_get_preference(BOOT_CREATOR, PUMPKINOS_PREFS_ID, &prefs, sizeof(PumpkinPreferencesType), true);
         border = prefs.value[pBorderWidth];
         if (pumpkin_module.density == kDensityLow) border /= 2;
