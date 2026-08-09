@@ -32,7 +32,9 @@
 #include "script.h"
 #include "debug.h"
 #include "hal/cache_hal.h"
+#if 0
 #include "soc/sensitive_reg.h"
+#endif
 #include "pthread.h"
 
 #include <string.h>
