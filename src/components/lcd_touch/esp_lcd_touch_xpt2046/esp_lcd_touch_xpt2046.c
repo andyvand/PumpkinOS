@@ -157,6 +157,22 @@ static inline esp_err_t xpt2046_read_register(esp_lcd_touch_handle_t tp, uint8_t
     return ESP_OK;
 }
 
+#if CONFIG_XPT2046_CONVERT_ADC_TO_COORDS
+static inline uint32_t xpt2046_map_raw(uint32_t raw, uint32_t raw_min,
+                                       uint32_t raw_max, uint16_t screen_max)
+{
+    if (raw <= raw_min)
+    {
+        return 0;
+    }
+    if (raw >= raw_max)
+    {
+        return screen_max - 1;
+    }
+    return ((raw - raw_min) * (screen_max - 1)) / (raw_max - raw_min);
+}
+#endif // CONFIG_XPT2046_CONVERT_ADC_TO_COORDS
+
 static esp_err_t xpt2046_read_data(esp_lcd_touch_handle_t tp)
 {
     uint16_t z1 = 0, z2 = 0, z = 0;
@@ -216,17 +232,11 @@ static esp_err_t xpt2046_read_data(esp_lcd_touch_handle_t tp)
             // Test if the readings are valid (50 < reading < max - 50)
             if ((x_temp >= 50) && (x_temp <= XPT2046_ADC_LIMIT - 50) && (y_temp >= 50) && (y_temp <= XPT2046_ADC_LIMIT - 50))
             {
-#if CONFIG_XPT2046_CONVERT_ADC_TO_COORDS
-                // Convert the raw ADC value into a screen coordinate and store it
-                // for averaging.
-                x += ((x_temp / (double)XPT2046_ADC_LIMIT) * tp->config.x_max);
-                y += ((y_temp / (double)XPT2046_ADC_LIMIT) * tp->config.y_max);
-#else
-                // store the raw ADC values and let the user convert them to screen
-                // coordinates.
+                // Accumulate the raw ADC values; averaging and conversion to
+                // screen coordinates happen after the loop so no precision is
+                // lost to per-sample truncation.
                 x += x_temp;
                 y += y_temp;
-#endif // CONFIG_XPT2046_CONVERT_ADC_TO_COORDS
                 point_count++;
             }
         }
@@ -235,10 +245,20 @@ static esp_err_t xpt2046_read_data(esp_lcd_touch_handle_t tp)
         const int minimum_count = (1 == CONFIG_ESP_LCD_TOUCH_MAX_POINTS ? 1 : CONFIG_ESP_LCD_TOUCH_MAX_POINTS/2);
         if (point_count >= minimum_count)
         {
-            // Average the accumulated coordinate data points.
+            // Average the accumulated raw data points.
             x /= point_count;
             y /= point_count;
             point_count = 1;
+#if CONFIG_XPT2046_CONVERT_ADC_TO_COORDS
+            // Map the averaged raw value onto the screen using the calibrated
+            // active window: the panel only spans part of the 0-4095 ADC
+            // range, so scaling by the full range would compress every touch
+            // toward the center of the screen.
+            x = xpt2046_map_raw(x, CONFIG_XPT2046_X_RAW_MIN,
+                                CONFIG_XPT2046_X_RAW_MAX, tp->config.x_max);
+            y = xpt2046_map_raw(y, CONFIG_XPT2046_Y_RAW_MIN,
+                                CONFIG_XPT2046_Y_RAW_MAX, tp->config.y_max);
+#endif // CONFIG_XPT2046_CONVERT_ADC_TO_COORDS
         }
         else
         {
