@@ -155,13 +155,12 @@ static void EventLoop(libos_t *data) {
   set_main_loop(callback, data);
   // not reached
 #else
-#if defined(ESP32)
-  // No host OS pumps SDL events for us; the only poll is in
-  // pumpkin_sys_event(), so a 1s message timeout would stall touch.
-  const uint32_t loop_timeout_ms = 16;
-#else
-  const uint32_t loop_timeout_ms = 1000;
-#endif
+  // Host events and dirty task screens are only serviced by LoopIteration ->
+  // pumpkin_sys_event(); with a 1s message timeout the compositor updated at
+  // ~1Hz when idle, which made 60fps apps (emulators) a slideshow. 4ms (not
+  // 16) because the SDL event wait inside pumpkin_sys_event adds ~10ms of
+  // its own; together they land near a 60Hz iteration rate.
+  const uint32_t loop_timeout_ms = 4;
   for (; !thread_get_flags(FLAG_FINISH);) {
     if (LoopIteration(data, loop_timeout_ms) == -1) break;
   }

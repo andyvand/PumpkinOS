@@ -3365,7 +3365,9 @@ int pumpkin_sys_event(void) {
   if (mutex_lock(mutex) == 0) {
     now = sys_get_clock();
 
-    if ((now - pumpkin_module.lastUpdate) > 50000) {
+    // 15ms (was 50ms) so game-like apps (emulators) can reach ~60fps screen
+    // updates; the main loop iterates every 16ms (see libos.c EventLoop)
+    if ((now - pumpkin_module.lastUpdate) > 15000) {
       if (pumpkin_module.num_tasks > 0) {
         if (pumpkin_module.refresh) {
           if (pumpkin_module.background) {
@@ -3403,6 +3405,15 @@ int pumpkin_sys_event(void) {
             if (draw_task(i, &x, &y, &w, &h) && pumpkin_module.wm) {
               wman_update(pumpkin_module.wm, pumpkin_module.tasks[i].taskId, x, y, w, h);
               pumpkin_module.render = 1;
+              { // temp: display upload rate
+                static int updCount; static uint64_t updT0;
+                updCount++;
+                if (updT0 == 0) updT0 = now;
+                if (now - updT0 >= 1000000) {
+                  debug(DEBUG_INFO, PUMPKINOS, "display uploads/sec %d", updCount);
+                  updCount = 0; updT0 = now;
+                }
+              }
             }
           }
         }
@@ -4459,6 +4470,14 @@ void pumpkin_screen_dirty(WinHandle wh, int x, int y, int w, int h) {
       else if (screen->y1 >= task->height) screen->y1 = task->height-1;
 
 //debug(1, "XXX", "pumpkin_screen_dirty dirty (%d,%d,%d,%d)", screen->x0, screen->y0, screen->x1, screen->y1);
+
+      // Mark the task screen dirty so draw_task() uploads it in desktop mode
+      // (mode 0). Previously only dirtyRegionEnd and pumpkin_screen_copy set
+      // this flag, so apps blitting through this API (game ports) only ever
+      // reached the display in single-app mode via the mode==1 call below.
+      if (screen->x0 <= screen->x1 && screen->y0 <= screen->y1) {
+        screen->dirty = 1;
+      }
 
       ptr_unlock(task->screen_ptr, TAG_SCREEN);
     }

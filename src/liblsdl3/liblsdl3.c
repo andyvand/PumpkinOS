@@ -55,6 +55,7 @@ typedef struct {
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *background;
+  SDL_Texture *target;  // persistent scene for double-buffered renderers
   libsdl_keymap_t keymap[0x1000];
   int64_t shift_up;
   int opengl;
@@ -723,7 +724,9 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   debug(DEBUG_INFO, "SDL", "creating renderer");
   // index of the rendering driver to initialize, or -1 to initialize the first one supporting the requested flags.
 #if defined(DARWIN) || defined(SW_RENDERER) || defined(ESP32)
-  window->renderer = SDL_CreateRenderer(window->window, "software" /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);
+  // default to the software renderer, but honor an explicit driver= request
+  // from the boot script (e.g. driver = "metal" for 60fps game-like apps)
+  window->renderer = SDL_CreateRenderer(window->window, s != NULL ? s : "software" /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);
 #else
   window->renderer = SDL_CreateRenderer(window->window, s /*, window->software ? SDL_RENDERER_SOFTWARE : SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE*/);
 #endif
@@ -755,6 +758,23 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   SDL_RenderClear(window->renderer);
   SDL_RenderPresent(window->renderer);
 
+  // PumpkinOS draws incrementally (dirty rects), which assumes the drawing
+  // surface persists across presents. Accelerated renderers (metal, opengl)
+  // swap between undefined backbuffers on every SDL_RenderPresent, so
+  // incremental drawing flickers. Route all drawing to a persistent target
+  // texture; libsdl_window_render() blits it whole to the backbuffer.
+  if (s != NULL && sys_strcmp(s, "software")) {
+    window->target = SDL_CreateTexture(window->renderer, window->format, SDL_TEXTUREACCESS_TARGET, w, h);
+    if (window->target != NULL) {
+      SDL_SetRenderTarget(window->renderer, window->target);
+      SDL_SetRenderDrawColor(window->renderer, 0, 0, 0, 255);
+      SDL_RenderClear(window->renderer);
+      debug(DEBUG_INFO, "SDL", "using persistent render target for \"%s\"", s);
+    } else {
+      debug(DEBUG_ERROR, "SDL", "SDL_CreateTexture (target) failed: %s", SDL_GetError());
+    }
+  }
+
   for (i = 0; keymap[i].from; i++) {
     index = (keymap[i].mods << 8) | keymap[i].from;
     window->keymap[index] = keymap[i];
@@ -764,6 +784,10 @@ static int libsdl_video_setup(libsdl_window_t *window) {
 }
 
 static int libsdl_video_close(libsdl_window_t *window) {
+  if (window->target) {
+    SDL_SetRenderTarget(window->renderer, NULL);
+    SDL_DestroyTexture(window->target);
+  }
   if (window->background) SDL_DestroyTexture(window->background);
   if (window->renderer) SDL_DestroyRenderer(window->renderer);
   if (window->window) SDL_DestroyWindow(window->window);
@@ -931,7 +955,15 @@ static int libsdl_window_render(window_t *_window) {
       presentBackBuffer(window, window->texture, window->programId[0]);
     } else {
 #endif
-      SDL_RenderPresent(window->renderer);
+      if (window->target != NULL) {
+        SDL_SetRenderTarget(window->renderer, NULL);
+        SDL_RenderClear(window->renderer);
+        SDL_RenderTexture(window->renderer, window->target, NULL, NULL);
+        SDL_RenderPresent(window->renderer);
+        SDL_SetRenderTarget(window->renderer, window->target);
+      } else {
+        SDL_RenderPresent(window->renderer);
+      }
 #ifdef SDL_OPENGL
     }
 #endif
