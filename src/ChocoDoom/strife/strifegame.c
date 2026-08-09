@@ -1,7 +1,9 @@
+#include <stdio.h>
+
 #include "game.h"
 
 int gameVariants(void) {
-  return 1;
+  return 2;
 }
 
 char *gameName(void) {
@@ -9,11 +11,19 @@ char *gameName(void) {
 }
 
 char *gameVariant(int i) {
-  return "Strife";
+  switch (i) {
+    case 0: return "Strife";
+    case 1: return "Strife (demo)";
+  }
+  return NULL;
 }
 
 char *gameWad(int i) {
-  return "strife1.wad";
+  switch (i) {
+    case 0: return "strife1.wad";
+    case 1: return "strife0.wad";
+  }
+  return NULL;
 }
 
 char *gameMsgOn(void) {

@@ -36,11 +36,20 @@ static unsigned char *screendata;
 
 int TXT_Init(void)
 {
-    return 1;
+    // There is no visible text screen in this port, but callers write
+    // into the buffer returned by TXT_GetScreenData, so it must exist.
+    if (screendata == NULL)
+    {
+        screendata = calloc(TXT_SCREEN_W * TXT_SCREEN_H, 2);
+    }
+
+    return screendata != NULL;
 }
 
 void TXT_Shutdown(void)
 {
+    free(screendata);
+    screendata = NULL;
 }
 
 void TXT_SetColor(txt_color_t color, int r, int g, int b)

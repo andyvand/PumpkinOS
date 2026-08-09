@@ -479,26 +479,26 @@ void D_DoomMain(void)
     //ST_Message("CT_Init: Init chat mode data.\n");
     //CT_Init();
 
-    //InitMapMusicInfo();         // Init music fields in mapinfo
+    InitMapMusicInfo();         // Init music fields in mapinfo
 
-    //ST_Message("S_InitScript\n");
-    //S_InitScript();
+    ST_Message("S_InitScript\n");
+    S_InitScript();
 
-    //ST_Message("SN_InitSequenceScript: Registering sound sequences.\n");
-    //SN_InitSequenceScript();
+    ST_Message("SN_InitSequenceScript: Registering sound sequences.\n");
+    SN_InitSequenceScript();
     ST_Message("I_Init: Setting up machine state.\n");
     //I_CheckIsScreensaver();
     I_InitTimer();
     //I_InitJoystick();
-    //I_InitSound(false);
-    //I_InitMusic();
+    I_InitSound(false);
+    I_InitMusic();
 
     ST_Message("NET_Init: Init networking subsystem.\n");
     NET_Init();
     D_ConnectNetGame();
 
-    //S_Init();
-    //S_Start();
+    S_Init();
+    S_Start();
 
     ST_Message("ST_Init: Init startup screen.\n");
     ST_Init();

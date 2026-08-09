@@ -79,7 +79,7 @@ typedef struct
 
 // The set of channels available
 
-//static channel_t *channels;
+static channel_t *channels;
 
 // Maximum volume of a sound effect.
 // Internal default is max out of 0-15.
@@ -97,19 +97,19 @@ int voiceVolume = 15;
 
 // Internal volume level, ranging from 0-127
 
-//static int snd_SfxVolume;
+static int snd_SfxVolume;
 
 // haleyjd 09/11/10: [STRIFE] Internal voice volume level
 
-//static int snd_VoiceVolume;
+static int snd_VoiceVolume;
 
 // Whether songs are mus_paused
 
-//static boolean mus_paused;        
+static boolean mus_paused;        
 
 // Music currently being played
 
-//static musicinfo_t *mus_playing = NULL;
+static musicinfo_t *mus_playing = NULL;
 
 // Number of channels to use
 
@@ -121,7 +121,7 @@ int snd_channels = 8;
 // implicit in the SFX_PlayPatch API of DMX. Here we'll just ignore
 // the current voice channel when doing normal sound playing.
 
-//static int i_voicehandle = -1;
+static int i_voicehandle = -1;
 
 // haleyjd 09/11/10: [STRIFE] whether to play voices or not
 int disable_voices = 0;
@@ -134,8 +134,7 @@ int disable_voices = 0;
 // haleyjd 09/11/10: [STRIFE] Added voice volume
 //
 void S_Init(int sfxVolume, int musicVolume, int voiceVolume)
-{  
-#if 0
+{
     int i;
 
     I_SetOPLDriverVer(opl_doom_1_9);
@@ -166,18 +165,14 @@ void S_Init(int sfxVolume, int musicVolume, int voiceVolume)
     }
 
     I_AtExit(S_Shutdown, true);
-#endif
 }
 
 void S_Shutdown(void)
 {
-#if 0
     I_ShutdownSound();
     I_ShutdownMusic();
-#endif
 }
 
-#if 0
 static void S_StopChannel(int cnum)
 {
     int i;
@@ -214,7 +209,6 @@ static void S_StopChannel(int cnum)
         c->sfxinfo = NULL;
     }
 }
-#endif
 
 //
 // Per level startup code.
@@ -226,7 +220,6 @@ static void S_StopChannel(int cnum)
 //
 void S_Start(void)
 {
-#if 0
     int cnum;
     int mnum;
 
@@ -250,12 +243,10 @@ void S_Start(void)
         mnum = -30;
 
     S_ChangeMusic(gamemap + mnum, true);
-#endif
 }
 
 void S_StopSound(mobj_t *origin)
 {
-#if 0
     int cnum;
 
     for (cnum=0 ; cnum<snd_channels ; cnum++)
@@ -270,10 +261,8 @@ void S_StopSound(mobj_t *origin)
             break;
         }
     }
-#endif
 }
 
-#if 0
 //
 // S_GetChannel :
 //   If none available, return -1.  Otherwise channel #.
@@ -412,11 +401,9 @@ static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
     
     return (*vol > 0);
 }
-#endif
 
 void S_StartSound(void *origin_p, int sfx_id)
 {
-#if 0
     sfxinfo_t *sfx;
     mobj_t *origin;
     int rc;
@@ -506,7 +493,6 @@ void S_StartSound(void *origin_p, int sfx_id)
     }
 
     channels[cnum].handle = I_StartSound(sfx, cnum, volume, sep, pitch);
-#endif
 }
 
 
@@ -525,7 +511,6 @@ typedef struct voiceinfo_s
 
 #define NUMVOICECHAINS 257
 
-#if 0
 //
 // Ripped from Eternity.
 //
@@ -584,7 +569,6 @@ static voiceinfo_t *S_getVoice(const char *name, int lumpnum)
 
     return voice;
 }
-#endif
 
 //
 // I_StartVoice
@@ -597,7 +581,6 @@ static voiceinfo_t *S_getVoice(const char *name, int lumpnum)
 //
 void I_StartVoice(const char *lumpname)
 {
-#if 0
     int lumpnum;
     voiceinfo_t *voice; // choco-specific
     char lumpnamedup[9];
@@ -638,7 +621,6 @@ void I_StartVoice(const char *lumpname)
         channels[i_voicehandle].handle 
             = I_StartSound(&voice->sfx, i_voicehandle, snd_VoiceVolume, NORM_SEP, NORM_PITCH);
     }
-#endif
 }
 
 //
@@ -647,24 +629,20 @@ void I_StartVoice(const char *lumpname)
 
 void S_PauseSound(void)
 {
-#if 0
     if (mus_playing && !mus_paused)
     {
         I_PauseSong();
         mus_paused = true;
     }
-#endif
 }
 
 void S_ResumeSound(void)
 {
-#if 0
     if (mus_playing && mus_paused)
     {
         I_ResumeSong();
         mus_paused = false;
     }
-#endif
 }
 
 //
@@ -673,7 +651,6 @@ void S_ResumeSound(void)
 
 void S_UpdateSounds(mobj_t *listener)
 {
-#if 0
     int                audible;
     int                cnum;
     int                volume;
@@ -737,12 +714,10 @@ void S_UpdateSounds(mobj_t *listener)
             }
         }
     }
-#endif
 }
 
 void S_SetMusicVolume(int volume)
 {
-#if 0
     if (volume < 0 || volume > 127)
     {
         I_Error("Attempt to set music volume at %d",
@@ -750,19 +725,16 @@ void S_SetMusicVolume(int volume)
     }    
 
     I_SetMusicVolume(volume);
-#endif
 }
 
 void S_SetSfxVolume(int volume)
 {
-#if 0
     if (volume < 0 || volume > 127)
     {
         I_Error("Attempt to set sfx volume at %d", volume);
     }
 
     snd_SfxVolume = volume;
-#endif
 }
 
 //
@@ -773,14 +745,12 @@ void S_SetSfxVolume(int volume)
 //
 void S_SetVoiceVolume(int volume)
 {
-#if 0
     if (volume < 0 || volume > 127)
     {
         I_Error("Attempt to set voice volume at %d", volume);
     }
 
     snd_VoiceVolume = volume;
-#endif
 }
 
 //
@@ -789,14 +759,11 @@ void S_SetVoiceVolume(int volume)
 
 void S_StartMusic(int m_id)
 {
-#if 0
     S_ChangeMusic(m_id, false);
-#endif
 }
 
 void S_ChangeMusic(int musicnum, int looping)
 {
-#if 0
     musicinfo_t *music = NULL;
     char namebuf[9];
     void *handle;
@@ -822,7 +789,14 @@ void S_ChangeMusic(int musicnum, int looping)
     if (!music->lumpnum)
     {
         M_snprintf(namebuf, sizeof(namebuf), "d_%s", DEH_String(music->name));
-        music->lumpnum = W_GetNumForName(namebuf);
+        music->lumpnum = W_CheckNumForName(namebuf);
+    }
+
+    if (music->lumpnum < 0)
+    {
+        // The demo IWAD is missing some music lumps; stay silent
+        // rather than aborting with a fatal error.
+        return;
     }
 
     music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
@@ -832,7 +806,6 @@ void S_ChangeMusic(int musicnum, int looping)
     I_PlaySong(handle, looping);
 
     mus_playing = music;
-#endif
 }
 
 boolean S_MusicPlaying(void)
@@ -842,7 +815,6 @@ boolean S_MusicPlaying(void)
 
 void S_StopMusic(void)
 {
-#if 0
     if (mus_playing)
     {
         if (mus_paused)
@@ -856,6 +828,5 @@ void S_StopMusic(void)
         mus_playing->data = NULL;
         mus_playing = NULL;
     }
-#endif
 }
 

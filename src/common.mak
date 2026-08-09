@@ -17,7 +17,15 @@ ifeq ($(MACHINE),)
 MACHINE := $(shell uname -m)
 endif
 
-ifeq ($(findstring arm,$(MACHINE)),arm)
+ifeq ($(MACHINE),arm64)
+# 64-bit ARM on macOS (uname -m prints arm64, not aarch64)
+SYS_CPU=1
+SYS_ENDIAN=1
+ifeq ($(BITS),)
+BITS=64
+endif
+MBITS=
+else ifeq ($(findstring arm,$(MACHINE)),arm)
 SYS_CPU=1
 SYS_ENDIAN=1
 ifeq ($(BITS),)

@@ -1525,18 +1525,15 @@ static int set_video_driver(char *video_driver) {
 static int audio_action(void *_arg) {
   sdl_audio_arg_t *arg = (sdl_audio_arg_t *)_arg;
   SDL_AudioDeviceID dev = 0;
-  SDL_AudioStream *audioStream;
+  SDL_AudioStream *audioStream = NULL;
   SDL_AudioSpec desired, obtained;
   sdl_audio_t *audio;
   unsigned char *msg;
   unsigned int msglen;
-  uint32_t ptr, buflen, newlen;
-  void *buf;
-  int len1, len2, r;
+  uint32_t ptr;
+  int len1, len2, frame, r;
 
   debug(DEBUG_INFO, "SDL", "audio thread starting");
-  buflen = 0;
-  buf = NULL;
 
   for (; !thread_must_end();) {
     if ((r = thread_server_read_timeout(2000, &msg, &msglen)) == -1) {
@@ -1559,7 +1556,7 @@ static int audio_action(void *_arg) {
           break;
         }
 
-        if ((dev = SDL_GetAudioStreamDevice(audioStream)) == -1) {
+        if ((dev = SDL_GetAudioStreamDevice(audioStream)) == 0) {
           debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamDevice failed: %s", SDL_GetError());
           break;
         }
@@ -1584,50 +1581,32 @@ static int audio_action(void *_arg) {
           ptr = *((uint32_t *)msg);
           debug(DEBUG_INFO, "SDL", "received ptr %d", ptr);
           if ((audio = ptr_lock(ptr, TAG_AUDIO)) != NULL) {
+            // If this source's format differs from the stream's current input
+            // format, retarget the stream input; SDL converts and resamples
+            // to the device format internally.
+            if (audio->format != desired.format ||
+                audio->channels != desired.channels ||
+                audio->rate != desired.freq) {
+              SDL_AudioSpec inspec;
+              inspec.format = audio->format;
+              inspec.channels = audio->channels;
+              inspec.freq = audio->rate;
+              debug(DEBUG_INFO, "SDL", "set stream input format=0x%04X channels=%d rate=%d", inspec.format, inspec.channels, inspec.freq);
+              if (SDL_SetAudioStreamFormat(audioStream, &inspec, NULL) == false) {
+                debug(DEBUG_ERROR, "SDL", "SDL_SetAudioStreamFormat failed: %s", SDL_GetError());
+              } else {
+                desired = inspec;
+              }
+            }
+            frame = SDL_AUDIO_BYTESIZE(audio->format) * audio->channels;
             for (; !thread_must_end();) {
               len1 = audio->bsize * audio->channels;
               len2 = audio->getaudio(audio->buffer, len1, audio->data);
-              debug(DEBUG_INFO, "SDL", "get audio len=%d bytes", len2);
+              debug(DEBUG_TRACE, "SDL", "get audio len=%d bytes", len2);
               if (len2 <= 0) break;
-              if (audio->format != obtained.format ||
-                  audio->channels != obtained.channels ||
-                  audio->rate != obtained.freq) {
-                SDL_AudioStream *cvtstream = NULL;
-                SDL_AudioSpec inspec;
-                SDL_AudioSpec outspec;
-                inspec.format = audio->format;
-                inspec.channels = audio->channels;
-                inspec.freq = audio->rate;
-                outspec.format = obtained.format;
-                outspec.channels = obtained.channels;
-                outspec.freq = obtained.freq;
-                cvtstream = SDL_CreateAudioStream(&inspec, &outspec);
-                if (cvtstream != NULL) {
-                  const double mult = ((double)obtained.freq / (double)audio->rate);
-                  newlen = len2 * mult;
-                  debug(DEBUG_INFO, "SDL", "increasing buffer to %d bytes", newlen);
-                  buflen = newlen;
-                  buf = sys_calloc(1, buflen);
-                  if (buf) {
-                    debug(DEBUG_INFO, "SDL", "converting audio src=%d bytes, dst=%d bytes", len2, newlen);
-                    if ((SDL_PutAudioStreamData(cvtstream, audio->buffer, len2) == false) ||
-                        (SDL_FlushAudioStream(cvtstream) == false)) {
-                      debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
-                    }
-                    if (SDL_GetAudioStreamData(cvtstream, buf, buflen) == false) {
-                      debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamData failed: %s", SDL_GetError());
-                    }
-                    SDL_DestroyAudioStream(cvtstream);
-                    if (SDL_PutAudioStreamData(audioStream, buf, newlen) == false) {
-                      debug(DEBUG_ERROR, "SDL", "SDL_QueueAudio failed: %s", SDL_GetError());
-                    }
-                    sys_free(buf);
-                  }
-                }
-              } else {
-                if (SDL_PutAudioStreamData(audioStream, audio->buffer, len2) == false) {
-                  debug(DEBUG_ERROR, "SDL", "SDL_QueueAudio failed: %s", SDL_GetError());
-                }
+              len2 -= len2 % frame; // SDL rejects partial sample frames
+              if (SDL_PutAudioStreamData(audioStream, audio->buffer, len2) == false) {
+                debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
               }
               if (len2 != len1) break;
             }

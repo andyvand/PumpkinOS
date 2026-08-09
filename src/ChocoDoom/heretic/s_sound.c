@@ -43,7 +43,7 @@ boolean S_StopSoundID(int sound_id, int priority);
 
 static channel_t channel[MAX_CHANNELS];
 
-//static void *rs;          // Handle for the registered song
+static void *rs;          // Handle for the registered song
 int mus_song = -1;
 int mus_lumpnum;
 void *mus_sndptr;
@@ -57,7 +57,6 @@ int AmbChan;
 
 void S_Start(void)
 {
-#if 0
     int i;
 
     S_StartSong((gameepisode - 1) * 9 + gamemap - 1, true);
@@ -71,12 +70,10 @@ void S_Start(void)
         }
     }
     memset(channel, 0, 8 * sizeof(channel_t));
-#endif
 }
 
 void S_StartSong(int song, boolean loop)
 {
-#if 0
     int mus_len;
 
     if (song == mus_song)
@@ -100,10 +97,8 @@ void S_StartSong(int song, boolean loop)
     rs = I_RegisterSong(mus_sndptr, mus_len);
     I_PlaySong(rs, loop);       //'true' denotes endless looping.
     mus_song = song;
-#endif
 }
 
-#if 0
 static mobj_t *GetSoundListener(void)
 {
     static degenmobj_t dummy_listener;
@@ -124,11 +119,9 @@ static mobj_t *GetSoundListener(void)
         return (mobj_t *) &dummy_listener;
     }
 }
-#endif
 
 void S_StartSound(void *_origin, int sound_id)
 {
-#if 0
     mobj_t *origin = _origin;
     mobj_t *listener;
     int dist, vol;
@@ -292,12 +285,10 @@ void S_StartSound(void *_origin, int sound_id)
     {
         S_sfx[sound_id].usefulness++;
     }
-#endif
 }
 
 void S_StartSoundAtVolume(void *_origin, int sound_id, int volume)
 {
-#if 0
     mobj_t *origin = _origin;
     mobj_t *listener;
     int i;
@@ -347,12 +338,10 @@ void S_StartSoundAtVolume(void *_origin, int sound_id, int volume)
     {
         S_sfx[sound_id].usefulness++;
     }
-#endif
 }
 
 boolean S_StopSoundID(int sound_id, int priority)
 {
-#if 0
     int i;
     int lp;                     //least priority
     int found;
@@ -396,13 +385,11 @@ boolean S_StopSoundID(int sound_id, int priority)
         channel[lp].mo = NULL;
     }
     return (true);
-#endif
     return true;
 }
 
 void S_StopSound(void *_origin)
 {
-#if 0
     mobj_t *origin = _origin;
     int i;
 
@@ -423,12 +410,10 @@ void S_StopSound(void *_origin)
             }
         }
     }
-#endif
 }
 
 void S_SoundLink(mobj_t * oldactor, mobj_t * newactor)
 {
-#if 0
     int i;
 
     for (i = 0; i < snd_Channels; i++)
@@ -436,7 +421,6 @@ void S_SoundLink(mobj_t * oldactor, mobj_t * newactor)
         if (channel[i].mo == oldactor)
             channel[i].mo = newactor;
     }
-#endif
 }
 
 void S_PauseSound(void)
@@ -451,7 +435,6 @@ void S_ResumeSound(void)
 
 void S_UpdateSounds(mobj_t * listener)
 {
-#if 0
     int i, dist, vol;
     int angle;
     int sep;
@@ -527,12 +510,10 @@ void S_UpdateSounds(mobj_t * listener)
             channel[i].priority = priority;
         }
     }
-#endif
 }
 
 void S_Init(void)
 {
-#if 0
     I_SetOPLDriverVer(opl_doom2_1_666);
     soundCurve = Z_Malloc(MAX_SND_DIST, PU_STATIC, NULL);
     if (snd_Channels > 8)
@@ -551,7 +532,6 @@ void S_Init(void)
     }
 
     I_PrecacheSounds(S_sfx, NUMSFX);
-#endif
 }
 
 void S_GetChannelInfo(SoundInfo_t * s)
@@ -584,7 +564,6 @@ void S_GetChannelInfo(SoundInfo_t * s)
 
 void S_SetMaxVolume(boolean fullprocess)
 {
-#if 0
     int i;
 
     if (!fullprocess)
@@ -602,13 +581,11 @@ void S_SetMaxVolume(boolean fullprocess)
                  (snd_MaxVolume * 8)) >> 7;
         }
     }
-#endif
 }
 
-//static boolean musicPaused;
+static boolean musicPaused;
 void S_SetMusicVolume(void)
 {
-#if 0
     I_SetMusicVolume(snd_MusicVolume * 8);
     if (snd_MusicVolume == 0)
     {
@@ -620,15 +597,12 @@ void S_SetMusicVolume(void)
         musicPaused = false;
         I_ResumeSong();
     }
-#endif
 }
 
 void S_ShutDown(void)
 {
-#if 0
     I_StopSong();
     I_UnRegisterSong(rs);
     I_ShutdownSound();
-#endif
 }
 

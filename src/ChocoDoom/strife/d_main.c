@@ -856,7 +856,28 @@ void D_IdentifyVersion(void)
     // Make sure gamemode is set up correctly
     gamemode = commercial;
     gamemission = strife;
-    isregistered = true;
+
+    // strife0.wad is the demo version: no voices.wad, shorter game.
+    {
+        int p;
+
+        if ((p = M_CheckParm("-iwad")) && p < myargc - 1
+         && strstr(myargv[p + 1], "strife0") != NULL)
+        {
+            isdemoversion = true;
+            isregistered = false;
+            disable_voices = 1;
+
+            // The demo IWAD lacks the intro-sequence graphics (STARTUP0
+            // etc.), so skip the graphical intro to avoid a fatal lump
+            // lookup.
+            showintro = false;
+        }
+        else
+        {
+            isregistered = true;
+        }
+    }
 
     // Load voices.wad 
     if(isregistered)
@@ -1877,8 +1898,8 @@ void D_DoomMain (void)
     // fraggle 20130405: I_InitTimer is needed here for the netgame
     // startup. Start low-level sound init here too.
     I_InitTimer();
-    //I_InitSound(true);
-    //I_InitMusic();
+    I_InitSound(true);
+    I_InitMusic();
 
     if(devparm) // [STRIFE]
         printf ("NET_Init: Init network subsystem.\n");

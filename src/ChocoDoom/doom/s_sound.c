@@ -78,7 +78,7 @@ typedef struct
 
 // The set of channels available
 
-//static channel_t *channels;
+static channel_t *channels;
 
 // Maximum volume of a sound effect.
 // Internal default is max out of 0-15.
@@ -113,7 +113,6 @@ int snd_channels = 8;
 
 void S_Init(int sfxVolume, int musicVolume)
 {
-#if 0
     int i;
 
     if (gameversion == exe_doom_1_666)
@@ -164,16 +163,14 @@ void S_Init(int sfxVolume, int musicVolume)
     }
 
     I_AtExit(S_Shutdown, true);
-#endif
 }
 
 void S_Shutdown(void)
 {
-    //I_ShutdownSound();
-    //I_ShutdownMusic();
+    I_ShutdownSound();
+    I_ShutdownMusic();
 }
 
-#if 0
 static void S_StopChannel(int cnum)
 {
     int i;
@@ -207,7 +204,6 @@ static void S_StopChannel(int cnum)
         c->origin = NULL;
     }
 }
-#endif
 
 //
 // Per level startup code.
@@ -217,7 +213,6 @@ static void S_StopChannel(int cnum)
 
 void S_Start(void)
 {
-#if 0
     int cnum;
     int mnum;
 
@@ -266,12 +261,10 @@ void S_Start(void)
     }
 
     S_ChangeMusic(mnum, true);
-#endif
 }
 
 void S_StopSound(mobj_t *origin)
 {
-#if 0
     int cnum;
 
     for (cnum=0 ; cnum<snd_channels ; cnum++)
@@ -282,10 +275,8 @@ void S_StopSound(mobj_t *origin)
             break;
         }
     }
-#endif
 }
 
-#if 0
 //
 // S_GetChannel :
 //   If none available, return -1.  Otherwise channel #.
@@ -434,11 +425,9 @@ static int Clamp(int x)
     }
     return x;
 }
-#endif
 
 void S_StartSound(void *origin_p, int sfx_id)
 {
-#if 0
     sfxinfo_t *sfx;
     mobj_t *origin;
     int rc;
@@ -537,7 +526,6 @@ void S_StartSound(void *origin_p, int sfx_id)
 
     channels[cnum].pitch = pitch;
     channels[cnum].handle = I_StartSound(sfx, cnum, volume, sep, channels[cnum].pitch);
-#endif
 }
 
 //
@@ -568,7 +556,6 @@ void S_ResumeSound(void)
 
 void S_UpdateSounds(mobj_t *listener)
 {
-#if 0
     int                audible;
     int                cnum;
     int                volume;
@@ -632,7 +619,6 @@ void S_UpdateSounds(mobj_t *listener)
             }
         }
     }
-#endif
 }
 
 void S_SetMusicVolume(int volume)
