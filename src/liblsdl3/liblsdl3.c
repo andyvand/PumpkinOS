@@ -1600,6 +1600,15 @@ static int audio_action(void *_arg) {
             }
             frame = SDL_AUDIO_BYTESIZE(audio->format) * audio->channels;
             for (; !thread_must_end();) {
+              // SDL_PutAudioStreamData never blocks, so without a queue
+              // limit this loop would drain the app's audio callback as
+              // fast as the CPU allows and audio would play far faster
+              // than real time. Keep roughly 100 ms queued and let the
+              // device drain it before pulling more from the app.
+              if (SDL_GetAudioStreamQueued(audioStream) >= (audio->rate * frame) / 10) {
+                sys_usleep(5000);
+                continue;
+              }
               len1 = audio->bsize * audio->channels;
               len2 = audio->getaudio(audio->buffer, len1, audio->data);
               debug(DEBUG_TRACE, "SDL", "get audio len=%d bytes", len2);

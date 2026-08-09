@@ -1492,6 +1492,7 @@ static void I_OPL_PlaySong(void *handle, boolean looping)
     num_tracks = MIDI_NumTracks(file);
     running_tracks = num_tracks;
     song_looping = looping;
+    fprintf(stderr, "OPL: PlaySong handle=%p tracks=%u looping=%d\n", handle, num_tracks, looping);
 
     ticks_per_beat = MIDI_GetFileTimeDivision(file);
 
@@ -1558,6 +1559,8 @@ static void I_OPL_ResumeSong(void)
 static void I_OPL_StopSong(void)
 {
     unsigned int i;
+
+    fprintf(stderr, "OPL: StopSong (init=%d)\n", music_initialized);
 
     if (!music_initialized)
     {
@@ -1648,6 +1651,8 @@ static void *I_OPL_RegisterSong(void *data, int len)
         mem_fclose(instream);
         mem_fclose(outstream);
     }
+
+    fprintf(stderr, "OPL: RegisterSong len=%d -> %p\n", len, (void *) result);
 
     if (result == NULL)
     {

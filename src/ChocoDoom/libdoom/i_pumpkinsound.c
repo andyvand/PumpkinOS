@@ -148,7 +148,31 @@ static void FillAudio(int16_t *buffer, unsigned int nframes)
 
     // Add music on top.
 
-    OPL_Pumpkin_Render(buffer, nframes);
+    {
+        static unsigned int meter;
+        int sfx_max = 0, all_max = 0;
+
+        for (i = 0; i < nframes * 2; ++i)
+        {
+            val = buffer[i]; if (val < 0) val = -val;
+            if (val > sfx_max) sfx_max = val;
+        }
+
+        OPL_Pumpkin_Render(buffer, nframes);
+
+        for (i = 0; i < nframes * 2; ++i)
+        {
+            val = buffer[i]; if (val < 0) val = -val;
+            if (val > all_max) all_max = val;
+        }
+
+        meter += nframes;
+        if (meter >= 88200)
+        {
+            meter = 0;
+            fprintf(stderr, "METER: sfx_max=%d with_music_max=%d\n", sfx_max, all_max);
+        }
+    }
 }
 
 // Create and start the output stream if it isn't running yet.
