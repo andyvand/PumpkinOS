@@ -238,7 +238,7 @@ Boolean HasTradeableItems (SHIP *sh, Byte theSystem, Byte Operation)
 int GetRandomTradeableItem (SHIP *sh, Byte Operation)
 {
 	Boolean looping = true;
-	int i=0, j;
+	int i=0, j=0;
 	
 	while (looping && i < 10) 
 	{

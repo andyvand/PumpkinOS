@@ -38,7 +38,7 @@ void set_scale_factor(int factor, float factor_float) {
 }
 #endif
 
-#else
+#elif !CONFIG_BSP_DISPLAY_DRIVER_QEMU
 static uint16_t *rgb565_buffer = NULL;
 #endif
 
@@ -77,7 +77,7 @@ bool SDL_ESPIDF_CreateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *wind
     *pixels = surface->pixels;
     *pitch = surface->pitch;
 
-#ifndef CONFIG_IDF_TARGET_ESP32P4
+#if !defined(CONFIG_IDF_TARGET_ESP32P4) && !CONFIG_BSP_DISPLAY_DRIVER_QEMU
     // Allocate RGB565 buffer in IRAM
     rgb565_buffer = heap_caps_malloc(w * max_chunk_height * sizeof(uint16_t), MALLOC_CAP_32BIT | MALLOC_CAP_INTERNAL);
     if (!rgb565_buffer) {
@@ -175,6 +175,11 @@ IRAM_ATTR bool SDL_ESPIDF_UpdateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Wi
         // Wait for the current chunk to finish transmission
         xSemaphoreTake(lcd_semaphore, portMAX_DELAY);
     }
+#elif CONFIG_BSP_DISPLAY_DRIVER_QEMU
+    // The QEMU RGB panel reads native little-endian RGB565 straight from memory and
+    // its draw_bitmap is synchronous, so the whole surface can be sent as-is:
+    // no byte swap, no chunking, no completion semaphore.
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, surface->w, surface->h, surface->pixels));
 #else
     // Without PPA, send chunks directly from src_pixels
     for (int y = 0; y < surface->h; y += max_chunk_height) {
@@ -222,7 +227,7 @@ void SDL_ESPIDF_DestroyWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *win
         ESP_ERROR_CHECK(ppa_unregister_client(ppa_srm_handle));
         ppa_srm_handle = NULL;
     }
-#else
+#elif !CONFIG_BSP_DISPLAY_DRIVER_QEMU
     // Free the RGB565 buffer
     if (rgb565_buffer) {
         heap_caps_free(rgb565_buffer);
