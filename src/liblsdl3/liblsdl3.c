@@ -1599,15 +1599,18 @@ static int audio_action(void *_arg) {
               }
             }
             frame = SDL_AUDIO_BYTESIZE(audio->format) * audio->channels;
+            uint64_t pace_start = sys_get_clock();
+            uint64_t pace_frames = 0;
             for (; !thread_must_end();) {
-              // SDL_PutAudioStreamData never blocks, so without a queue
-              // limit this loop would drain the app's audio callback as
-              // fast as the CPU allows and audio would play far faster
-              // than real time. Keep roughly 100 ms queued and let the
-              // device drain it before pulling more from the app.
-              if (SDL_GetAudioStreamQueued(audioStream) >= (audio->rate * frame) / 10) {
-                sys_usleep(5000);
-                continue;
+              // SDL_PutAudioStreamData never blocks, so without pacing this
+              // loop would drain the app's audio callback as fast as the CPU
+              // allows and audio would play far ahead of (and faster than)
+              // real time. Feed the stream at the source sample rate, keeping
+              // at most ~100 ms of lead over the wall clock.
+              uint64_t ahead = (pace_frames * 1000000ULL) / audio->rate;
+              uint64_t elapsed = sys_get_clock() - pace_start;
+              if (ahead > elapsed + 100000) {
+                sys_usleep(ahead - elapsed - 100000);
               }
               len1 = audio->bsize * audio->channels;
               len2 = audio->getaudio(audio->buffer, len1, audio->data);
@@ -1617,6 +1620,7 @@ static int audio_action(void *_arg) {
               if (SDL_PutAudioStreamData(audioStream, audio->buffer, len2) == false) {
                 debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
               }
+              pace_frames += len2 / frame;
               if (len2 != len1) break;
             }
             ptr_unlock(ptr, TAG_AUDIO);
