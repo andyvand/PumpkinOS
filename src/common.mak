@@ -210,7 +210,11 @@ EM_AR=emar
 ifeq ($(TYPE),release)
 OPTIMIZATION=-O2
 #MUTE_DEBUG=-DMUTE_DEBUG
+ifeq ($(OSNAME),Darwin)
+STRIP=echo
+else
 STRIP=strip
+endif
 else
 OPTIMIZATION=-g
 HEAP_DEBUG=-DHEAP_DEBUG

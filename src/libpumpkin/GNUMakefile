@@ -67,10 +67,12 @@ $(PROGRAM): $(OBJS)
 	@echo Linking libpumpkin$(SOEXT)
 ifeq ($(OSNAME),Darwin)
 	@$(CC) $(OSDEFS) -dynamiclib -o $(PROGRAM) -install_name @rpath/libpumpkin$(SOEXT) -o $(PROGRAM) $(OBJS) $(EXTLIBS) -L$(BIN) -lpit
+	@$(STRIP) $(PROGRAM)
 else
 	@$(CC) $(OSDEFS) -shared -o $(PROGRAM) $(OBJS) $(EXTLIBS) -L$(BIN) -lpit -lm
-endif
 	@$(STRIP) $(PROGRAM)
+	@codesign -f -s "Developer ID Application" $(PROGRAM)
+endif
 
 systrap.o: systrap.c switch.c
 	@echo Compiling $<

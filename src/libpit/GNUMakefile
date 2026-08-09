@@ -35,13 +35,15 @@ $(PROGRAM): $(OBJS)
 	@echo Linking libpit$(SOEXT)
 ifeq ($(OSNAME),Android)
 	@$(CC) -shared -o $(PROGRAM) $(OBJS) $(EXTLIBS) $(OSLDEFS) -Wl,-soname,libpit$(SOEXT) -lm
+	@$(STRIP) $(PROGRAM)
 else ifeq ($(OSNAME),Darwin)
 	@$(CC) -dynamiclib -o $(PROGRAM) -install_name @rpath/libpit$(SOEXT) -o $(PROGRAM) $(OBJS) $(EXTLIBS) $(OSLDEFS)
+	@$(STRIP) $(PROGRAM)
+	@codesign -f -s "Developer ID Application" $(PROGRAM)
 else
 	@$(CC) -shared -o $(PROGRAM) $(OBJS) -lpthread $(EXTLIBS) -lm
 	@$(STRIP) $(PROGRAM)
 endif
-
 endif
 
 clean:

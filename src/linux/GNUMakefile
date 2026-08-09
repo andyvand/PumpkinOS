@@ -7,7 +7,11 @@ OBJS=main.o
 $(PROGRAM): $(OBJS)
 	@echo Linking pumpkin
 	@$(CC) -o $(PROGRAM) $(OBJS) -L$(BIN) -lpit -lpthread
+	@$(STRIP) $(PROGRAM)
+ifeq ($(OSNAME),Darwin)
+	@install_name_tool -add_rpath @executable_path $(PROGRAM)
 	@codesign -s "Developer ID Application" $(PROGRAM)
+endif
 
 clean:
 	@rm -f $(PROGRAM) $(OBJS)
