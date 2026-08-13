@@ -2938,6 +2938,7 @@ int pumpkin_change_display(int width, int height) {
 static int pumpkin_changed_display(pumpkin_task_t *task, task_screen_t *screen, int width, int height) {
   surface_t *surface;
   texture_t *texture, *old;
+  uint32_t bg;
   int r = -1;
 
   if ((surface = surface_create(width, height, pumpkin_module.encoding)) != NULL) {
@@ -2948,7 +2949,7 @@ static int pumpkin_changed_display(pumpkin_task_t *task, task_screen_t *screen, 
     // the zeroed area is transparent and composites over the background, which
     // is why this only shows up in the 16-bit (Android/DIA) configuration.
     // Match the initial fill done when the task surface is first created.
-    uint32_t bg = surface->color_rgb(surface->data, 255, 255, 255, 255);
+    bg = surface->color_rgb(surface->data, 255, 255, 255, 255);
     surface_rectangle(surface, 0, 0, width - 1, height - 1, 1, bg);
     surface_draw(surface, 0, 0, screen->surface, 0, 0, task->width, task->height);
     surface_destroy(screen->surface);
