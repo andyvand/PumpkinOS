@@ -24,6 +24,7 @@
 #include "i_swap.h"
 #include "i_system.h"
 #include "m_misc.h"
+#include "memio.h"
 #include "midifile.h"
 
 #define HEADER_CHUNK_ID "MThd"
@@ -109,28 +110,20 @@ static boolean CheckChunkHeader(chunk_header_t *chunk,
 
 // Read a single byte.  Returns false on error.
 
-static boolean ReadByte(byte *result, FILE *stream)
+static boolean ReadByte(byte *result, MEMFILE *stream)
 {
-    int c;
-
-    c = fgetc(stream);
-
-    if (c == EOF)
+    if (mem_fread(result, 1, 1, stream) < 1)
     {
         fprintf(stderr, "ReadByte: Unexpected end of file\n");
         return false;
     }
-    else
-    {
-        *result = (byte) c;
 
-        return true;
-    }
+    return true;
 }
 
 // Read a variable-length value.
 
-static boolean ReadVariableLength(unsigned int *result, FILE *stream)
+static boolean ReadVariableLength(unsigned int *result, MEMFILE *stream)
 {
     int i;
     byte b = 0;
@@ -166,7 +159,7 @@ static boolean ReadVariableLength(unsigned int *result, FILE *stream)
 
 // Read a byte sequence into the data buffer.
 
-static void *ReadByteSequence(unsigned int num_bytes, FILE *stream)
+static void *ReadByteSequence(unsigned int num_bytes, MEMFILE *stream)
 {
     unsigned int i;
     byte *result;
@@ -204,7 +197,7 @@ static void *ReadByteSequence(unsigned int num_bytes, FILE *stream)
 
 static boolean ReadChannelEvent(midi_event_t *event,
                                 byte event_type, boolean two_param,
-                                FILE *stream)
+                                MEMFILE *stream)
 {
     byte b = 0;
 
@@ -244,7 +237,7 @@ static boolean ReadChannelEvent(midi_event_t *event,
 // Read sysex event:
 
 static boolean ReadSysExEvent(midi_event_t *event, int event_type,
-                              FILE *stream)
+                              MEMFILE *stream)
 {
     event->event_type = event_type;
 
@@ -270,7 +263,7 @@ static boolean ReadSysExEvent(midi_event_t *event, int event_type,
 
 // Read meta event:
 
-static boolean ReadMetaEvent(midi_event_t *event, FILE *stream)
+static boolean ReadMetaEvent(midi_event_t *event, MEMFILE *stream)
 {
     byte b = 0;
 
@@ -309,7 +302,7 @@ static boolean ReadMetaEvent(midi_event_t *event, FILE *stream)
 }
 
 static boolean ReadEvent(midi_event_t *event, unsigned int *last_event_type,
-                         FILE *stream)
+                         MEMFILE *stream)
 {
     byte event_type = 0;
 
@@ -334,7 +327,7 @@ static boolean ReadEvent(midi_event_t *event, unsigned int *last_event_type,
     {
         event_type = *last_event_type;
 
-        if (fseek(stream, -1, SEEK_CUR) < 0)
+        if (mem_fseek(stream, -1, MEM_SEEK_CUR) < 0)
         {
             fprintf(stderr, "ReadEvent: Unable to seek in stream\n");
             return false;
@@ -413,12 +406,12 @@ static void FreeEvent(midi_event_t *event)
 
 // Read and check the track chunk header
 
-static boolean ReadTrackHeader(midi_track_t *track, FILE *stream)
+static boolean ReadTrackHeader(midi_track_t *track, MEMFILE *stream)
 {
     size_t records_read;
     chunk_header_t chunk_header;
 
-    records_read = fread(&chunk_header, sizeof(chunk_header_t), 1, stream);
+    records_read = mem_fread(&chunk_header, sizeof(chunk_header_t), 1, stream);
 
     if (records_read < 1)
     {
@@ -430,12 +423,12 @@ static boolean ReadTrackHeader(midi_track_t *track, FILE *stream)
         return false;
     }
 
-    track->data_len = SDL_SwapBE32(chunk_header.chunk_size);
+    track->data_len = sys_be32toh(chunk_header.chunk_size);
 
     return true;
 }
 
-static boolean ReadTrack(midi_track_t *track, FILE *stream)
+static boolean ReadTrack(midi_track_t *track, MEMFILE *stream)
 {
     midi_event_t *new_events;
     midi_event_t *event;
@@ -499,7 +492,7 @@ static void FreeTrack(midi_track_t *track)
     free(track->events);
 }
 
-static boolean ReadAllTracks(midi_file_t *file, FILE *stream)
+static boolean ReadAllTracks(midi_file_t *file, MEMFILE *stream)
 {
     unsigned int i;
 
@@ -529,12 +522,12 @@ static boolean ReadAllTracks(midi_file_t *file, FILE *stream)
 
 // Read and check the header chunk.
 
-static boolean ReadFileHeader(midi_file_t *file, FILE *stream)
+static boolean ReadFileHeader(midi_file_t *file, MEMFILE *stream)
 {
     size_t records_read;
     unsigned int format_type;
 
-    records_read = fread(&file->header, sizeof(midi_header_t), 1, stream);
+    records_read = mem_fread(&file->header, sizeof(midi_header_t), 1, stream);
 
     if (records_read < 1)
     {
@@ -542,16 +535,16 @@ static boolean ReadFileHeader(midi_file_t *file, FILE *stream)
     }
 
     if (!CheckChunkHeader(&file->header.chunk_header, HEADER_CHUNK_ID)
-     || SDL_SwapBE32(file->header.chunk_header.chunk_size) != 6)
+     || sys_be32toh(file->header.chunk_header.chunk_size) != 6)
     {
         fprintf(stderr, "ReadFileHeader: Invalid MIDI chunk header! "
                         "chunk_size=%i\n",
-                        SDL_SwapBE32(file->header.chunk_header.chunk_size));
+                        sys_be32toh(file->header.chunk_header.chunk_size));
         return false;
     }
 
-    format_type = SDL_SwapBE16(file->header.format_type);
-    file->num_tracks = SDL_SwapBE16(file->header.num_tracks);
+    format_type = sys_be16toh(file->header.format_type);
+    file->num_tracks = sys_be16toh(file->header.num_tracks);
 
     if ((format_type != 0 && format_type != 1)
      || file->num_tracks < 1)
@@ -581,10 +574,14 @@ void MIDI_FreeFile(midi_file_t *file)
     free(file);
 }
 
-midi_file_t *MIDI_LoadFile(char *filename)
+// Parse a complete MIDI file image held in memory. The parsed
+// structures copy any data they need, so the caller may free the
+// buffer as soon as this returns.
+
+midi_file_t *MIDI_LoadFile(void *buf, unsigned long buflen)
 {
     midi_file_t *file;
-    FILE *stream;
+    MEMFILE *stream;
 
     file = malloc(sizeof(midi_file_t));
 
@@ -598,13 +595,13 @@ midi_file_t *MIDI_LoadFile(char *filename)
     file->buffer = NULL;
     file->buffer_size = 0;
 
-    // Open file
+    // Open a memory stream over the buffer
 
-    stream = M_fopen(filename, "rb");
+    stream = mem_fopen_read(buf, buflen);
 
     if (stream == NULL)
     {
-        fprintf(stderr, "MIDI_LoadFile: Failed to open '%s'\n", filename);
+        fprintf(stderr, "MIDI_LoadFile: Failed to open stream\n");
         MIDI_FreeFile(file);
         return NULL;
     }
@@ -613,7 +610,7 @@ midi_file_t *MIDI_LoadFile(char *filename)
 
     if (!ReadFileHeader(file, stream))
     {
-        fclose(stream);
+        mem_fclose(stream);
         MIDI_FreeFile(file);
         return NULL;
     }
@@ -622,12 +619,12 @@ midi_file_t *MIDI_LoadFile(char *filename)
 
     if (!ReadAllTracks(file, stream))
     {
-        fclose(stream);
+        mem_fclose(stream);
         MIDI_FreeFile(file);
         return NULL;
     }
 
-    fclose(stream);
+    mem_fclose(stream);
 
     return file;
 }
@@ -697,7 +694,7 @@ int MIDI_GetNextEvent(midi_track_iter_t *iter, midi_event_t **event)
 
 unsigned int MIDI_GetFileTimeDivision(midi_file_t *file)
 {
-    short result = SDL_SwapBE16(file->header.time_division);
+    short result = sys_be16toh(file->header.time_division);
 
     // Negative time division indicates SMPTE time and must be handled
     // differently.

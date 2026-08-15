@@ -407,6 +407,13 @@ void D_DoomMain(void)
 
     I_PrintBanner(PACKAGE_STRING);
 
+    // [crispy] set high resolution rendering before any graphics
+    // subsystem is initialized
+    if (M_CheckParm("-hires"))
+    {
+        crispy->hires = 1;
+    }
+
     // Initialize subsystems
 
     ST_Message("V_Init: allocate screens.\n");
@@ -641,12 +648,6 @@ void D_DoomMain(void)
         {
             H2_StartTitle();
         }
-    }
-
-    p = M_CheckParm("-hires");
-    if (p)
-    {
-         crispy->hires = 1;
     }
 
     H2_GameLoop();              // Never returns

@@ -1570,6 +1570,13 @@ void D_DoomMain (void)
 
     I_AtExit(D_Endoom, false);
 
+    // [crispy] set high resolution rendering before any graphics
+    // subsystem is initialized
+    if (M_CheckParm("-hires"))
+    {
+        crispy->hires = 1;
+    }
+
     // haleyjd 20110206 [STRIFE]: -nograph parameter
 
     //!
@@ -2339,12 +2346,6 @@ void D_DoomMain (void)
     if (using_text_startup)
     {
         TXT_Shutdown();
-    }
-
-    p = M_CheckParm("-hires");
-    if (p)
-    {
-         crispy->hires = 1;
     }
 
     D_DoomLoop ();  // never returns

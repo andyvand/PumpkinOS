@@ -905,6 +905,13 @@ void D_DoomMain(void)
 
     I_AtExit(D_Endoom, false);
 
+    // [crispy] set high resolution rendering before any graphics
+    // subsystem is initialized
+    if (M_CheckParm("-hires"))
+    {
+        crispy->hires = 1;
+    }
+
     //!
     // @category game
     // @vanilla
@@ -1450,12 +1457,6 @@ void D_DoomMain(void)
     }
 
     finishStartup();
-
-    p = M_CheckParm("-hires");
-    if (p)
-    {
-         crispy->hires = 1;
-    }
 
     D_DoomLoop();               // Never returns
 }

@@ -1414,6 +1414,13 @@ void D_DoomMain (void)
 
     I_AtExit(D_Endoom, false);
 
+    // [crispy] set high resolution rendering before any graphics
+    // subsystem is initialized
+    if (M_CheckParm("-hires"))
+    {
+        M_CrispySetHires(1);
+    }
+
     // print banner
 
     I_PrintBanner(PACKAGE_STRING);
@@ -2077,8 +2084,8 @@ void D_DoomMain (void)
     //I_CheckIsScreensaver();
     I_InitTimer();
     //I_InitJoystick();
-    //I_InitSound(true);
-    //I_InitMusic();
+    I_InitSound(true);
+    I_InitMusic();
 
     // [crispy] check for SSG resources
     crispy->havessg =
@@ -2377,12 +2384,6 @@ void D_DoomMain (void)
 	    G_InitNew (startskill, startepisode, startmap);
 	else
 	    D_StartTitle ();                // start up intro loop
-    }
-
-    p = M_CheckParm("-hires");
-    if (p)
-    {
-         M_CrispySetHires(1);
     }
 
     D_DoomLoop ();  // never returns

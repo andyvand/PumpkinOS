@@ -228,18 +228,26 @@ void I_FinishUpdate (void)
 {
   uint16_t *line_out;
   uint8_t *line_in;
-  uint32_t i, n;
+  int sw, sh, w, h, x, y;
 
   if (!initialized) return;
 
-  line_in  = I_VideoBuffer;
-  line_out = DG_GetScreenBuffer();
+  // the host screen buffer is one full screen-width line per row; the
+  // rendered frame may be narrower (or, after a hires toggle on a small
+  // screen, wider) than the screen, so center and clip
+  DG_GetScreenSize(&sw, &sh);
+  w = SCREENWIDTH < sw ? SCREENWIDTH : sw;
+  h = SCREENHEIGHT < sh ? SCREENHEIGHT : sh;
 
-  n = SCREENWIDTH * SCREENHEIGHT;
-  for (i = 0; i < n; i++) {
-    *line_out = colors[*line_in].c16;
-    line_in++;
-    line_out++;
+  line_in  = I_VideoBuffer + (SCREENWIDTH - w) / 2;
+  line_out = DG_GetScreenBuffer() + (sw - w) / 2;
+
+  for (y = 0; y < h; y++) {
+    for (x = 0; x < w; x++) {
+      line_out[x] = colors[line_in[x]].c16;
+    }
+    line_in += SCREENWIDTH;
+    line_out += sw;
   }
 
   DG_DrawFrame();
@@ -447,6 +455,28 @@ void I_InitGraphics(void)
 
 void I_ReInitGraphics (int reinit)
 {
+    // [crispy] re-set rendering resolution and re-create the framebuffer
+    if (reinit & REINIT_FRAMEBUFFERS)
+    {
+        int sw, sh;
+
+        I_GetScreenDimensions();
+
+        // [crispy] re-initialize resolution-agnostic patch drawing
+        V_Init();
+
+        free(I_VideoBuffer);
+        I_VideoBuffer = malloc(SCREENWIDTH * SCREENHEIGHT * sizeof(*I_VideoBuffer));
+        memset(I_VideoBuffer, 0, SCREENWIDTH * SCREENHEIGHT * sizeof(*I_VideoBuffer));
+
+        // point the drawing code at the new buffer
+        V_RestoreBuffer();
+
+        // clear the host buffer so borders from the previous resolution
+        // do not linger on screen
+        DG_GetScreenSize(&sw, &sh);
+        memset(DG_GetScreenBuffer(), 0, sw * sh * sizeof(uint16_t));
+    }
 }
 
 // [crispy] take screenshot of the rendered image

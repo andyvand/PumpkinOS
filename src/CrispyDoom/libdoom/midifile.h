@@ -186,7 +186,7 @@ typedef struct
 
 // Load a MIDI file.
 
-midi_file_t *MIDI_LoadFile(char *filename);
+midi_file_t *MIDI_LoadFile(void *buf, unsigned long buflen);
 
 // Free a MIDI file.
 

@@ -2272,7 +2272,10 @@ int pumpkin_launcher(char *name, int width, int height) {
 
   texture = pumpkin_module.wp->create_texture(pumpkin_module.w, width, height);
 
-  if (pumpkin_local_init(0, 0, texture, 0, name, width, height, 0, 0, 0, 0) == 0) {
+  // enableSound=1: the single-app launcher must not hard-disable sound for the
+  // task, otherwise SndStreamStart always fails (the global pEnableSound
+  // preference still gates audio via pumpkin_sound_enabled)
+  if (pumpkin_local_init(0, 0, texture, 0, name, width, height, 0, 1, 0, 0) == 0) {
     dbID = DmFindDatabase(0, name);
     DmDatabaseInfo(0, dbID, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator);
 

@@ -58,7 +58,7 @@
 // Stereo separation
 
 #define S_STEREO_SWING (96 * FRACUNIT)
-//static int stereo_swing;
+static int stereo_swing;
 
 #define NORM_PRIORITY 64
 #define NORM_SEP 128
@@ -80,8 +80,8 @@ typedef struct
 
 // The set of channels available
 
-//static channel_t *channels;
-//static degenmobj_t *sobjs;
+static channel_t *channels;
+static degenmobj_t *sobjs;
 
 // Maximum volume of a sound effect.
 // Internal default is max out of 0-15.
@@ -94,15 +94,15 @@ int musicVolume = 8;
 
 // Internal volume level, ranging from 0-127
 
-//static int snd_SfxVolume;
+static int snd_SfxVolume;
 
 // Whether songs are mus_paused
 
-//static boolean mus_paused;
+static boolean mus_paused;
 
 // Music currently being played
 
-//static musicinfo_t *mus_playing = NULL;
+static musicinfo_t *mus_playing = NULL;
 
 // Number of channels to use
 
@@ -111,7 +111,6 @@ int snd_channels = 8;
 // [crispy] add support for alternative music tracks for Final Doom's
 // TNT and Plutonia as introduced in DoomMetalVol5.wad
 
-#if 0
 typedef struct {
 	const char *const from;
 	const char *const to;
@@ -231,7 +230,6 @@ static void S_RegisterAltMusic()
 		DEH_AddStringReplacement(altmusic->from, altmusic->to);
 	}
 }
-#endif
 
 //
 // Initializes sound stuff, including volume
@@ -241,7 +239,6 @@ static void S_RegisterAltMusic()
 
 void S_Init(int sfxVolume, int musicVolume)
 {
-#if 0
     int i;
 
     if (gameversion == exe_doom_1_666)
@@ -311,18 +308,14 @@ void S_Init(int sfxVolume, int musicVolume)
 
     // [crispy] handle stereo separation for mono-sfx and flipped levels
     S_UpdateStereoSeparation();
-#endif
 }
 
 void S_Shutdown(void)
 {
-#if 0
     I_ShutdownSound();
     I_ShutdownMusic();
-#endif
 }
 
-#if 0
 static void S_StopChannel(int cnum)
 {
     int i;
@@ -356,18 +349,16 @@ static void S_StopChannel(int cnum)
         c->origin = NULL;
     }
 }
-#endif
 
 //
 // Per level startup code.
 // Kills playing sounds at start of level,
 //  determines music if any, changes music.
 //
-//static short prevmap = -1;
+static short prevmap = -1;
 
 void S_Start(void)
 {
-#if 0
     int cnum;
     int mnum;
 
@@ -459,12 +450,10 @@ void S_Start(void)
     memset(&musinfo, 0, sizeof(musinfo));
 
     S_ChangeMusic(mnum, true);
-#endif
 }
 
 void S_StopSound(mobj_t *origin)
 {
-#if 0
     int cnum;
 
     for (cnum=0 ; cnum<snd_channels ; cnum++)
@@ -475,7 +464,6 @@ void S_StopSound(mobj_t *origin)
             break;
         }
     }
-#endif
 }
 
 // [crispy] removed map objects may finish their sounds
@@ -487,7 +475,6 @@ void S_StopSound(mobj_t *origin)
 // original implementation idea: https://www.doomworld.com/vb/post/1585325
 void S_UnlinkSound(mobj_t *origin)
 {
-#if 0
     int cnum;
 
     if (origin)
@@ -505,7 +492,6 @@ void S_UnlinkSound(mobj_t *origin)
             }
         }
     }
-#endif
 }
 
 //
@@ -513,7 +499,6 @@ void S_UnlinkSound(mobj_t *origin)
 //   If none available, return -1.  Otherwise channel #.
 //
 
-#if 0
 static int S_GetChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
 {
     // channel number to use
@@ -660,11 +645,9 @@ static int Clamp(int x)
     }
     return x;
 }
-#endif
 
 void S_StartSound(void *origin_p, int sfx_id)
 {
-#if 0
     sfxinfo_t *sfx;
     mobj_t *origin;
     int rc;
@@ -771,12 +754,10 @@ void S_StartSound(void *origin_p, int sfx_id)
 
     channels[cnum].pitch = pitch;
     channels[cnum].handle = I_StartSound(sfx, cnum, volume, sep, channels[cnum].pitch);
-#endif
 }
 
 void S_StartSoundOnce (void *origin_p, int sfx_id)
 {
-#if 0
     int cnum;
     const sfxinfo_t *const sfx = &S_sfx[sfx_id];
 
@@ -790,13 +771,11 @@ void S_StartSoundOnce (void *origin_p, int sfx_id)
     }
 
     S_StartSound(origin_p, sfx_id);
-#endif
 }
 
 // [NS] Try to play an optional sound.
 void S_StartSoundOptional(void *origin_p, int sfx_id, int old_sfx_id)
 {
-#if 0
     if (I_GetSfxLumpNum(&S_sfx[sfx_id]) != -1)
     {
         S_StartSound(origin_p, sfx_id);
@@ -805,7 +784,6 @@ void S_StartSoundOptional(void *origin_p, int sfx_id, int old_sfx_id)
     {
         S_StartSound(origin_p, old_sfx_id);
     }
-#endif
 }
 
 //
@@ -814,24 +792,20 @@ void S_StartSoundOptional(void *origin_p, int sfx_id, int old_sfx_id)
 
 void S_PauseSound(void)
 {
-#if 0
     if (mus_playing && !mus_paused)
     {
         I_PauseSong();
         mus_paused = true;
     }
-#endif
 }
 
 void S_ResumeSound(void)
 {
-#if 0
     if (mus_playing && mus_paused)
     {
         I_ResumeSong();
         mus_paused = false;
     }
-#endif
 }
 
 //
@@ -840,7 +814,6 @@ void S_ResumeSound(void)
 
 void S_UpdateSounds(mobj_t *listener)
 {
-#if 0
     int                audible;
     int                cnum;
     int                volume;
@@ -904,12 +877,10 @@ void S_UpdateSounds(mobj_t *listener)
             }
         }
     }
-#endif
 }
 
 void S_SetMusicVolume(int volume)
 {
-#if 0
     if (volume < 0 || volume > 127)
     {
         I_Error("Attempt to set music volume at %d",
@@ -928,19 +899,16 @@ void S_SetMusicVolume(int volume)
     }
 
     I_SetMusicVolume(volume);
-#endif
 }
 
 void S_SetSfxVolume(int volume)
 {
-#if 0
     if (volume < 0 || volume > 127)
     {
         I_Error("Attempt to set sfx volume at %d", volume);
     }
 
     snd_SfxVolume = volume;
-#endif
 }
 
 //
@@ -949,14 +917,11 @@ void S_SetSfxVolume(int volume)
 
 void S_StartMusic(int m_id)
 {
-#if 0
     S_ChangeMusic(m_id, false);
-#endif
 }
 
 void S_ChangeMusic(int musicnum, int looping)
 {
-#if 0
     musicinfo_t *music = NULL;
     char namebuf[9];
     void *handle;
@@ -1057,14 +1022,12 @@ void S_ChangeMusic(int musicnum, int looping)
 	musinfo.items[0] = music->lumpnum;
 	S_music[mus_musinfo].lumpnum = -1;
     }
-#endif
 }
 
 // [crispy] adapted from prboom-plus/src/s_sound.c:552-590
 
 void S_ChangeMusInfoMusic (int lumpnum, int looping)
 {
-#if 0
     musicinfo_t *music;
 
     // [crispy] restarting the map plays the original music
@@ -1108,20 +1071,15 @@ void S_ChangeMusInfoMusic (int lumpnum, int looping)
     mus_playing = music;
 
     musinfo.current_item = lumpnum;
-#endif
 }
 
 boolean S_MusicPlaying(void)
 {
-#if 0
     return I_MusicIsPlaying();
-#endif
-    return false;
 }
 
 void S_StopMusic(void)
 {
-#if 0
     if (mus_playing)
     {
         if (mus_paused)
@@ -1135,13 +1093,11 @@ void S_StopMusic(void)
         mus_playing->data = NULL;
         mus_playing = NULL;
     }
-#endif
 }
 
 // [crispy] variable number of sound channels
 void S_UpdateSndChannels (int choice)
 {
-#if 0
 	int i;
 
 	for (i = 0; i < snd_channels; i++)
@@ -1177,12 +1133,10 @@ void S_UpdateSndChannels (int choice)
 	{
 		channels[i].sfxinfo = 0;
 	}
-#endif
 }
 
 void S_UpdateStereoSeparation (void)
 {
-#if 0
 	// [crispy] play all sound effects in mono
 	if (crispy->soundmono)
 	{
@@ -1197,5 +1151,4 @@ void S_UpdateStereoSeparation (void)
 	{
 		stereo_swing = S_STEREO_SWING;
 	}
-#endif
 }

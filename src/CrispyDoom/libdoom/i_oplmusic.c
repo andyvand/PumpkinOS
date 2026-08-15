@@ -349,7 +349,7 @@ static unsigned int last_perc_count;
 // Configuration file variable, containing the port number for the
 // adlib chip.
 
-char *snd_dmxoption = "-opl3"; // [crispy] default to OPL3 emulation
+char *snd_dmxoption = "";
 int opl_io_port = 0x388;
 
 // If true, OPL sound channels are reversed to their correct arrangement
@@ -1492,6 +1492,7 @@ static void I_OPL_PlaySong(void *handle, boolean looping)
     num_tracks = MIDI_NumTracks(file);
     running_tracks = num_tracks;
     song_looping = looping;
+    fprintf(stderr, "OPL: PlaySong handle=%p tracks=%u looping=%d\n", handle, num_tracks, looping);
 
     ticks_per_beat = MIDI_GetFileTimeDivision(file);
 
@@ -1559,6 +1560,8 @@ static void I_OPL_StopSong(void)
 {
     unsigned int i;
 
+    fprintf(stderr, "OPL: StopSong (init=%d)\n", music_initialized);
+
     if (!music_initialized)
     {
         return;
@@ -1605,36 +1608,16 @@ static void I_OPL_UnRegisterSong(void *handle)
     }
 }
 
-static boolean ConvertMus(byte *musdata, int len, char *filename)
+// Determine whether memory block is a .mid file
+
+static boolean IsMid(byte *mem, int len)
 {
-    MEMFILE *instream;
-    MEMFILE *outstream;
-    void *outbuf;
-    size_t outbuf_len;
-    int result;
-
-    instream = mem_fopen_read(musdata, len);
-    outstream = mem_fopen_write();
-
-    result = mus2mid(instream, outstream);
-
-    if (result == 0)
-    {
-        mem_get_buf(outstream, &outbuf, &outbuf_len);
-
-        M_WriteFile(filename, outbuf, outbuf_len);
-    }
-
-    mem_fclose(instream);
-    mem_fclose(outstream);
-
-    return result;
+    return len > 4 && !memcmp(mem, "MThd", 4);
 }
 
 static void *I_OPL_RegisterSong(void *data, int len)
 {
-    midi_file_t *result;
-    char *filename;
+    midi_file_t *result = NULL;
 
     if (!music_initialized)
     {
@@ -1644,31 +1627,37 @@ static void *I_OPL_RegisterSong(void *data, int len)
     // MUS files begin with "MUS"
     // Reject anything which doesnt have this signature
 
-    filename = M_TempFile("doom.mid");
-
-    // [crispy] remove MID file size limit
-    if (IsMid(data, len) /* && len < MAXMIDLENGTH */)
+    if (IsMid(data, len))
     {
-        M_WriteFile(filename, data, len);
+        result = MIDI_LoadFile(data, len);
     }
     else
     {
-        // Assume a MUS file and try to convert
+        MEMFILE *instream;
+        MEMFILE *outstream;
+        void *outbuf;
+        size_t outbuf_len;
+ 
+        result = NULL;
+        instream = mem_fopen_read(data, len);
+        outstream = mem_fopen_write();
+ 
+        if (mus2mid(instream, outstream) == 0)
+        {
+            mem_get_buf(outstream, &outbuf, &outbuf_len);
+            result = MIDI_LoadFile(outbuf, outbuf_len);
+        }
 
-        ConvertMus(data, len, filename);
+        mem_fclose(instream);
+        mem_fclose(outstream);
     }
 
-    result = MIDI_LoadFile(filename);
+    fprintf(stderr, "OPL: RegisterSong len=%d -> %p\n", len, (void *) result);
 
     if (result == NULL)
     {
         fprintf(stderr, "I_OPL_RegisterSong: Failed to load MID.\n");
     }
-
-    // remove file now
-
-    M_remove(filename);
-    free(filename);
 
     return result;
 }

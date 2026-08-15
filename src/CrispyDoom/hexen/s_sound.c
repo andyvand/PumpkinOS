@@ -33,6 +33,7 @@
 #define DEFAULT_ARCHIVEPATH     "o:\\sound\\archive\\"
 
 void S_ShutDown(void);
+boolean S_StopSoundID(int sound_id, int priority);
 
 // If true, CD music playback is enabled (snd_musicdevice == SNDDEVICE_CD
 // and CD initialization succeeded).
@@ -40,14 +41,14 @@ boolean cdmusic;
 
 // Track number of a track to play explicitly chosen by the
 // player using cheats. A value of zero means no track chosen:
-//static int cd_custom_track = 0;
+static int cd_custom_track = 0;
 
 // Currently playing track:
-//static int cd_current_track = 0;
+static int cd_current_track = 0;
 
 // Time (MS) at which the currently-playing CD track will finish playing
 // and should be looped. Zero if we are not currently playing a track:
-//static int cd_track_end_time = 0;
+static int cd_track_end_time = 0;
 
 /*
 ===============================================================================
@@ -66,12 +67,12 @@ boolean cdmusic;
 //byte *soundCurve;
 
 
-//static channel_t Channel[MAX_CHANNELS];
-//static void *RegisteredSong;      //the current registered song.
-//static boolean MusicPaused;
-//static int Mus_Song = -1;
-//static byte *Mus_SndPtr;
-//static byte *SoundCurve;
+static channel_t Channel[MAX_CHANNELS];
+static void *RegisteredSong;      //the current registered song.
+static boolean MusicPaused;
+static int Mus_Song = -1;
+static byte *Mus_SndPtr;
+static byte *SoundCurve;
 
 int snd_MaxVolume = 10;                // maximum volume for sound
 int snd_MusicVolume = 10;              // maximum volume for music
@@ -87,11 +88,10 @@ int snd_Channels = 8;
 
 void S_Start(void)
 {
-    //S_StopAllSound();
-    //S_StartSong(gamemap, true);
+    S_StopAllSound();
+    S_StartSong(gamemap, true);
 }
 
-#if 0
 //==========================================================================
 //
 // Returns true if we are playing a looping CD track and it is time to
@@ -112,6 +112,7 @@ static boolean ShouldRestartCDTrack(void)
 
 static boolean StartCDTrack(int track, boolean loop)
 {
+#if 0
     // Already playing? If so, don't bother.
 
     if (track == cd_current_track && !ShouldRestartCDTrack())
@@ -135,9 +136,9 @@ static boolean StartCDTrack(int track, boolean loop)
         cd_track_end_time = 0;
     }
 
+#endif
     return true;
 }
-#endif
 
 //==========================================================================
 //
@@ -147,7 +148,6 @@ static boolean StartCDTrack(int track, boolean loop)
 
 void S_StartSong(int song, boolean loop)
 {
-#if 0
     char *songLump;
     int lumpnum;
     int length;
@@ -196,7 +196,6 @@ void S_StartSong(int song, boolean loop)
 
         W_ReleaseLumpNum(lumpnum);
     }
-#endif
 }
 
 //==========================================================================
@@ -209,7 +208,6 @@ void S_StartSong(int song, boolean loop)
 
 boolean S_StartCustomCDTrack(int tracknum)
 {
-#if 0
     boolean result;
 
     result = StartCDTrack(tracknum, true);
@@ -220,8 +218,6 @@ boolean S_StartCustomCDTrack(int tracknum)
     }
 
     return result;
-#endif
-    return false;
 }
 
 //==========================================================================
@@ -232,15 +228,12 @@ boolean S_StartCustomCDTrack(int tracknum)
 
 int S_GetCurrentCDTrack(void)
 {
-#if 0
     if (!cdmusic || cd_current_track == 0)
     {
         return -1;
     }
 
     return cd_current_track;
-#endif
-    return -1;
 }
 
 //==========================================================================
@@ -251,7 +244,6 @@ int S_GetCurrentCDTrack(void)
 
 void S_StartSongName(const char *songLump, boolean loop)
 {
-#if 0
     int lumpnum;
     int cdTrack;
     int length;
@@ -314,7 +306,6 @@ void S_StartSongName(const char *songLump, boolean loop)
         W_ReleaseLumpNum(lumpnum);
         Mus_Song = -1;
     }
-#endif
 }
 
 //==========================================================================
@@ -325,7 +316,6 @@ void S_StartSongName(const char *songLump, boolean loop)
 
 int S_GetSoundID(char *name)
 {
-#if 0
     int i;
 
     for (i = 0; i < NUMSFX; i++)
@@ -335,8 +325,6 @@ int S_GetSoundID(char *name)
             return i;
         }
     }
-    return 0;
-#endif
     return 0;
 }
 
@@ -348,10 +336,9 @@ int S_GetSoundID(char *name)
 
 void S_StartSound(mobj_t * origin, int sound_id)
 {
-    //S_StartSoundAtVolume(origin, sound_id, 127);
+    S_StartSoundAtVolume(origin, sound_id, 127);
 }
 
-#if 0
 static mobj_t *GetSoundListener(void)
 {
     static degenmobj_t dummy_listener;
@@ -372,7 +359,6 @@ static mobj_t *GetSoundListener(void)
         return (mobj_t *) &dummy_listener;
     }
 }
-#endif
 
 //==========================================================================
 //
@@ -382,7 +368,6 @@ static mobj_t *GetSoundListener(void)
 
 void S_StartSoundAtVolume(mobj_t * origin, int sound_id, int volume)
 {
-#if 0
     mobj_t *listener;
     int dist, vol;
     int i;
@@ -425,13 +410,10 @@ void S_StartSoundAtVolume(mobj_t * origin, int sound_id, int volume)
     }
     priority = S_sfx[sound_id].priority;
     priority *= (PRIORITY_MAX_ADJUST - (dist / DIST_ADJUST));
-    #if 0
-    // TODO
     if (!S_StopSoundID(sound_id, priority))
     {
         return;                 // other sounds have greater priority
     }
-    #endif
     for (i = 0; i < snd_Channels; i++)
     {
         if (origin->player)
@@ -545,7 +527,6 @@ void S_StartSoundAtVolume(mobj_t * origin, int sound_id, int volume)
     {
         S_sfx[sound_id].usefulness++;
     }
-#endif
 }
 
 //==========================================================================
@@ -556,7 +537,6 @@ void S_StartSoundAtVolume(mobj_t * origin, int sound_id, int volume)
 
 boolean S_StopSoundID(int sound_id, int priority)
 {
-#if 0
     int i;
     int lp;                     //least priority
     int found;
@@ -600,8 +580,6 @@ boolean S_StopSoundID(int sound_id, int priority)
         Channel[lp].mo = NULL;
     }
     return (true);
-#endif
-    return true;
 }
 
 //==========================================================================
@@ -612,14 +590,13 @@ boolean S_StopSoundID(int sound_id, int priority)
 
 void S_StopSound(mobj_t * origin)
 {
-#if 0
     int i;
 
     for (i = 0; i < snd_Channels; i++)
     {
         if (Channel[i].mo == origin)
         {
-            I_StopSound(Channel[i].handle);
+            //I_StopSound(Channel[i].handle);
             if (S_sfx[Channel[i].sound_id].usefulness > 0)
             {
                 S_sfx[Channel[i].sound_id].usefulness--;
@@ -628,7 +605,6 @@ void S_StopSound(mobj_t * origin)
             Channel[i].mo = NULL;
         }
     }
-#endif
 }
 
 //==========================================================================
@@ -639,7 +615,6 @@ void S_StopSound(mobj_t * origin)
 
 void S_StopAllSound(void)
 {
-#if 0
     int i;
 
     //stop all sounds
@@ -647,11 +622,10 @@ void S_StopAllSound(void)
     {
         if (Channel[i].handle)
         {
-            S_StopSound(Channel[i].mo);
+            //S_StopSound(Channel[i].mo);
         }
     }
     memset(Channel, 0, snd_Channels * sizeof(channel_t));
-#endif
 }
 
 //==========================================================================
@@ -662,7 +636,6 @@ void S_StopAllSound(void)
 
 void S_SoundLink(mobj_t * oldactor, mobj_t * newactor)
 {
-#if 0
     int i;
 
     for (i = 0; i < snd_Channels; i++)
@@ -670,7 +643,6 @@ void S_SoundLink(mobj_t * oldactor, mobj_t * newactor)
         if (Channel[i].mo == oldactor)
             Channel[i].mo = newactor;
     }
-#endif
 }
 
 //==========================================================================
@@ -681,16 +653,14 @@ void S_SoundLink(mobj_t * oldactor, mobj_t * newactor)
 
 void S_PauseSound(void)
 {
-#if 0
     if (cdmusic)
     {
-        I_CDMusStop();
+        //I_CDMusStop();
     }
     else
     {
-        I_PauseSong();
+        //I_PauseSong();
     }
-#endif
 }
 
 //==========================================================================
@@ -701,16 +671,14 @@ void S_PauseSound(void)
 
 void S_ResumeSound(void)
 {
-#if 0
     if (cdmusic)
     {
-        I_CDMusResume();
+        //I_CDMusResume();
     }
     else
     {
-        I_ResumeSong();
+        //I_ResumeSong();
     }
-#endif
 }
 
 //==========================================================================
@@ -721,7 +689,6 @@ void S_ResumeSound(void)
 
 void S_UpdateSounds(mobj_t * listener)
 {
-#if 0
     int i, dist, vol;
     int angle;
     int sep;
@@ -808,7 +775,6 @@ void S_UpdateSounds(mobj_t * listener)
             Channel[i].priority = priority;
         }
     }
-#endif
 }
 
 //==========================================================================
@@ -819,8 +785,7 @@ void S_UpdateSounds(mobj_t * listener)
 
 void S_Init(void)
 {
-#if 0
-    I_SetOPLDriverVer(opl_doom2_1_666);
+    //I_SetOPLDriverVer(opl_doom2_1_666);
     SoundCurve = W_CacheLumpName("SNDCURVE", PU_STATIC);
 //      SoundCurve = Z_Malloc(MAX_SND_DIST, PU_STATIC, NULL);
 
@@ -850,6 +815,7 @@ void S_Init(void)
 
     I_PrecacheSounds(S_sfx, NUMSFX);
 
+#if 0
     // Attempt to setup CD music
     if (snd_musicdevice == SNDDEVICE_CD)
     {
@@ -886,7 +852,6 @@ void S_Init(void)
 
 void S_GetChannelInfo(SoundInfo_t * s)
 {
-#if 0
     int i;
     ChanInfo_t *c;
 
@@ -911,7 +876,6 @@ void S_GetChannelInfo(SoundInfo_t * s)
             c->distance = 0;
         }
     }
-#endif
 }
 
 //==========================================================================
@@ -922,7 +886,6 @@ void S_GetChannelInfo(SoundInfo_t * s)
 
 boolean S_GetSoundPlayingInfo(mobj_t * mobj, int sound_id)
 {
-#if 0
     int i;
 
     for (i = 0; i < snd_Channels; i++)
@@ -935,7 +898,6 @@ boolean S_GetSoundPlayingInfo(mobj_t * mobj, int sound_id)
             }
         }
     }
-#endif
     return false;
 }
 
@@ -947,15 +909,7 @@ boolean S_GetSoundPlayingInfo(mobj_t * mobj, int sound_id)
 
 void S_SetMusicVolume(void)
 {
-#if 0
-    if (cdmusic)
-    {
-        I_CDMusSetVolume(snd_MusicVolume * 16); // 0-255
-    }
-    else
-    {
-        I_SetMusicVolume(snd_MusicVolume * 8);
-    }
+    I_SetMusicVolume(snd_MusicVolume * 8);
     if (snd_MusicVolume == 0)
     {
         if (!cdmusic)
@@ -972,7 +926,6 @@ void S_SetMusicVolume(void)
         }
         MusicPaused = false;
     }
-#endif
 }
 
 //==========================================================================
@@ -983,15 +936,13 @@ void S_SetMusicVolume(void)
 
 void S_ShutDown(void)
 {
-#if 0
     I_StopSong();
     I_UnRegisterSong(RegisteredSong);
     I_ShutdownSound();
     if (cdmusic)
     {
-        I_CDMusStop();
+        //I_CDMusStop();
     }
-#endif
 }
 
 //==========================================================================
@@ -1002,7 +953,6 @@ void S_ShutDown(void)
 
 void S_InitScript(void)
 {
-#if 0
     int i;
 
     SC_OpenLump("sndinfo");
@@ -1061,13 +1011,11 @@ void S_InitScript(void)
             M_StringCopy(S_sfx[i].name, "default", sizeof(S_sfx[i].name));
         }
     }
-#endif
 }
 
 // [crispy] variable number of sound channels
 void S_UpdateSndChannels (int option)
 {
-#if 0
     int i;
 
     for (i = 0; i < snd_Channels; i++)
@@ -1087,6 +1035,5 @@ void S_UpdateSndChannels (int option)
         snd_Channels = 32;
 
     memset(Channel, 0, snd_Channels * sizeof(channel_t));
-#endif
 }
 

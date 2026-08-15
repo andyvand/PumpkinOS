@@ -36,7 +36,7 @@ struct dg_dir_t {
 
 static UInt16 volref;
 static uint64_t t0;
-static UInt32 gameWidth, gameHeight;
+static UInt32 screenWidth, screenHeight;
 static uint32_t modMask, keyMask;
 static uint64_t extKeyMask[2];
 static char *title;
@@ -74,7 +74,9 @@ static void DG_Init(void) {
   extKeyMask[1] = 0;
   KeyQueueWriteIndex = 0;
   KeyQueueReadIndex = 0;
-  DG_ScreenBuffer = sys_malloc(gameWidth * gameHeight * 2);
+  // one full-width line per game row: pumpkin_screen_copy() copies whole
+  // rows of the task screen, so the buffer stride must be the screen width
+  DG_ScreenBuffer = sys_calloc(screenWidth * (screenHeight - Y0), 2);
 }
 
 static void DG_Finish(void) {
@@ -182,8 +184,14 @@ uint16_t *DG_GetScreenBuffer(void) {
   return DG_ScreenBuffer;
 }
 
+void DG_GetScreenSize(int *width, int *height) {
+  *width = screenWidth;
+  *height = screenHeight - Y0;
+}
+
 void DG_DrawFrame(void) {
   uint64_t t;
+  UInt32 rows;
 
   if (!validwindow() || !ready) return;
   process_keys();
@@ -192,7 +200,10 @@ void DG_DrawFrame(void) {
   if ((t - lastDraw) < 33333) return;
   lastDraw = t;
 
-  pumpkin_screen_copy(DG_ScreenBuffer, Y0, Y0 + gameHeight);
+  rows = SCREENHEIGHT;
+  if (rows > screenHeight - Y0) rows = screenHeight - Y0;
+
+  pumpkin_screen_copy(DG_ScreenBuffer, Y0, Y0 + rows);
 }
 
 uint32_t DG_GetTicksMs(void) {
@@ -312,14 +323,9 @@ static void gameStart(void) {
     VFSDirCreate(volref, savedir);
   }
 
-  WinScreenGetAttribute(winScreenWidth, &gameWidth);
-  if (gameWidth == 640) {
-    gameHeight = 400;
-    hires = 1;
-  } else {
-    gameHeight = 200;
-    hires = 0;
-  }
+  WinScreenGetAttribute(winScreenWidth, &screenWidth);
+  WinScreenGetAttribute(winScreenHeight, &screenHeight);
+  hires = (screenWidth >= 640 && screenHeight >= Y0 + 400) ? 1 : 0;
 
   myargc = 0;
   argv[myargc++] = title;

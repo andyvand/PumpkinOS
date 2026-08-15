@@ -10,6 +10,7 @@ typedef struct dg_file_t dg_file_t;
 typedef struct dg_dir_t dg_dir_t;
 
 uint16_t *DG_GetScreenBuffer(void);
+void DG_GetScreenSize(int *width, int *height);
 void DG_DrawFrame(void);
 int DG_SleepMs(uint32_t ms);
 uint32_t DG_GetTicksMs(void);
