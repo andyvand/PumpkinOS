@@ -117,7 +117,7 @@ endif
 #	@echo Generating $@
 #	@$(LIBPUMPKIN)/serde.sh launch $<
 
-logtrap.o: trapArgs_wce.c m68kdasm.c logtrap.c
+logtrap.o: trapargs_wce.c trapargs_sony_hr_lib_wce.c m68kdasm.c logtrap.c
 	@echo Compiling logtrap.c
 	@$(CC) $(CFLAGS) -c -o $@ logtrap.c
 

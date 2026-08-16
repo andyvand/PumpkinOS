@@ -1,0 +1,18 @@
+// This file was generated with the command: gen_log.sh SONY_HR_LIB
+// DO NOT MODIFY!
+
+static trap_t trapArgs_SONY_HR_LIB[] = {
+  { .trap=sysLibTrapOpen, .selector=-1, .name="HROpen", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapClose, .selector=-1, .name="HRClose", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapSleep, .selector=-1, .name="HRSleep", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapWake, .selector=-1, .name="HRWake", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=HRTrapGetAPIVersion, .selector=-1, .name="HRGetAPIVersion", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="versionP" } } },
+  { .trap=HRTrapWinClipRectangle, .selector=-1, .name="HRWinClipRectangle", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_RCT, .ptr=1, .size=4, .io=0, .name="rP" } } },
+  { .trap=HRTrapWinCopyRectangle, .selector=-1, .name="HRWinCopyRectangle", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=7, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="srcWin" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="dstWin" }, { .type=T_RCT, .ptr=1, .size=4, .io=0, .name="srcRect" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="destX" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="destY" }, { .type=T_USIG, .ptr=0, .size=1, .io=0, .name="mode" } } },
+  { .trap=HRTrapWinCreateBitmapWindow, .selector=-1, .name="HRWinCreateBitmapWindow", .rtype=T_VOID, .rptr=1, .rsize=4, .nargs=3, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_BMP, .ptr=1, .size=4, .io=0, .name="bitmapP" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="error" } } },
+  { .trap=HRTrapWinDrawBitmap, .selector=-1, .name="HRWinDrawBitmap", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=4, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_BMP, .ptr=1, .size=4, .io=0, .name="bitmapP" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="x" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="y" } } },
+  { .trap=HRTrapWinScreenMode, .selector=-1, .name="HRWinScreenMode", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=6, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_USIG, .ptr=0, .size=1, .io=0, .name="operation" }, { .type=T_USIG, .ptr=1, .size=4, .io=OMIT_IN, .name="widthP" }, { .type=T_USIG, .ptr=1, .size=4, .io=OMIT_IN, .name="heightP" }, { .type=T_USIG, .ptr=1, .size=4, .io=OMIT_IN, .name="depthP" }, { .type=T_USIG, .ptr=1, .size=1, .io=OMIT_IN, .name="enableColorP" } } },
+  { .trap=HRTrapBmpCreate, .selector=-1, .name="HRBmpCreate", .rtype=T_BMP, .rptr=1, .rsize=4, .nargs=6, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="width" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="height" }, { .type=T_USIG, .ptr=0, .size=1, .io=0, .name="depth" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="colortableP" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="error" } } },
+  { .trap=HRTrapBmpBitsSize, .selector=-1, .name="HRBmpBitsSize", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" }, { .type=T_BMP, .ptr=1, .size=4, .io=0, .name="bitmapP" } } },
+  { .name = NULL } 
+};

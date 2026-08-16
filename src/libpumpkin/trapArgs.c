@@ -1,3 +1,6 @@
+// This file was generated with the command: gen_log.sh
+// DO NOT MODIFY!
+
 #define T_VOID  0
 #define T_SIG   1
 #define T_USIG  2
@@ -379,10 +382,10 @@ static trap_t trapArgs[] = {
   { .trap=sysTrapVFSMgr, .selector=vfsTrapVolumeSize, .name="VFSVolumeSize", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=3, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="volRefNum" }, { .type=T_USIG, .ptr=1, .size=4, .io=0, .name="volumeUsedP" }, { .type=T_USIG, .ptr=1, .size=4, .io=0, .name="volumeTotalP" } } },
   { .trap=sysTrapVFSMgr, .selector=vfsTrapVolumeUnmount, .name="VFSVolumeUnmount", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="volRefNum" } } },
   { .trap=sysTrapVFSMgr, .selector=vfsTrapPrivate1, .name="VFSPrivate1", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
-  { .trap=sysLibTrapClose, .selector=-1, .name="LibTrapClose", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
-  { .trap=sysLibTrapOpen, .selector=-1, .name="LibTrapOpen", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
-  { .trap=sysLibTrapSleep, .selector=-1, .name="LibTrapSleep", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
-  { .trap=sysLibTrapWake, .selector=-1, .name="LibTrapWake", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapClose, .selector=-1, .name="SysLibClose", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapOpen, .selector=-1, .name="SysLibOpen", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapSleep, .selector=-1, .name="SysLibSleep", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
+  { .trap=sysLibTrapWake, .selector=-1, .name="SysLibWake", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="refNum" } } },
   { .trap=sysTrapAbtShowAbout, .selector=-1, .name="AbtShowAbout", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=1, .args={ { .type=T_ID, .ptr=0, .size=4, .io=0, .name="creator" } } },
   { .trap=sysTrapAlmAlarmCallback, .selector=-1, .name="AlmAlarmCallback", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapAlmCancelAll, .selector=-1, .name="AlmCancelAll", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
@@ -802,7 +805,7 @@ static trap_t trapArgs[] = {
   { .trap=sysTrapGsiInitialize, .selector=-1, .name="GsiInitialize", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapGsiSetLocation, .selector=-1, .name="GsiSetLocation", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=2, .args={ { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="x" }, { .type=T_SIG, .ptr=0, .size=2, .io=0, .name="y" } } },
   { .trap=sysTrapGsiSetShiftState, .selector=-1, .name="GsiSetShiftState", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=2, .args={ { .type=T_HEX, .ptr=0, .size=2, .io=0, .name="lockFlags" }, { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="tempShift" } } },
-  { .trap=sysTrapHwrGetROMToken, .selector=-1, .name="HwrGetROMToken", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=4, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="cardNo" }, { .type=T_USIG, .ptr=0, .size=4, .io=0, .name="token" }, { .type=T_USIG, .ptr=1, .size=1, .io=0, .name="dataP" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="sizeP" } } },
+  { .trap=sysTrapHwrGetROMToken, .selector=-1, .name="SysGetROMToken", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=4, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="cardNo" }, { .type=T_USIG, .ptr=0, .size=4, .io=0, .name="token" }, { .type=T_USIG, .ptr=1, .size=1, .io=0, .name="dataP" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="sizeP" } } },
   { .trap=sysTrapInsPtCheckBlink, .selector=-1, .name="InsPtCheckBlink", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapInsPtEnable, .selector=-1, .name="InsPtEnable", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=1, .args={ { .type=T_USIG, .ptr=0, .size=1, .io=0, .name="enableIt" } } },
   { .trap=sysTrapInsPtEnabled, .selector=-1, .name="InsPtEnabled", .rtype=T_USIG, .rptr=0, .rsize=1, .nargs=0, .args={  } },
@@ -983,7 +986,7 @@ static trap_t trapArgs[] = {
   { .trap=sysTrapSlkReceivePacket, .selector=-1, .name="SlkReceivePacket", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=6, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="socket" }, { .type=T_USIG, .ptr=0, .size=1, .io=0, .name="andOtherSockets" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="headerP" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="bodyP" }, { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="bodySize" }, { .type=T_SIG, .ptr=0, .size=4, .io=0, .name="timeout" } } },
   { .trap=sysTrapSlkSendPacket, .selector=-1, .name="SlkSendPacket", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="headerP" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="writeList" } } },
   { .trap=sysTrapSlkSetSocketListener, .selector=-1, .name="SlkSetSocketListener", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="socket" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="socketP" } } },
-  { .trap=sysTrapSlkSocketRefNum, .selector=-1, .name="SlkSocketRefNum", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="socket" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="portIDP" } } },
+  { .trap=sysTrapSlkSocketRefNum, .selector=-1, .name="SlkSocketPortID", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="socket" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="portIDP" } } },
   { .trap=sysTrapSlkSocketSetTimeout, .selector=-1, .name="SlkSocketSetTimeout", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_USIG, .ptr=0, .size=2, .io=0, .name="socket" }, { .type=T_SIG, .ptr=0, .size=4, .io=0, .name="timeout" } } },
   { .trap=sysTrapSlkSysPktDefaultResponse, .selector=-1, .name="SlkSysPktDefaultResponse", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=2, .args={ { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="headerP" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="bodyP" } } },
   { .trap=sysTrapSndCreateMidiList, .selector=-1, .name="SndCreateMidiList", .rtype=T_USIG, .rptr=0, .rsize=1, .nargs=4, .args={ { .type=T_ID, .ptr=0, .size=4, .io=0, .name="creator" }, { .type=T_USIG, .ptr=0, .size=1, .io=0, .name="multipleDBs" }, { .type=T_USIG, .ptr=1, .size=2, .io=0, .name="wCountP" }, { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="entHP" } } },
@@ -1362,7 +1365,7 @@ static trap_t trapArgs[] = {
   { .trap=sysTrapPalmPrivate3, .selector=-1, .name="PalmPrivate3", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapPalmPrivate4, .selector=-1, .name="PalmPrivate4", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapScrDefaultPaletteState, .selector=-1, .name="ScrDefaultPaletteState", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
-  { .trap=sysTrapScrUpdateScreenBitmap, .selector=-1, .name="ScrUpdateScreenBitmap", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
+  { .trap=sysTrapScrUpdateScreenBitmap, .selector=-1, .name="sysTrapScrUpdateScreenBitmap", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapDmSync, .selector=-1, .name="DmSync", .rtype=T_VOID, .rptr=0, .rsize=0, .nargs=0, .args={  } },
   { .trap=sysTrapDmSyncDatabase, .selector=-1, .name="DmSyncDatabase", .rtype=T_USIG, .rptr=0, .rsize=2, .nargs=1, .args={ { .type=T_VOID, .ptr=1, .size=4, .io=0, .name="dbP" } } },
   { .name = NULL } 

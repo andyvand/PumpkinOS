@@ -19,6 +19,7 @@
 #include "template.h"
 #include "iterator.h"
 #include "loadfile.h"
+#include "syslibs.h"
 #include "logtrap.h"
 #include "emupalmosinc.h"
 #include "RegistryMgr.h"
@@ -167,7 +168,7 @@ typedef struct {
   language_t *lang;
   ErrJumpBuf jmpbuf;
   char *serial[MAX_SERIAL];
-  syslib_t syslibs[MAX_SYSLIBS];
+  syslib_t syslibs[BASE_SYSLIBS];
   int num_syslibs;
   uint32_t taskId;
   void *exception;
@@ -5039,7 +5040,7 @@ Boolean SysLibNewRefNum68K(UInt32 type, UInt32 creator, UInt16 *refNum) {
   *refNum = 0;
 
   if (task) {
-    for (i = 0, first = 0xFFFF; i < MAX_SYSLIBS; i++) {
+    for (i = 0, first = 0xFFFF; i < BASE_SYSLIBS; i++) {
       if (first == 0xFFFF && task->syslibs[i].refNum == 0) {
         first = i;
       }
@@ -5072,7 +5073,7 @@ Err SysLibRegister68K(UInt16 refNum, LocalID dbID, uint8_t *code, UInt32 size, U
   Err err = 0;
 
   if (task) {
-    for (i = 0; i < MAX_SYSLIBS; i++) {
+    for (i = 0; i < BASE_SYSLIBS; i++) {
       if (task->syslibs[i].refNum == refNum) {
         if (DmDatabaseInfo(0, dbID, task->syslibs[i].name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == errNone) {
           task->syslibs[i].code = pumpkin_heap_alloc(size, "syslib_code");
@@ -5108,7 +5109,7 @@ uint8_t *SysLibTblEntry68K(UInt16 refNum, SysLibTblEntryType *tbl) {
   uint8_t *r = NULL;
 
   if (task) {
-    for (i = 0; i < MAX_SYSLIBS; i++) {
+    for (i = 0; i < BASE_SYSLIBS; i++) {
       if (task->syslibs[i].refNum == refNum) {
         tbl->dispatchTblP = (MemPtr *)task->syslibs[i].dispatchTbl;
         tbl->globalsP = task->syslibs[i].globals;
@@ -5129,7 +5130,7 @@ void SysLibCancelRefNum68K(UInt16 refNum) {
   UInt16 i;
 
   if (task) {
-    for (i = 0; i < MAX_SYSLIBS; i++) {
+    for (i = 0; i < BASE_SYSLIBS; i++) {
       if (task->syslibs[i].refNum == refNum) {
         if (task->syslibs[i].code) {
           pumpkin_heap_free(task->syslibs[i].code, "syslib_code");
@@ -5153,7 +5154,7 @@ UInt16 SysLibFind68K(char *name) {
   UInt16 i, refNum = 0;
 
   if (task) {
-    for (i = 0; i < MAX_SYSLIBS; i++) {
+    for (i = 0; i < BASE_SYSLIBS; i++) {
       if (task->syslibs[i].refNum > 0 && !sys_strcmp(task->syslibs[i].name, name)) {
         refNum = task->syslibs[i].refNum;
         pumpkin_id2s(task->syslibs[i].type, buf);
@@ -5172,7 +5173,7 @@ UInt16 *SysLibGetDispatch68K(UInt16 refNum) {
   UInt16 i, *dispatch = NULL;
 
   if (task) {
-    for (i = 0; i < MAX_SYSLIBS; i++) {
+    for (i = 0; i < BASE_SYSLIBS; i++) {
       if (task->syslibs[i].refNum == refNum) {
         dispatch = task->syslibs[i].dispatchTbl;
         break;
@@ -5357,6 +5358,7 @@ void pumpkin_delete_registry(UInt32 creator) {
 void pumpkin_save_bitmap(BitmapType *bmp, UInt16 density, Coord wWidth, Coord wHeight, Coord width, Coord height, char *filename) {
   surface_t *surface;
   UInt16 oldDensity;
+  Boolean compressed = false;
   char *card, buf[256];
 
   if (width == 0 || height == 0) {
@@ -5368,6 +5370,10 @@ void pumpkin_save_bitmap(BitmapType *bmp, UInt16 density, Coord wWidth, Coord wH
   }
 
   if ((surface = surface_create(wWidth, wHeight, SURFACE_ENCODING_ARGB)) != NULL) {
+    if (BmpGetCompressionType(bmp) != BitmapCompressionTypeNone) {
+      bmp = BmpDecompressBitmap(bmp);
+      compressed = true;
+    }
     oldDensity = BmpGetDensity(bmp);
     BmpSetDensity(bmp, kDensityLow);
     BmpDrawSurface(bmp, 0, 0, wWidth, wHeight, surface, 0, 0, false, false);
@@ -5380,6 +5386,10 @@ void pumpkin_save_bitmap(BitmapType *bmp, UInt16 density, Coord wWidth, Coord wH
     surface_save(surface, buf, 0);
 
     surface_destroy(surface);
+
+    if (compressed) {
+      BmpDelete(bmp);
+    }
   }
 }
 
