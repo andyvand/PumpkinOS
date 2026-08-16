@@ -125,5 +125,9 @@ logtrap.o: trapargs_wce.c trapargs_sony_hr_lib_wce.c m68kdasm.c logtrap.c
 #	@echo Generating $@
 #	@./gen_log.sh 0
 
+trapArgs_SONY_HR_LIB.c: traps.txt gen_log.sh
+	@echo Generating $@
+	@./gen_log.sh SONY_HR_LIB
+
 clean:
 	@rm -f $(PROGRAM) $(OBJS) $(LAUNCHER_OBJS)
