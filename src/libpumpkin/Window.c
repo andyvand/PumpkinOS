@@ -47,7 +47,6 @@ typedef struct {
   UInt8 legacyDepth;
   Boolean littleEndian;
   int numPush;
-  UInt32 directWriteCount;
 } win_module_t;
 
 typedef struct {
@@ -3926,16 +3925,9 @@ void WinLegacyWrite(UInt32 offset, UInt8 value) {
   BitmapType *bitmapP;
   UInt8 b;
   UInt16 i, cols, c, oldColor565, realDepth, density;
-  Coord x, y, width, height;
-  Boolean hrmode;
-  UInt16 prevCoordSys;
+  Coord x, y, width;
   IndexedColorType oldColor;
   WinHandle oldActive, oldDraw;
-
-  hrmode = HRMode();
-  if (hrmode && module->directWriteCount == 0) {
-    pumpkin_dirty_region_mode(dirtyRegionBegin);
-  }
 
   oldActive = module->activeWindow;
   oldDraw = module->drawWindow;
@@ -3988,13 +3980,7 @@ void WinLegacyWrite(UInt32 offset, UInt8 value) {
     pumpkin_dirty_region_mode(dirtyRegionEnd);
 
   } else {
-    BmpGetDimensions(bitmapP, &width, &height, NULL);
-    if (hrmode) {
-      // if emulating Sony HighRes mode, direct screen writes must use kDensityDouble
-      prevCoordSys = WinSetCoordinateSystem(kDensityDouble);
-    } else {
-      prevCoordSys = WinGetCoordinateSystem();
-    }
+    BmpGetDimensions(bitmapP, &width, NULL, NULL);
 
     switch (realDepth) {
       case 8:
@@ -4017,22 +4003,12 @@ void WinLegacyWrite(UInt32 offset, UInt8 value) {
         WinLegacyDrawPixel(module, realDepth, c, x, y);
         break;
     }
-
-    if (hrmode) {
-      WinSetCoordinateSystem(prevCoordSys);
-    }
   }
 
   module->activeWindow = oldActive;
   module->drawWindow = oldDraw;
   module->drawState.foreColor = oldColor;
   module->foreColor565 = oldColor565;
-
-  module->directWriteCount++;
-  if (hrmode && module->directWriteCount >= 320*40) {
-    pumpkin_dirty_region_mode(dirtyRegionEnd);
-    module->directWriteCount = 0;
-  }
 }
 
 static void WinSurfaceSetPixel(void *data, int x, int y, uint32_t color) {
