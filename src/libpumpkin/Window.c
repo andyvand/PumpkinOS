@@ -3928,6 +3928,8 @@ void WinLegacyWrite(UInt32 offset, UInt8 value) {
   Coord x, y, width;
   IndexedColorType oldColor;
   WinHandle oldActive, oldDraw;
+  UInt16 prevCoordSys;
+  Boolean hrmode;
 
   oldActive = module->activeWindow;
   oldDraw = module->drawWindow;
@@ -3980,6 +3982,13 @@ void WinLegacyWrite(UInt32 offset, UInt8 value) {
     pumpkin_dirty_region_mode(dirtyRegionEnd);
 
   } else {
+    hrmode = HRMode();
+    if (hrmode) {
+      // if emulating Sony HighRes mode, direct screen writes must use kDensityDouble
+      prevCoordSys = WinSetCoordinateSystem(kDensityDouble);
+    } else {
+      prevCoordSys = WinGetCoordinateSystem();
+    }
     BmpGetDimensions(bitmapP, &width, NULL, NULL);
 
     switch (realDepth) {
@@ -4002,6 +4011,10 @@ void WinLegacyWrite(UInt32 offset, UInt8 value) {
         }
         WinLegacyDrawPixel(module, realDepth, c, x, y);
         break;
+    }
+
+    if (hrmode) {
+      WinSetCoordinateSystem(prevCoordSys);
     }
   }
 
