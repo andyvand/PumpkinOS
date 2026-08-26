@@ -14,6 +14,7 @@
 
 typedef struct {
   MenuBarType *currentMenu;
+  UInt16 currentMenuRscID;
 } menu_module_t;
 
 int MenuInitModule(void) {
@@ -109,6 +110,9 @@ MenuBarType *MenuSetActiveMenu(MenuBarType *menuP) {
   debug(DEBUG_TRACE, "Menu", "MenuSetActiveMenu %p", menuP);
   prev = module->currentMenu;
   module->currentMenu = menuP;
+  if (menuP == NULL) {
+    module->currentMenuRscID = 0;
+  }
 
   return prev;
 }
@@ -279,6 +283,7 @@ static void menu_hide_pd(MenuBarType *menu, MenuPullDownType *pd) {
 }
 
 Boolean MenuHandleEvent(MenuBarType *menuP, EventType *event, UInt16 *error) {
+  menu_module_t *module = (menu_module_t *)pumpkin_get_local_storage(menu_key);
   EventType ev;
   MenuPullDownType *pd, *prev;
   RectangleType rect;
@@ -418,10 +423,16 @@ Boolean MenuHandleEvent(MenuBarType *menuP, EventType *event, UInt16 *error) {
             RctSetRectFromWin(&rect, menuP->barWin);
             WinRestoreRectangle(menuP->bitsBehind, &rect);
             menuP->attr.visible = 0;
+            ev.eType = menuCloseEvent;
+            EvtAddEventToQueue(&ev);
           } else {
             debug(DEBUG_TRACE, "Menu", "MenuHandleEvent keyDown show menu");
             MenuDrawMenu(menuP);
             menuP->attr.visible = 1;
+            ev.eType = menuOpenEvent;
+            ev.data.menuOpen.menuRscID = module->currentMenuRscID;
+            ev.data.menuOpen.cause = menuButtonCause;
+            EvtAddEventToQueue(&ev);
           }
         }
         break;
@@ -495,7 +506,8 @@ void MenuEraseStatus(MenuBarType *menuP) {
 }
 
 void MenuSetActiveMenuRscID(UInt16 resourceId) {
-  debug(DEBUG_ERROR, "Menu", "MenuSetActiveMenuRscID not implemented");
+  menu_module_t *module = (menu_module_t *)pumpkin_get_local_storage(menu_key);
+  module->currentMenuRscID = resourceId;
 }
 
 void MenuCmdBarDisplay(void) {
