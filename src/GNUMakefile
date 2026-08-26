@@ -1,7 +1,7 @@
 include common.mak
 
 DIRS=../bin ../lib ../tools ../vfs/app_card/$(VFS_PROGRAMS_DIR) ../vfs/$(VFS_INSTALL_DIR) ../vfs/$(VFS_STORAGE_DIR) ../vfs/app_tos/A ../vfs/app_tos/B ../vfs/app_tos/C/hd
-BASE_MODULES=pilrc prcbuild libpit lua libpumpkin libos libshell BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
+BASE_MODULES=pilrc prcbuild libpit lua libpumpkin libos BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
 
 ifeq ($(OSNAME),GNU/Linux)
 ifneq ($(wildcard /usr/local/include/SDL3/SDL.h),)
