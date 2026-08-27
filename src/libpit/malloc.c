@@ -56,11 +56,14 @@ void *sys_realloc(void *ptr, sys_size_t size) {
 #endif
 
 void *sys_malloc(sys_size_t size) {
+  void *p;
 #ifdef ESP32
-  return heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  p = heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
 #else
-  return malloc(size);
+  p = malloc(size);
 #endif
+  if (p) sys_memset(p, 0, size);
+  return p;
 }
 
 void sys_free(void *ptr) {
