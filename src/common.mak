@@ -263,7 +263,7 @@ VFS_PROGRAMS_DIR?=PALM/Programs
 
 ifeq ($(TYPE),release)
 OPTIMIZATION=-O2
-#MUTE_DEBUG=-DMUTE_DEBUG
+MUTE_DEBUG=-DMUTE_DEBUG
 ifeq ($(OSNAME),Darwin)
 STRIP=echo
 else ifeq ($(OSNAME),msdosdjgpp)
