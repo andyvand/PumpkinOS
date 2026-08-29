@@ -234,7 +234,11 @@ int pumpkin_deploy_files_session(vfs_session_t *session, char *path) {
         debug(DEBUG_INFO, PUMPKINOS, "get extension of %s", name);
         ext = getext(name);
         debug(DEBUG_INFO, PUMPKINOS, "extension is %s", ext);
-        if ((ext != NULL) && (!sys_strcasecmp(ext, "prc") || !sys_strcasecmp(ext, "pdb"))) {
+        if (ext == NULL) {
+          sys_free(name);
+          continue;
+        }
+        if (!sys_strcasecmp(ext, "prc") || !sys_strcasecmp(ext, "pdb")) {
           sys_memset(buf, 0, sizeof(buf));
           sys_snprintf(buf, sizeof(buf)-1, "%s/%s", path, name);
           debug(DEBUG_INFO, PUMPKINOS, "deploying %s/%s", path, name);
@@ -242,16 +246,15 @@ int pumpkin_deploy_files_session(vfs_session_t *session, char *path) {
           debug(DEBUG_INFO, PUMPKINOS, "vfs unlink %s", buf);
           vfs_unlink(session, buf);
           if (rr == 0) {
-            r = 0;
+            r++;
           } else {
-            sys_snprintf(buf, sizeof(buf)-1, "Error deploying \"%s\"", name);
-            debug(DEBUG_ERROR, PUMPKINOS, "pumpkin_deploy_files: %s", buf);
+            debug(DEBUG_ERROR, PUMPKINOS, "pumpkin_deploy_files: error deploying \"%s\"", name);
           }
         } else {
+          sys_memset(buf, 0, sizeof(buf));
           sys_snprintf(buf, sizeof(buf)-1, "%s/%s", path, name);
           vfs_unlink(session, buf);
-          sys_snprintf(buf, sizeof(buf)-1, "Cannot deploy file \"%s\"", name);
-          debug(DEBUG_ERROR, PUMPKINOS, "pumpkin_deploy_files: %s", buf);
+          debug(DEBUG_ERROR, PUMPKINOS, "pumpkin_deploy_files: cannot deploy file \"%s\"", name);
         }
         sys_free(name);
       }
