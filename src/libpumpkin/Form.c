@@ -1812,7 +1812,6 @@ static UInt16 FrmShowAlert(UInt16 id, AlertTemplateType *alert, char *msg, char 
     } else {
       totalLines = 1;
     }
-debug(1, "XXX", "totalLines %d [%s]", totalLines, msg);
     labelH = FntCharHeight() * totalLines;
     formH = 46 + labelH;
     if (entry && entryLen > 0) {
