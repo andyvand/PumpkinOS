@@ -21,7 +21,7 @@ EMU_SYSTRAPS=AbtSysTrap.c AlmSysTrap.c AttnSysTrap.c BmpSysTrap.c CategorySysTra
 EMU_SOURCE=emupalmos.c armsyscall.c omtrap.c pinstrap.c hdtrap.c serialtrap.c fstrap.c intltrap.c \
         flpemtrap.c flptrap.c accessortrap.c expansiontrap.c tsmtrap.c lmtrap.c navtrap.c netlibtrap.c gpdlibtrap.c sonyhrtrap.c \
         systrap.c $(EMU_SYSTRAPS) m68kcpu.c softfloat.c m68kops.c disasm.c \
-        emu_notif_serde.c emu_launch_serde.c $(ARM_SOURCE) $(DARM_SOURCE) emulator.c
+        emu_notif_serde.c emu_launch_serde.c $(ARM_SOURCE) $(DARM_SOURCE) emulator.c inetlibtrap.c
 
 TOS_SOURCE=tos.c gemdos_impl.c bios_impl.c xbios_impl.c vdi.c aes.c
 
