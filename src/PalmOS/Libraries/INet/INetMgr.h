@@ -646,6 +646,8 @@ typedef struct {
 			UInt16		status;							// new status
 			Err			sockErr;							// socket err, if any
 			}inetSockStatusChange;
+
+    UInt32 buffer[24];
 		} data;
 	} INetEventType;
 
