@@ -25,6 +25,7 @@
 #include "DDm.h"
 #include "pumpkin.h"
 #include "WindowAccessor.h"
+#include "FormAccessor.h"
 #include "tos.h"
 #include "debug.h"
 
@@ -2933,7 +2934,8 @@ static Boolean MainFormHandleEvent(EventPtr event) {
         if (value >= minValue && value <= maxValue) {
           MemSet(&sclEvent, sizeof(EventType), 0);
           sclEvent.eType = sclRepeatEvent;
-          sclEvent.data.sclRepeat.scrollBarID = scl->id;
+          //sclEvent.data.sclRepeat.scrollBarID = scl->id;
+          sclEvent.data.sclRepeat.scrollBarID = FrmObjectGetField(scl, frmScrollBarObj, FormScrollBarFieldId);
           sclEvent.data.sclRepeat.pScrollBar = scl;
           sclEvent.data.sclRepeat.newValue = value;
           sclEvent.data.sclRepeat.time = TimGetTicks();
