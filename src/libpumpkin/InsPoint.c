@@ -89,7 +89,7 @@ void InsPtGetLocation(Int16 *x, Int16 *y) {
 
   if (module != NULL) {
     if (x) *x = module->x;
-    if (y) *x = module->y;
+    if (y) *y = module->y;
   } else {
     if (x) *x = 0;
     if (y) *y = 0;
