@@ -41,6 +41,7 @@ typedef struct pdb_t {
   uint32_t unique_id_seed;
   uint32_t max_unique_id;
   uint16_t numrecs;
+  uint16_t attr;
   pdb_res_t *reslist;
   pdb_res_t *lastres;
   uint8_t header[PDB_HEADER];
@@ -147,10 +148,22 @@ pdb_t *pdb_new(char *name, char *type, char *creator) {
 
     pdb->creationDate = (uint32_t)(T0 + time(NULL));
     pdb->modificationDate = pdb->creationDate;
+    pdb->attr = dmHdrAttrResDB;
     pdb->numrecs = 0;
   }
 
   return pdb;
+}
+
+int pdb_attr(pdb_t *pdb, uint16_t attr) {
+  int r = -1;
+
+  if (pdb) {
+    pdb->attr = attr;
+    r = 0;
+  }
+
+  return r;
 }
 
 int pdb_destroy(pdb_t *pdb) {
@@ -205,7 +218,6 @@ int pdb_add_res(pdb_t *pdb, char *type, uint16_t id, uint32_t size, uint8_t *dat
 int pdb_save(pdb_t *pdb, int f) {
   pdb_res_t *res;
   uint32_t offset;
-  uint16_t attr;
   uint8_t buf[PDB_RESHDR];
   uint8_t pad[2];
   int i, j, r = -1;
@@ -220,9 +232,8 @@ int pdb_save(pdb_t *pdb, int f) {
 #endif
 
     i += dmDBNameLength;
-    attr = dmHdrAttrResDB;
     offset = PDB_HEADER + pdb->numrecs * PDB_RESHDR + 2;
-    i += put2b(attr, pdb->header, i);    // fileAttributes
+    i += put2b(pdb->attr, pdb->header, i);    // fileAttributes
     i += put2b(1, pdb->header, i);       // version
     i += put4b(pdb->creationDate, pdb->header, i);       // creationDate
     i += put4b(pdb->modificationDate, pdb->header, i);       // modificationDate
@@ -357,12 +368,14 @@ int pdb_list(int f) {
 #else
     strncpy(pdb.type, (char *)&pdb.header[i], 4);
 #endif
+    pdb.type[4] = 0;
     i += 4;
 #if __STDC_WANT_SECURE_LIB__
     strncpy_s(pdb.creator, 8, (char *)&pdb.header[i], 4);
 #else
     strncpy(pdb.creator, (char *)&pdb.header[i], 4);
 #endif
+    pdb.creator[4] = 0;
     i += 4;
     i += 4; // uniqueIDSeed
     i += 4; // nextRecordListID
@@ -382,11 +395,11 @@ int pdb_list(int f) {
       free(tm);
 	}
 
-	printf("%s, version %u, created %s\n", pdb.name, version, tmstr);
+    printf("%s, type '%s', creator '%s', attr 0x%04X, version %u, created %s\n", pdb.name, pdb.type, pdb.creator, attr, version, tmstr);
 #else
     tm = localtime(&t);
 
-	printf("%s, version %u, created %s\n", pdb.name, version, asctime(tm));
+    printf("%s, type '%s', creator '%s', attr 0x%04X, version %u, created %s\n", pdb.name, pdb.type, pdb.creator, attr, version, asctime(tm));
 #endif
 
     offset0 = 0;
