@@ -52,11 +52,15 @@ typedef enum buttonFrames ButtonFrameType;
 #pragma warning(disable:4200)
 #endif
 
+#define CONTROL_MAGIC 'Cntl'
+
 typedef struct ControlType
 #ifdef ALLOW_ACCESS_TO_INTERNALS_OF_CONTROLS	// These fields will not be available in the next OS release!
 {
   UInt8 pad[26];
-  Boolean selected;
+  UInt32 magic;
+
+  Boolean raw, selected;
   void *formP;
   Char *text;	
 
@@ -70,8 +74,7 @@ typedef struct ControlType
 	UInt8			group;
 	UInt8 			reserved;
 
-	UInt16 listID;
-  UInt16 len;
+	UInt16 listID, len;
   char buf[0];
 }
 #endif
@@ -113,8 +116,9 @@ typedef struct SliderControlType
 #ifdef ALLOW_ACCESS_TO_INTERNALS_OF_CONTROLS	// These fields will not be available in the next OS release!
 {
   UInt8 pad[26];
+  UInt32 magic;
 
-  Boolean selected;
+  Boolean raw, selected;
   void *formP;
   Char *text;	
 
