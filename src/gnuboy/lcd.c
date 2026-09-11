@@ -15,7 +15,7 @@
 #else
 #define IRAM_ATTR
 #define DRAM_ATTR
-#deifne EXT_RAM_BSS_ATTR
+#define EXT_RAM_BSS_ATTR
 #endif
 
 // Important! Colors are defined in reversed order: 0xBBGGRR !!!
