@@ -1,0 +1,1 @@
+../../gnuboy/sys/pumpkin/resource.h

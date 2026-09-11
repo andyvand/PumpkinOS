@@ -1,0 +1,14 @@
+menu "ODroid config"
+
+    config STORAGE_LITTLEFS
+        bool "Use LittleFS for ROM storage"
+        default n
+        help
+            Use LittleFS for ROM storage.
+    
+    config STORAGE_SPIFFS
+        bool "Use SPIFFS for ROM storage"
+        default n
+        help
+            Use SPIFFS for ROM storage.
+endmenu

@@ -1,0 +1,52 @@
+#include "resource.h"
+
+MENU MainMenu
+BEGIN
+  PULLDOWN "Game"
+  BEGIN
+    MENUITEM "Open ROM..." menuOpen      "O"
+    MENUITEM "Reset"       menuReset     "R"
+    MENUITEM SEPARATOR
+    MENUITEM "Save State"  menuSaveState "S"
+    MENUITEM "Load State"  menuLoadState "L"
+    MENUITEM SEPARATOR
+    MENUITEM "About"       menuAbout     "A"
+    MENUITEM "Quit"        menuQuit      "Q"
+  END
+END
+
+FORM ChooseForm 0 0 160 160
+USABLE
+NOFRAME
+MENUID MainMenu
+BEGIN
+  TITLE "GNUBoy"
+  LABEL "ROM:" romLbl 8 18 FONT 1
+  LIST "" romList 8 32 144 AUTO VISIBLEITEMS 9
+  BUTTON "Run" runBtn 8 140 AUTO AUTO
+  LABEL "ROMs go in /PALM/Programs/GnuBoy" hintLbl 48 142 FONT 0
+END
+
+FORM MainForm 0 0 160 160
+USABLE
+NOFRAME
+MENUID MainMenu
+BEGIN
+  TITLE "GNUBoy"
+END
+
+ALERT ErrorAlert
+ERROR
+BEGIN
+  TITLE "GNUBoy"
+  MESSAGE "^1"
+  BUTTONS "OK"
+END
+
+ICONFAMILY "gnuboy.bmp" "" "" "gnuboy.bmp" TRANSPARENT 0 255 0
+
+/* requested window size in pixels: 640 x 318 (title bar + 2x Game Boy screen) */
+HEX "wind" ID 1
+  0x02 0x80 0x01 0x3E
+
+VERSION "1.0"

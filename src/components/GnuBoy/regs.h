@@ -1,0 +1,1 @@
+../../gnuboy/regs.h

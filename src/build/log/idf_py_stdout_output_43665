@@ -1,0 +1,1879 @@
+Command: ninja all
+[1/1636] Performing build step for 'bootloader'
+[1/1] cd /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/bootloader.bin
+Bootloader binary size 0x5240 bytes. 0x2dc0 bytes (36%) free.
+[2/1636] No install step for 'bootloader'
+[3/1636] Linking CXX static library esp-idf/mbedtls/mbedtls/library/libmbedtls.a
+[4/1636] Completed 'bootloader'
+[5/1636] Linking CXX static library esp-idf/mbedtls/mbedtls/library/libmbedx509.a
+[6/1636] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/Downloads/PumpkinOS/src/build/littlefs_py_venv/bin/littlefs-python create /Users/andyvand/Downloads/PumpkinOS/src/data /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin -v --fs-size=0xc00000 --name-max=64 --block-size=4096
+LittleFS Configuration:
+  Block Size:       4096  /  0x1000
+  Image Size:   12582912  /  0xC00000
+  Block Count:      3072
+  Name Max:           64
+  Image:       /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin
+Adding Directory: vfs
+Adding File:      .DS_Store
+Adding File:      vfs/.DS_Store
+Adding Directory: vfs/app_storage
+Adding Directory: vfs/app_install
+Adding Directory: vfs/app_card
+Adding File:      vfs/app_install/ToDoList.prc
+Adding File:      vfs/app_install/BOOT.prc
+Adding File:      vfs/app_install/Preferences.prc
+Adding File:      vfs/app_install/AddressBook.prc
+Adding File:      vfs/app_install/GnuBoy.prc
+Adding File:      vfs/app_install/Command.prc
+Adding File:      vfs/app_install/SpaceTrader.prc
+Adding File:      vfs/app_install/MineHunt.prc
+Adding File:      vfs/app_install/MemoPad.prc
+Adding File:      vfs/app_install/Launcher.prc
+Adding File:      vfs/app_install/DateBook.prc
+Adding File:      vfs/app_card/.DS_Store
+Adding Directory: vfs/app_card/PALM
+Adding File:      vfs/app_card/PALM/.DS_Store
+Adding Directory: vfs/app_card/PALM/Programs
+Adding File:      vfs/app_card/PALM/Programs/.DS_Store
+Adding Directory: vfs/app_card/PALM/Programs/GnuBoy
+Adding File:      vfs/app_card/PALM/Programs/GnuBoy/.DS_Store
+Adding File:      vfs/app_card/PALM/Programs/GnuBoy/Zelda.gb
+Adding File:      vfs/app_card/PALM/Programs/GnuBoy/F1-Race.gb
+Adding File:      vfs/app_card/PALM/Programs/GnuBoy/Zelda-OOS.gbc
+Adding File:      vfs/app_card/PALM/Programs/GnuBoy/Zelda-OOA.gbc
+Adding File:      vfs/app_card/PALM/Programs/GnuBoy/Lolo.gb
+[7/1636] Generating x509_crt_bundle
+[8/1636] Generating ../../x509_crt_bundle.S
+[9/1636] Building ASM object esp-idf/mbedtls/CMakeFiles/__idf_mbedtls.dir/__/__/x509_crt_bundle.S.obj
+[10/1636] Building C object esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/port/esp32s3/ext_mem_layout.c.obj
+[11/1636] Building C object esp-idf/mbedtls/CMakeFiles/__idf_mbedtls.dir/port/esp_mem.c.obj
+[12/1636] Building C object esp-idf/esp_driver_dma/CMakeFiles/__idf_esp_driver_dma.dir/src/esp_async_memcpy.c.obj
+[13/1636] Building C object esp-idf/esp_driver_dma/CMakeFiles/__idf_esp_driver_dma.dir/src/esp_dma_utils.c.obj
+[14/1636] Building C object esp-idf/esp_pm/CMakeFiles/__idf_esp_pm.dir/pm_locks.c.obj
+[15/1636] Building C object esp-idf/esp_pm/CMakeFiles/__idf_esp_pm.dir/pm_trace.c.obj
+[16/1636] Building C object esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/esp_cache_utils.c.obj
+[17/1636] Building C object esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/esp_cache_msync.c.obj
+[18/1636] Building C object esp-idf/esp_driver_dma/CMakeFiles/__idf_esp_driver_dma.dir/src/gdma_link.c.obj
+[19/1636] Building C object esp-idf/mbedtls/CMakeFiles/__idf_mbedtls.dir/esp_crt_bundle/esp_crt_bundle.c.obj
+[20/1636] Building C object esp-idf/esp_hal_uart/CMakeFiles/__idf_esp_hal_uart.dir/esp32s3/uart_periph.c.obj
+[21/1636] Building C object esp-idf/esp_hal_uart/CMakeFiles/__idf_esp_hal_uart.dir/uhci_hal.c.obj
+[22/1636] Building C object esp-idf/esp_hal_uart/CMakeFiles/__idf_esp_hal_uart.dir/uart_hal_iram.c.obj
+[23/1636] Linking C static library esp-idf/mbedtls/libmbedtls.a
+[24/1636] Building C object esp-idf/esp_driver_dma/CMakeFiles/__idf_esp_driver_dma.dir/src/async_memcpy_gdma.c.obj
+[25/1636] Building C object esp-idf/esp_hal_uart/CMakeFiles/__idf_esp_hal_uart.dir/uart_hal.c.obj
+[26/1636] Building C object esp-idf/esp_pm/CMakeFiles/__idf_esp_pm.dir/pm_impl.c.obj
+[27/1636] Building C object esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/gpio_glitch_filter_ops.c.obj
+[28/1636] Building C object esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_crypto_lock.c.obj
+[29/1636] Building C object esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/init.c.obj
+[30/1636] Building C object esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/gpio_pin_glitch_filter.c.obj
+[31/1636] Building C object esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_hmac.c.obj
+[32/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_table.c.obj
+[33/1636] Building C object esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_ds.c.obj
+[34/1636] Building C object esp-idf/esp_security/CMakeFiles/__idf_esp_security.dir/src/esp_crypto_periph_clk.c.obj
+[35/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_fields.c.obj
+[36/1636] Building C object esp-idf/esp_mm/CMakeFiles/__idf_esp_mm.dir/esp_mmu_map.c.obj
+[37/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_rtc_calib.c.obj
+[38/1636] Building C object esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/dedic_gpio.c.obj
+[39/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj
+[40/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32s3/esp_efuse_utility.c.obj
+[41/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_startup.c.obj
+[42/1636] Building C object esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/rtc_io.c.obj
+[43/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/efuse_controller/keys/with_key_purposes/esp_efuse_api_key.c.obj
+[44/1636] Building C object esp-idf/esp_driver_dma/CMakeFiles/__idf_esp_driver_dma.dir/src/gdma.c.obj
+[45/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj
+[46/1636] Building C object esp-idf/esp_bootloader_format/CMakeFiles/__idf_esp_bootloader_format.dir/esp_bootloader_desc.c.obj
+[47/1636] Building C object esp-idf/esp_partition/CMakeFiles/__idf_esp_partition.dir/partition_target.c.obj
+[48/1636] Building C object esp-idf/esp_app_format/CMakeFiles/__idf_esp_app_format.dir/esp_app_desc.c.obj
+[49/1636] Building C object esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj
+[50/1636] Linking C static library esp-idf/esp_driver_dma/libesp_driver_dma.a
+[51/1636] Building C object esp-idf/esp_hal_security/CMakeFiles/__idf_esp_hal_security.dir/aes_hal.c.obj
+[52/1636] Building C object esp-idf/esp_hal_security/CMakeFiles/__idf_esp_hal_security.dir/mpi_hal.c.obj
+[53/1636] Building C object esp-idf/esp_hal_security/CMakeFiles/__idf_esp_hal_security.dir/ds_hal.c.obj
+[54/1636] Building C object esp-idf/esp_hal_security/CMakeFiles/__idf_esp_hal_security.dir/hmac_hal.c.obj
+[55/1636] Building C object esp-idf/esp_hal_security/CMakeFiles/__idf_esp_hal_security.dir/mpu_hal.c.obj
+[56/1636] Building C object esp-idf/esp_hal_security/CMakeFiles/__idf_esp_hal_security.dir/sha_hal.c.obj
+[57/1636] Linking C static library esp-idf/esp_mm/libesp_mm.a
+[58/1636] Building C object esp-idf/esp_partition/CMakeFiles/__idf_esp_partition.dir/partition.c.obj
+[59/1636] Building C object esp-idf/esp_hal_mspi/CMakeFiles/__idf_esp_hal_mspi.dir/spi_flash_encrypt_hal_iram.c.obj
+[60/1636] Building C object esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir/esp32s3/spi_periph.c.obj
+[61/1636] Linking C static library esp-idf/esp_pm/libesp_pm.a
+[62/1636] Building C object esp-idf/esp_hal_clock/CMakeFiles/__idf_esp_hal_clock.dir/esp32s3/clk_tree_hal.c.obj
+[63/1636] Building C object esp-idf/esp_hal_mspi/CMakeFiles/__idf_esp_hal_mspi.dir/spi_flash_hal.c.obj
+[64/1636] Building C object esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_ota_ops.c.obj
+[65/1636] Building C object esp-idf/esp_hal_mspi/CMakeFiles/__idf_esp_hal_mspi.dir/spi_flash_hal_gpspi.c.obj
+[66/1636] Building C object esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir/spi_slave_hal.c.obj
+[67/1636] Linking C static library esp-idf/esp_hal_uart/libesp_hal_uart.a
+[68/1636] Building C object esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir/spi_hal.c.obj
+[69/1636] Building C object esp-idf/esp_hal_dma/CMakeFiles/__idf_esp_hal_dma.dir/gdma_hal_top.c.obj
+[70/1636] Building C object esp-idf/esp_hal_dma/CMakeFiles/__idf_esp_hal_dma.dir/esp32s3/gdma_periph.c.obj
+[71/1636] Building C object esp-idf/esp_hal_mspi/CMakeFiles/__idf_esp_hal_mspi.dir/spi_flash_hal_iram.c.obj
+[72/1636] Building C object esp-idf/esp_stdio/CMakeFiles/__idf_esp_stdio.dir/stdio_simple.c.obj
+[73/1636] Building C object esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/eri.c.obj
+[74/1636] Building ASM object esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_context.S.obj
+[75/1636] Building C object esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xt_trax.c.obj
+[76/1636] Building C object esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir/spi_hal_iram.c.obj
+[77/1636] Building C object esp-idf/esp_stdio/CMakeFiles/__idf_esp_stdio.dir/stdio_syscalls_simple.c.obj
+[78/1636] Building C object esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir/spi_slave_hal_iram.c.obj
+[79/1636] Building C object esp-idf/esp_stdio/CMakeFiles/__idf_esp_stdio.dir/stdio_vfs.c.obj
+[80/1636] Building C object esp-idf/esp_hal_dma/CMakeFiles/__idf_esp_hal_dma.dir/gdma_hal_ahb_v1.c.obj
+[81/1636] Building ASM object esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_intr_asm.S.obj
+[82/1636] Building ASM object esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_vectors.S.obj
+[83/1636] Building C object esp-idf/esp_hal_sd/CMakeFiles/__idf_esp_hal_sd.dir/esp32s3/sdmmc_periph.c.obj
+[84/1636] Building C object esp-idf/esp_hal_sd/CMakeFiles/__idf_esp_hal_sd.dir/sdmmc_hal.c.obj
+[85/1636] Building C object esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/xtensa_intr.c.obj
+[86/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sd_pwr_ctrl/sd_pwr_ctrl.c.obj
+[87/1636] Building C object esp-idf/esp_driver_gpio/CMakeFiles/__idf_esp_driver_gpio.dir/src/gpio.c.obj
+[88/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_blockdev.c.obj
+[89/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_init.c.obj
+[90/1636] Linking C static library esp-idf/esp_driver_gpio/libesp_driver_gpio.a
+[91/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_mmc.c.obj
+[92/1636] Building C object esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir/spi_slave_hd_hal.c.obj
+[93/1636] Linking C static library esp-idf/esp_security/libesp_security.a
+[94/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_common.c.obj
+[95/1636] Linking C static library esp-idf/efuse/libefuse.a
+[96/1636] Building C object esp-idf/esp_driver_sd_intf/CMakeFiles/__idf_esp_driver_sd_intf.dir/sd_host.c.obj
+[97/1636] Building C object esp-idf/esp_hal_twai/CMakeFiles/__idf_esp_hal_twai.dir/esp32s3/twai_periph.c.obj
+[98/1636] Linking C static library esp-idf/esp_partition/libesp_partition.a
+[99/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_io.c.obj
+[100/1636] Building C object esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_slave.c.obj
+[101/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_cmd.c.obj
+[102/1636] Building C object esp-idf/sdmmc/CMakeFiles/__idf_sdmmc.dir/sdmmc_sd.c.obj
+[103/1636] Linking C static library esp-idf/app_update/libapp_update.a
+[104/1636] Building C object esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_slave_hd.c.obj
+[105/1636] Building C object esp-idf/esp_hal_rmt/CMakeFiles/__idf_esp_hal_rmt.dir/esp32s3/rmt_periph.c.obj
+[106/1636] Building C object esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_common.c.obj
+[107/1636] Building C object esp-idf/esp_hal_twai/CMakeFiles/__idf_esp_hal_twai.dir/twai_hal_v1.c.obj
+[108/1636] Building C object esp-idf/esp_hal_rmt/CMakeFiles/__idf_esp_hal_rmt.dir/rmt_hal.c.obj
+[109/1636] Linking C static library esp-idf/esp_bootloader_format/libesp_bootloader_format.a
+[110/1636] Building C object esp-idf/esp_driver_i2c/CMakeFiles/__idf_esp_driver_i2c.dir/i2c_common.c.obj
+[111/1636] Building C object esp-idf/esp_driver_sdspi/CMakeFiles/__idf_esp_driver_sdspi.dir/src/sdspi_crc.c.obj
+[112/1636] Linking C static library esp-idf/esp_app_format/libesp_app_format.a
+[113/1636] Building C object esp-idf/esp_driver_sdmmc/CMakeFiles/__idf_esp_driver_sdmmc.dir/legacy/src/sdmmc_transaction.c.obj
+[114/1636] Linking C static library esp-idf/esp_hal_security/libesp_hal_security.a
+[115/1636] Building C object esp-idf/esp_driver_i2c/CMakeFiles/__idf_esp_driver_i2c.dir/i2c_slave.c.obj
+[116/1636] Linking C static library esp-idf/esp_hal_mspi/libesp_hal_mspi.a
+[117/1636] Building C object esp-idf/esp_hal_lcd/CMakeFiles/__idf_esp_hal_lcd.dir/lcd_hal.c.obj
+[118/1636] Building C object esp-idf/esp_driver_sdspi/CMakeFiles/__idf_esp_driver_sdspi.dir/src/sdspi_transaction.c.obj
+[119/1636] Building C object esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir/src/gpspi/spi_master.c.obj
+[120/1636] Building C object esp-idf/esp_hal_lcd/CMakeFiles/__idf_esp_hal_lcd.dir/esp32s3/lcd_periph.c.obj
+[121/1636] Building C object esp-idf/esp_driver_sdmmc/CMakeFiles/__idf_esp_driver_sdmmc.dir/legacy/src/sdmmc_host.c.obj
+[122/1636] Linking C static library esp-idf/esp_hal_clock/libesp_hal_clock.a
+[123/1636] Building C object esp-idf/esp_driver_sdmmc/CMakeFiles/__idf_esp_driver_sdmmc.dir/src/sd_trans_sdmmc.c.obj
+[124/1636] Linking C static library esp-idf/esp_hal_gpspi/libesp_hal_gpspi.a
+[125/1636] Building C object esp-idf/esp_driver_sdspi/CMakeFiles/__idf_esp_driver_sdspi.dir/src/sdspi_host.c.obj
+[126/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/Partition.cpp.obj
+[127/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/BDL_Access.cpp.obj
+[128/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/SPI_Flash.cpp.obj
+[129/1636] Linking C static library esp-idf/esp_hal_dma/libesp_hal_dma.a
+[130/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/WL_Ext_Perf.cpp.obj
+[131/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/WL_Ext_Safe.cpp.obj
+[132/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/crc32.cpp.obj
+[133/1636] Linking C static library esp-idf/esp_stdio/libesp_stdio.a
+[134/1636] Linking C static library esp-idf/xtensa/libxtensa.a
+[135/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/wl_blockdev.cpp.obj
+[136/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/wear_levelling.cpp.obj
+[137/1636] Linking C static library esp-idf/esp_hal_sd/libesp_hal_sd.a
+[138/1636] Building C object esp-idf/driver/CMakeFiles/__idf_driver.dir/touch_sensor/touch_sensor_common.c.obj
+[139/1636] Linking C static library esp-idf/esp_driver_spi/libesp_driver_spi.a
+[140/1636] Linking C static library esp-idf/esp_hal_twai/libesp_hal_twai.a
+[141/1636] Linking C static library esp-idf/sdmmc/libsdmmc.a
+[142/1636] Building C object esp-idf/esp_hal_ledc/CMakeFiles/__idf_esp_hal_ledc.dir/ledc_hal.c.obj
+[143/1636] Building C object esp-idf/esp_hal_ledc/CMakeFiles/__idf_esp_hal_ledc.dir/esp32s3/ledc_periph.c.obj
+[144/1636] Building C object esp-idf/esp_driver_i2c/CMakeFiles/__idf_esp_driver_i2c.dir/i2c_master.c.obj
+[145/1636] Building C object esp-idf/esp_hal_ledc/CMakeFiles/__idf_esp_hal_ledc.dir/ledc_hal_iram.c.obj
+[146/1636] Linking C static library esp-idf/esp_driver_sd_intf/libesp_driver_sd_intf.a
+[147/1636] Building C object esp-idf/driver/CMakeFiles/__idf_driver.dir/twai/twai.c.obj
+[148/1636] Linking C static library esp-idf/esp_hal_rmt/libesp_hal_rmt.a
+[149/1636] Linking C static library esp-idf/esp_driver_i2c/libesp_driver_i2c.a
+[150/1636] Building CXX object esp-idf/wear_levelling/CMakeFiles/__idf_wear_levelling.dir/WL_Flash.cpp.obj
+[151/1636] Building C object esp-idf/esp_driver_sdmmc/CMakeFiles/__idf_esp_driver_sdmmc.dir/src/sd_host_sdmmc.c.obj
+[152/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_encoder.c.obj
+[153/1636] Building C object esp-idf/driver/CMakeFiles/__idf_driver.dir/touch_sensor/esp32s3/touch_sensor.c.obj
+[154/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_common.c.obj
+[155/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_encoder_bytes.c.obj
+[156/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_encoder_copy.c.obj
+[157/1636] Linking C static library esp-idf/esp_driver_sdspi/libesp_driver_sdspi.a
+[158/1636] Linking C static library esp-idf/esp_driver_sdmmc/libesp_driver_sdmmc.a
+[159/1636] Linking C static library esp-idf/esp_hal_lcd/libesp_hal_lcd.a
+[160/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_encoder_simple.c.obj
+[161/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_io.c.obj
+[162/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_common.c.obj
+[163/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i2c/esp_lcd_panel_io_i2c.c.obj
+[164/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_ops.c.obj
+[165/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_ssd1306.c.obj
+[166/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_st7789.c.obj
+[167/1636] Linking C static library esp-idf/wear_levelling/libwear_levelling.a
+[168/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio.c.obj
+[169/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/spi/esp_lcd_panel_io_spi.c.obj
+[170/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_rawflash.c.obj
+[171/1636] Building C object esp-idf/driver/CMakeFiles/__idf_driver.dir/i2c/i2c.c.obj
+[172/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_rx.c.obj
+[173/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_wl.c.obj
+[174/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/port/freertos/ffsystem.c.obj
+[175/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/src/ffunicode.c.obj
+[176/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_sdmmc.c.obj
+[177/1636] Linking C static library esp-idf/esp_hal_ledc/libesp_hal_ledc.a
+[178/1636] Linking C static library esp-idf/driver/libdriver.a
+[179/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat_spiflash.c.obj
+[180/1636] Building C object esp-idf/espressif__button/CMakeFiles/__idf_espressif__button.dir/button_gpio.c.obj
+[181/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat_sdmmc.c.obj
+[182/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i80/esp_lcd_panel_io_i80.c.obj
+[183/1636] Building C object esp-idf/esp_driver_rmt/CMakeFiles/__idf_esp_driver_rmt.dir/src/rmt_tx.c.obj
+[184/1636] Building C object esp-idf/espressif__button/CMakeFiles/__idf_espressif__button.dir/button_matrix.c.obj
+[185/1636] Building C object esp-idf/espressif__esp_lcd_touch/CMakeFiles/__idf_espressif__esp_lcd_touch.dir/esp_lcd_touch.c.obj
+[186/1636] Building C object esp-idf/espressif__button/CMakeFiles/__idf_espressif__button.dir/button_adc.c.obj
+[187/1636] Linking C static library esp-idf/esp_driver_rmt/libesp_driver_rmt.a
+[188/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_class.c.obj
+[189/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_group.c.obj
+[190/1636] Building C object esp-idf/espressif__button/CMakeFiles/__idf_espressif__button.dir/iot_button.c.obj
+[191/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat.c.obj
+[192/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_id_builtin.c.obj
+[193/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_event.c.obj
+[194/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_draw.c.obj
+[195/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_property.c.obj
+[196/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj.c.obj
+[197/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_style_gen.c.obj
+[198/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_tree.c.obj
+[199/1636] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/rgb/esp_lcd_panel_rgb.c.obj
+[200/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/monkey/lv_monkey.c.obj
+[201/1636] Building C object esp-idf/esp_driver_ledc/CMakeFiles/__idf_esp_driver_ledc.dir/src/ledc.c.obj
+[202/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/sysmon/lv_sysmon.c.obj
+[203/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/test/lv_test_display.c.obj
+[204/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/test/lv_test_fs.c.obj
+[205/1636] Linking C static library esp-idf/esp_lcd/libesp_lcd.a
+[206/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/test/lv_test_helpers.c.obj
+[207/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_scroll.c.obj
+[208/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/test/lv_test_indev.c.obj
+[209/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_observer.c.obj
+[210/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/test/lv_test_screenshot_compare.c.obj
+[211/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/vg_lite_tvg/vg_lite_matrix.c.obj
+[212/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/test/lv_test_indev_gesture.c.obj
+[213/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/debugging/vg_lite_tvg/vg_lite_tvg.cpp.obj
+[214/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_refr.c.obj
+[215/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/convert/neon/lv_draw_buf_convert_neon.c.obj
+[216/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/convert/helium/lv_draw_buf_convert_helium.c.obj
+[217/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/dma2d/lv_draw_dma2d.c.obj
+[218/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/dma2d/lv_draw_dma2d_fill.c.obj
+[219/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/dma2d/lv_draw_dma2d_img.c.obj
+[220/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/convert/lv_draw_buf_convert.c.obj
+[221/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/espressif/ppa/lv_draw_ppa_buf.c.obj
+[222/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/espressif/ppa/lv_draw_ppa_fill.c.obj
+[223/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/espressif/ppa/lv_draw_ppa_img.c.obj
+[224/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/espressif/ppa/lv_draw_ppa.c.obj
+[225/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_arc.c.obj
+[226/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve.c.obj
+[227/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_image.c.obj
+[228/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_fill.c.obj
+[229/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_style.c.obj
+[230/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_letter.c.obj
+[231/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_line.c.obj
+[232/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/core/lv_obj_pos.c.obj
+[233/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_triangle.c.obj
+[234/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_draw_eve_ram_g.c.obj
+[235/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/eve/lv_eve.c.obj
+[236/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_3d.c.obj
+[237/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_blur.c.obj
+[238/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_mask.c.obj
+[239/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_arc.c.obj
+[240/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_line.c.obj
+[241/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_image.c.obj
+[242/1636] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/src/ff.c.obj
+[243/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_vector.c.obj
+[244/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg.c.obj
+[245/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw.c.obj
+[246/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_triangle.c.obj
+[247/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_rect.c.obj
+[248/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_buf.c.obj
+[249/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_border.c.obj
+[250/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_arc.c.obj
+[251/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_3d.c.obj
+[252/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_box_shadow.c.obj
+[253/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_image_decoder.c.obj
+[254/1636] Linking C static library esp-idf/fatfs/libfatfs.a
+[255/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/lv_draw_label.c.obj
+[256/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_image.c.obj
+[257/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_grad.c.obj
+[258/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_fill.c.obj
+[259/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_label.c.obj
+[260/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_layer.c.obj
+[261/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_line.c.obj
+[262/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_mask_rect.c.obj
+[263/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_triangle.c.obj
+[264/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_draw_nanovg_vector.c.obj
+[265/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_nanovg_fbo_cache.c.obj
+[266/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_nanovg_utils.c.obj
+[267/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nanovg/lv_nanovg_image_cache.c.obj
+[268/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/display/lv_display.c.obj
+[269/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_arc.c.obj
+[270/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_border.c.obj
+[271/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_fill.c.obj
+[272/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_img.c.obj
+[273/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_line.c.obj
+[274/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx.c.obj
+[275/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_label.c.obj
+[276/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_utils.c.obj
+[277/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_layer.c.obj
+[278/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_vector.c.obj
+[279/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_stm32_hal.c.obj
+[280/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_draw_nema_gfx_triangle.c.obj
+[281/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/g2d/lv_draw_buf_g2d.c.obj
+[282/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/g2d/lv_draw_g2d.c.obj
+[283/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/g2d/lv_draw_g2d_fill.c.obj
+[284/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/g2d/lv_g2d_buf_map.c.obj
+[285/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/g2d/lv_g2d_utils.c.obj
+[286/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_draw_buf_pxp.c.obj
+[287/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/g2d/lv_draw_g2d_img.c.obj
+[288/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_draw_pxp.c.obj
+[289/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_draw_pxp_fill.c.obj
+[290/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_draw_pxp_img.c.obj
+[291/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_draw_pxp_layer.c.obj
+[292/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nema_gfx/lv_nema_gfx_path.c.obj
+[293/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_pxp_cfg.c.obj
+[294/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_pxp_osa.c.obj
+[295/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/nxp/pxp/lv_pxp_utils.c.obj
+[296/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_arc.c.obj
+[297/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_border.c.obj
+[298/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_image.c.obj
+[299/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_fill.c.obj
+[300/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/opengles/lv_draw_opengles.c.obj
+[301/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d.c.obj
+[302/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_line.c.obj
+[303/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_label.c.obj
+[304/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_triangle.c.obj
+[305/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_utils.c.obj
+[306/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/renesas/dave2d/lv_draw_dave2d_mask_rectangle.c.obj
+[307/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sdl/lv_draw_sdl.c.obj
+[308/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/snapshot/lv_snapshot.c.obj
+[309/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend.c.obj
+[310/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb565.c.obj
+[311/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb888.c.obj
+[312/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_a8.c.obj
+[313/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/riscv_v/lv_draw_sw_blend_riscv_v_to_rgb888.c.obj
+[314/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw.c.obj
+[315/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_al88.c.obj
+[316/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888_premultiplied.c.obj
+[317/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_l8.c.obj
+[318/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_arc.c.obj
+[319/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_rgb888.c.obj
+[320/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_border.c.obj
+[321/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_grad.c.obj
+[322/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_fill.c.obj
+[323/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_i1.c.obj
+[324/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_blur.c.obj
+[325/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c.obj
+[326/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_letter.c.obj
+[327/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_mask_rect.c.obj
+[328/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_line.c.obj
+[329/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_box_shadow.c.obj
+[330/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_buf_vg_lite.c.obj
+[331/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_vector.c.obj
+[332/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite.c.obj
+[333/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_triangle.c.obj
+[334/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_border.c.obj
+[335/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_arc.c.obj
+[336/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_fill.c.obj
+[337/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_box_shadow.c.obj
+[338/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_utils.c.obj
+[339/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_img.c.obj
+[340/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_img.c.obj
+[341/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_line.c.obj
+[342/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_layer.c.obj
+[343/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_label.c.obj
+[344/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_mask_rect.c.obj
+[345/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_triangle.c.obj
+[346/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_draw_vg_lite_vector.c.obj
+[347/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_decoder.c.obj
+[348/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_grad.c.obj
+[349/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_bitmap_font_cache.c.obj
+[350/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_rgb565.c.obj
+[351/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_math.c.obj
+[352/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_path.c.obj
+[353/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/blend/lv_draw_sw_blend_to_rgb565_swapped.c.obj
+[354/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_stroke.c.obj
+[355/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_pending.c.obj
+[356/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/vg_lite/lv_vg_lite_utils.c.obj
+[357/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/drm/lv_linux_drm.c.obj
+[358/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/drm/lv_linux_drm_common.c.obj
+[359/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/drm/lv_linux_drm_egl.c.obj
+[360/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/fb/lv_linux_fbdev.c.obj
+[361/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/ft81x/lv_ft81x.c.obj
+[362/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/ili9341/lv_ili9341.c.obj
+[363/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_transform.c.obj
+[364/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/lovyan_gfx/lv_lovyan_gfx.cpp.obj
+[365/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/nv3007/lv_nv3007.c.obj
+[366/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/lcd/lv_lcd_generic_mipi.c.obj
+[367/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/renesas_glcdc/lv_renesas_glcdc.c.obj
+[368/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/st7735/lv_st7735.c.obj
+[369/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/st7796/lv_st7796.c.obj
+[370/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/st7789/lv_st7789.c.obj
+[371/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/draw/eve/lv_draw_eve_display.c.obj
+[372/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/st_ltdc/lv_st_ltdc.c.obj
+[373/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/tft_espi/lv_tft_espi.cpp.obj
+[374/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/evdev/lv_evdev.c.obj
+[375/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/libinput/lv_xkb.c.obj
+[376/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_entry.c.obj
+[377/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_lcd.c.obj
+[378/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_fbdev.c.obj
+[379/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/libinput/lv_libinput.c.obj
+[380/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/display/nxp_elcdif/lv_nxp_elcdif.c.obj
+[381/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_mouse.c.obj
+[382/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_profiler.c.obj
+[383/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/assets/lv_opengles_shader.c.obj
+[384/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_touchscreen.c.obj
+[385/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/glad/src/egl.c.obj
+[386/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/glad/src/gl.c.obj
+[387/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/glad/src/gles2.c.obj
+[388/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/lv_opengles_debug.c.obj
+[389/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/lv_opengles_egl.c.obj
+[390/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/lv_opengles_glfw.c.obj
+[391/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/lv_opengles_driver.c.obj
+[392/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/lv_opengles_texture.c.obj
+[393/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/opengl_shader/lv_opengl_shader_manager.c.obj
+[394/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/draw/sw/lv_draw_sw_mask.c.obj
+[395/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/opengles/opengl_shader/lv_opengl_shader_program.c.obj
+[396/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/qnx/lv_qnx.c.obj
+[397/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_egl.c.obj
+[398/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_cache.c.obj
+[399/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_image_cache.c.obj
+[400/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_keyboard.c.obj
+[401/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_mouse.c.obj
+[402/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/nuttx/lv_nuttx_libuv.c.obj
+[403/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_sw.c.obj
+[404/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_mousewheel.c.obj
+[405/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_texture.c.obj
+[406/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/sdl/lv_sdl_window.c.obj
+[407/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wayland.c.obj
+[408/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_g2d_backend.c.obj
+[409/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_egl_backend.c.obj
+[410/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_keyboard.c.obj
+[411/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_seat.c.obj
+[412/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_shm_backend.c.obj
+[413/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_pointer.c.obj
+[414/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_window.c.obj
+[415/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_xdg_shell.c.obj
+[416/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/wayland/lv_wl_touch.c.obj
+[417/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/uefi/lv_uefi_display.c.obj
+[418/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/uefi/lv_uefi_context.c.obj
+[419/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/uefi/lv_uefi_indev_keyboard.c.obj
+[420/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/uefi/lv_uefi_indev_pointer.c.obj
+[421/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/uefi/lv_uefi_indev_touch.c.obj
+[422/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/windows/lv_windows_context.c.obj
+[423/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/uefi/lv_uefi_private.c.obj
+[424/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/windows/lv_windows_input.c.obj
+[425/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/x11/lv_x11_display.c.obj
+[426/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/windows/lv_windows_display.c.obj
+[427/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/drivers/x11/lv_x11_input.c.obj
+[428/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/font_manager/lv_font_manager.c.obj
+[429/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/font_manager/lv_font_manager_recycle.c.obj
+[430/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font.c.obj
+[431/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_12.c.obj
+[432/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_10.c.obj
+[433/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/imgfont/lv_imgfont.c.obj
+[434/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_14.c.obj
+[435/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_16.c.obj
+[436/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_dejavu_16_persian_hebrew.c.obj
+[437/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_14_aligned.c.obj
+[438/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_18.c.obj
+[439/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/fmt_txt/lv_font_fmt_txt.c.obj
+[440/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_24.c.obj
+[441/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_22.c.obj
+[442/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_20.c.obj
+[443/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_28.c.obj
+[444/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_26.c.obj
+[445/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_28_compressed.c.obj
+[446/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_32.c.obj
+[447/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_30.c.obj
+[448/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/binfont_loader/lv_binfont_loader.c.obj
+[449/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_34.c.obj
+[450/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_36.c.obj
+[451/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_38.c.obj
+[452/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_40.c.obj
+[453/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_42.c.obj
+[454/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_44.c.obj
+[455/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_48.c.obj
+[456/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_46.c.obj
+[457/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/indev/lv_gridnav.c.obj
+[458/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/indev/lv_indev_gesture.c.obj
+[459/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_montserrat_8.c.obj
+[460/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_source_han_sans_sc_16_cjk.c.obj
+[461/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_source_han_sans_sc_14_cjk.c.obj
+[462/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/FT800-FT813/EVE_commands.c.obj
+[463/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_unscii_16.c.obj
+[464/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/FT800-FT813/EVE_supplemental.c.obj
+[465/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/font/lv_font_unscii_8.c.obj
+[466/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/ffmpeg/lv_ffmpeg.c.obj
+[467/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/layouts/lv_layout.c.obj
+[468/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/freetype/lv_freetype.c.obj
+[469/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/barcode/lv_barcode.c.obj
+[470/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/barcode/code128.c.obj
+[471/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/bmp/lv_bmp.c.obj
+[472/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/bin_decoder/lv_bin_decoder.c.obj
+[473/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/frogfs/src/frogfs.c.obj
+[474/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/frogfs/src/decomp_raw.c.obj
+[475/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/freetype/lv_freetype_glyph.c.obj
+[476/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_cbfs.c.obj
+[477/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/freetype/lv_freetype_image.c.obj
+[478/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/layouts/grid/lv_grid.c.obj
+[479/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/freetype/lv_freetype_outline.c.obj
+[480/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/freetype/lv_ftsystem.c.obj
+[481/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/indev/lv_indev_scroll.c.obj
+[482/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/layouts/flex/lv_flex.c.obj
+[483/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_fatfs.c.obj
+[484/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_arduino_esp_littlefs.cpp.obj
+[485/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_littlefs.c.obj
+[486/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_frogfs.c.obj
+[487/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_uefi.c.obj
+[488/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_posix.c.obj
+[489/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_arduino_sd.cpp.obj
+[490/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_stdio.c.obj
+[491/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_memfs.c.obj
+[492/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data.cpp.obj
+[493/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_animations.cpp.obj
+[494/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gif/gif.c.obj
+[495/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_mesh.cpp.obj
+[496/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_cache.cpp.obj
+[497/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_injest.cpp.obj
+[498/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_skin.cpp.obj
+[499/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_primitive.cpp.obj
+[500/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_shader.cpp.obj
+[501/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_data_texture.cpp.obj
+[502/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_model_node.cpp.obj
+[503/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_data/lv_gltf_uniform_locations.cpp.obj
+[504/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_environment/lv_gltf_ibl_sampler.c.obj
+[505/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_view/lv_gltf_view_render.cpp.obj
+[506/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_view/assets/chromatic.c.obj
+[507/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_view/lv_gltf_view.cpp.obj
+[508/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_view/assets/lv_gltf_view_shader.c.obj
+[509/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/gltf_view/lv_gltf_view_shader.cpp.obj
+[510/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/math/lv_3dmath.c.obj
+[511/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gltf/math/lv_gltf_math.cpp.obj
+[512/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/gstreamer/lv_gstreamer.c.obj
+[513/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/lz4/lz4.c.obj
+[514/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/fsdrv/lv_fs_win32.c.obj
+[515/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/nanovg/nanovg.c.obj
+[516/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/qrcode/lv_qrcode.c.obj
+[517/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/indev/lv_indev.c.obj
+[518/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/rle/lv_rle.c.obj
+[519/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/svg/lv_svg.c.obj
+[520/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/lodepng/lodepng.c.obj
+[521/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/svg/lv_svg_parser.c.obj
+[522/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/libwebp/lv_libwebp.c.obj
+[523/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/lodepng/lv_lodepng.c.obj
+[524/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/libpng/lv_libpng.c.obj
+[525/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/svg/lv_svg_token.c.obj
+[526/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgAnimation.cpp.obj
+[527/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgCapi.cpp.obj
+[528/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/libjpeg_turbo/lv_libjpeg_turbo.c.obj
+[529/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgCanvas.cpp.obj
+[530/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgAccessor.cpp.obj
+[531/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgCompressor.cpp.obj
+[532/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/qrcode/qrcodegen.c.obj
+[533/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgFill.cpp.obj
+[534/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgGlCanvas.cpp.obj
+[535/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLoader.cpp.obj
+[536/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieAnimation.cpp.obj
+[537/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgInitializer.cpp.obj
+[538/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieBuilder.cpp.obj
+[539/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/rlottie/lv_rlottie.c.obj
+[540/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieExpressions.cpp.obj
+[541/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieInterpolator.cpp.obj
+[542/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/svg/lv_svg_decoder.c.obj
+[543/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieModifier.cpp.obj
+[544/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieLoader.cpp.obj
+[545/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieModel.cpp.obj
+[546/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieParser.cpp.obj
+[547/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgMath.cpp.obj
+[548/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgPaint.cpp.obj
+[549/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgLottieParserHandler.cpp.obj
+[550/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgPicture.cpp.obj
+[551/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/svg/lv_svg_render.c.obj
+[552/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgRawLoader.cpp.obj
+[553/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSaver.cpp.obj
+[554/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgScene.cpp.obj
+[555/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgShape.cpp.obj
+[556/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgRender.cpp.obj
+[557/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSvgLoader.cpp.obj
+[558/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgStr.cpp.obj
+[559/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSvgPath.cpp.obj
+[560/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSvgCssStyle.cpp.obj
+[561/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwCanvas.cpp.obj
+[562/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSvgSceneBuilder.cpp.obj
+[563/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwFill.cpp.obj
+[564/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwMath.cpp.obj
+[565/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSvgUtil.cpp.obj
+[566/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwMemPool.cpp.obj
+[567/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwPostEffect.cpp.obj
+[568/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwImage.cpp.obj
+[569/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwRenderer.cpp.obj
+[570/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwShape.cpp.obj
+[571/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwRaster.cpp.obj
+[572/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwRle.cpp.obj
+[573/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgText.cpp.obj
+[574/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgSwStroke.cpp.obj
+[575/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgTaskScheduler.cpp.obj
+[576/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgWgCanvas.cpp.obj
+[577/1636] Building CXX object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/thorvg/tvgXmlParser.cpp.obj
+[578/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/tjpgd/tjpgd.c.obj
+[579/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/VGLite/vg_lite_image.c.obj
+[580/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/VGLite/vg_lite.c.obj
+[581/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/VGLite/vg_lite_matrix.c.obj
+[582/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/VGLite/vg_lite_path.c.obj
+[583/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/VGLite/vg_lite_stroke.c.obj
+[584/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/VGLiteKernel/vg_lite_kernel.c.obj
+[585/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/lv_vg_lite_hal/lv_vg_lite_hal.c.obj
+[586/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/vg_lite_driver/lv_vg_lite_hal/vg_lite_os.c.obj
+[587/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/lv_cache_entry.c.obj
+[588/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/class/lv_cache_lru_ll.c.obj
+[589/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/instance/lv_image_header_cache.c.obj
+[590/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/lv_cache.c.obj
+[591/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/class/lv_cache_lru_rb.c.obj
+[592/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/class/lv_cache_sc_da.c.obj
+[593/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/lv_init.c.obj
+[594/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/tiny_ttf/lv_tiny_ttf.c.obj
+[595/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/libs/tjpgd/lv_tjpgd.c.obj
+[596/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/cache/instance/lv_image_cache.c.obj
+[597/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_async.c.obj
+[598/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_array.c.obj
+[599/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_bidi.c.obj
+[600/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_anim_timeline.c.obj
+[601/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_circle_buf.c.obj
+[602/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_color_op.c.obj
+[603/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_color.c.obj
+[604/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_grad.c.obj
+[605/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_iter.c.obj
+[606/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_log.c.obj
+[607/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_event.c.obj
+[608/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_area.c.obj
+[609/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_anim.c.obj
+[610/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_matrix.c.obj
+[611/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_palette.c.obj
+[612/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_profiler_builtin_posix.c.obj
+[613/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_ll.c.obj
+[614/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_pending.c.obj
+[615/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_templ.c.obj
+[616/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_lru.c.obj
+[617/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_text_ap.c.obj
+[618/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_rb.c.obj
+[619/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_profiler_builtin.c.obj
+[620/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_tree.c.obj
+[621/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_fs.c.obj
+[622/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_math.c.obj
+[623/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_timer.c.obj
+[624/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_style_gen.c.obj
+[625/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_style.c.obj
+[626/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_utils.c.obj
+[627/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_cmsis_rtos2.c.obj
+[628/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_freertos.c.obj
+[629/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_linux.c.obj
+[630/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_os_none.c.obj
+[631/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_mqx.c.obj
+[632/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_rtthread.c.obj
+[633/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_windows.c.obj
+[634/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_pthread.c.obj
+[635/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_sdl2.c.obj
+[636/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/osal/lv_os.c.obj
+[637/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/others/fragment/lv_fragment.c.obj
+[638/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/others/translation/lv_translation.c.obj
+[639/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/others/file_explorer/lv_file_explorer.c.obj
+[640/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/others/fragment/lv_fragment_manager.c.obj
+[641/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/clib/lv_sprintf_clib.c.obj
+[642/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/clib/lv_mem_core_clib.c.obj
+[643/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/clib/lv_string_clib.c.obj
+[644/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/misc/lv_text.c.obj
+[645/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/builtin/lv_mem_core_builtin.c.obj
+[646/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/micropython/lv_mem_core_micropython.c.obj
+[647/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/rtthread/lv_string_rtthread.c.obj
+[648/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/builtin/lv_string_builtin.c.obj
+[649/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/rtthread/lv_sprintf_rtthread.c.obj
+[650/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/rtthread/lv_mem_core_rtthread.c.obj
+[651/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/lv_mem.c.obj
+[652/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/uefi/lv_mem_core_uefi.c.obj
+[653/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/3dtexture/lv_3dtexture.c.obj
+[654/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/builtin/lv_sprintf_builtin.c.obj
+[655/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/stdlib/builtin/lv_tlsf.c.obj
+[656/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/tick/lv_tick.c.obj
+[657/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/animimage/lv_animimage.c.obj
+[658/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/button/lv_button.c.obj
+[659/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/themes/mono/lv_theme_mono.c.obj
+[660/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/themes/lv_theme.c.obj
+[661/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/calendar/lv_calendar_chinese.c.obj
+[662/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/calendar/lv_calendar_header_arrow.c.obj
+[663/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/arclabel/lv_arclabel.c.obj
+[664/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/calendar/lv_calendar_header_dropdown.c.obj
+[665/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/themes/simple/lv_theme_simple.c.obj
+[666/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/bar/lv_bar.c.obj
+[667/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/calendar/lv_calendar.c.obj
+[668/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/gif/lv_gif.c.obj
+[669/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/canvas/lv_canvas.c.obj
+[670/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/checkbox/lv_checkbox.c.obj
+[671/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/buttonmatrix/lv_buttonmatrix.c.obj
+[672/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/ime/lv_ime_pinyin.c.obj
+[673/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/keyboard/lv_keyboard.c.obj
+[674/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/imagebutton/lv_imagebutton.c.obj
+[675/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/dropdown/lv_dropdown.c.obj
+[676/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/lottie/lv_lottie.c.obj
+[677/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/led/lv_led.c.obj
+[678/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/arc/lv_arc.c.obj
+[679/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/line/lv_line.c.obj
+[680/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/image/lv_image.c.obj
+[681/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/objx_templ/lv_objx_templ.c.obj
+[682/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/list/lv_list.c.obj
+[683/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_animimage_properties.c.obj
+[684/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_arc_properties.c.obj
+[685/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_buttonmatrix_properties.c.obj
+[686/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_bar_properties.c.obj
+[687/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_chart_properties.c.obj
+[688/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/msgbox/lv_msgbox.c.obj
+[689/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_checkbox_properties.c.obj
+[690/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_dropdown_properties.c.obj
+[691/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_image_properties.c.obj
+[692/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_led_properties.c.obj
+[693/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/menu/lv_menu.c.obj
+[694/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_keyboard_properties.c.obj
+[695/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_label_properties.c.obj
+[696/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/themes/default/lv_theme_default.c.obj
+[697/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_obj_properties.c.obj
+[698/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_line_properties.c.obj
+[699/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_menu_properties.c.obj
+[700/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_scale_properties.c.obj
+[701/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_span_properties.c.obj
+[702/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_roller_properties.c.obj
+[703/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_slider_properties.c.obj
+[704/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_spinner_properties.c.obj
+[705/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_style_properties.c.obj
+[706/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_tabview_properties.c.obj
+[707/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_spinbox_properties.c.obj
+[708/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_switch_properties.c.obj
+[709/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_textarea_properties.c.obj
+[710/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/property/lv_table_properties.c.obj
+[711/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/label/lv_label.c.obj
+[712/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/chart/lv_chart.c.obj
+[713/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/spinner/lv_spinner.c.obj
+[714/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/switch/lv_switch.c.obj
+[715/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/spinbox/lv_spinbox.c.obj
+[716/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/tileview/lv_tileview.c.obj
+[717/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/slider/lv_slider.c.obj
+[718/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/tabview/lv_tabview.c.obj
+[719/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/roller/lv_roller.c.obj
+[720/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/win/lv_win.c.obj
+[721/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/anim/lv_example_anim_1.c.obj
+[722/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/anim/lv_example_anim_2.c.obj
+[723/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/anim/lv_example_anim_3.c.obj
+[724/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/anim/lv_example_anim_timeline_1.c.obj
+[725/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/anim/lv_example_anim_4.c.obj
+[726/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/animimg001.c.obj
+[727/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/table/lv_table.c.obj
+[728/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/scale/lv_scale.c.obj
+[729/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/textarea/lv_textarea.c.obj
+[730/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_caret_down.c.obj
+[731/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/emoji/img_emoji_F617.c.obj
+[732/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/animimg002.c.obj
+[733/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_cogwheel_indexed16.c.obj
+[734/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/animimg003.c.obj
+[735/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_cogwheel_argb.c.obj
+[736/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_cogwheel_rgb.c.obj
+[737/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_hand.c.obj
+[738/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_multilang_like.c.obj
+[739/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_skew_strip.c.obj
+[740/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_star.c.obj
+[741/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_transform_avatar_15.c.obj
+[742/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/src/widgets/span/lv_span.c.obj
+[743/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/img_svg_img.c.obj
+[744/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/imgbtn_left.c.obj
+[745/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/imgbtn_right.c.obj
+[746/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/assets/imgbtn_mid.c.obj
+[747/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/event/lv_example_event_bubble.c.obj
+[748/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/event/lv_example_event_button.c.obj
+[749/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/event/lv_example_event_streak.c.obj
+[750/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/event/lv_example_event_click.c.obj
+[751/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/get_started/lv_example_get_started_1.c.obj
+[752/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/event/lv_example_event_draw.c.obj
+[753/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/event/lv_example_event_trickle.c.obj
+[754/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/get_started/lv_example_get_started_4.c.obj
+[755/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/get_started/lv_example_get_started_2.c.obj
+[756/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/get_started/lv_example_get_started_3.c.obj
+[757/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/grad/lv_example_grad_2.c.obj
+[758/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/grad/lv_example_grad_3.c.obj
+[759/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/grad/lv_example_grad_1.c.obj
+[760/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/flex/lv_example_flex_2.c.obj
+[761/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/flex/lv_example_flex_3.c.obj
+[762/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/flex/lv_example_flex_1.c.obj
+[763/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/grad/lv_example_grad_4.c.obj
+[764/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/flex/lv_example_flex_5.c.obj
+[765/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/flex/lv_example_flex_4.c.obj
+[766/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/flex/lv_example_flex_6.c.obj
+[767/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/grid/lv_example_grid_2.c.obj
+[768/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/grid/lv_example_grid_1.c.obj
+[769/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/grid/lv_example_grid_3.c.obj
+[770/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/grid/lv_example_grid_4.c.obj
+[771/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/grid/lv_example_grid_5.c.obj
+[772/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/layouts/grid/lv_example_grid_6.c.obj
+[773/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/barcode/lv_example_barcode_1.c.obj
+[774/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/bmp/lv_example_bmp_1.c.obj
+[775/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/ffmpeg/lv_example_ffmpeg_2.c.obj
+[776/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/ffmpeg/lv_example_ffmpeg_1.c.obj
+[777/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/gltf/lv_example_gltf_1.c.obj
+[778/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/freetype/lv_example_freetype_3.c.obj
+[779/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/gif/lv_example_gif_1.c.obj
+[780/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/freetype/lv_example_freetype_2.c.obj
+[781/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/gif/img_bulb_gif.c.obj
+[782/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/freetype/lv_example_freetype_1.c.obj
+[783/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/libjpeg_turbo/lv_example_libjpeg_turbo_1.c.obj
+[784/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/libpng/img_png_demo.c.obj
+[785/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/gltf/lv_example_gltf_2.c.obj
+[786/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/libpng/lv_example_libpng_1.c.obj
+[787/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/gltf/lv_example_gltf_3.c.obj
+[788/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/gstreamer/lv_example_gstreamer_1.c.obj
+[789/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/qrcode/lv_example_qrcode_1.c.obj
+[790/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/lodepng/img_wink_png.c.obj
+[791/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/lodepng/lv_example_lodepng_1.c.obj
+[792/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/libwebp/lv_example_libwebp_1.c.obj
+[793/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/svg/lv_example_svg_3.c.obj
+[794/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/rlottie/lv_example_rlottie_1.c.obj
+[795/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/svg/lv_example_svg_2.c.obj
+[796/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/tiny_ttf/lv_example_tiny_ttf_1.c.obj
+[797/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/tiny_ttf/lv_example_tiny_ttf_3.c.obj
+[798/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/rlottie/lv_example_rlottie_2.c.obj
+[799/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/rlottie/lv_example_rlottie_approve.c.obj
+[800/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/svg/lv_example_svg_1.c.obj
+[801/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/tiny_ttf/lv_example_tiny_ttf_2.c.obj
+[802/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/tiny_ttf/ubuntu_font.c.obj
+[803/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/file_explorer/lv_example_file_explorer_2.c.obj
+[804/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/libs/tjpgd/lv_example_tjpgd_1.c.obj
+[805/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/fragment/lv_example_fragment_1.c.obj
+[806/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/file_explorer/lv_example_file_explorer_1.c.obj
+[807/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/file_explorer/lv_example_file_explorer_3.c.obj
+[808/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/font_manager/lv_example_font_manager_1.c.obj
+[809/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/fragment/lv_example_fragment_2.c.obj
+[810/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/font_manager/lv_example_font_manager_2.c.obj
+[811/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/gestures/lv_example_gestures.c.obj
+[812/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/font_manager/lv_example_font_manager_3.c.obj
+[813/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/imgfont/lv_example_imgfont_1.c.obj
+[814/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/gridnav/lv_example_gridnav_1.c.obj
+[815/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/gridnav/lv_example_gridnav_2.c.obj
+[816/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/ime/lv_example_ime_pinyin_1.c.obj
+[817/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/monkey/lv_example_monkey_1.c.obj
+[818/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/gridnav/lv_example_gridnav_3.c.obj
+[819/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/gridnav/lv_example_gridnav_4.c.obj
+[820/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/ime/lv_example_ime_pinyin_2.c.obj
+[821/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/gridnav/lv_example_gridnav_5.c.obj
+[822/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/monkey/lv_example_monkey_2.c.obj
+[823/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_1.c.obj
+[824/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_3.c.obj
+[825/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/monkey/lv_example_monkey_3.c.obj
+[826/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_5.c.obj
+[827/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_2.c.obj
+[828/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_4.c.obj
+[829/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/snapshot/lv_example_snapshot_1.c.obj
+[830/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/porting/lv_port_fs_template.c.obj
+[831/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/porting/lv_port_disp_template.c.obj
+[832/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_7.c.obj
+[833/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/porting/lv_port_indev_template.c.obj
+[834/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/observer/lv_example_observer_6.c.obj
+[835/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/porting/lv_port_lcd_stm32_template.c.obj
+[836/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/translation/lv_example_translation_2.c.obj
+[837/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/others/translation/lv_example_translation_1.c.obj
+[838/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_5.c.obj
+[839/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_3.c.obj
+[840/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_1.c.obj
+[841/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_2.c.obj
+[842/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_6.c.obj
+[843/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/porting/osal/lv_example_osal.c.obj
+[844/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_7.c.obj
+[845/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_4.c.obj
+[846/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_9.c.obj
+[847/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_10.c.obj
+[848/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_1.c.obj
+[849/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_12.c.obj
+[850/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/scroll/lv_example_scroll_8.c.obj
+[851/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_13.c.obj
+[852/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_14.c.obj
+[853/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_11.c.obj
+[854/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_15.c.obj
+[855/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_16.c.obj
+[856/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_18.c.obj
+[857/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_17.c.obj
+[858/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_19.c.obj
+[859/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_20.c.obj
+[860/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_3.c.obj
+[861/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_5.c.obj
+[862/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_21.c.obj
+[863/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_2.c.obj
+[864/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_4.c.obj
+[865/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_6.c.obj
+[866/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_9.c.obj
+[867/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_7.c.obj
+[868/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/styles/lv_example_style_8.c.obj
+[869/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/arc/lv_example_arc_2.c.obj
+[870/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/animimg/lv_example_animimg_1.c.obj
+[871/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_1.c.obj
+[872/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/arclabel/lv_example_arclabel_1.c.obj
+[873/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/arc/lv_example_arc_1.c.obj
+[874/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/arc/lv_example_arc_3.c.obj
+[875/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_2.c.obj
+[876/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_4.c.obj
+[877/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_3.c.obj
+[878/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_5.c.obj
+[879/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_6.c.obj
+[880/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/bar/lv_example_bar_7.c.obj
+[881/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/button/lv_example_button_2.c.obj
+[882/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/button/lv_example_button_1.c.obj
+[883/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/buttonmatrix/lv_example_buttonmatrix_1.c.obj
+[884/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/button/lv_example_button_3.c.obj
+[885/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/buttonmatrix/lv_example_buttonmatrix_2.c.obj
+[886/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/buttonmatrix/lv_example_buttonmatrix_3.c.obj
+[887/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/calendar/lv_example_calendar_1.c.obj
+[888/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/calendar/lv_example_calendar_2.c.obj
+[889/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_12.c.obj
+[890/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_1.c.obj
+[891/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_11.c.obj
+[892/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_2.c.obj
+[893/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_10.c.obj
+[894/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_6.c.obj
+[895/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_3.c.obj
+[896/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_4.c.obj
+[897/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_7.c.obj
+[898/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_1.c.obj
+[899/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_5.c.obj
+[900/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_8.c.obj
+[901/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_2.c.obj
+[902/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/canvas/lv_example_canvas_9.c.obj
+[903/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_4.c.obj
+[904/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_6.c.obj
+[905/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_5.c.obj
+[906/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_3.c.obj
+[907/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/dropdown/lv_example_dropdown_3.c.obj
+[908/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_7.c.obj
+[909/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/dropdown/lv_example_dropdown_2.c.obj
+[910/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/dropdown/lv_example_dropdown_1.c.obj
+[911/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/chart/lv_example_chart_8.c.obj
+[912/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/checkbox/lv_example_checkbox_2.c.obj
+[913/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/image/lv_example_image_1.c.obj
+[914/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/checkbox/lv_example_checkbox_1.c.obj
+[915/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/image/lv_example_image_4.c.obj
+[916/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/image/lv_example_image_2.c.obj
+[917/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/keyboard/lv_example_keyboard_2.c.obj
+[918/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/image/lv_example_image_5.c.obj
+[919/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/keyboard/lv_example_keyboard_1.c.obj
+[920/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/imagebutton/lv_example_imagebutton_1.c.obj
+[921/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_2.c.obj
+[922/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/image/lv_example_image_3.c.obj
+[923/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_1.c.obj
+[924/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/keyboard/lv_example_keyboard_3.c.obj
+[925/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_4.c.obj
+[926/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_3.c.obj
+[927/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_6.c.obj
+[928/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/led/lv_example_led_1.c.obj
+[929/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_7.c.obj
+[930/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/label/lv_example_label_5.c.obj
+[931/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/line/lv_example_line_1.c.obj
+[932/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/list/lv_example_list_2.c.obj
+[933/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/lottie/lv_example_lottie_1.c.obj
+[934/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/list/lv_example_list_1.c.obj
+[935/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/lottie/lv_example_lottie_approve.c.obj
+[936/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/lottie/lv_example_lottie_2.c.obj
+[937/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/menu/lv_example_menu_1.c.obj
+[938/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/menu/lv_example_menu_3.c.obj
+[939/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/msgbox/lv_example_msgbox_2.c.obj
+[940/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/msgbox/lv_example_msgbox_1.c.obj
+[941/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/menu/lv_example_menu_4.c.obj
+[942/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/menu/lv_example_menu_2.c.obj
+[943/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/obj/lv_example_obj_1.c.obj
+[944/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/menu/lv_example_menu_5.c.obj
+[945/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/obj/lv_example_obj_3.c.obj
+[946/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/roller/lv_example_roller_1.c.obj
+[947/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/obj/lv_example_obj_2.c.obj
+[948/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_1.c.obj
+[949/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/msgbox/lv_example_msgbox_3.c.obj
+[950/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/roller/lv_example_roller_3.c.obj
+[951/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/roller/lv_example_roller_2.c.obj
+[952/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_10.c.obj
+[953/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_11.c.obj
+[954/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_5.c.obj
+[955/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_6.c.obj
+[956/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_12.c.obj
+[957/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_9.c.obj
+[958/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_2.c.obj
+[959/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_8.c.obj
+[960/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_7.c.obj
+[961/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_4.c.obj
+[962/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/scale/lv_example_scale_3.c.obj
+[963/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/slider/lv_example_slider_1.c.obj
+[964/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/spinner/lv_example_spinner_1.c.obj
+[965/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/slider/lv_example_slider_4.c.obj
+[966/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/switch/lv_example_switch_1.c.obj
+[967/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/slider/lv_example_slider_3.c.obj
+[968/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/slider/lv_example_slider_2.c.obj
+[969/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/spinbox/lv_example_spinbox_1.c.obj
+[970/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/switch/lv_example_switch_2.c.obj
+[971/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/span/lv_example_span_1.c.obj
+[972/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/table/lv_example_table_1.c.obj
+[973/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/tileview/lv_example_tileview_1.c.obj
+[974/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/tabview/lv_example_tabview_1.c.obj
+[975/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/textarea/lv_example_textarea_1.c.obj
+[976/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/textarea/lv_example_textarea_3.c.obj
+[977/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/win/lv_example_win_1.c.obj
+[978/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/tabview/lv_example_tabview_2.c.obj
+[979/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/table/lv_example_table_2.c.obj
+[980/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/textarea/lv_example_textarea_4.c.obj
+[981/1636] Building C object esp-idf/espressif__led_strip/CMakeFiles/__idf_espressif__led_strip.dir/src/led_strip_api.c.obj
+[982/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/examples/widgets/textarea/lv_example_textarea_2.c.obj
+[983/1636] Building C object esp-idf/lvgl__lvgl/CMakeFiles/__idf_lvgl__lvgl.dir/demos/lv_demos.c.obj
+[984/1636] Building C object esp-idf/espressif__led_strip/CMakeFiles/__idf_espressif__led_strip.dir/src/led_strip_rmt_encoder.c.obj
+[985/1636] Building C object esp-idf/espressif__led_strip/CMakeFiles/__idf_espressif__led_strip.dir/src/led_strip_rmt_dev.c.obj
+[986/1636] Building C object esp-idf/espressif__led_strip/CMakeFiles/__idf_espressif__led_strip.dir/src/led_strip_spi_dev.c.obj
+[987/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/editreg.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editreg.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[988/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/editbin.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editbin.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editbin.c: In function 'printByte':
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editbin.c:77:9: warning: comparison is always true due to limited range of data type [-Wtype-limits]
+   77 |   if (c >= 0) {
+      |         ^~
+[989/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/editstr.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editstr.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[990/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/editsurf.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editsurf.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[991/1636] Building C object esp-idf/Command/CMakeFiles/__idf_Command.dir/deploy.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Command/deploy.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Command/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[992/1636] Building C object esp-idf/MemoPad/CMakeFiles/__idf_MemoPad.dir/MemoRsc.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/MemoRsc.c:15:
+/Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[993/1636] Building C object esp-idf/MemoPad/CMakeFiles/__idf_MemoPad.dir/MemoDB.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/MemoDB.c:15:
+/Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[994/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrCustom.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrCustom.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[995/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/editform.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editform.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[996/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/editbmp.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/editbmp.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[997/1636] Building C object esp-idf/Preferences/CMakeFiles/__idf_Preferences.dir/Preferences.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Preferences/Preferences.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Preferences/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[998/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrDetails.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrDetails.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[999/1636] Building C object esp-idf/MemoPad/CMakeFiles/__idf_MemoPad.dir/MemoTransfer.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/MemoTransfer.c:15:
+/Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1000/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrPrefs.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrPrefs.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1001/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrNote.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrNote.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1002/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrDialList.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrDialList.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1003/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/Address.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/Address.c:18:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1004/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddressAutoFill.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressAutoFill.c:17:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1005/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrTools.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrTools.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1006/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrList.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrList.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1007/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/SysDebug.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/SysDebug.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1008/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrView.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrView.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1009/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddrEdit.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddrEdit.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1010/1636] Building C object esp-idf/MemoPad/CMakeFiles/__idf_MemoPad.dir/MemoMain.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/MemoMain.c:17:
+/Users/andyvand/Downloads/PumpkinOS/src/components/MemoPad/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1011/1636] Building C object esp-idf/Command/CMakeFiles/__idf_Command.dir/command.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Command/command.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Command/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+/Users/andyvand/Downloads/PumpkinOS/src/components/Command/command.c:198:3: warning: missing initializer for field 'args' of 'command_builtin_t' [-Wmissing-field-initializers]
+  198 |   { NULL, NULL }
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/Command/command.c:60:9: note: 'args' declared here
+   60 |   char *args;
+      |         ^~~~
+[1012/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddressDB.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressDB.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1013/1636] Building C object esp-idf/ToDoList/CMakeFiles/__idf_ToDoList.dir/ToDoRsc.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDoRsc.c:15:
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1014/1636] Building C object esp-idf/ToDoList/CMakeFiles/__idf_ToDoList.dir/ToDoDB.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDoDB.c:18:
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1015/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddressTransfer.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressTransfer.c:16:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressTransfer.c: In function 'TransferExportVCard':
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressTransfer.c:1157:41: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1157 |                                         PdiWriteParameter(pdiRefNum, writer, kPdiPAV_X_X_PALM_MAIN, false);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressTransfer.c:1159:33: note: here
+ 1159 |                                 case workLabel:
+      |                                 ^~~~
+[1016/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateGlobals.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateGlobals.c:27:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1017/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateDisplay.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateDisplay.c:20:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1018/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateAlarm.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateAlarm.c:23:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1019/1636] Building C object esp-idf/AddressBook/CMakeFiles/__idf_AddressBook.dir/AddressLookup.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/AddressLookup.c:17:
+/Users/andyvand/Downloads/PumpkinOS/src/components/AddressBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1020/1636] Building C object esp-idf/ToDoList/CMakeFiles/__idf_ToDoList.dir/ToDoTransfer.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDoTransfer.c:15:
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1021/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DatePref.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DatePref.c:20:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1022/1636] Building C object esp-idf/Launcher/CMakeFiles/__idf_Launcher.dir/Launcher.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/Launcher.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/Launcher/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1023/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/Datebook.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/Datebook.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1024/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateMonth.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateMonth.c:19:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1025/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateAgenda.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateAgenda.c:22:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateAgenda.c:28:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateAgenda.c: In function 'AgendaViewCountDisplayLines':
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmUtils.h:74:25: warning: comparison is always false due to limited range of data type [-Wtype-limits]
+   74 | #define max(a, b) (((a) > (b)) ? (a) : (b))
+      |                         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateAgenda.c:795:21: note: in expansion of macro 'max'
+  795 |         todoCount = max (minToDoRows, inToDoCount);
+      |                     ^~~
+[1026/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/ToDoDB.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/ToDoDB.c:18:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1027/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateDB.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateDB.c:25:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1028/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Bank.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Bank.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Bank.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1029/1636] Building C object esp-idf/LuaSyntax/CMakeFiles/__idf_LuaSyntax.dir/luasyntax.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/LuaSyntax/luasyntax.c:2:
+/Users/andyvand/Downloads/PumpkinOS/src/components/LuaSyntax/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1030/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateTransfer.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateTransfer.c:24:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateTransfer.c: In function 'DateTransferPreview':
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateTransfer.c:2529:52: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 2529 |                                         todoObjects++;
+      |                                         ~~~~~~~~~~~^~
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateTransfer.c:2531:33: note: here
+ 2531 |                                 case kPdiPRN_BEGIN_VEVENT:
+      |                                 ^~~~
+[1031/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/AppHandleEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/AppHandleEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/AppHandleEvent.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1032/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/BuyEquipEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/BuyEquipEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/BuyEquipEvent.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1033/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Field.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Field.c:47:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Field.c:50:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1034/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/BuyShipEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/BuyShipEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/BuyShipEvent.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1035/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/CmdrStatusEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/CmdrStatusEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/CmdrStatusEvent.c:42:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1036/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Draw.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Draw.c:58:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Draw.c:61:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1037/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Fuel.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Fuel.c:46:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Fuel.c:49:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1038/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Math.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Math.c:40:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Math.c:43:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1039/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Global.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Global.c:42:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Global.c:49:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Global.c:47:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1040/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateWeek.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateWeek.c:19:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1041/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Cargo.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Cargo.c:73:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Cargo.c:76:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1042/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Money.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Money.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Money.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1043/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/OtherEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/OtherEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/OtherEvent.c:44:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1044/1636] Building C object esp-idf/ToDoList/CMakeFiles/__idf_ToDoList.dir/ToDo.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDo.c:15:
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDo.c: In function 'ListViewInit':
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDo.c:5189:53: warning: cast between incompatible function types from 'Err (*)(void *, Int16,  UInt16,  Boolean,  void **, UInt16 *, UInt16 *, FieldType *)' {aka 'short unsigned int (*)(void *, short int,  short unsigned int,  unsigned char,  void **, short unsigned int *, short unsigned int *, FieldType *)'} to 'Err (*)(void *, Int16,  Int16,  Boolean,  void **, Int16 *, Int16 *, FieldType *)' {aka 'short unsigned int (*)(void *, short int,  short int,  unsigned char,  void **, short int *, short int *, FieldType *)'} [-Wcast-function-type]
+ 5189 |         TblSetLoadDataProcedure (table, descColumn, (TableLoadDataFuncPtr)ListViewGetDescription);
+      |                                                     ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/ToDoList/ToDo.c:5190:53: warning: cast between incompatible function types from 'Boolean (*)(void *, Int16,  UInt16)' {aka 'unsigned char (*)(void *, short int,  short unsigned int)'} to 'Boolean (*)(void *, Int16,  Int16)' {aka 'unsigned char (*)(void *, short int,  short int)'} [-Wcast-function-type]
+ 5190 |         TblSetSaveDataProcedure (table, descColumn, (TableSaveDataFuncPtr)ListViewSaveDescription);
+      |                                                     ^
+[1045/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/QuestEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/QuestEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/QuestEvent.c:44:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1046/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/SellEquipEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SellEquipEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SellEquipEvent.c:42:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1047/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/SetField.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SetField.c:9:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SetField.c:12:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1048/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/ShipEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/ShipEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/ShipEvent.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1049/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Merchant.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Merchant.c:42:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Merchant.c:45:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1050/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/ShiptypeInfoEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/ShiptypeInfoEvent.c:40:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/ShiptypeInfoEvent.c:43:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1051/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/ShipPrice.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/ShipPrice.c:45:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/ShipPrice.c:48:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1052/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Shipyard.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Shipyard.c:50:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Shipyard.c:53:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1053/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/SpecialEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SpecialEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SpecialEvent.c:42:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1054/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Skill.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Skill.c:55:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Skill.c:58:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1055/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/refresh.c.obj
+[1056/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/lcdc.c.obj
+[1057/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/palette.c.obj
+[1058/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/WarpFormEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/WarpFormEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/WarpFormEvent.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1059/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Encounter.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Encounter.c:66:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Encounter.c:69:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Encounter.c: In function 'EncounterFormHandleEvent':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Encounter.c:1452:28: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 1452 |                         if (!(AutoAttack || AutoFlee))
+      |                            ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Encounter.c:1456:17: note: here
+ 1456 |                 case ctlSelectEvent:
+      |                 ^~~~
+[1060/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/rtc.c.obj
+[1061/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/SystemInfoEvent.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SystemInfoEvent.c:36:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/SystemInfoEvent.c:39:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+[1062/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/lcd.c.obj
+[1063/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/mem.c.obj
+FAILED: [code=1] esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/mem.c.obj 
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc -DESP_PLATFORM -DIDF_VER=\"v6.0.2-dirty\" -DSOC_MMU_PAGE_SIZE=CONFIG_MMU_PAGE_SIZE -DSOC_XTAL_FREQ_MHZ=CONFIG_XTAL_FREQ -D_GLIBCXX_HAVE_POSIX_SEMAPHORE -D_GLIBCXX_USE_POSIX_SEMAPHORE -D_GNU_SOURCE -D_POSIX_READER_WRITER_LOCKS -I/Users/andyvand/Downloads/PumpkinOS/src/build/config -I/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy -I/Users/andyvand/Downloads/PumpkinOS/src/font -I/Users/andyvand/Downloads/PumpkinOS/src/libos -I/Users/andyvand/Downloads/PumpkinOS/src/libpit -I/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOs/PalmOne -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOs/PalmOne/Common -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOs/PalmOne/Common/System -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOs/PalmOne/68K -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOs/PalmOne/68K/System -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOne/Common/Libraries/filebrowser -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOne/68K/Libraries/filebrowser -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Libraries/SSL -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Libraries/CPMLib -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Libraries/Pdi -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Garmin -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Libraries/PalmOSGlue -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Libraries/INet -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/Hardware -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Extensions/ExpansionMgr -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Extensions/Bluetooth -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Libraries -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/UI -I/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Dynamic -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_libc/platform_include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/config/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/config/include/freertos -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/config/xtensa/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/FreeRTOS-Kernel/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/FreeRTOS-Kernel/portable/xtensa/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/FreeRTOS-Kernel/portable/xtensa/include/freertos -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/esp_additions/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/include/soc -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/ldo/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/debug_probe/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/etm/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/mspi_timing_tuning/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/mspi_timing_tuning/tuning_scheme_impl/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/power_supply/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/modem/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/include/soc/esp32s3 -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/port/esp32s3/. -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/port/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/. -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/heap/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/heap/tlsf -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/log/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc/esp32s3 -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc/esp32s3/register -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/hal/platform_port/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/hal/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/hal/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/include/esp32s3 -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3 -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_common/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/port/soc -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system/port/include/private -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_stdio/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/xtensa/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/xtensa/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/xtensa/deprecated_include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpio/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpio/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_usb/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_usb/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_pmu/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_pmu/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ana_conv/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ana_conv/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_dma/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_dma/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_timer/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/include/apps -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/lwip/src/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/port/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/port/freertos/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/port/esp32xx/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/port/esp32xx/include/arch -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/lwip/port/esp32xx/include/sys -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/driver/i2c/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/driver/touch_sensor/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/driver/twai/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/driver/touch_sensor/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_i2c/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_i2c/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_twai/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_twai/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_touch_sens/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_touch_sens/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/diskio -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/src -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/vfs -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/wear_levelling/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_partition/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_blockdev/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/sdmmc/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_sd/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_sd/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdmmc/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdmmc/legacy/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sd_intf/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_sdspi/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_spi/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_pm/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpspi/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpspi/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_dma/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_driver_gpio/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_wifi/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_wifi/include/local -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_wifi/wifi_apps/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_wifi/wifi_apps/nan_app/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_event/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_phy/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_phy/esp32s3/include -I/Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_netif/include @"/Users/andyvand/Downloads/PumpkinOS/src/build/toolchain/cflags" -fdiagnostics-color=always -fdiagnostics-color=always -ffunction-sections -fdata-sections -Wall -Werror=all -Wno-error=unused-function -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations -Wextra -Wno-error=extra -Wno-unused-parameter -Wno-sign-compare -Wno-enum-conversion -gdwarf-4 -ggdb -Os -freorder-blocks -mno-target-align -fmacro-prefix-map=/Users/andyvand/Downloads/PumpkinOS/src=. -fmacro-prefix-map=/Users/andyvand/Downloads/esp-idf-v6.0.2=/IDF -fstrict-volatile-bitfields -fno-jump-tables -fno-tree-switch-conversion -std=gnu23 -Wno-old-style-declaration -fzero-init-padding-bits=all -fno-malloc-dce -DSYS_CPU=3 -DSYS_SIZE=1 -DSYS_OS=1 -DSYS_ENDIAN=1 -DSYSTEM_NAME=\"pit\" -DSYSTEM_VERSION=\"1.0\" -DSYSTEM_OS=\"ESP32\" -DSOEXT=\".so\" -DLOGTRAP_SYS -Wno-multichar -Wno-format -MD -MT esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/mem.c.obj -MF esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/mem.c.obj.d -o esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/mem.c.obj -c /Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c: In function 'mem_updatemap':
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:84:33: error: array subscript -48896 is outside array bounds of 'struct ram[1]' [-Werror=array-bounds=]
+   84 |         map[0xC] = ram.ibank[0] - 0xC000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:26:12: note: at offset -48896 into object 'ram' of size 33032
+   26 | struct ram ram;
+      |            ^~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:87:33: error: array subscript -57088 is outside array bounds of 'struct ram[1]' [-Werror=array-bounds=]
+   87 |         map[0xE] = ram.ibank[0] - 0xE000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:26:12: note: at offset -57088 into object 'ram' of size 33032
+   26 | struct ram ram;
+      |            ^~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:100:33: error: array subscript -48896 is outside array bounds of 'struct ram[1]' [-Werror=array-bounds=]
+  100 |         map[0xC] = ram.ibank[0] - 0xC000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:26:12: note: at offset -48896 into object 'ram' of size 33032
+   26 | struct ram ram;
+      |            ^~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:103:33: error: array subscript -57088 is outside array bounds of 'struct ram[1]' [-Werror=array-bounds=]
+  103 |         map[0xE] = ram.ibank[0] - 0xE000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:26:12: note: at offset -57088 into object 'ram' of size 33032
+   26 | struct ram ram;
+      |            ^~~
+cc1: some warnings being treated as errors
+[1064/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/hw.c.obj
+[1065/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/events.c.obj
+[1066/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/keytable.c.obj
+[1067/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/sound.c.obj
+[1068/1636] Building C object esp-idf/MineHunt/CMakeFiles/__idf_MineHunt.dir/MineApp.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/MineHunt/MineApp.c:12:
+/Users/andyvand/Downloads/PumpkinOS/src/components/MineHunt/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1069/1636] Building C object esp-idf/vi/CMakeFiles/__idf_vi.dir/vi.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:9:
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c: In function 'do_cmd':
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:3427:26: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 3427 |     g->last_forward_char = get_one_char(g);  // get the search char
+      |     ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:3432:3: note: here
+ 3432 |   case ';':      // ;- look at rest of line for last forward char
+      |   ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:3603:5: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 3603 |     dot_end(g);    // go to e-o-l
+      |     ^~~~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:3605:3: note: here
+ 3605 |   case 'a':      // a- append after current char
+      |   ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:3672:5: warning: this statement may fall through [-Wimplicit-fallthrough=]
+ 3672 |     dot_skip_over_ws(g);
+      |     ^~~~~~~~~~~~~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/vi/vi.c:3674:3: note: here
+ 3674 |   case 'i':      // i- insert before current char
+      |   ^~~~
+[1070/1636] Building C object esp-idf/DateBook/CMakeFiles/__idf_DateBook.dir/DateDay.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/DateDay.c:43:
+/Users/andyvand/Downloads/PumpkinOS/src/components/DateBook/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+[1071/1636] Building C object esp-idf/SpaceTrader/CMakeFiles/__idf_SpaceTrader.dir/Traveler.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Traveler.c:89:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/esp32.h:13:9: warning: 'LOGTRAP_SYS' redefined
+   13 | #define LOGTRAP_SYS
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:54,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Traveler.c:92:
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/spacetrader.h:437:9: warning: 'MAX_WORD' redefined
+  437 | #define MAX_WORD 65535
+      |         ^~~~~~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/pumpkin.h:5,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:27,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/external.h:45:
+/Users/andyvand/Downloads/PumpkinOS/src/libpit/pit_io.h:26:9: note: this is the location of the previous definition
+   26 | #define MAX_WORD        4
+      |         ^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Traveler.c: In function 'ViewHighScores':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SpaceTrader/Traveler.c:1300:43: warning: comparison is always true due to limited range of data type [-Wtype-limits]
+ 1300 |                 if (Hscores[i].Difficulty >= BEGINNER && Hscores[i].Difficulty <= IMPOSSIBLE)
+      |                                           ^~
+[1072/1636] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/cpu.c.obj
+ninja: build stopped: subcommand failed.

@@ -430,6 +430,7 @@ extern UInt32 ToDoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 DatePilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 SpaceTraderPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 MineHuntPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+extern UInt32 GnuBoyPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 #endif
 
 static void launcherScanApps(launcher_data_t *data) {
@@ -484,6 +485,8 @@ static void launcherScanApps(launcher_data_t *data) {
             data->item[i].pilot_main = SpaceTraderPilotMain;
         } else if (creator == 'mine') {
             data->item[i].pilot_main = MineHuntPilotMain;
+        } else if (creator == 'GBoy') {
+            data->item[i].pilot_main = GnuBoyPilotMain;
         }
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {

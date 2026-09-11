@@ -1,0 +1,1 @@
+../../gnuboy/rcfile.c

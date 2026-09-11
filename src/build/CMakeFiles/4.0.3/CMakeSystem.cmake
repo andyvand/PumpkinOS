@@ -1,6 +1,6 @@
-set(CMAKE_HOST_SYSTEM "Darwin-25.5.0")
+set(CMAKE_HOST_SYSTEM "Darwin-25.6.0")
 set(CMAKE_HOST_SYSTEM_NAME "Darwin")
-set(CMAKE_HOST_SYSTEM_VERSION "25.5.0")
+set(CMAKE_HOST_SYSTEM_VERSION "25.6.0")
 set(CMAKE_HOST_SYSTEM_PROCESSOR "arm64")
 
 include("/Users/andyvand/Downloads/PumpkinOS/src/build/toolchain/toolchain-esp32s3.cmake")
