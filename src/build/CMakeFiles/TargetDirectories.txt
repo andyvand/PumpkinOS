@@ -1361,13 +1361,6 @@
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/install.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/install/local.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/MineHunt/CMakeFiles/install/strip.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/edit_cache.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/rebuild_cache.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/list_install_components.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/install.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/install/local.dir
-/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/install/strip.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/edit_cache.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/rebuild_cache.dir
@@ -1410,6 +1403,13 @@
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/main/CMakeFiles/install.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/main/CMakeFiles/install/local.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/main/CMakeFiles/install/strip.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/edit_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/rebuild_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/list_install_components.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/install.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/install/local.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/GnuBoy/CMakeFiles/install/strip.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SDL3_net/CMakeFiles/__idf_SDL3_net.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SDL3_net/CMakeFiles/edit_cache.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/SDL3_net/CMakeFiles/rebuild_cache.dir

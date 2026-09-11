@@ -254,7 +254,6 @@ $<TARGET_FILE:idf::vi>
 $<TARGET_FILE:idf::LuaSyntax>
 $<TARGET_FILE:idf::SpaceTrader>
 $<TARGET_FILE:idf::MineHunt>
-$<TARGET_FILE:idf::GnuBoy>
 $<TARGET_FILE:idf::libpumpkin>
 $<TARGET_FILE:__idf_Launcher>
 $<TARGET_FILE:__idf_Preferences>
@@ -267,7 +266,6 @@ $<TARGET_FILE:__idf_vi>
 $<TARGET_FILE:__idf_LuaSyntax>
 $<TARGET_FILE:__idf_SpaceTrader>
 $<TARGET_FILE:__idf_MineHunt>
-$<TARGET_FILE:__idf_GnuBoy>
 $<TARGET_FILE:idf::libmath>
 $<TARGET_FILE:idf::elf_loader>
 $<TARGET_FILE:__idf_libpumpkin>
@@ -282,4 +280,5 @@ $<TARGET_FILE:__idf_libos>
 $<TARGET_FILE:__idf_libshell>
 $<TARGET_FILE:__idf_liblsdl3>
 $<TARGET_FILE:__idf_SDL>
+$<TARGET_FILE:idf::GnuBoy>
 $<TARGET_FILE:idf::SDL3_net>

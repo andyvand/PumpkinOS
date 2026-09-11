@@ -485,8 +485,10 @@ static void launcherScanApps(launcher_data_t *data) {
             data->item[i].pilot_main = SpaceTraderPilotMain;
         } else if (creator == 'mine') {
             data->item[i].pilot_main = MineHuntPilotMain;
+#ifdef ESP_GNUBOY
         } else if (creator == 'GBoy') {
             data->item[i].pilot_main = GnuBoyPilotMain;
+#endif
         }
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
