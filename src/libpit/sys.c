@@ -207,8 +207,8 @@ static int socket_select(int socket, uint32_t us, int nf) {
   FD_ZERO(&fds);
   FD_SET(socket, &fds);
 
-  tv.tv_sec = 0;
-  tv.tv_usec = us;
+  tv.tv_sec = us / 1000000;
+  tv.tv_usec = us % 1000000;
   n = select(nf ? (socket + 1) : 0, &fds, NULL, NULL, us == ((uint32_t)-1) ? NULL : &tv);
 
   if (n == -1) {
@@ -3400,8 +3400,8 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
     }
     sys_fdzero(&fds);
     sys_fdset(sock, &fds);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = us;
+    timeout.tv_sec = us / 1000000;
+    timeout.tv_usec = us % 1000000;
     r = sys_select_fds(sock+1, NULL, &fds, NULL, us == -1 ? NULL : &timeout);
     if (r == -1) {
       debug_errno("SYS", "connect to %s port %d (ipv%d)", host, port, ipv6 ? 6 : 4);
