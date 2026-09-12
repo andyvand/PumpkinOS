@@ -1,0 +1,17 @@
+# Small web browser for PumpkinOS.
+#
+# Point ROOT at your PumpkinOS checkout (defaults to ../PumpkinOS).
+# Builds Browser.prc and installs it into $(ROOT)/vfs/app_install.
+
+ROOT ?= ../..
+
+PROGRAM=Browser
+SOURCE=Browser.c
+RCP=resource.rcp
+RCPDEP=resource.h globe32.bmp globe64.bmp
+APPNAME=Browser
+APPID=Brws
+
+include $(ROOT)/src/common.mak
+include $(ROOT)/src/commonp.mak
+include $(ROOT)/src/app.mak

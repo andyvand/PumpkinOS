@@ -1,0 +1,13 @@
+# Host-side unit test for the parser / URL / layout code (no PumpkinOS runtime needed).
+ROOT ?= $(abspath ../PumpkinOS)
+APPNAME=Browser
+APPID=Brws
+
+include $(ROOT)/src/common.mak
+include $(ROOT)/src/commonp.mak
+
+test/test_host: test/test_host.c Browser.c
+	$(CC) $(CPPFLAGS) -Wno-unused-function -o test/test_host test/test_host.c -L$(BIN) -lpit
+
+clean:
+	rm -f test/test_host

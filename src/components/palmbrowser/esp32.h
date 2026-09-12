@@ -1,0 +1,1 @@
+../../palmbrowser/esp32.h

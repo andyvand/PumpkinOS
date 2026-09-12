@@ -1,0 +1,46 @@
+#include "resource.h"
+
+ICONFAMILYEX
+BEGIN
+  BITMAP "globe32.bmp" BPP 8 DENSITY  72 TRANSPARENT 255 255 255
+  BITMAP "globe64.bmp" BPP 8 DENSITY 144 TRANSPARENT 255 255 255
+END
+
+FORM MainForm 0 0 160 160
+USABLE
+NOFRAME
+MENUID MainMenu
+BEGIN
+  BUTTON "<" backBtn 1 1 12 12
+  FIELD urlFld 15 2 118 AUTO SINGLELINE MAXCHARS 500 EDITABLE UNDERLINED
+  BUTTON "Go" goBtn 135 1 23 12
+  GADGET ID pageGad 0 15 152 145
+  SCROLLBAR ID pageScl 153 15 7 145 VALUE 0 MIN 0 MAX 0 PAGESIZE 10
+END
+
+MENU MainMenu
+BEGIN
+  PULLDOWN "Page"
+  BEGIN
+    MENUITEM "Home"              homeCmd    "H"
+    MENUITEM "Reload"            reloadCmd  "R"
+    MENUITEM "Back"              backCmd    "B"
+    MENUITEM SEPARATOR
+    MENUITEM "Set as Home"       setHomeCmd
+    MENUITEM "Open via FrogFind" frogCmd    "F"
+  END
+  PULLDOWN "Edit"
+  BEGIN
+    MENUITEM "Undo"       10000 "U"
+    MENUITEM "Cut"        10001 "X"
+    MENUITEM "Copy"       10002 "C"
+    MENUITEM "Paste"      10003 "P"
+    MENUITEM "Select All" 10004 "S"
+  END
+  PULLDOWN "Options"
+  BEGIN
+    MENUITEM "About" aboutCmd "A"
+  END
+END
+
+VERSION "1.0"

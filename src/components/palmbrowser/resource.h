@@ -1,0 +1,1 @@
+../../palmbrowser/resource.h
