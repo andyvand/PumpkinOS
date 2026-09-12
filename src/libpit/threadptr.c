@@ -2,6 +2,12 @@
 #include <pthread.h>
 #undef __USE_GNU
 
+#ifdef ESP32
+#include <errno.h>
+#include "esp_pthread.h"
+#include "esp_heap_caps.h"
+#endif
+
 #include "sys.h"
 #include "thread.h"
 #include "mutex.h"
@@ -76,11 +82,60 @@ void *thread_get(thread_key_t *key) {
   return pthread_getspecific(key->key);
 }
 
-static int thread_create(void *(*action)(void *), void *arg) {
+#ifdef ESP32
+// ESP-IDF gives a pthread CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT bytes of
+// stack (3072 in this build) carved from internal RAM. That is far too small
+// for the threads libpit starts here: debug_full alone keeps ~2.3KB of
+// buffers on the stack, and a network client thread (io_stream_connection,
+// used by the HTTP client) also runs getaddrinfo/connect and the caller's
+// response callback on it. Ask for a real stack and take it from PSRAM, so
+// the scarce internal heap (WiFi, lwIP, display) is not the reason an app's
+// network request fails to start; fall back to internal RAM if PSRAM is out.
+#define ESP32_THREAD_STACK_SIZE (16*1024)
+
+static int thread_create_esp32(pthread_t *t, void *(*action)(void *), void *arg, char *name) {
+  esp_pthread_cfg_t cfg;
+  int err;
+
+  cfg = esp_pthread_get_default_config();
+  cfg.stack_size = ESP32_THREAD_STACK_SIZE;
+  cfg.thread_name = name;
+  cfg.inherit_cfg = false;
+  cfg.stack_alloc_caps = MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT;
+
+  if (esp_pthread_set_cfg(&cfg) == ESP_OK && (err = pthread_create(t, NULL, action, arg)) == 0) {
+    return 0;
+  }
+
+  cfg.stack_alloc_caps = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
+  if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
+    return EINVAL;
+  }
+  err = pthread_create(t, NULL, action, arg);
+  if (err != 0) {
+    debug(DEBUG_ERROR, "THREAD", "pthread_create \"%s\" stack %d failed: free internal %u (largest %u), free spiram %u (largest %u)",
+      name ? name : "", ESP32_THREAD_STACK_SIZE,
+      (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT),
+      (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT),
+      (unsigned)heap_caps_get_free_size(MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT),
+      (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+  }
+
+  return err;
+}
+#endif
+
+static int thread_create(void *(*action)(void *), void *arg, char *name) {
   pthread_t t;
   int err, r = 0;
 
-  if ((err = pthread_create(&t, NULL, action, arg)) != 0) {
+#ifdef ESP32
+  err = thread_create_esp32(&t, action, arg, name);
+#else
+  err = pthread_create(&t, NULL, action, arg);
+#endif
+
+  if (err != 0) {
     debug(DEBUG_ERROR, "THREAD", "pthread_create: %d", err);
     r = -1;
   }
@@ -417,7 +472,7 @@ int thread_begin(char *tag, int action(void *arg), void *arg) {
   targ->queue = queue;
   debug(DEBUG_INFO, "THREAD", "thread queue %d", queue);
 
-  if (thread_create(thread_action, targ) == -1) {
+  if (thread_create(thread_action, targ, tag) == -1) {
     ptr_free(queue, TAG_QUEUE);
     xfree(targ);
     return -1;

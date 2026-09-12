@@ -1013,11 +1013,15 @@ static void fetchFree(fetch_t *f) {
 static int fetchCallback(int ptr, void *_data) {
   fetch_t *f = (fetch_t *)_data;
   http_client_t *hc;
-  char buf[4096];
+  char *buf;
   char *name, *value;
   int i, n, abandoned;
 
-  if ((hc = ptr_lock(ptr, TAG_HTTP_CLIENT)) != NULL) {
+  /* this runs on the network thread, whose stack is small on ESP32:
+     keep the read buffer on the heap */
+  buf = xmalloc(4096);
+
+  if (buf && (hc = ptr_lock(ptr, TAG_HTTP_CLIENT)) != NULL) {
     f->code = hc->response_code_found ? hc->response_code : 0;
     f->error = hc->response_error;
 
@@ -1036,7 +1040,7 @@ static int fetchCallback(int ptr, void *_data) {
 
     if (hc->response_fd > 0) {
       for (;;) {
-        n = sys_read(hc->response_fd, (uint8_t *)buf, sizeof(buf));
+        n = sys_read(hc->response_fd, (uint8_t *)buf, 4096);
         if (n <= 0) break;
         if (f->len + n > MAX_RESPONSE) n = MAX_RESPONSE - f->len;
         if (n <= 0) break;
@@ -1050,6 +1054,7 @@ static int fetchCallback(int ptr, void *_data) {
   } else {
     f->error = 1;
   }
+  if (buf) xfree(buf);
 
   mutex_lock(f->mutex);
   abandoned = f->abandoned;
