@@ -2990,10 +2990,8 @@ static int draw_task(int i, int *x, int *y, int *w, int *h) {
       *y = screen->y0;
       *w = screen->x1 - screen->x0 + 1;
       *h = screen->y1 - screen->y0 + 1;
-      // XXX hang debug: raised from TRACE to INFO, plus an "end" marker
-      debug(DEBUG_INFO, PUMPKINOS, "task %d (%s) update texture %d,%d %d,%d", i, pumpkin_module.tasks[i].name, *x, *y, *w, *h);
+      debug(DEBUG_TRACE, PUMPKINOS, "task %d (%s) update texture %d,%d %d,%d", i, pumpkin_module.tasks[i].name, *x, *y, *w, *h);
       pumpkin_module.wp->update_texture_rect(pumpkin_module.w, pumpkin_module.tasks[i].texture, raw, *x, *y, *w, *h);
-      debug(DEBUG_INFO, PUMPKINOS, "task %d update texture end", i);
       screen->x0 = pumpkin_module.tasks[i].width;
       screen->y0 = pumpkin_module.tasks[i].height;
       screen->x1 = -1;
@@ -3413,7 +3411,7 @@ int pumpkin_sys_event(void) {
                 updCount++;
                 if (updT0 == 0) updT0 = now;
                 if (now - updT0 >= 1000000) {
-                  debug(DEBUG_INFO, PUMPKINOS, "display uploads/sec %d", updCount);
+                  debug(DEBUG_TRACE, PUMPKINOS, "display uploads/sec %d", updCount);
                   updCount = 0; updT0 = now;
                 }
               }
@@ -3735,11 +3733,9 @@ static void pumpkin_update_single_app(void) {
     if (pumpkin_module.fullrefresh) {
       draw_task(0, &x, &y, &w, &h);
       wman_update(pumpkin_module.wm, 0, 0, 0, pumpkin_module.tasks[0].width, pumpkin_module.tasks[0].height);
-      debug(DEBUG_INFO, PUMPKINOS, "wman update end"); // XXX hang debug
       pumpkin_module.render = 1;
     } else if (draw_task(0, &x, &y, &w, &h)) {
       wman_update(pumpkin_module.wm, 0, x, y, w, h);
-      debug(DEBUG_INFO, PUMPKINOS, "wman update end"); // XXX hang debug
       pumpkin_module.render = 1;
     }
 
@@ -3750,10 +3746,7 @@ static void pumpkin_update_single_app(void) {
 
     if (pumpkin_module.render) {
       if (pumpkin_module.wp->render) {
-        // XXX hang debug: bracket the host present call (SDL_RenderPresent / esp_lcd)
-        debug(DEBUG_INFO, PUMPKINOS, "host render begin");
         pumpkin_module.wp->render(pumpkin_module.w);
-        debug(DEBUG_INFO, PUMPKINOS, "host render end");
       }
       pumpkin_module.render = 0;
     }
@@ -4405,14 +4398,6 @@ void pumpkin_screen_dirty(WinHandle wh, int x, int y, int w, int h) {
   Boolean dbl;
   Coord sx, sy;
   int xd, yd, wd, hd;
-  // XXX hang debug: rate-limited alive marker to detect a loop that keeps drawing
-  static uint64_t lastAlive = 0;
-  uint64_t nowAlive = sys_get_clock();
-
-  if (nowAlive - lastAlive > 2000000) {
-    lastAlive = nowAlive;
-    debug(DEBUG_INFO, PUMPKINOS, "screen dirty alive (%d,%d %dx%d)", x, y, w, h);
-  }
 
   if (!task) return;
 
@@ -4475,17 +4460,19 @@ void pumpkin_screen_dirty(WinHandle wh, int x, int y, int w, int h) {
 //debug(1, "XXX", "pumpkin_screen_dirty dirty (%d,%d,%d,%d)", screen->x0, screen->y0, screen->x1, screen->y1);
 
       // Mark the task screen dirty so draw_task() uploads it in desktop mode
-      // (mode 0). Previously only dirtyRegionEnd and pumpkin_screen_copy set
-      // this flag, so apps blitting through this API (game ports) only ever
-      // reached the display in single-app mode via the mode==1 call below.
-      if (screen->x0 <= screen->x1 && screen->y0 <= screen->y1) {
+      // (mode 0) for apps blitting through this API (game ports). Only do this
+      // when no dirty region batch is open: while FrmDrawForm & co. draw through
+      // WinPutBit, every pixel comes through here, and flagging dirty per pixel
+      // makes the single-app path flush (and on ESP32 spend ~100ms rendering)
+      // one pixel at a time. dirtyRegionEnd sets the flag once the batch closes.
+      if (task->dirty_level == 0 && screen->x0 <= screen->x1 && screen->y0 <= screen->y1) {
         screen->dirty = 1;
       }
 
       ptr_unlock(task->screen_ptr, TAG_SCREEN);
     }
 
-    if (pumpkin_module.mode == 1 && pumpkin_module.launched) {
+    if (task->dirty_level == 0 && pumpkin_module.mode == 1 && pumpkin_module.launched) {
       pumpkin_update_single_app();
     }
   }
