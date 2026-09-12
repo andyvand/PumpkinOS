@@ -22,32 +22,32 @@ UNAME_M := $(shell uname -m)
 # at runtime the app's native code is loaded from the PRC resource
 # 'dlib' id = SYS_OS*64 + SYS_CPU*8 + SYS_SIZE.
 SYS_OS ?= 1
-ifeq ($(findstring arm,$(UNAME_M)),arm)
+# mirror $(PUMPKIN)/src/common.mak: macOS reports 64-bit ARM as "arm64",
+# Linux as "aarch64"; only other arm* machines are 32-bit
+ifeq ($(UNAME_M),arm64)
 SYS_CPU ?= 1
+SYS_SIZE ?= 2
 else ifeq ($(UNAME_M),aarch64)
 SYS_CPU ?= 1
+SYS_SIZE ?= 2
+else ifeq ($(findstring arm,$(UNAME_M)),arm)
+SYS_CPU ?= 1
+SYS_SIZE ?= 1
 else ifeq ($(UNAME_M),x86_64)
 SYS_CPU ?= 2
+SYS_SIZE ?= 2
 else ifeq ($(UNAME_M),i386)
 SYS_CPU ?= 2
+SYS_SIZE ?= 1
 else ifeq ($(UNAME_M),i686)
 SYS_CPU ?= 2
+SYS_SIZE ?= 1
+else ifeq ($(UNAME_M),riscv64)
+SYS_CPU ?= 3
+SYS_SIZE ?= 2
 else
 SYS_CPU ?= 3
-endif
-
-ifeq ($(findstring arm,$(UNAME_M)),arm)
 SYS_SIZE ?= 1
-else ifeq ($(UNAME_M),aarch64)
-SYS_SIZE ?= 2
-else ifeq ($(UNAME_M),x86_64)
-SYS_SIZE ?= 2
-else ifeq ($(UNAME_M),i386)
-SYS_SIZE ?= 1
-else ifeq ($(UNAME_M),i686)
-SYS_SIZE ?= 1
-else
-SYS_SIZE ?= 2
 endif
 
 SYS_ENDIAN ?= 1
