@@ -257,6 +257,26 @@ static char *libsdl_clipboard(libsdl_window_t *window, char *clipboard, int len)
   return SDL_GetClipboardText();
 }
 
+/* The character a key produces in the *active* keyboard layout with the current
+   modifiers (Shift, Caps Lock, AltGr), as computed by SDL.  The fixed keymap
+   table below only knows the US layout, so on e.g. an AZERTY keyboard Shift
+   would not give digits or symbols.  Returns 0 when SDL has no Latin-1
+   character for the key (control keys, dead keys, shortcuts with Ctrl/Alt),
+   in which case the caller falls back to the table. */
+static int layout_key(libsdl_window_t *window, SDL_Event *ev) {
+#if SDL_VERSION_ATLEAST(3, 1, 3)
+  SDL_Keymod modstate;
+  SDL_Keycode kc;
+
+  if (window->mods & (WINDOW_MOD_CTRL | WINDOW_MOD_RCTRL | WINDOW_MOD_LALT)) return 0;
+  modstate = ev->key.mod & (SDL_KMOD_CAPS | SDL_KMOD_RALT | SDL_KMOD_MODE | SDL_KMOD_LEVEL5);
+  if (window->mods & WINDOW_MOD_SHIFT) modstate |= SDL_KMOD_SHIFT;
+  kc = SDL_GetKeyFromScancode(ev->key.scancode, modstate, false);
+  if ((kc >= 32 && kc < 127) || (kc >= 160 && kc < 256)) return (int)kc;
+#endif
+  return 0;
+}
+
 static int map_key(libsdl_window_t *window, SDL_Event *ev) {
   int index, shift = 0, key = 0;
 
@@ -316,11 +336,13 @@ static int map_key(libsdl_window_t *window, SDL_Event *ev) {
       }
 
       if (ev->key.key < 256) {
-        index = (window->mods << 8) | ev->key.key;
-        if (window->keymap[index].to && (window->keymap[index].mods & window->mods)) {
-          key = window->keymap[index].to;
-        } else {
-          key = ev->key.key;
+        if ((key = layout_key(window, ev)) == 0) {
+          index = (window->mods << 8) | ev->key.key;
+          if (window->keymap[index].to && (window->keymap[index].mods & window->mods)) {
+            key = window->keymap[index].to;
+          } else {
+            key = ev->key.key;
+          }
         }
       } else {
         switch (ev->key.key) {
@@ -531,13 +553,17 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
             }
             debug(DEBUG_TRACE, "SDL", "keyup sym 0x%08X (0x%02X)", ev.key.key, window->mods);
             if (ev.key.key < 256) {
-              index = (window->mods << 8) | ev.key.key;
-              if (window->keymap[index].to && (window->keymap[index].mods & window->mods)) {
-                key = window->keymap[index].to;
-                debug(DEBUG_TRACE, "SDL", "change key '%c' -> '%c'", ev.key.key, key);
+              if ((key = layout_key(window, &ev)) != 0) {
+                debug(DEBUG_TRACE, "SDL", "layout key '%c' -> '%c'", ev.key.key, key);
               } else {
-                key = ev.key.key;
-                debug(DEBUG_TRACE, "SDL", "key '%c'", key);
+                index = (window->mods << 8) | ev.key.key;
+                if (window->keymap[index].to && (window->keymap[index].mods & window->mods)) {
+                  key = window->keymap[index].to;
+                  debug(DEBUG_TRACE, "SDL", "change key '%c' -> '%c'", ev.key.key, key);
+                } else {
+                  key = ev.key.key;
+                  debug(DEBUG_TRACE, "SDL", "key '%c'", key);
+                }
               }
             } else {
               switch (ev.key.key) {

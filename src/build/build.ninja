@@ -3998,7 +3998,7 @@ build esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/install/strip: phony esp-idf
 #############################################
 # Order-only phony target for everest
 
-build cmake_object_order_depends_target_everest: phony || cmake_object_order_depends_target_utilities
+build cmake_object_order_depends_target_everest: phony || cmake_object_order_depends_target___idf_esp_hal_timg
 
 build esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.dir/library/x25519.c.obj: C_COMPILER__everest_unscanned_ /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/library/x25519.c || cmake_object_order_depends_target_everest
   DEFINES = -DESP_PLATFORM -DIDF_VER=\"v6.0.2-dirty\" -DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\" -DMBEDTLS_MAJOR_VERSION=4 -DSOC_MMU_PAGE_SIZE=CONFIG_MMU_PAGE_SIZE -DSOC_XTAL_FREQ_MHZ=CONFIG_XTAL_FREQ -DTF_PSA_CRYPTO_USER_CONFIG_FILE=\"mbedtls/esp_config.h\" -D_GLIBCXX_HAVE_POSIX_SEMAPHORE -D_GLIBCXX_USE_POSIX_SEMAPHORE -D_GNU_SOURCE -D_POSIX_READER_WRITER_LOCKS
@@ -4024,7 +4024,7 @@ build esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.d
 #############################################
 # Link the static library esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/libeverest.a
 
-build esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/libeverest.a: CXX_STATIC_LIBRARY_LINKER__everest_ esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.dir/library/x25519.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.obj || esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/libutilities.a
+build esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/libeverest.a: CXX_STATIC_LIBRARY_LINKER__everest_ esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.dir/library/x25519.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.obj || esp-idf/esp_hal_timg/libesp_hal_timg.a
   LANGUAGE_COMPILE_FLAGS = @"/Users/andyvand/Downloads/PumpkinOS/src/build/toolchain/cxxflags"
   OBJECT_DIR = esp-idf/mbedtls/mbedtls/tf-psa-crypto/drivers/everest/CMakeFiles/everest.dir
   POST_BUILD = :
@@ -5102,7 +5102,7 @@ build esp-idf/mbedtls/mbedtls/tf-psa-crypto/platform/install/strip: phony esp-id
 #############################################
 # Order-only phony target for utilities
 
-build cmake_object_order_depends_target_utilities: phony || cmake_object_order_depends_target___idf_esp_hal_timg
+build cmake_object_order_depends_target_utilities: phony || cmake_object_order_depends_target_platform
 
 build esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/asn1parse.c.obj: C_COMPILER__utilities_unscanned_ /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mbedtls/mbedtls/tf-psa-crypto/utilities/asn1parse.c || cmake_object_order_depends_target_utilities
   DEFINES = -DESP_PLATFORM -DIDF_VER=\"v6.0.2-dirty\" -DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\" -DMBEDTLS_MAJOR_VERSION=4 -DSOC_MMU_PAGE_SIZE=CONFIG_MMU_PAGE_SIZE -DSOC_XTAL_FREQ_MHZ=CONFIG_XTAL_FREQ -DTF_PSA_CRYPTO_USER_CONFIG_FILE=\"mbedtls/esp_config.h\" -D_GLIBCXX_HAVE_POSIX_SEMAPHORE -D_GLIBCXX_USE_POSIX_SEMAPHORE -D_GNU_SOURCE -D_POSIX_READER_WRITER_LOCKS
@@ -5168,7 +5168,7 @@ build esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/p
 #############################################
 # Link the static library esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/libutilities.a
 
-build esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/libutilities.a: CXX_STATIC_LIBRARY_LINKER__utilities_ esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/asn1parse.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/asn1write.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/base64.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/constant_time.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/oid.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/pem.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/pkcs5.c.obj || esp-idf/esp_hal_timg/libesp_hal_timg.a
+build esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/libutilities.a: CXX_STATIC_LIBRARY_LINKER__utilities_ esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/asn1parse.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/asn1write.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/base64.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/constant_time.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/oid.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/pem.c.obj esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir/pkcs5.c.obj || esp-idf/mbedtls/mbedtls/tf-psa-crypto/platform/libplatform.a
   LANGUAGE_COMPILE_FLAGS = @"/Users/andyvand/Downloads/PumpkinOS/src/build/toolchain/cxxflags"
   OBJECT_DIR = esp-idf/mbedtls/mbedtls/tf-psa-crypto/utilities/CMakeFiles/utilities.dir
   POST_BUILD = :
