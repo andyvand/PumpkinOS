@@ -9147,3 +9147,820 @@ In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/libpump
 /Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
    31 |   uint16_t capsel;
       |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1272:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1272 |   { sysTrapWinPaintPixel, -1, "WinPaintPixel", T_VOID, 0, 0, 2, { { T_SIG, 0, 2, 0, "x" }, { T_SIG, 0, 2, 0, "y" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1273:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1273 |   { sysTrapWinPaintPixels, -1, "WinPaintPixels", T_VOID, 0, 0, 2, { { T_USIG, 0, 2, 0, "numPoints" }, { T_VOID, 1, 4, 0, "pts[]" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1274:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1274 |   { sysTrapWinPaintRectangle, -1, "WinPaintRectangle", T_VOID, 0, 0, 2, { { T_RCT, 1, 4, 0, "rP" }, { T_USIG, 0, 2, 0, "cornerDiam" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1275:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1275 |   { sysTrapWinPaintRectangleFrame, -1, "WinPaintRectangleFrame", T_VOID, 0, 0, 2, { { T_USIG, 0, 2, 0, "frame" }, { T_RCT, 1, 4, 0, "rP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1276:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1276 |   { sysTrapWinPalette, -1, "WinPalette", T_USIG, 0, 2, 4, { { T_USIG, 0, 1, 0, "operation" }, { T_SIG, 0, 2, 0, "startIndex" }, { T_USIG, 0, 2, 0, "paletteEntries" }, { T_RGB, 1, 4, 0, "tableP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1277:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1277 |   { sysTrapWinPopDrawState, -1, "WinPopDrawState", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1278:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1278 |   { sysTrapWinPushDrawState, -1, "WinPushDrawState", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1279:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1279 |   { sysTrapWinRGBToIndex, -1, "WinRGBToIndex", T_USIG, 0, 1, 1, { { T_RGB, 1, 4, 0, "rgbP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1280:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1280 |   { sysTrapWinRemoveWindow, -1, "WinRemoveWindow", T_VOID, 0, 0, 1, { { T_VOID, 1, 4, 0, "winHandle" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1281:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1281 |   { sysTrapWinResetClip, -1, "WinResetClip", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1282:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1282 |   { sysTrapWinRestoreBits, -1, "WinRestoreBits", T_VOID, 0, 0, 3, { { T_VOID, 1, 4, 0, "winHandle" }, { T_SIG, 0, 2, 0, "destX" }, { T_SIG, 0, 2, 0, "destY" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1283:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1283 |   { sysTrapWinSaveBits, -1, "WinSaveBits", T_VOID, 1, 4, 2, { { T_RCT, 1, 4, 0, "source" }, { T_USIG, 1, 2, 0, "error" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1284:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1284 |   { sysTrapWinScreenInit, -1, "WinScreenInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1285:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1285 |   { sysTrapWinScreenLock, -1, "WinScreenLock", T_VOID, 1, 4, 1, { { T_USIG, 0, 1, 0, "initMode" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1286:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1286 |   { sysTrapWinScreenMode, -1, "WinScreenMode", T_USIG, 0, 2, 5, { { T_USIG, 0, 1, 0, "operation" }, { T_USIG, 1, 4, OMIT_IN, "widthP" }, { T_USIG, 1, 4, OMIT_IN, "heightP" }, { T_USIG, 1, 4, OMIT_IN, "depthP" }, { T_USIG, 1, 1, OMIT_IN, "enableColorP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1287:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1287 |   { sysTrapWinScreenUnlock, -1, "WinScreenUnlock", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1288:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1288 |   { sysTrapWinScrollRectangle, -1, "WinScrollRectangle", T_VOID, 0, 0, 4, { { T_RCT, 1, 4, 0, "rP" }, { T_USIG, 0, 1, 0, "direction" }, { T_SIG, 0, 2, 0, "distance" }, { T_RCT, 1, 4, OMIT_IN, "vacatedP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1289:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1289 |   { sysTrapWinSetActiveWindow, -1, "WinSetActiveWindow", T_VOID, 0, 0, 1, { { T_VOID, 1, 4, 0, "winHandle" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1290:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1290 |   { sysTrapWinSetBackColor, -1, "WinSetBackColor", T_USIG, 0, 1, 1, { { T_USIG, 0, 1, 0, "backColor" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1291:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1291 |   { sysTrapWinSetBackColorRGB, -1, "WinSetBackColorRGB", T_VOID, 0, 0, 2, { { T_RGB, 1, 4, 0, "newRgbP" }, { T_RGB, 1, 4, OMIT_IN, "prevRgbP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1292:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1292 |   { sysTrapWinSetBounds, -1, "WinSetBounds", T_VOID, 0, 0, 2, { { T_VOID, 1, 4, 0, "winHandle" }, { T_RCT, 1, 4, 0, "rP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1293:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1293 |   { sysTrapWinSetClip, -1, "WinSetClip", T_VOID, 0, 0, 1, { { T_RCT, 1, 4, 0, "rP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1294:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1294 |   { sysTrapWinSetColors, -1, "WinSetColors", T_VOID, 0, 0, 4, { { T_RGB, 1, 4, 0, "newForeColorP" }, { T_RGB, 1, 4, OMIT_IN, "oldForeColorP" }, { T_RGB, 1, 4, 0, "newBackColorP" }, { T_RGB, 1, 4, OMIT_IN, "oldBackColorP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1295:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1295 |   { sysTrapWinSetDrawMode, -1, "WinSetDrawMode", T_USIG, 0, 1, 1, { { T_USIG, 0, 1, 0, "newMode" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1296:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1296 |   { sysTrapWinSetDrawWindow, -1, "WinSetDrawWindow", T_VOID, 1, 4, 1, { { T_VOID, 1, 4, 0, "winHandle" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1297:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1297 |   { sysTrapWinSetForeColor, -1, "WinSetForeColor", T_USIG, 0, 1, 1, { { T_USIG, 0, 1, 0, "foreColor" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1298:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1298 |   { sysTrapWinSetForeColorRGB, -1, "WinSetForeColorRGB", T_VOID, 0, 0, 2, { { T_RGB, 1, 4, 0, "newRgbP" }, { T_RGB, 1, 4, OMIT_IN, "prevRgbP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1299:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1299 |   { sysTrapWinSetPattern, -1, "WinSetPattern", T_VOID, 0, 0, 1, { { T_VOID, 1, 4, 0, "patternP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1300:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1300 |   { sysTrapWinSetPatternType, -1, "WinSetPatternType", T_VOID, 0, 0, 1, { { T_USIG, 0, 1, 0, "newPattern" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1301:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1301 |   { sysTrapWinSetTextColor, -1, "WinSetTextColor", T_USIG, 0, 1, 1, { { T_USIG, 0, 1, 0, "textColor" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1302:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1302 |   { sysTrapWinSetTextColorRGB, -1, "WinSetTextColorRGB", T_VOID, 0, 0, 2, { { T_RGB, 1, 4, 0, "newRgbP" }, { T_RGB, 1, 4, OMIT_IN, "prevRgbP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1303:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1303 |   { sysTrapWinSetUnderlineMode, -1, "WinSetUnderlineMode", T_USIG, 0, 1, 1, { { T_USIG, 0, 1, 0, "mode" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1304:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1304 |   { sysTrapWinValidateHandle, -1, "WinValidateHandle", T_USIG, 0, 1, 1, { { T_VOID, 1, 4, 0, "winHandle" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1305:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1305 |   { sysTrapWinWindowToDisplayPt, -1, "WinWindowToDisplayPt", T_VOID, 0, 0, 2, { { T_SIG, 1, 2, OMIT_IN, "extentX" }, { T_SIG, 1, 2, OMIT_IN, "extentY" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1306:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1306 |   { sysTrapMemStoreInit, -1, "MemStoreInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1307:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1307 |   { sysTrapMemHeapPtr, -1, "MemHeapPtr", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1308:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1308 |   { sysTrapMemStoreSearch, -1, "MemStoreSearch", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1309:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1309 |   { sysTrapMemNVParams, -1, "MemNVParams", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1310:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1310 |   { sysTrapDmMoveOpenDBContext, -1, "DmMoveOpenDBContext", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1311:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1311 |   { sysTrapSysTaskUserInfoPtr, -1, "SysTaskUserInfoPtr", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1312:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1312 |   { sysTrapScrSendUpdateArea, -1, "ScrSendUpdateArea", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1313:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1313 |   { sysTrapTimSetAlarm, -1, "TimSetAlarm", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1314:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1314 |   { sysTrapTimHandleInterrupt, -1, "TimHandleInterrupt", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1315:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1315 |   { sysTrapEvtInitialize, -1, "EvtInitialize", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1316:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1316 |   { sysTrapUIInitialize, -1, "UIInitialize", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1317:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1317 |   { sysTrapUIReset, -1, "UIReset", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1318:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1318 |   { sysTrapHwrGetRAMMapping, -1, "HwrGetRAMMapping", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1319:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1319 |   { sysTrapHwrMemReadable, -1, "HwrMemReadable", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1320:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1320 |   { sysTrapHwrDisplayInit, -1, "HwrDisplayInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1321:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1321 |   { sysTrapHwrTimerInit, -1, "HwrTimerInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1322:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1322 |   { sysTrapHwrDisplayDrawBootScreen, -1, "HwrDisplayDrawBootScreen", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1323:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1323 |   { sysTrapKeyInit, -1, "KeyInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1324:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1324 |   { sysTrapKeyHandleInterrupt, -1, "KeyHandleInterrupt", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1325:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1325 |   { sysTrapKeyResetDoubleTap, -1, "KeyResetDoubleTap", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1326:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1326 |   { sysTrapSysNotifyInit, -1, "SysNotifyInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1327:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1327 |   { sysTrapFlashInit, -1, "FlashInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1328:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1328 |   { sysTrapHwrBattery, -1, "HwrBattery", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1329:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1329 |   { sysTrapHwrDisplayAttributes, -1, "HwrDisplayAttributes", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1330:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1330 |   { sysTrapHwrDisplayPalette, -1, "HwrDisplayPalette", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1331:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1331 |   { sysTrapBltFindIndexes, -1, "BltFindIndexes", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1332:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1332 |   { sysTrapBltCopyRectangle, -1, "BltCopyRectangle", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1333:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1333 |   { sysTrapBltDrawChars, -1, "BltDrawChars", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1334:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1334 |   { sysTrapBltLineRoutine, -1, "BltLineRoutine", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1335:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1335 |   { sysTrapBltRectangleRoutine, -1, "BltRectangleRoutine", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1336:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1336 |   { sysTrapScrCompress, -1, "ScrCompress", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1337:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1337 |   { sysTrapScrDecompress, -1, "ScrDecompress", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1338:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1338 |   { sysTrapUIColorInit, -1, "UIColorInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1339:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1339 |   { sysTrapHwrPreDebugInit, -1, "HwrPreDebugInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1340:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1340 |   { sysTrapKeyBootKeys, -1, "KeyBootKeys", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1341:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1341 |   { sysTrapDmOpenDBWithLocale, -1, "DmOpenDBWithLocale", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1342:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1342 |   { sysTrapHwrPostDebugInit, -1, "HwrPostDebugInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1343:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1343 |   { sysTrapHwrIdentifyFeatures, -1, "HwrIdentifyFeatures", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1344:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1344 |   { sysTrapHwrModelSpecificInit, -1, "HwrModelSpecificInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1345:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1345 |   { sysTrapHwrModelInitStage2, -1, "HwrModelInitStage2", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1346:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1346 |   { sysTrapHwrInterruptsInit, -1, "HwrInterruptsInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1347:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1347 |   { sysTrapHwrSoundOn, -1, "HwrSoundOn", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1348:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1348 |   { sysTrapHwrSoundOff, -1, "HwrSoundOff", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1349:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1349 |   { sysTrapHwrGetSilkscreenID, -1, "HwrGetSilkscreenID", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1350:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1350 |   { sysTrapScrScreenInit, -1, "ScrScreenInit", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1351:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1351 |   { sysTrapScrPalette, -1, "ScrPalette", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1352:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1352 |   { sysTrapScrGetGrayPat, -1, "ScrGetGrayPat", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1353:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1353 |   { sysTrapScrScreenLock, -1, "ScrScreenLock", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1354:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1354 |   { sysTrapScrScreenUnlock, -1, "ScrScreenUnlock", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1355:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1355 |   { sysTrapMemGetRomNVParams, -1, "MemGetRomNVParams", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1356:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1356 |   { sysTrapDmFindDatabaseWithTypeCreator, -1, "DmFindDatabaseWithTypeCreator", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1357:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1357 |   { sysTrapBltRoundedRectangle, -1, "BltRoundedRectangle", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1358:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1358 |   { sysTrapBltRoundedRectangleFill, -1, "BltRoundedRectangleFill", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1359:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1359 |   { sysTrapHwrCalcDynamicHeapSize, -1, "HwrCalcDynamicHeapSize", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1360:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1360 |   { sysTrapHwrModelInitStage3, -1, "HwrModelInitStage3", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1361:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1361 |   { sysTrapAttnIndicatorAllow, -1, "AttnIndicatorAllow", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1362:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1362 |   { sysTrapAttnIndicatorGetBlinkPattern, -1, "AttnIndicatorGetBlinkPattern", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1363:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1363 |   { sysTrapAttnIndicatorTicksTillNextBlink, -1, "AttnIndicatorTicksTillNextBlink", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1364:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1364 |   { sysTrapAttnIndicatorCheckBlink, -1, "AttnIndicatorCheckBlink", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1365:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1365 |   { sysTrapAttnInitialize, -1, "AttnInitialize", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1366:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1366 |   { sysTrapHwrLEDAttributes, -1, "HwrLEDAttributes", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1367:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1367 |   { sysTrapHwrVibrateAttributes, -1, "HwrVibrateAttributes", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1368:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1368 |   { sysTrapOEMDispatch2, -1, "OEMDispatch2", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1369:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1369 |   { sysTrapPalmPrivate1, -1, "PalmPrivate1", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1370:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1370 |   { sysTrapPalmPrivate2, -1, "PalmPrivate2", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1371:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1371 |   { sysTrapPalmPrivate3, -1, "PalmPrivate3", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1372:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1372 |   { sysTrapPalmPrivate4, -1, "PalmPrivate4", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1373:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1373 |   { sysTrapScrDefaultPaletteState, -1, "ScrDefaultPaletteState", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1374:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1374 |   { sysTrapScrUpdateScreenBitmap, -1, "ScrUpdateScreenBitmap", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1375:3: warning: missing initializer for field 'args' of 'trap_t' [-Wmissing-field-initializers]
+ 1375 |   { sysTrapDmSync, -1, "DmSync", T_VOID, 0, 0, 0 },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:30:14: note: 'args' declared here
+   30 |   trap_arg_t args[16];
+      |              ^~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/trapArgs_wce.c:1376:3: warning: missing initializer for field 'capsel' of 'trap_t' [-Wmissing-field-initializers]
+ 1376 |   { sysTrapDmSyncDatabase, -1, "DmSyncDatabase", T_USIG, 0, 2, 1, { { T_VOID, 1, 4, 0, "dbP" } } },
+      |   ^
+/Users/andyvand/Downloads/PumpkinOS/src/libpumpkin/logtrap.h:31:12: note: 'capsel' declared here
+   31 |   uint16_t capsel;
+      |            ^~~~~~
+[284/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/string.c.obj
+[285/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/ptr.c.obj
+[286/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/debug.c.obj
+[287/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/sock.c.obj
+[288/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/list.c.obj
+[289/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/loadfile.c.obj
+[290/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/util.c.obj
+[291/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/sys.c.obj
+[292/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/builtin.c.obj
+[293/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/bytes.c.obj
+[294/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/ts.c.obj
+[295/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/io.c.obj
+[296/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/vfont.c.obj
+[297/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/time.c.obj
+[298/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/timeutc.c.obj
+[299/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/yuv.c.obj
+[300/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/xalloc.c.obj
+[301/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/graphic.c.obj
+[302/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/endianness.c.obj
+[303/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/media.c.obj
+[304/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/gps.c.obj
+[305/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/filter.c.obj
+[306/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/vfslocal.c.obj
+[307/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/telnet.c.obj
+[308/353] Building C object esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir/softfloat.c.obj
+[309/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/login.c.obj
+[310/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/ctelnet.c.obj
+[311/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/vfs.c.obj
+[312/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/bmp.c.obj
+[313/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/average.c.obj
+[314/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/rgb.c.obj
+[315/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/findargs.c.obj
+[316/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/mutexnull.c.obj
+[317/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/custom_malloc.c.obj
+[318/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/httpc.c.obj
+[319/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/template.c.obj
+[320/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/pterm.c.obj
+[321/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/threadptr.c.obj
+[322/353] Building C object esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir/tos.c.obj
+[323/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/httpd.c.obj
+[324/353] Building C object esp-idf/libos/CMakeFiles/__idf_libos.dir/libos.c.obj
+[325/353] Building C object esp-idf/elf_loader/CMakeFiles/__idf_elf_loader.dir/src/esp_elf_symbol.c.obj
+[326/353] Linking C static library esp-idf/libos/liblibos.a
+[327/353] Building C object esp-idf/liblmbedtls/CMakeFiles/__idf_liblmbedtls.dir/liblmbedtls.c.obj
+[328/353] Building C object esp-idf/liblsdl3/CMakeFiles/__idf_liblsdl3.dir/liblsdl3.c.obj
+[329/353] Linking C static library esp-idf/liblsdl3/libliblsdl3.a
+[330/353] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/pumpkin-audio.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ConnectionMgr.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin-audio.c:24:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:101: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  101 | #pragma mark -Error Codes-
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:128: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  128 | #pragma mark -API Routines-
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:32:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ExgLib.h:66: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+   66 | #pragma mark Functions
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetBitUtils.h:25,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:48:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:537: warning: ignoring '#pragma mark Master' [-Wunknown-pragmas]
+  537 | #pragma mark Master
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:716: warning: ignoring '#pragma mark Settings' [-Wunknown-pragmas]
+  716 | #pragma mark Settings
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1014: warning: ignoring '#pragma mark ErrorCodes' [-Wunknown-pragmas]
+ 1014 | #pragma mark ErrorCodes
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1270: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+ 1270 | #pragma mark Functions
+[331/353] Performing build step for 'bootloader'
+[1/1] cd /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/bootloader.bin
+Bootloader binary size 0x5240 bytes. 0x2dc0 bytes (36%) free.
+[332/353] No install step for 'bootloader'
+[333/353] Completed 'bootloader'
+[334/353] Building C object esp-idf/libshell/CMakeFiles/__idf_libshell.dir/libshell.c.obj
+[335/353] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+[336/353] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/Downloads/PumpkinOS/src/build/littlefs_py_venv/bin/littlefs-python create /Users/andyvand/Downloads/PumpkinOS/src/data /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin -v --fs-size=0xc00000 --name-max=64 --block-size=4096
+LittleFS Configuration:
+  Block Size:       4096  /  0x1000
+  Image Size:   12582912  /  0xC00000
+  Block Count:      3072
+  Name Max:           64
+  Image:       /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin
+Adding Directory: vfs
+Adding File:      .DS_Store
+Adding File:      vfs/.DS_Store
+Adding Directory: vfs/app_storage
+Adding Directory: vfs/app_install
+Adding Directory: vfs/app_card
+Adding File:      vfs/app_install/Browser.prc
+Adding File:      vfs/app_install/ToDoList.prc
+Adding File:      vfs/app_install/BOOT.prc
+Adding File:      vfs/app_install/Preferences.prc
+Adding File:      vfs/app_install/AddressBook.prc
+Adding File:      vfs/app_install/GnuBoy.prc
+Adding File:      vfs/app_install/Command.prc
+Adding File:      vfs/app_install/SpaceTrader.prc
+Adding File:      vfs/app_install/MineHunt.prc
+Adding File:      vfs/app_install/MemoPad.prc
+Adding File:      vfs/app_install/Launcher.prc
+Adding File:      vfs/app_install/DateBook.prc
+Adding File:      vfs/app_card/.DS_Store
+Adding Directory: vfs/app_card/PALM
+Adding File:      vfs/app_card/PALM/.DS_Store
+Adding Directory: vfs/app_card/PALM/Programs
+Adding File:      vfs/app_card/PALM/Programs/.DS_Store
+[337/353] Linking C static library esp-idf/libshell/liblibshell.a
+[338/353] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/pumpkin.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ConnectionMgr.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:28:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:101: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  101 | #pragma mark -Error Codes-
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:128: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  128 | #pragma mark -API Routines-
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:32:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ExgLib.h:66: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+   66 | #pragma mark Functions
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetBitUtils.h:25,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:48:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:537: warning: ignoring '#pragma mark Master' [-Wunknown-pragmas]
+  537 | #pragma mark Master
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:716: warning: ignoring '#pragma mark Settings' [-Wunknown-pragmas]
+  716 | #pragma mark Settings
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1014: warning: ignoring '#pragma mark ErrorCodes' [-Wunknown-pragmas]
+ 1014 | #pragma mark ErrorCodes
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1270: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+ 1270 | #pragma mark Functions
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:48:20: warning: missing terminating ' character
+   48 | #include "rckeys.h"'
+      |                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:48:20: warning: extra tokens at end of '#include' directive
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c: In function 'GnuBoyPilotMain':
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:1317:17: warning: variable 'autoran' might be clobbered by 'longjmp' or 'vfork' [-Wclobbered]
+ 1317 |         Boolean autoran = false;
+      |                 ^~~~~~~
+[339/353] Linking C static library esp-idf/GnuBoy/libGnuBoy.a
+[340/353] Building C object esp-idf/libpit/CMakeFiles/__idf_libpit.dir/surface.c.obj
+[341/353] Building C object esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir/systrap.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/systrap.c:878:
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/switch.c: In function 'palmos_systrap':
+/Users/andyvand/Downloads/PumpkinOS/src/components/libpumpkin/switch.c:759:26: warning: comparison of unsigned expression in '>= 0' is always true [-Wtype-limits]
+  759 |         if (startIndex+i >= 0 && startIndex+i < 256) {
+      |                          ^~
+[342/353] Building C object esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir/m68kops.c.obj
+[343/353] Building C object esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir/pumpkin_syscall.c.obj
+[344/353] Linking C static library esp-idf/libpumpkin/liblibpumpkin.a
+[345/353] Linking C static library esp-idf/libpit/liblibpit.a
+[346/353] Linking C static library esp-idf/elf_loader/libelf_loader.a
+[347/353] Linking C static library esp-idf/liblmbedtls/libliblmbedtls.a
+[348/353] Linking C static library esp-idf/main/libmain.a
+[349/353] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/Users/andyvand/Downloads/esp-idf-v6.0.2/components/bt/host/nimble/Kconfig.in:14
+21: BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' 
+and 'n' are allowed). Value is treated as 'n'.
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/Kconfig:230: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/Kconfig:235: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Default value for MBEDTLS_ARIA_C in sdkconfig is y but it is n 
+according to Kconfig.
+Using default value from sdkconfig (y).
+Default value for FREERTOS_WATCHPOINT_END_OF_STACK in sdkconfig is y but
+it is n according to Kconfig.
+Using default value from sdkconfig (y).
+Default value for MBEDTLS_THREADING_C in sdkconfig is n but it is y
+according to Kconfig.
+Using default value from sdkconfig (n).
+Default value for MBEDTLS_SHA3_C in sdkconfig is y but it is n 
+according to Kconfig.
+Using default value from sdkconfig (y).
+[350/353] Linking CXX executable PumpkinOS.elf
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/SDL/libSDL.a(SDL_systhread.c.obj):(.literal.SDL_SYS_SetupThread+0x8): warning: pthread_setcanceltype is not implemented and will always fail
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/SDL/libSDL.a(SDL_systhread.c.obj): note: the message above does not take linker garbage collection into account
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/libpit/liblibpit.a(sys.c.obj):(.literal.sys_set_thread_name+0x4): warning: pthread_setname_np is not implemented and will always fail
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/libpit/liblibpit.a(sys.c.obj): note: the message above does not take linker garbage collection into account
+[351/353] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+[352/353] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/andyvand/Downloads/PumpkinOS/src/build/partition_table/partition-table.bin /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+PumpkinOS.bin binary size 0x367e50 bytes. Smallest app partition is 0x3f0000 bytes. 0x881b0 bytes (14%) free.

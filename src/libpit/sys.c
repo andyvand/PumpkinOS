@@ -4171,6 +4171,26 @@ int sys_set_tmpdir(const char *dir) {
     sys_tmpdir[n] = '/';
   }
 
+#if defined(ESP32)
+  // temp files are only unlinked on close, so a reset can leave some behind:
+  // purge anything matching tmpXXXXXX in the directory at startup
+  if (sys_tmpdir[0]) {
+    sys_dir_t *dir;
+    char name[FILE_PATH], path[FILE_PATH];
+
+    if ((dir = sys_opendir(sys_tmpdir)) != NULL) {
+      while (sys_readdir(dir, name, sizeof(name)) == 0) {
+        if (!sys_strncmp(name, "tmp", 3) && sys_strlen(name) == 9) {
+          sys_snprintf(path, sizeof(path) - 1, "%s%s", sys_tmpdir, name);
+          debug(DEBUG_INFO, "SYS", "removing stale temp file \"%s\"", path);
+          sys_unlink(path);
+        }
+      }
+      sys_closedir(dir);
+    }
+  }
+#endif
+
   return 0;
 }
 

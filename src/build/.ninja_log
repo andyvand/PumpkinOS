@@ -3191,3 +3191,10 @@
 17028	17067	1789287230240602931	esp-idf/elf_loader/libelf_loader.a	8ac3cbe67e388e7
 17067	17090	1789287230279096918	esp-idf/liblmbedtls/libliblmbedtls.a	b482302b8b14720
 17090	17114	1789287230302607545	esp-idf/main/libmain.a	3043ca914674294d
+17114	22278	1789287235456938395	esp-idf/esp_system/ld/sections.ld	ffa25b09b056254
+17114	22278	1789287235456938395	/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/esp_system/ld/sections.ld	ffa25b09b056254
+22279	36114	1789287235490872874	PumpkinOS.elf	30e166fe9db01fa9
+36114	36285	1789287249496536649	.bin_timestamp	d0f910787e5f232a
+36114	36285	1789287249496536649	/Users/andyvand/Downloads/PumpkinOS/src/build/.bin_timestamp	d0f910787e5f232a
+36285	36323	1789287249497140233	CMakeFiles/app_check_size	aebba2521fc6263f
+36285	36323	1789287249497140233	/Users/andyvand/Downloads/PumpkinOS/src/build/CMakeFiles/app_check_size	aebba2521fc6263f
