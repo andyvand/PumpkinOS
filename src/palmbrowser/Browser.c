@@ -1,9 +1,9 @@
 /*
  * Browser - a small text-mode web browser for PumpkinOS.
  *
- * Fetches pages over HTTP (and HTTPS when PumpkinOS has a TLS provider
- * loaded), strips the HTML down to formatted text with tappable links,
- * and renders it in a scrollable page area.
+ * Fetches pages over HTTP and HTTPS (TLS is done by the PumpkinOS secure
+ * provider, liblopenssl on desktop systems), strips the HTML down to
+ * formatted text with tappable links, and renders it in a scrollable page area.
  */
 
 #ifdef ESP_PLATFORM
@@ -51,8 +51,18 @@ static const char START_PAGE[] =
   "<li><a href=\"http://textfiles.com/\">textfiles.com</a></li>"
   "<li><a href=\"http://info.cern.ch/\">info.cern.ch</a> - the first web site</li>"
   "</ul>"
-  "<p>Only http:// pages can be fetched unless PumpkinOS has a TLS provider loaded. "
-  "For an https:// page use Page &gt; Open via FrogFind, which fetches it through an HTTP text proxy.</p>"
+  "<p>Text-friendly https:// sites:</p>"
+  "<ul>"
+  "<li><a href=\"https://www.google.com/\">Google</a> - front page only; Google search results need JavaScript, use DuckDuckGo Lite or FrogFind to search</li>"
+  "<li><a href=\"https://lite.duckduckgo.com/lite/\">DuckDuckGo Lite</a> - web search</li>"
+  "<li><a href=\"https://en.wikipedia.org/\">Wikipedia</a></li>"
+  "<li><a href=\"https://text.npr.org/\">NPR text</a> - news</li>"
+  "<li><a href=\"https://lite.cnn.com/\">CNN Lite</a> - news</li>"
+  "<li><a href=\"https://news.ycombinator.com/\">Hacker News</a></li>"
+  "<li><a href=\"https://www.gutenberg.org/\">Project Gutenberg</a> - free e-books</li>"
+  "</ul>"
+  "<p>https:// pages need the PumpkinOS TLS provider (liblopenssl or libls2n) to be loaded at startup. "
+  "Without it, use Page &gt; Open via FrogFind, which fetches the page through an HTTP text proxy.</p>"
   "<p>Tap a link to follow it. Scroll with the scrollbar or the page up/down keys. Use Page &gt; Set as Home to make the current page your start page.</p>";
 
 #define LINK_NONE       -1
@@ -73,6 +83,7 @@ typedef struct {
   int code;
   int chunked;
   int error;
+  int tlsError;               /* TLS handshake or certificate verification failed */
   char location[MAX_URL];
   char contentType[128];
   char *body;
@@ -1024,6 +1035,7 @@ static int fetchCallback(int ptr, void *_data) {
   if (buf && (hc = ptr_lock(ptr, TAG_HTTP_CLIENT)) != NULL) {
     f->code = hc->response_code_found ? hc->response_code : 0;
     f->error = hc->response_error;
+    f->tlsError = hc->secure_error;
 
     for (i = 0; i < hc->response_num_headers; i++) {
       name = hc->response_header_name[i];
@@ -1558,8 +1570,8 @@ static void navigate(browser_t *b, const char *target, Boolean push) {
   switch (status) {
     case fetchNoTls:
       setMessagePage(b, "HTTPS not available",
-        "This PumpkinOS build has no TLS provider loaded, so https:// pages cannot be fetched directly.\n\n"
-        "Use Page > Open via FrogFind to read the page through an HTTP text proxy, or try the http:// version of the address.");
+        "PumpkinOS was started without a TLS provider, so https:// pages cannot be fetched directly.\n\n"
+        "Build liblopenssl (needs OpenSSL) and make sure the startup script loads it, or use Page > Open via FrogFind to read the page through an HTTP text proxy.");
       break;
     case fetchFailed:
       setMessagePage(b, "Could not connect", "The address could not be reached. Check the URL and the network connection.");
@@ -1575,6 +1587,12 @@ static void navigate(browser_t *b, const char *target, Boolean push) {
     case fetchOk:
       if (f == NULL) {
         setMessagePage(b, "Error", "Too many redirects.");
+        break;
+      }
+      if (f->tlsError && f->len == 0) {
+        setMessagePage(b, "Secure connection failed",
+          "The TLS handshake with the server failed or its certificate could not be verified.\n\n"
+          "Check the device clock, or use Page > Open via FrogFind to read the page through an HTTP text proxy.");
         break;
       }
       if (f->error && f->len == 0) {

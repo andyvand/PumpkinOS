@@ -31,6 +31,15 @@ menu "PumpkinOS Configuration"
         help
             Enable time updates using SNTP
 
+    config ENABLE_HTTPS
+        bool "Enable HTTPS (mbedTLS secure provider)"
+        default y
+        depends on ENABLE_WIFI
+        help
+            Load the liblmbedtls TLS provider at startup so that the HTTP
+            client (and the Browser application) can fetch https:// URLs.
+            Certificates are checked against the ESP-IDF certificate bundle.
+
     config ENABLE_STACK_MONITOR
         bool "Enable debug stack monitor"
         default n

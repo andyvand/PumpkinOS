@@ -2,8 +2,9 @@
 
 A small text-mode web browser that runs as a native PumpkinOS application.
 
-* Fetches pages over HTTP using PumpkinOS's built-in HTTP client
-  (HTTPS works too when PumpkinOS is started with a TLS provider such as `libls2n`).
+* Fetches pages over HTTP and HTTPS using PumpkinOS's built-in HTTP client.
+  HTTPS needs a TLS provider library loaded at startup: `liblopenssl` (OpenSSL,
+  built automatically when OpenSSL is installed) or `libls2n` (s2n). See "HTTPS" below.
 * Follows redirects, decodes chunked transfer encoding, converts UTF-8 to the
   Latin-1 character set used by the PalmOS fonts.
 * Strips HTML down to formatted text: headings, bold, paragraphs, lists,
@@ -12,7 +13,42 @@ A small text-mode web browser that runs as a native PumpkinOS application.
 * URL field with Go button, Back button and history, Home page (stored in the
   application preferences), Reload, and "Open via FrogFind" which loads the current
   address through the FrogFind HTTP text proxy (useful for https-only sites).
-* A built-in start page (`about:start`) with links to sites that still serve plain HTTP.
+* A built-in start page (`about:start`) with links to sites that still serve plain HTTP
+  and to text-friendly https:// sites.
+
+## HTTPS
+
+TLS is not built into PumpkinOS itself; it comes from a "secure provider" library
+that the startup script loads before `libos`. `script/pumpkin.lua` (and the RPi/WCE
+variants) load `liblopenssl` and fall back to `libls2n`:
+
+    secure = pit.loadlib("liblopenssl")
+    if not secure then secure = pit.loadlib("libls2n") end
+
+`src/liblopenssl` wraps OpenSSL 1.1/3.x. The top-level `src/GNUMakefile` builds it
+when OpenSSL headers are found (`/usr/include/openssl` on Linux, Homebrew's
+`openssl@3` on macOS, `/mingw64/include/openssl` on Msys); pass `OPENSSL=/prefix`
+to point at another installation:
+
+    cd /path/to/PumpkinOS/src
+    make -f GNUMakefile -C liblopenssl                 # auto-detect
+    make -f GNUMakefile -C liblopenssl OPENSSL=/opt/openssl
+
+Certificates are verified against the system CA bundle (OpenSSL default paths,
+then `/etc/ssl/cert.pem`, `/etc/ssl/certs/ca-certificates.crt`, ...). The Lua
+object returned by `pit.loadlib("liblopenssl")` has `verify(false)` to disable
+verification, `cacert(path)` to use a specific bundle, and `cert(pem)` / `key(pem)`
+for a client certificate. When the handshake or verification fails the browser
+shows a "Secure connection failed" page; details are in `pumpkin.log`
+(lines tagged `SECURE`).
+
+On macOS Homebrew's OpenSSL is single-architecture, so `liblopenssl.dylib` is
+built for that architecture only while the rest of the tree is universal; the
+native `pumpkin` binary loads it fine.
+
+On the ESP32 firmware the equivalent provider is `src/components/liblmbedtls`
+(mbedTLS with the ESP-IDF certificate bundle), enabled by the
+`ENABLE_HTTPS` option in menuconfig.
 
 ## Building
 

@@ -1,0 +1,1129 @@
+Command: ninja all
+[1/199] Linking C static library esp-idf/libpit/liblibpit.a
+[2/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/filesystem/dummy/SDL_sysfilesystem.c.obj
+[3/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_memset.c.obj
+[4/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_malloc.c.obj
+[5/199] Linking C static library esp-idf/elf_loader/libelf_loader.a
+[6/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/io/SDL_asyncio.c.obj
+[7/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_getenv.c.obj
+[8/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_murmur3.c.obj
+[9/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/filesystem/SDL_filesystem.c.obj
+[10/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/io/generic/SDL_asyncio_generic.c.obj
+[11/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_iconv.c.obj
+[12/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/thread/pthread/SDL_sysmutex.c.obj
+[13/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/thread/pthread/SDL_syscond.c.obj
+[14/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/timer/SDL_timer.c.obj
+[15/199] Building C object esp-idf/liblmbedtls/CMakeFiles/__idf_liblmbedtls.dir/liblmbedtls.c.obj
+[16/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/thread/SDL_thread.c.obj
+[17/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/thread/pthread/SDL_syssem.c.obj
+[18/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/stdlib/SDL_stdlib.c.obj
+[19/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/thread/pthread/SDL_sysrwlock.c.obj
+[20/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/thread/pthread/pthread_espidf.c.obj
+[21/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/io/SDL_iostream.c.obj
+[22/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_error.c.obj
+[23/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/thread/pthread/SDL_systls.c.obj
+[24/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/thread/pthread/SDL_systhread.c.obj
+[25/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/cpuinfo/SDL_cpuinfo.c.obj
+[26/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_hashtable.c.obj
+[27/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_assert.c.obj
+[28/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_hints.c.obj
+[29/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_log.c.obj
+[30/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_drawpoint.c.obj
+[31/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/SDL_yuv_sw.c.obj
+[32/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_drawline.c.obj
+[33/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit.c.obj
+[34/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_blendpoint.c.obj
+[35/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_render_sw.c.obj
+[36/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_string.c.obj
+[37/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_1.c.obj
+[38/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_copy.c.obj
+[39/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_RLEaccel.c.obj
+[40/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_bmp.c.obj
+[41/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_triangle.c.obj
+[42/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_slow.c.obj
+[43/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_fillrect.c.obj
+[44/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_0.c.obj
+[45/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_N.c.obj
+[46/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_rect.c.obj
+[47/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_stretch.c.obj
+[48/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_blendfillrect.c.obj
+[49/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_A.c.obj
+[50/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_pixels.c.obj
+[51/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_rotate.c.obj
+[52/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/timer/esp-idf/SDL_systimer.c.obj
+[53/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/video/esp-idf/SDL_espidfevents.c.obj
+[54/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/video/esp-idf/SDL_espidfframebuffer.c.obj
+[55/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/SDL_render.c.obj
+[56/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/video/esp-idf/SDL_espidfvideo.c.obj
+[57/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_audiodev.c.obj
+[58/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/video/esp-idf/SDL_espidftouch.c.obj
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/src/video/esp-idf/SDL_espidftouch.c: In function 'ESPIDF_PumpTouchEvent':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/src/video/esp-idf/SDL_espidftouch.c:61:5: warning: 'esp_lcd_touch_get_coordinates' is deprecated: This API will be removed in version 2.0.0. Use esp_lcd_touch_get_data instead! [-Wdeprecated-declarations]
+   61 |     bool touchpad_pressed = esp_lcd_touch_get_coordinates(touch_handle, touchpad_x, touchpad_y, NULL, &touchpad_cnt, 1);
+      |     ^~~~
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/components/esp_lvgl_port/include/esp_lvgl_port_touch.h:18,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/esp_lvgl_port/include/esp_lvgl_port.h:17,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/esp_bsp_generic/include/bsp/esp_bsp_generic.h:24,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/esp_bsp_generic/include/bsp/esp-bsp.h:8,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/SDL/src/video/esp-idf/SDL_espidftouch.c:7:
+/Users/andyvand/Downloads/PumpkinOS/src/managed_components/espressif__esp_lcd_touch/include/esp_lcd_touch.h:317:6: note: declared here
+  317 | bool esp_lcd_touch_get_coordinates(esp_lcd_touch_handle_t tp, uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *point_num, uint8_t max_point_num);
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[59/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_yuv.c.obj
+[60/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_audioqueue.c.obj
+[61/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_audioresample.c.obj
+[62/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_audiotypecvt.c.obj
+[63/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/dummy/SDL_dummyaudio.c.obj
+[64/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_mixer.c.obj
+[65/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_surface.c.obj
+[66/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_properties.c.obj
+[67/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/yuv2rgb/yuv_rgb_std.c.obj
+[68/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/stdlib/SDL_crc16.c.obj
+[69/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_audiocvt.c.obj
+[70/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/render/software/SDL_blendline.c.obj
+[71/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/audio/SDL_espaudio.c.obj
+[72/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_utils.c.obj
+[73/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/SDL_guid.c.obj
+[74/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/sensor/dummy/SDL_dummysensor.c.obj
+[75/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/sensor/SDL_sensor.c.obj
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c: In function 'SDL_InitSensors':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c:145:19: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  145 |     for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
+      |                   ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c: In function 'SDL_GetSensors':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c:185:23: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  185 |         for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c:195:27: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  195 |             for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c: In function 'SDL_GetDriverAndSensorIndex':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c:226:23: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  226 |         for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c: In function 'SDL_QuitSensors':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c:552:19: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  552 |     for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
+      |                   ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c: In function 'SDL_UpdateSensors':
+/Users/andyvand/Downloads/PumpkinOS/src/components/SDL/SDL/src/sensor/SDL_sensor.c:620:19: warning: comparison of unsigned expression in '< 0' is always false [-Wtype-limits]
+  620 |     for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
+      |                   ^
+[76/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/joystick/controller_type.c.obj
+[77/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/audio/SDL_wave.c.obj
+[78/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/joystick/SDL_steam_virtual_gamepad.c.obj
+[79/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/tray/dummy/SDL_tray.c.obj
+[80/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/tray/SDL_tray_utils.c.obj
+[81/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/events/SDL_clipboardevents.c.obj
+[82/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/joystick/esp/SDL_sysjoystick.c.obj
+[83/199] Linking C static library esp-idf/unity/libunity.a
+[84/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/src/audio/SDL_audio.c.obj
+[85/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_clipboard.c.obj
+[86/199] Building C object esp-idf/esp_driver_gptimer/CMakeFiles/__idf_esp_driver_gptimer.dir/src/gptimer_common.c.obj
+[87/199] Linking C static library esp-idf/esp_hal_cam/libesp_hal_cam.a
+[88/199] Building C object esp-idf/cmock/CMakeFiles/__idf_cmock.dir/CMock/src/cmock.c.obj
+[89/199] Building C object esp-idf/esp_blockdev_util/CMakeFiles/__idf_esp_blockdev_util.dir/memory.c.obj
+[90/199] Building C object esp-idf/esp_driver_gptimer/CMakeFiles/__idf_esp_driver_gptimer.dir/src/gptimer.c.obj
+[91/199] Building C object esp-idf/esp_blockdev_util/CMakeFiles/__idf_esp_blockdev_util.dir/generic_partition.c.obj
+[92/199] Building C object esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp_share_ctrl.c.obj
+[93/199] Building C object esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/esp_cam_ctlr.c.obj
+[94/199] Linking C static library esp-idf/esp_hal_mcpwm/libesp_hal_mcpwm.a
+[95/199] Building C object esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp/src/esp_cam_ctlr_dvp_gdma.c.obj
+[96/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_cmpr.c.obj
+[97/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_com.c.obj
+[98/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_fault.c.obj
+[99/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_cap.c.obj
+[100/199] Building C object esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp/src/esp_cam_ctlr_dvp_cam.c.obj
+[101/199] Linking C static library esp-idf/esp_hal_pcnt/libesp_hal_pcnt.a
+[102/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_gen.c.obj
+[103/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_oper.c.obj
+[104/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_sync.c.obj
+[105/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_video.c.obj
+[106/199] Building C object esp-idf/esp_driver_sdm/CMakeFiles/__idf_esp_driver_sdm.dir/src/sdm.c.obj
+[107/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/joystick/SDL_joystick.c.obj
+[108/199] Building C object esp-idf/esp_driver_mcpwm/CMakeFiles/__idf_esp_driver_mcpwm.dir/src/mcpwm_timer.c.obj
+[109/199] Building C object esp-idf/esp_driver_tsens/CMakeFiles/__idf_esp_driver_tsens.dir/src/temperature_sensor.c.obj
+[110/199] Building C object esp-idf/esp_driver_twai/CMakeFiles/__idf_esp_driver_twai.dir/esp_twai.c.obj
+[111/199] Building C object esp-idf/esp_driver_touch_sens/CMakeFiles/__idf_esp_driver_touch_sens.dir/common/touch_sens_common.c.obj
+[112/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/joystick/SDL_gamepad.c.obj
+[113/199] Building C object esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/esp_eth_netif_glue.c.obj
+[114/199] Building C object esp-idf/esp_driver_touch_sens/CMakeFiles/__idf_esp_driver_touch_sens.dir/hw_ver2/touch_version_specific.c.obj
+[115/199] Building C object esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/esp_eth.c.obj
+[116/199] Building C object esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hidd.c.obj
+[117/199] Linking C static library esp-idf/esp_https_server/libesp_https_server.a
+[118/199] Building C object esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/phy/esp_eth_phy_802_3.c.obj
+[119/199] Building C object esp-idf/esp_driver_pcnt/CMakeFiles/__idf_esp_driver_pcnt.dir/src/pulse_cnt.c.obj
+[120/199] Linking C static library esp-idf/protocomm/libprotocomm.a
+[121/199] Building C object esp-idf/perfmon/CMakeFiles/__idf_perfmon.dir/xtensa_perfmon_access.c.obj
+[122/199] Building C object esp-idf/esp_driver_twai/CMakeFiles/__idf_esp_driver_twai.dir/esp_twai_onchip.c.obj
+[123/199] Building C object esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hid_common.c.obj
+[124/199] Building C object esp-idf/perfmon/CMakeFiles/__idf_perfmon.dir/xtensa_perfmon_masks.c.obj
+[125/199] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_transport_httpd.c.obj
+[126/199] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/proto-c/esp_local_ctrl.pb-c.c.obj
+[127/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_stb.c.obj
+[128/199] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_handler.c.obj
+[129/199] Building C object esp-idf/perfmon/CMakeFiles/__idf_perfmon.dir/xtensa_perfmon_apis.c.obj
+[130/199] Linking C static library esp-idf/libos/liblibos.a
+[131/199] Linking C static library esp-idf/libshell/liblibshell.a
+[132/199] Linking C static library esp-idf/liblsdl3/libliblsdl3.a
+[133/199] Linking C static library esp-idf/liblmbedtls/libliblmbedtls.a
+[134/199] Building C object esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hidh.c.obj
+[135/199] Building C object esp-idf/rt/CMakeFiles/__idf_rt.dir/FreeRTOS_POSIX_utils.c.obj
+[136/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/lcdc.c.obj
+[137/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/palette.c.obj
+[138/199] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl.c.obj
+[139/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/rtc.c.obj
+[140/199] Building C object esp-idf/rt/CMakeFiles/__idf_rt.dir/FreeRTOS_POSIX_mqueue.c.obj
+[141/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/mem.c.obj
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c: In function 'mem_updatemap':
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:85:33: warning: array subscript -48896 is outside array bounds of 'struct ram[1]' [-Warray-bounds=]
+   85 |         map[0xC] = ram.ibank[0] - 0xC000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:27:29: note: at offset -48896 into object 'ram' of size 33032
+   27 | EXT_RAM_BSS_ATTR struct ram ram;
+      |                             ^~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:88:33: warning: array subscript -57088 is outside array bounds of 'struct ram[1]' [-Warray-bounds=]
+   88 |         map[0xE] = ram.ibank[0] - 0xE000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:27:29: note: at offset -57088 into object 'ram' of size 33032
+   27 | EXT_RAM_BSS_ATTR struct ram ram;
+      |                             ^~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:101:33: warning: array subscript -48896 is outside array bounds of 'struct ram[1]' [-Warray-bounds=]
+  101 |         map[0xC] = ram.ibank[0] - 0xC000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:27:29: note: at offset -48896 into object 'ram' of size 33032
+   27 | EXT_RAM_BSS_ATTR struct ram ram;
+      |                             ^~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:104:33: warning: array subscript -57088 is outside array bounds of 'struct ram[1]' [-Warray-bounds=]
+  104 |         map[0xE] = ram.ibank[0] - 0xE000;
+      |                    ~~~~~~~~~~~~~^~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/mem.c:27:29: note: at offset -57088 into object 'ram' of size 33032
+   27 | EXT_RAM_BSS_ATTR struct ram ram;
+      |                             ^~~
+[142/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/hw.c.obj
+[143/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/keytable.c.obj
+[144/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/save.c.obj
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:36:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   36 |         I4("GbSs", &ver),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:38:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   38 |         I2("PC  ", &PC),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:17:23: note: in definition of macro 'I2'
+   17 | #define I2(s, p) { 2, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:39:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   39 |         I2("SP  ", &SP),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:17:23: note: in definition of macro 'I2'
+   17 | #define I2(s, p) { 2, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:40:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   40 |         I2("BC  ", &BC),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:17:23: note: in definition of macro 'I2'
+   17 | #define I2(s, p) { 2, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:41:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   41 |         I2("DE  ", &DE),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:17:23: note: in definition of macro 'I2'
+   17 | #define I2(s, p) { 2, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:42:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   42 |         I2("HL  ", &HL),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:17:23: note: in definition of macro 'I2'
+   17 | #define I2(s, p) { 2, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:43:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   43 |         I2("AF  ", &AF),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:17:23: note: in definition of macro 'I2'
+   17 | #define I2(s, p) { 2, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:45:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   45 |         I4("IME ", &cpu.ime),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:46:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   46 |         I4("ima ", &cpu.ima),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:47:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   47 |         I4("spd ", &cpu.speed),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:48:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   48 |         I4("halt", &cpu.halt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:49:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   49 |         I4("div ", &cpu.div),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:50:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   50 |         I4("tim ", &cpu.tim),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:51:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   51 |         I4("lcdc", &cpu.lcdc),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:52:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   52 |         I4("snd ", &cpu.snd),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:54:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   54 |         I1("ints", &hw.ilines),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:55:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   55 |         I1("pad ", &hw.pad),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:56:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   56 |         I4("cgb ", &hw.cgb),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:57:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   57 |         I4("gba ", &hw.gba),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:59:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   59 |         I4("mbcm", &mbc.model),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:60:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   60 |         I4("romb", &mbc.rombank),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:61:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   61 |         I4("ramb", &mbc.rambank),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:62:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   62 |         I4("enab", &mbc.enableram),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:63:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   63 |         I4("batt", &mbc.batt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:65:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   65 |         I4("rtcR", &rtc.sel),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:66:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   66 |         I4("rtcL", &rtc.latch),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:67:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   67 |         I4("rtcC", &rtc.carry),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:68:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   68 |         I4("rtcS", &rtc.stop),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:69:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   69 |         I4("rtcd", &rtc.d),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:70:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   70 |         I4("rtch", &rtc.h),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:71:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   71 |         I4("rtcm", &rtc.m),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:72:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   72 |         I4("rtcs", &rtc.s),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:73:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   73 |         I4("rtct", &rtc.t),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:74:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   74 |         I1("rtR8", &rtc.regs[0]),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:75:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   75 |         I1("rtR9", &rtc.regs[1]),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:76:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   76 |         I1("rtRA", &rtc.regs[2]),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:77:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   77 |         I1("rtRB", &rtc.regs[3]),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:78:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   78 |         I1("rtRC", &rtc.regs[4]),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:80:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   80 |         I4("S1on", &snd.ch[0].on),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:81:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   81 |         I4("S1p ", &snd.ch[0].pos),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:82:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   82 |         I4("S1c ", &snd.ch[0].cnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:83:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   83 |         I4("S1ec", &snd.ch[0].encnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:84:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   84 |         I4("S1sc", &snd.ch[0].swcnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:85:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   85 |         I4("S1sf", &snd.ch[0].swfreq),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:87:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   87 |         I4("S2on", &snd.ch[1].on),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:88:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   88 |         I4("S2p ", &snd.ch[1].pos),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:89:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   89 |         I4("S2c ", &snd.ch[1].cnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:90:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   90 |         I4("S2ec", &snd.ch[1].encnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:92:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   92 |         I4("S3on", &snd.ch[2].on),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:93:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   93 |         I4("S3p ", &snd.ch[2].pos),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:94:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   94 |         I4("S3c ", &snd.ch[2].cnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:96:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   96 |         I4("S4on", &snd.ch[3].on),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:97:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   97 |         I4("S4p ", &snd.ch[3].pos),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:98:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   98 |         I4("S4c ", &snd.ch[3].cnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:99:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   99 |         I4("S4ec", &snd.ch[3].encnt),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:101:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  101 |         I4("hdma", &hw.hdma),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:103:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  103 |         I4("sram", &sramblock),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:104:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  104 |         I4("iram", &iramblock),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:105:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  105 |         I4("vram", &vramblock),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:106:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  106 |         I4("hi  ", &hiofs),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:107:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  107 |         I4("pal ", &palofs),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:108:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  108 |         I4("oam ", &oamofs),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:109:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  109 |         I4("wav ", &wavofs),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:20:22: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   20 | #define NOSAVE { -1, "\0\0\0\0", 0 }
+      |                      ^~~~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:114:9: note: in expansion of macro 'NOSAVE'
+  114 |         NOSAVE,
+      |         ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:118:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  118 |         I4("hram", &hramofs),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:18:23: note: in definition of macro 'I4'
+   18 | #define I4(s, p) { 4, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:121:23: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  121 |         R(DIV), R(TIMA), R(TMA), R(TAC),
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:121:17: note: in expansion of macro 'R'
+  121 |         R(DIV), R(TIMA), R(TMA), R(TAC),
+      |                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:123:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  123 |         R(LCDC), R(STAT), R(LY), R(LYC),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:123:9: note: in expansion of macro 'R'
+  123 |         R(LCDC), R(STAT), R(LY), R(LYC),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:123:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  123 |         R(LCDC), R(STAT), R(LY), R(LYC),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:123:18: note: in expansion of macro 'R'
+  123 |         R(LCDC), R(STAT), R(LY), R(LYC),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:125:23: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  125 |         R(BGP), R(OBP0), R(OBP1),
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:125:17: note: in expansion of macro 'R'
+  125 |         R(BGP), R(OBP0), R(OBP1),
+      |                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:125:32: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  125 |         R(BGP), R(OBP0), R(OBP1),
+      |                                ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:125:26: note: in expansion of macro 'R'
+  125 |         R(BGP), R(OBP0), R(OBP1),
+      |                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:128:23: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  128 |         R(VBK), R(SVBK), R(KEY1),
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:128:17: note: in expansion of macro 'R'
+  128 |         R(VBK), R(SVBK), R(KEY1),
+      |                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:128:32: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  128 |         R(VBK), R(SVBK), R(KEY1),
+      |                                ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:128:26: note: in expansion of macro 'R'
+  128 |         R(VBK), R(SVBK), R(KEY1),
+      |                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:9: note: in expansion of macro 'R'
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:18: note: in expansion of macro 'R'
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:33: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |                                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:27: note: in expansion of macro 'R'
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:42: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |                                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:129:36: note: in expansion of macro 'R'
+  129 |         R(BCPS), R(BCPD), R(OCPS), R(OCPD),
+      |                                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:9: note: in expansion of macro 'R'
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:18: note: in expansion of macro 'R'
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:33: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:27: note: in expansion of macro 'R'
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:42: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:36: note: in expansion of macro 'R'
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:51: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                                                   ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:131:45: note: in expansion of macro 'R'
+  131 |         R(NR10), R(NR11), R(NR12), R(NR13), R(NR14),
+      |                                             ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:9: note: in expansion of macro 'R'
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:18: note: in expansion of macro 'R'
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:33: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |                                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:27: note: in expansion of macro 'R'
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:42: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |                                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:132:36: note: in expansion of macro 'R'
+  132 |         R(NR21), R(NR22), R(NR23), R(NR24),
+      |                                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:9: note: in expansion of macro 'R'
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:18: note: in expansion of macro 'R'
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:33: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:27: note: in expansion of macro 'R'
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:42: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:36: note: in expansion of macro 'R'
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:51: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                                                   ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:133:45: note: in expansion of macro 'R'
+  133 |         R(NR30), R(NR31), R(NR32), R(NR33), R(NR34),
+      |                                             ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:9: note: in expansion of macro 'R'
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:18: note: in expansion of macro 'R'
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:33: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |                                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:27: note: in expansion of macro 'R'
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:42: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |                                          ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:134:36: note: in expansion of macro 'R'
+  134 |         R(NR41), R(NR42), R(NR43), R(NR44),
+      |                                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:135:15: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  135 |         R(NR50), R(NR51), R(NR52),
+      |               ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:135:9: note: in expansion of macro 'R'
+  135 |         R(NR50), R(NR51), R(NR52),
+      |         ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:135:24: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  135 |         R(NR50), R(NR51), R(NR52),
+      |                        ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:135:18: note: in expansion of macro 'R'
+  135 |         R(NR50), R(NR51), R(NR52),
+      |                  ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:135:33: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  135 |         R(NR50), R(NR51), R(NR52),
+      |                                 ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:135:27: note: in expansion of macro 'R'
+  135 |         R(NR50), R(NR51), R(NR52),
+      |                           ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:137:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  137 |         I1("DMA1", &R_HDMA1),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:138:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  138 |         I1("DMA2", &R_HDMA2),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:139:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  139 |         I1("DMA3", &R_HDMA3),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:140:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  140 |         I1("DMA4", &R_HDMA4),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:141:12: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+  141 |         I1("DMA5", &R_HDMA5),
+      |            ^~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:16:23: note: in definition of macro 'I1'
+   16 | #define I1(s, p) { 1, s, p }
+      |                       ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:21:18: warning: initializer-string for array of 'char' truncates NUL terminator but destination lacks 'nonstring' attribute (5 chars into 4 available) [-Wunterminated-string-initialization]
+   21 | #define END { 0, "\0\0\0\0", 0 }
+      |                  ^~~~~~~~~~
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/save.c:143:9: note: in expansion of macro 'END'
+  143 |         END
+      |         ^~~
+[145/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/emu.c.obj
+[146/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/debug.c.obj
+[147/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/rccmds.c.obj
+[148/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/rckeys.c.obj
+[149/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/rcfile.c.obj
+[150/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/menu.c.obj
+[151/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/exports.c.obj
+[152/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/rcvars.c.obj
+[153/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/sound.c.obj
+[154/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/path.c.obj
+[155/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/lcd.c.obj
+[156/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/loader.c.obj
+[157/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/xz_crc32.c.obj
+[158/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/xz_crc64.c.obj
+[159/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/xz_dec_bcj.c.obj
+[160/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/pumpkin-audio.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ConnectionMgr.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin-audio.c:24:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:101: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  101 | #pragma mark -Error Codes-
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:128: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  128 | #pragma mark -API Routines-
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:32:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ExgLib.h:66: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+   66 | #pragma mark Functions
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetBitUtils.h:25,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:48:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:537: warning: ignoring '#pragma mark Master' [-Wunknown-pragmas]
+  537 | #pragma mark Master
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:716: warning: ignoring '#pragma mark Settings' [-Wunknown-pragmas]
+  716 | #pragma mark Settings
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1014: warning: ignoring '#pragma mark ErrorCodes' [-Wunknown-pragmas]
+ 1014 | #pragma mark ErrorCodes
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1270: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+ 1270 | #pragma mark Functions
+[161/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/xz_dec_stream.c.obj
+[162/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/inflate.c.obj
+[163/199] Building C object esp-idf/SDL3_net/CMakeFiles/__idf_SDL3_net.dir/SDLnet.c.obj
+[164/199] Linking C static library esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a
+[165/199] Building C object esp-idf/SDL3_net/CMakeFiles/__idf_SDL3_net.dir/SDLnetselect.c.obj
+[166/199] Linking C static library esp-idf/cmock/libcmock.a
+[167/199] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+[168/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/xz_dec_lzma2.c.obj
+[169/199] Linking C static library esp-idf/esp_blockdev_util/libesp_blockdev_util.a
+[170/199] Linking C static library esp-idf/esp_driver_cam/libesp_driver_cam.a
+[171/199] Linking C static library esp-idf/esp_driver_pcnt/libesp_driver_pcnt.a
+[172/199] Linking C static library esp-idf/esp_driver_sdm/libesp_driver_sdm.a
+[173/199] Linking C static library esp-idf/esp_driver_mcpwm/libesp_driver_mcpwm.a
+[174/199] Building C object esp-idf/SDL3_net/CMakeFiles/__idf_SDL3_net.dir/SDLnetTCP.c.obj
+[175/199] Linking C static library esp-idf/esp_driver_touch_sens/libesp_driver_touch_sens.a
+[176/199] Linking C static library esp-idf/esp_driver_tsens/libesp_driver_tsens.a
+[177/199] Linking C static library esp-idf/esp_driver_twai/libesp_driver_twai.a
+[178/199] Linking C static library esp-idf/esp_hid/libesp_hid.a
+[179/199] Linking C static library esp-idf/esp_eth/libesp_eth.a
+[180/199] Linking C static library esp-idf/esp_local_ctrl/libesp_local_ctrl.a
+[181/199] Linking C static library esp-idf/rt/librt.a
+[182/199] Linking C static library esp-idf/perfmon/libperfmon.a
+[183/199] Building C object esp-idf/SDL3_net/CMakeFiles/__idf_SDL3_net.dir/SDLnetUDP.c.obj
+[184/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/miniz_tinfl.c.obj
+[185/199] Linking C static library esp-idf/SDL3_net/libSDL3_net.a
+[186/199] Building C object esp-idf/GnuBoy/CMakeFiles/__idf_GnuBoy.dir/pumpkin.c.obj
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ConnectionMgr.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/PalmOS.h:23,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:28:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:101: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  101 | #pragma mark -Error Codes-
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ModemMgr.h:128: warning: ignoring '#pragma mark ' [-Wunknown-pragmas]
+  128 | #pragma mark -API Routines-
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:32:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/ExgLib.h:66: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+   66 | #pragma mark Functions
+In file included from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetBitUtils.h:25,
+                 from /Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/SystemPublic.h:48:
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:537: warning: ignoring '#pragma mark Master' [-Wunknown-pragmas]
+  537 | #pragma mark Master
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:716: warning: ignoring '#pragma mark Settings' [-Wunknown-pragmas]
+  716 | #pragma mark Settings
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1014: warning: ignoring '#pragma mark ErrorCodes' [-Wunknown-pragmas]
+ 1014 | #pragma mark ErrorCodes
+/Users/andyvand/Downloads/PumpkinOS/src/PalmOS/Core/System/NetMgr.h:1270: warning: ignoring '#pragma mark Functions' [-Wunknown-pragmas]
+ 1270 | #pragma mark Functions
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:48:20: warning: missing terminating ' character
+   48 | #include "rckeys.h"'
+      |                    ^
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:48:20: warning: extra tokens at end of '#include' directive
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c: In function 'GnuBoyPilotMain':
+/Users/andyvand/Downloads/PumpkinOS/src/components/GnuBoy/pumpkin.c:1317:17: warning: variable 'autoran' might be clobbered by 'longjmp' or 'vfork' [-Wclobbered]
+ 1317 |         Boolean autoran = false;
+      |                 ^~~~~~~
+[187/199] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/Downloads/PumpkinOS/src/build/littlefs_py_venv/bin/littlefs-python create /Users/andyvand/Downloads/PumpkinOS/src/data /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin -v --fs-size=0xc00000 --name-max=64 --block-size=4096
+LittleFS Configuration:
+  Block Size:       4096  /  0x1000
+  Image Size:   12582912  /  0xC00000
+  Block Count:      3072
+  Name Max:           64
+  Image:       /Users/andyvand/Downloads/PumpkinOS/src/build/storage.bin
+Adding Directory: vfs
+Adding File:      .DS_Store
+Adding File:      vfs/.DS_Store
+Adding Directory: vfs/app_storage
+Adding Directory: vfs/app_install
+Adding Directory: vfs/app_card
+Adding File:      vfs/app_install/Browser.prc
+Adding File:      vfs/app_install/ToDoList.prc
+Adding File:      vfs/app_install/BOOT.prc
+Adding File:      vfs/app_install/Preferences.prc
+Adding File:      vfs/app_install/AddressBook.prc
+Adding File:      vfs/app_install/GnuBoy.prc
+Adding File:      vfs/app_install/Command.prc
+Adding File:      vfs/app_install/SpaceTrader.prc
+Adding File:      vfs/app_install/MineHunt.prc
+Adding File:      vfs/app_install/MemoPad.prc
+Adding File:      vfs/app_install/Launcher.prc
+Adding File:      vfs/app_install/DateBook.prc
+Adding File:      vfs/app_card/.DS_Store
+Adding Directory: vfs/app_card/PALM
+Adding File:      vfs/app_card/PALM/.DS_Store
+Adding Directory: vfs/app_card/PALM/Programs
+Adding File:      vfs/app_card/PALM/Programs/.DS_Store
+[188/199] Linking C static library esp-idf/GnuBoy/libGnuBoy.a
+[189/199] Building C object esp-idf/SDL/CMakeFiles/__idf_SDL.dir/SDL/src/video/SDL_blit_auto.c.obj
+[190/199] Linking C static library esp-idf/SDL/libSDL.a
+[191/199] Linking C static library esp-idf/main/libmain.a
+[192/199] Performing build step for 'bootloader'
+[0/1] Re-running CMake...
+-- Component directory /Users/andyvand/Downloads/esp-idf-v6.0.2/components/mqtt does not contain a CMakeLists.txt file. No component will be added
+-- Minimal build - OFF
+-- Building ESP-IDF components for target esp32s3
+-- ESP-TEE is currently supported only on the esp32c6;esp32h2;esp32c5;esp32c61 SoCs
+-- KCONFIG_REPORT_VERBOSITY not set, using default
+-- Project sdkconfig file /Users/andyvand/Downloads/PumpkinOS/src/sdkconfig
+Default value for FREERTOS_WATCHPOINT_END_OF_STACK in sdkconfig is y but it is n according to Kconfig.
+Using default value from sdkconfig (y).
+NOTE: Kconfig parser version: 1
+NOTE: Kconfig defaults policy: use sdkconfig
+NOTE: Status: Finished with notifications
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos/Kconfig:374: FREERTOS_WATCHPOINT_END_OF_STACK: Kconfig default value: n, sdkconfig default value: y
+HINT: This area reports issues with default values of the config options.
+For more information, please visit https://docs.espressif.com/projects/esp-idf-kconfig/en/latest/kconfiglib/configuration-report.html#default-value-mismatch
+-- Compiler supported targets: xtensa-esp-elf
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc/esp32s3/ld/esp32s3.peripherals.ld
+-- Bootloader project name: "bootloader" version: 1
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_wdt/esp32s3/rom.wdt.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.api.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.bt_funcs.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.libgcc.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.version.ld
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom/esp32s3/ld/esp32s3.rom.libc.ld
+-- Components: bootloader bootloader_support efuse esp_app_format esp_blockdev esp_bootloader_format esp_common esp_hal_ana_conv esp_hal_clock esp_hal_dma esp_hal_gpio esp_hal_gpspi esp_hal_mspi esp_hal_pmu esp_hal_rtc_timer esp_hal_security esp_hal_timg esp_hal_uart esp_hal_usb esp_hal_wdt esp_hw_support esp_libc esp_rom esp_security esp_stdio esp_system esptool_py freertos hal log main micro-ecc partition_table soc spi_flash xtensa
+-- Component paths: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader_support /Users/andyvand/Downloads/esp-idf-v6.0.2/components/efuse /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_app_format /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_blockdev /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_bootloader_format /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_common /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_ana_conv /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_clock /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_dma /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_gpspi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_mspi /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_pmu /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_rtc_timer /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_security /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_timg /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_uart /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_usb /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hal_wdt /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_hw_support /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_libc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_rom /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_security /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_stdio /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esp_system /Users/andyvand/Downloads/esp-idf-v6.0.2/components/esptool_py /Users/andyvand/Downloads/esp-idf-v6.0.2/components/freertos /Users/andyvand/Downloads/esp-idf-v6.0.2/components/hal /Users/andyvand/Downloads/esp-idf-v6.0.2/components/log /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/main /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/components/micro-ecc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table /Users/andyvand/Downloads/esp-idf-v6.0.2/components/soc /Users/andyvand/Downloads/esp-idf-v6.0.2/components/spi_flash /Users/andyvand/Downloads/esp-idf-v6.0.2/components/xtensa
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/main/ld/esp32s3/bootloader.memory.ld.in
+--   -> Preprocessing .in script: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/main/ld/esp32s3/bootloader.memory.ld.in
+-- Adding linker script /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/main/ld/esp32s3/bootloader.sections.ld.in
+--   -> Preprocessing .in script: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/bootloader/subproject/main/ld/esp32s3/bootloader.sections.ld.in
+-- Configuring done (3.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader
+[1/2] cd /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/bootloader.bin
+Bootloader binary size 0x5240 bytes. 0x2dc0 bytes (36%) free.
+[193/199] No install step for 'bootloader'
+[194/199] Completed 'bootloader'
+[195/199] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/Users/andyvand/Downloads/esp-idf-v6.0.2/components/bt/host/nimble/Kconfig.in:14
+21: BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' 
+and 'n' are allowed). Value is treated as 'n'.
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/Kconfig:230: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /Users/andyvand/Downloads/esp-idf-v6.0.2/components/fatfs/Kconfig:235: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Default value for MBEDTLS_ARIA_C in sdkconfig is y but it is n 
+according to Kconfig.
+Using default value from sdkconfig (y).
+Default value for FREERTOS_WATCHPOINT_END_OF_STACK in sdkconfig is y but
+it is n according to Kconfig.
+Using default value from sdkconfig (y).
+Default value for MBEDTLS_THREADING_C in sdkconfig is n but it is y
+according to Kconfig.
+Using default value from sdkconfig (n).
+Default value for MBEDTLS_SHA3_C in sdkconfig is y but it is n 
+according to Kconfig.
+Using default value from sdkconfig (y).
+[196/199] Building C object CMakeFiles/PumpkinOS.elf.dir/project_elf_src_esp32s3.c.obj
+[197/199] Linking CXX executable PumpkinOS.elf
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/SDL/libSDL.a(SDL_systhread.c.obj):(.literal.SDL_SYS_SetupThread+0x8): warning: pthread_setcanceltype is not implemented and will always fail
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/SDL/libSDL.a(SDL_systhread.c.obj): note: the message above does not take linker garbage collection into account
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/libpit/liblibpit.a(sys.c.obj):(.literal.sys_set_thread_name+0x4): warning: pthread_setname_np is not implemented and will always fail
+/Users/andyvand/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/15.2.0/../../../../xtensa-esp-elf/bin/ld: esp-idf/libpit/liblibpit.a(sys.c.obj): note: the message above does not take linker garbage collection into account
+[198/199] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+[199/199] cd /Users/andyvand/Downloads/PumpkinOS/src/build && /Users/andyvand/.espressif/python_env/idf6.0_py3.14_env/bin/python /Users/andyvand/Downloads/esp-idf-v6.0.2/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/andyvand/Downloads/PumpkinOS/src/build/partition_table/partition-table.bin /Users/andyvand/Downloads/PumpkinOS/src/build/PumpkinOS.bin
+PumpkinOS.bin binary size 0x367c10 bytes. Smallest app partition is 0x3f0000 bytes. 0x883f0 bytes (14%) free.

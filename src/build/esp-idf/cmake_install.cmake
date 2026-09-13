@@ -824,6 +824,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libmath/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/Launcher/cmake_install.cmake")
 endif()
 
@@ -889,17 +894,17 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libmath/cmake_install.cmake")
-endif()
-
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/elf_loader/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpit/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/liblmbedtls/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)

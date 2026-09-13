@@ -69,6 +69,10 @@ static void free_http_client(void *p) {
     if (hc->request_path) xfree(hc->request_path);
     if (hc->request_host) xfree(hc->request_host);
     if (hc->response_fd) sys_close(hc->response_fd);
+    if (hc->secure) {
+      if (hc->s) hc->secure->close(hc->s);
+      if (hc->sc) hc->secure->destroy(hc->sc);
+    }
     xfree(hc);
   }
 }
@@ -145,7 +149,13 @@ static int io_callback(io_arg_t *arg) {
             r = 0;
           } else {
             hc->secure->destroy(hc->sc);
+            hc->sc = NULL;
           }
+        }
+        if (r) {
+          debug(DEBUG_ERROR, "WEB", "secure connection to %s:%d failed", hc->request_host, hc->request_port);
+          hc->response_error = 1;
+          hc->secure_error = 1;
         }
       }
       break;

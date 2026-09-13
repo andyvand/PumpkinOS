@@ -3,6 +3,7 @@
 #include "pwindow.h"
 #include "gpio.h"
 #include "pspi.h"
+#include "secure.h"
 
 #ifndef CONFIG_BSP_DISPLAY_WIDTH
 #define CONFIG_BSP_DISPLAY_WIDTH 240
@@ -15,6 +16,7 @@
 static void *gpiop = NULL;
 static void *spip = NULL;
 static void *wp = NULL;
+static void *securep = NULL;
 
 int script_set_pointer(int pe, char *name, void *p) {
   if (!sys_strcmp(name, GPIO_PROVIDER)) {
@@ -23,6 +25,8 @@ int script_set_pointer(int pe, char *name, void *p) {
     spip = p;
   } else if (!sys_strcmp(name, WINDOW_PROVIDER)) {
     wp = p;
+  } else if (!sys_strcmp(name, SECURE_PROVIDER)) {
+    securep = p;
   }
 
   return 0;
@@ -37,6 +41,9 @@ void *script_get_pointer(int pe, char *name) {
   }
   if (!sys_strcmp(name, WINDOW_PROVIDER)) {
     return wp;
+  }
+  if (!sys_strcmp(name, SECURE_PROVIDER)) {
+    return securep;
   }
 
   return NULL;

@@ -44,6 +44,9 @@ typedef struct http_client_t {
   // callback
   void *data;
   int (*callback)(int ptr, void *data);
+
+  // set when the TLS handshake (or certificate verification) failed
+  int secure_error;
 } http_client_t;
 
 int pit_http_get(char *user_agent, char *url, secure_provider_t *secure, int timeout, int (*callback)(int ptr, void *data), void *data);

@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
     parseHtml(&sb, (char *)START_PAGE, (int)strlen(START_PAGE));
     layoutDoc(&sb);
     dumpDoc(&sb);
-    if (sb.nlinks != 6) { printf("FAIL start page links=%u\n", (unsigned)sb.nlinks); failures++; }
+    if (sb.nlinks != 13) { printf("FAIL start page links=%u\n", (unsigned)sb.nlinks); failures++; }
     docFree(&sb);
   }
   if (argc > 1) testFile(argv[1]);

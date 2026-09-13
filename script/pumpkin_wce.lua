@@ -50,6 +50,13 @@ end
 
 pit.mount("/vfs/", "/")
 
+-- TLS provider: makes https:// work in the HTTP client (e.g. the Browser app).
+-- liblopenssl (OpenSSL) is preferred, libls2n (s2n) is the fallback.
+secure = pit.loadlib("liblopenssl")
+if not secure then
+  secure = pit.loadlib("libls2n")
+end
+
 pumpkin = pit.loadlib("libos")
 pumpkin.init()
 

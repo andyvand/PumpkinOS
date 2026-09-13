@@ -1,0 +1,43 @@
+# TLS provider based on OpenSSL (https:// support for the HTTP client / Browser).
+#
+# OPENSSL may point at an OpenSSL installation prefix (headers in
+# $(OPENSSL)/include, libraries in $(OPENSSL)/lib). When it is not given the
+# usual Homebrew locations are tried, and finally the system default paths.
+
+ifeq ($(OPENSSL),)
+ifneq ($(wildcard /usr/local/include/openssl/ssl.h),)
+OPENSSL=/usr/local
+else ifneq ($(wildcard /opt/homebrew/opt/openssl@3/include/openssl/ssl.h),)
+OPENSSL=/opt/homebrew/opt/openssl@3
+else ifneq ($(wildcard /usr/local/opt/openssl@3/include/openssl/ssl.h),)
+OPENSSL=/usr/local/opt/openssl@3
+else ifneq ($(wildcard /usr/local/opt/openssl/include/openssl/ssl.h),)
+OPENSSL=/usr/local/opt/openssl
+endif
+endif
+
+PROGRAM=liblopenssl
+SOURCE=liblopenssl.c
+
+ifneq ($(OPENSSL),)
+CUSTOMFLAGS=-I$(OPENSSL)/include
+LIBS=-L$(OPENSSL)/lib -lssl -lcrypto
+else
+LIBS=-lssl -lcrypto
+endif
+
+include ../common.mak
+
+# On macOS the tree is built as a universal binary, but a Homebrew OpenSSL
+# only contains the native architecture: build this library for the
+# architectures OpenSSL actually provides.
+ifeq ($(OSNAME),Darwin)
+ifneq ($(OPENSSL),)
+OPENSSL_ARCHS := $(shell lipo -archs $(OPENSSL)/lib/libssl.dylib 2>/dev/null)
+ifneq ($(OPENSSL_ARCHS),)
+CC := $(subst -arch x86_64 -arch arm64,$(addprefix -arch ,$(OPENSSL_ARCHS)),$(CC))
+endif
+endif
+endif
+
+include ../lib.mak

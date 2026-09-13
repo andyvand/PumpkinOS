@@ -23,7 +23,11 @@ else ifneq ($(wildcard /usr/include/unicorn/unicorn.h),)
 UNICORN_MODULE=UnicornArm
 endif
 
-EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) libaalsa linux
+ifneq ($(wildcard /usr/include/openssl/ssl.h),)
+TLS_MODULE=liblopenssl
+endif
+
+EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) $(TLS_MODULE) libaalsa linux
 
 else ifeq ($(OSNAME),Android)
 ifneq ($(UNICORN),)
@@ -48,7 +52,13 @@ else ifneq ($(wildcard /usr/local/include/unicorn/unicorn.h),)
 UNICORN_MODULE=UnicornArm
 endif
 
-EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) linux
+ifneq ($(OPENSSL),)
+TLS_MODULE=liblopenssl
+else ifneq ($(wildcard /opt/homebrew/opt/openssl@3/include/openssl/ssl.h /usr/local/opt/openssl@3/include/openssl/ssl.h /usr/local/opt/openssl/include/openssl/ssl.h),)
+TLS_MODULE=liblopenssl
+endif
+
+EXTRA_MODULES=$(UNICORN_MODULE) $(WINDOW_MODULE) $(TLS_MODULE) linux
 
 else ifeq ($(OSNAME),Msys)
 
@@ -56,7 +66,11 @@ ifneq ($(UNICORN),)
 UNICORN_MODULE=UnicornArm
 endif
  
-EXTRA_MODULES=$(UNICORN_MODULE) windows
+ifneq ($(wildcard /mingw64/include/openssl/ssl.h /mingw32/include/openssl/ssl.h),)
+TLS_MODULE=liblopenssl
+endif
+
+EXTRA_MODULES=$(UNICORN_MODULE) $(TLS_MODULE) windows
 
 else ifeq ($(OSNAME),Emscripten)
 

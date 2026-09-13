@@ -91,6 +91,11 @@ extern int liblsdl3_load(void);
 extern int liblsdl3_init(int pe, script_ref_t obj);
 #endif
 
+#if CONFIG_ENABLE_HTTPS
+extern int liblmbedtls_load(void);
+extern int liblmbedtls_init(int pe, script_ref_t obj);
+#endif
+
 extern int libos_app_init(int pe);
 extern int libos_start(int pe);
 extern void malloc_init(void);
@@ -171,6 +176,14 @@ void app_task(void *arg)
     liblsdl3_init(0, 0);
 
     ESP_LOGI(__func__, "SDL3 loaded.\n");
+#endif
+
+#if CONFIG_ENABLE_HTTPS
+    // TLS provider (mbedTLS): makes https:// work in the HTTP client / Browser
+    liblmbedtls_load();
+    liblmbedtls_init(0, 0);
+
+    ESP_LOGI(__func__, "TLS provider loaded.\n");
 #endif
 
     // VFS Mount
