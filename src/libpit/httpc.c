@@ -68,7 +68,7 @@ static void free_http_client(void *p) {
     if (hc->request_body) xfree(hc->request_body);
     if (hc->request_path) xfree(hc->request_path);
     if (hc->request_host) xfree(hc->request_host);
-    if (hc->response_fd) sys_close(hc->response_fd);
+    if (hc->response_fd > 0) sys_close(hc->response_fd);
     if (hc->secure) {
       if (hc->s) hc->secure->close(hc->s);
       if (hc->sc) hc->secure->destroy(hc->sc);
@@ -183,6 +183,8 @@ static int io_callback(io_arg_t *arg) {
             if (hc->linelen == 0) {
               hc->response_end_header = 1;
               if ((hc->response_fd = sys_mkstemp()) == -1) {
+                debug(DEBUG_ERROR, "WEB", "could not create response file");
+                hc->response_error = 1;
                 r = 1;
               } else {
                 if (arg->len - (i+1) > 0) {
@@ -214,7 +216,7 @@ static int io_callback(io_arg_t *arg) {
     case IO_DISCONNECT:
       if (!hc->response_code_found) debug(DEBUG_ERROR, "WEB", "http server reply code not found");
       if (!hc->response_end_header) debug(DEBUG_ERROR, "WEB", "http server reply header did not end properly");
-      if (hc->response_fd) sys_seek(hc->response_fd, 0, SYS_SEEK_SET);
+      if (hc->response_fd > 0) sys_seek(hc->response_fd, 0, SYS_SEEK_SET);
       if (hc->callback) {
         if ((ptr = ptr_new(hc, free_http_client)) != -1) {
           debug(DEBUG_INFO, "WEB", "calling data callback");

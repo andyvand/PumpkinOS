@@ -317,6 +317,9 @@ int sys_mkstempfile(char *buf);
 
 int sys_mkstemp(void);
 
+// directory used by sys_mkstemp() (NULL or "" = current directory)
+int sys_set_tmpdir(const char *dir);
+
 void *sys_malloc(sys_size_t size);
 
 void sys_free(void *ptr);

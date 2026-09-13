@@ -189,10 +189,16 @@ void app_task(void *arg)
     // VFS Mount
 #if CONFIG_STORAGE_LITTLEFS
     vfs_local_mount(CONFIG_BSP_LITTLEFS_MOUNT_POINT "/vfs/", "/");
+    sys_mkdir(CONFIG_BSP_LITTLEFS_MOUNT_POINT "/tmp");
+    sys_set_tmpdir(CONFIG_BSP_LITTLEFS_MOUNT_POINT "/tmp");
 #elif CONFIG_STORAGE_SPIFFS
     vfs_local_mount(CONFIG_BSP_SPIFFS_MOUNT_POINT "/vfs/", "/");
+    // SPIFFS is flat: directories are just a name prefix, no mkdir needed
+    sys_set_tmpdir(CONFIG_BSP_SPIFFS_MOUNT_POINT "/tmp");
 #else
     vfs_local_mount(BSP_SD_MOUNT_POINT "/vfs/", "/");
+    sys_mkdir(BSP_SD_MOUNT_POINT "/tmp");
+    sys_set_tmpdir(BSP_SD_MOUNT_POINT "/tmp");
 #endif
 
     // libos

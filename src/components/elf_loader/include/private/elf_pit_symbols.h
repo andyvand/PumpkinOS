@@ -90,6 +90,7 @@ extern int sys_longjmp;
 extern int sys_mkdir;
 extern int sys_mkstemp;
 extern int sys_mkstempfile;
+extern int sys_set_tmpdir;
 extern int sys_open;
 extern int sys_opendir;
 extern int sys_peek;
@@ -678,6 +679,7 @@ const struct esp_elfsym g_PitSyms_elfsyms[] = {
     ESP_ELFSYM_EXPORT(sys_mkdir),
     ESP_ELFSYM_EXPORT(sys_mkstemp),
     ESP_ELFSYM_EXPORT(sys_mkstempfile),
+    ESP_ELFSYM_EXPORT(sys_set_tmpdir),
     ESP_ELFSYM_EXPORT(sys_open),
     ESP_ELFSYM_EXPORT(sys_opendir),
     ESP_ELFSYM_EXPORT(sys_peek),

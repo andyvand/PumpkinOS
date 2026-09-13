@@ -166,6 +166,10 @@ struct sys_dir_t {
 #define closesocket(s) close(s)
 #endif
 
+#if defined(ESP32)
+static void sys_tmpfile_closed(int fd);
+#endif
+
 #ifdef ESP32
 int64_t sys_get_thread_time_esp32(void) {
     TaskStatus_t taskStatus;
@@ -2003,6 +2007,9 @@ int sys_close(int fd) {
 #else
   if (fd != -1) {
     r = close(fd);
+#if defined(ESP32)
+    sys_tmpfile_closed(fd);
+#endif
   }
 #endif
 
@@ -4148,8 +4155,85 @@ int sys_mkstempfile(char *buf) {
 #endif
 }
 
+// directory where sys_mkstemp() creates its files ("" = current directory).
+// On ESP32 a bare relative name has no VFS mount prefix, so open() fails
+// with ENOENT; main.c points this at the mounted storage instead.
+static char sys_tmpdir[FILE_PATH] = "";
+
+int sys_set_tmpdir(const char *dir) {
+  int n;
+
+  if (dir == NULL) dir = "";
+  sys_memset(sys_tmpdir, 0, sizeof(sys_tmpdir));
+  sys_strncpy(sys_tmpdir, dir, FILE_PATH - 2);
+  n = (int)sys_strlen(sys_tmpdir);
+  if (n > 0 && sys_tmpdir[n-1] != '/' && sys_tmpdir[n-1] != '\\') {
+    sys_tmpdir[n] = '/';
+  }
+
+  return 0;
+}
+
+#if defined(ESP32)
+// The ESP-IDF filesystems (LittleFS, SPIFFS, FAT with FS_LOCK=0) either refuse
+// to unlink an open file or corrupt it, so the usual "create then unlink"
+// trick does not work. Remember the name and unlink it in sys_close() instead.
+#define MAX_TMPFILES 16
+
+typedef struct {
+  int fd;
+  char path[64];
+} sys_tmpfile_t;
+
+static sys_tmpfile_t sys_tmpfiles[MAX_TMPFILES];
+static portMUX_TYPE sys_tmpfiles_mux = portMUX_INITIALIZER_UNLOCKED;
+
+static void sys_tmpfile_register(int fd, const char *path) {
+  int i;
+
+  taskENTER_CRITICAL(&sys_tmpfiles_mux);
+  for (i = 0; i < MAX_TMPFILES; i++) {
+    if (sys_tmpfiles[i].fd == 0) {
+      sys_tmpfiles[i].fd = fd;
+      sys_strncpy(sys_tmpfiles[i].path, path, sizeof(sys_tmpfiles[i].path) - 1);
+      break;
+    }
+  }
+  taskEXIT_CRITICAL(&sys_tmpfiles_mux);
+
+  if (i == MAX_TMPFILES) {
+    debug(DEBUG_ERROR, "SYS", "too many temp files, \"%s\" will not be removed", path);
+  }
+}
+
+// called by sys_close() after the descriptor is closed
+static void sys_tmpfile_closed(int fd) {
+  char path[64];
+  int i, found = 0;
+
+  if (fd <= 0) return;
+
+  taskENTER_CRITICAL(&sys_tmpfiles_mux);
+  for (i = 0; i < MAX_TMPFILES; i++) {
+    if (sys_tmpfiles[i].fd == fd) {
+      sys_strncpy(path, sys_tmpfiles[i].path, sizeof(path) - 1);
+      path[sizeof(path) - 1] = 0;
+      sys_tmpfiles[i].fd = 0;
+      sys_tmpfiles[i].path[0] = 0;
+      found = 1;
+      break;
+    }
+  }
+  taskEXIT_CRITICAL(&sys_tmpfiles_mux);
+
+  if (found) {
+    sys_unlink(path);
+  }
+}
+#endif
+
 int sys_mkstemp(void) {
-  char buf[32];
+  char buf[FILE_PATH];
   int fd;
 #if defined(_MSC_VER)
 #if __STDC_WANT_SECURE_LIB__
@@ -4157,12 +4241,13 @@ int sys_mkstemp(void) {
 #endif
 #endif
 
-  sys_strncpy(buf, "tmpXXXXXX", 32);
+  sys_memset(buf, 0, sizeof(buf));
+  sys_snprintf(buf, sizeof(buf) - 1, "%stmpXXXXXX", sys_tmpdir);
 #if defined(_MSC_VER)
 #if __STDC_WANT_SECURE_LIB__
   sys_strncpy(temppath, buf, FILE_PATH);
   _mktemp_s(temppath, FILE_PATH);
-  sys_strncpy(buf, temppath, 32);
+  sys_strncpy(buf, temppath, FILE_PATH);
   fd = sys_open(temppath, SYS_READ | SYS_WRITE);
 #else
   fd = sys_open(mktemp(buf), SYS_READ | SYS_WRITE);
@@ -4170,7 +4255,17 @@ int sys_mkstemp(void) {
 #else
   fd = mkstemp(buf);
 #endif
+
+  if (fd == -1) {
+    debug_errno("SYS", "mkstemp(\"%s\")", buf);
+    return -1;
+  }
+
+#if defined(ESP32)
+  sys_tmpfile_register(fd, buf);
+#else
   sys_unlink(buf);
+#endif
 
   return fd;
 }
