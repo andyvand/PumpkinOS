@@ -245,6 +245,43 @@ static void pageField(FormType *frm, UInt16 fldId, UInt16 sclId, WinDirectionTyp
   updateScrollbar(frm, fldId, sclId);
 }
 
+/* PumpkinOS never posts fldChangedEvent, so an editable field with a scroll bar has
+   to be driven by the application: feed the event to the field, keep the insertion
+   point in view when typing at the end, and refresh the bar */
+static Boolean editBodyField(FormType *frm, UInt16 fldId, UInt16 sclId, EventType *event) {
+  FieldType *fld = getObject(frm, fldId);
+  UInt16 scrollPos, textHeight, fieldHeight;
+
+  if (fld == NULL || FrmGetFocus(frm) != FrmGetObjectIndex(frm, fldId)) return false;
+  if (!FldHandleEvent(fld, event)) return false;
+
+  if (FldGetInsPtPosition(fld) >= FldGetTextLength(fld)) {
+    FldGetScrollValues(fld, &scrollPos, &textHeight, &fieldHeight);
+    if (textHeight > fieldHeight && scrollPos + fieldHeight < textHeight) {
+      FldScrollField(fld, textHeight - fieldHeight - scrollPos, winDown);
+    }
+  }
+  updateScrollbar(frm, fldId, sclId);
+  return true;
+}
+
+/* the system Edit menu commands, applied to the body field so the bar can follow */
+static Boolean editBodyMenu(FormType *frm, UInt16 fldId, UInt16 sclId, UInt16 cmd) {
+  FieldType *fld = getObject(frm, fldId);
+
+  if (fld == NULL || FrmGetFocus(frm) != FrmGetObjectIndex(frm, fldId)) return false;
+  switch (cmd) {
+    case sysEditMenuUndoCmd:  FldUndo(fld); break;
+    case sysEditMenuCutCmd:   FldCut(fld); break;
+    case sysEditMenuCopyCmd:  FldCopy(fld); return true;
+    case sysEditMenuPasteCmd: FldPaste(fld); break;
+    case sysEditMenuSelectAllCmd: FldSetSelection(fld, 0, FldGetTextLength(fld)); return true;
+    default: return false;
+  }
+  updateScrollbar(frm, fldId, sclId);
+  return true;
+}
+
 static void showError(const char *msg) {
   FrmCustomAlert(ErrorAlert, msg, "", "");
 }
@@ -1500,10 +1537,17 @@ static Boolean ComposeFormHandleEvent(EventType *event) {
             handled = true;
             break;
         }
+      } else {
+        handled = editBodyField(frm, cbodyFld, cbodyScl, event);
       }
       break;
 
     case menuEvent:
+      frm = FrmGetActiveForm();
+      if (editBodyMenu(frm, cbodyFld, cbodyScl, event->data.menu.itemID)) {
+        handled = true;
+        break;
+      }
       switch (event->data.menu.itemID) {
         case sendCmd:
           sendMessage(a);
