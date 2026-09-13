@@ -4178,7 +4178,12 @@ int sys_set_tmpdir(const char *dir) {
     sys_dir_t *dir;
     char name[FILE_PATH], path[FILE_PATH];
 
-    if ((dir = sys_opendir(sys_tmpdir)) != NULL) {
+    // open the directory without the trailing separator
+    sys_strncpy(path, sys_tmpdir, FILE_PATH - 1);
+    n = (int)sys_strlen(path);
+    if (n > 1 && path[n-1] == '/') path[n-1] = 0;
+
+    if ((dir = sys_opendir(path)) != NULL) {
       while (sys_readdir(dir, name, sizeof(name)) == 0) {
         if (!sys_strncmp(name, "tmp", 3) && sys_strlen(name) == 9) {
           sys_snprintf(path, sizeof(path) - 1, "%s%s", sys_tmpdir, name);
