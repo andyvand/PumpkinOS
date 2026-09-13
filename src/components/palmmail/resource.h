@@ -1,0 +1,1 @@
+../../palmmail/resource.h

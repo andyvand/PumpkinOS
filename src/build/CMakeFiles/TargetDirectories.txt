@@ -1375,6 +1375,13 @@
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmbrowser/CMakeFiles/install.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmbrowser/CMakeFiles/install/local.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmbrowser/CMakeFiles/install/strip.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/__idf_palmmail.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/edit_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/rebuild_cache.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/list_install_components.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/install.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/install/local.dir
+/Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/palmmail/CMakeFiles/install/strip.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/__idf_libpumpkin.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/edit_cache.dir
 /Users/andyvand/Downloads/PumpkinOS/src/build/esp-idf/libpumpkin/CMakeFiles/rebuild_cache.dir

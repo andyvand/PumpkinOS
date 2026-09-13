@@ -1,0 +1,18 @@
+# Mail - IMAP/SMTP e-mail client for PumpkinOS.
+#
+# Builds Mail.prc and installs it into $(ROOT)/vfs/app_install.
+# TLS comes from the PumpkinOS secure provider (liblopenssl / libls2n on the
+# desktop, liblmbedtls on the ESP32); see README.md.
+
+ROOT ?= ../..
+
+PROGRAM=Mail
+SOURCE=Mail.c mailnet.c
+RCP=resource.rcp
+RCPDEP=resource.h mail32.bmp mail64.bmp
+APPNAME=Mail
+APPID=PMal
+
+include $(ROOT)/src/common.mak
+include $(ROOT)/src/commonp.mak
+include $(ROOT)/src/app.mak

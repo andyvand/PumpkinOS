@@ -1,0 +1,9 @@
+*.o
+*.dlib
+*.prc
+*.flag
+*.mod
+dlib*.bin
+resources/
+syscalls_stubs.*
+Mail_esp32.prc

@@ -3067,3 +3067,4 @@ EXPORTS
     wman_update @3066
     wman_xy @3067
     xtos_convert_color @3068
+    pumpkin_get_secure @3069

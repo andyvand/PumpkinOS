@@ -297,6 +297,7 @@ uint32_t pumpkin_get_id_option(char *name);
 char *pumpkin_get_string_option(char *name);
 
 void pumpkin_set_secure(void *secure);
+void *pumpkin_get_secure(void);
 int pumpkin_http_get(char *url, int timeout, int (*callback)(int ptr, void *_data), void *data);
 void pumpkin_http_abort(int handle);
 

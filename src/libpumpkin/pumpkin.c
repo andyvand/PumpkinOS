@@ -938,6 +938,12 @@ void pumpkin_set_secure(void *secure) {
   pumpkin_module.secure = secure;
 }
 
+// the secure_provider_t registered by the TLS library (liblopenssl, libls2n,
+// liblmbedtls), or NULL when PumpkinOS was started without one
+void *pumpkin_get_secure(void) {
+  return pumpkin_module.secure;
+}
+
 static void pumpkin_set_host_depth(int depth) {
   PumpkinPreferencesType prefs;
   UInt32 border;
