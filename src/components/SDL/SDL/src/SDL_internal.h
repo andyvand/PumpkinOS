@@ -31,8 +31,6 @@
 #define _LARGEFILE64_SOURCE 1
 #endif
 
-#include <stdlib.h>
-
 /* This is for a variable-length array at the end of a struct:
     struct x { int y; char z[SDL_VARIABLE_LENGTH_ARRAY]; };
    Use this because GCC 2 needs different magic than other compilers. */
@@ -99,7 +97,7 @@
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
 #endif
-#ifdef HAVE_STDLIB_H
+#if defined(HAVE_STDLIB_H) || defined(ESP_PLATFORM)
 #include <stdlib.h>
 #elif defined(HAVE_MALLOC_H)
 #include <malloc.h>
