@@ -837,7 +837,18 @@ struct mail_session_t {
   char line[LINE_LEN];
   char cmd[LINE_LEN];
   char result[MAIL_ERROR_LEN];
+  /* POP3 */
+  int pop3_count;                     /* messages in the mail drop (STAT) */
+  int pop3_ncache;
+  struct { uint32_t num; char uidl[MAIL_UIDL_LEN]; } *pop3_cache;   /* number <-> UIDL of listed messages */
 };
+
+static void pop3_cache_free(mail_session_t *s) {
+  if (s->pop3_cache) xfree(s->pop3_cache);
+  s->pop3_cache = NULL;
+  s->pop3_ncache = 0;
+  s->pop3_count = 0;
+}
 
 mail_session_t *mail_session_create(mail_ctx_t *ctx, mail_account_t *account) {
   mail_session_t *s;
@@ -870,6 +881,7 @@ void mail_session_disconnect(mail_session_t *s) {
     s->conn = NULL;
     s->selected[0] = 0;
     s->exists = 0;
+    pop3_cache_free(s);
   }
 }
 
@@ -877,7 +889,7 @@ void mail_session_destroy(mail_session_t *s) {
   if (s) {
     if (s->conn) {
       /* best effort: tell the server we are leaving, but do not wait */
-      conn_writes(s->conn, "A9999 LOGOUT\r\n");
+      conn_writes(s->conn, s->account.proto == MAIL_PROTO_POP3 ? "QUIT\r\n" : "A9999 LOGOUT\r\n");
     }
     mail_session_disconnect(s);
     xfree(s);
@@ -1932,6 +1944,533 @@ int mail_imap_delete_message(mail_session_t *s, const char *folder, uint32_t uid
   if (r != MAIL_OK && r != MAIL_ERR_PROTO && r != MAIL_ERR_AUTH) mail_session_disconnect(s);
 
   return r;
+}
+
+
+/*
+ * POP3 (RFC 1939)
+ */
+
+/* read a status line; MAIL_OK for +OK, MAIL_ERR_PROTO for -ERR (text in s->result) */
+static int pop3_reply(mail_session_t *s) {
+  int r;
+
+  if ((r = conn_readline(s->conn, s->line, sizeof(s->line))) < 0) return r;
+  debug(DEBUG_INFO, TAG, "S: %.120s", s->line);
+  if (starts_with_ci(s->line, "+OK")) {
+    str_copy(s->result, skip_spaces(s->line + 3), sizeof(s->result));
+    return MAIL_OK;
+  }
+  if (starts_with_ci(s->line, "-ERR")) {
+    str_copy(s->result, skip_spaces(s->line + 4), sizeof(s->result));
+    set_error(s->ctx, "Server said", s->result);
+    return MAIL_ERR_PROTO;
+  }
+  set_error(s->ctx, "Malformed POP3 reply", s->line);
+  return MAIL_ERR_PROTO;
+}
+
+static int pop3_command(mail_session_t *s, const char *cmd, int secret) {
+  int r, n;
+
+  n = sys_snprintf(s->cmd, sizeof(s->cmd), "%s\r\n", cmd);
+  if (n >= (int)sizeof(s->cmd)) {
+    set_error(s->ctx, "Command too long", NULL);
+    return MAIL_ERR_ARG;
+  }
+  debug(DEBUG_INFO, TAG, "C: %s", secret ? "PASS ****" : cmd);
+  if ((r = conn_write(s->conn, s->cmd, n)) != MAIL_OK) return r;
+
+  return pop3_reply(s);
+}
+
+typedef int (*pop3_line_f)(mail_session_t *s, const char *line, void *data);
+
+typedef struct {
+  char *buf;
+  int len, size, cap;
+  int truncated;
+} pop3_body_t;
+
+static int pop3_body_append(pop3_body_t *b, const char *data, int n) {
+  char *tmp;
+  int keep = n;
+
+  if (b->cap > 0 && b->len + keep > b->cap) {
+    keep = b->cap - b->len;
+    b->truncated = 1;
+  }
+  if (keep <= 0) return MAIL_OK;
+  if (b->len + keep + 1 > b->size) {
+    int size = b->size ? b->size : 4096;
+    while (size < b->len + keep + 1) size *= 2;
+    if (b->cap > 0 && size > b->cap + 1) size = b->cap + 1;
+    if ((tmp = xrealloc(b->buf, size)) == NULL) return MAIL_ERR_MEM;
+    b->buf = tmp;
+    b->size = size;
+  }
+  sys_memcpy(b->buf + b->len, data, keep);
+  b->len += keep;
+  b->buf[b->len] = 0;
+
+  return MAIL_OK;
+}
+
+/* read a multi-line response (after its +OK line) up to the ".\r\n" terminator,
+   removing byte stuffing. With `body` the data is collected (at most body->cap
+   bytes, the rest is read and dropped); with `cb` every complete line is
+   passed to the callback instead (over-long lines arrive in pieces). */
+static int pop3_read_multiline(mail_session_t *s, pop3_body_t *body, pop3_line_f cb, void *data) {
+  conn_t *c = s->conn;
+  char *line = NULL;
+  int at_start = 1, i, n, r, avail;
+
+  for (;;) {
+    avail = c->len - c->pos;
+    if (avail <= 0) {
+      if ((r = conn_fill(c)) <= 0) {
+        if (r == 0) set_error(s->ctx, "Connection closed by", c->host);
+        return r == 0 ? MAIL_ERR_IO : r;
+      }
+      continue;
+    }
+
+    for (i = c->pos; i < c->len && c->buf[i] != '\n'; i++);
+
+    if (i >= c->len) {
+      /* no complete line in the buffer */
+      if (avail < CONN_BUFLEN) {
+        if ((r = conn_fill(c)) <= 0) {
+          if (r == 0) set_error(s->ctx, "Connection closed by", c->host);
+          return r == 0 ? MAIL_ERR_IO : r;
+        }
+        continue;
+      }
+      /* buffer full with a very long line: flush it as data (it cannot be the terminator) */
+      n = avail;
+      if (at_start && c->buf[c->pos] == '.') { c->pos++; n--; }
+      if (body) {
+        if ((r = pop3_body_append(body, c->buf + c->pos, n)) != MAIL_OK) return r;
+      } else if (cb) {
+        if ((line = xmalloc(n + 1)) == NULL) return MAIL_ERR_MEM;
+        sys_memcpy(line, c->buf + c->pos, n);
+        line[n] = 0;
+        r = cb(s, line, data);
+        xfree(line);
+        if (r < 0) return r;
+      }
+      c->pos = c->len;
+      at_start = 0;
+      continue;
+    }
+
+    /* complete line c->buf[c->pos .. i] */
+    n = i - c->pos + 1;
+    if (at_start && c->buf[c->pos] == '.') {
+      if (n == 2 || (n == 3 && c->buf[c->pos + 1] == '\r')) {
+        c->pos = i + 1;   /* terminator */
+        return MAIL_OK;
+      }
+      c->pos++;           /* byte stuffing */
+      n--;
+    }
+    if (body) {
+      if ((r = pop3_body_append(body, c->buf + c->pos, n)) != MAIL_OK) return r;
+    } else if (cb) {
+      int m = n;
+      while (m > 0 && (c->buf[c->pos + m - 1] == '\n' || c->buf[c->pos + m - 1] == '\r')) m--;
+      if ((line = xmalloc(m + 1)) == NULL) return MAIL_ERR_MEM;
+      sys_memcpy(line, c->buf + c->pos, m);
+      line[m] = 0;
+      r = cb(s, line, data);
+      xfree(line);
+      if (r < 0) return r;
+    }
+    c->pos = i + 1;
+    at_start = 1;
+  }
+}
+
+static int pop3_connect(mail_session_t *s) {
+  mail_account_t *a = &s->account;
+  int r;
+
+  if ((s->conn = conn_new(s->ctx)) == NULL) return MAIL_ERR_MEM;
+
+  if ((r = conn_open(s->conn, a->imap_host, a->imap_port, a->imap_sec)) != MAIL_OK) goto fail;
+
+  if ((r = pop3_reply(s)) != MAIL_OK) {
+    if (r == MAIL_ERR_PROTO) set_error(s->ctx, "Unexpected POP3 greeting", s->line);
+    goto fail;
+  }
+
+  if (a->imap_sec == MAIL_SEC_STARTTLS) {
+    if ((r = pop3_command(s, "STLS", 0)) != MAIL_OK) {
+      if (r == MAIL_ERR_PROTO) set_error(s->ctx, "Server refused STLS", s->result);
+      goto fail;
+    }
+    if ((r = conn_tls(s->conn)) != MAIL_OK) goto fail;
+  }
+
+  if ((r = progress(s->ctx, "Logging in...")) != MAIL_OK) goto fail;
+  sys_snprintf(s->line, sizeof(s->line), "USER %s", a->user);
+  {
+    char *cmd = xstrdup(s->line);
+    if (cmd == NULL) { r = MAIL_ERR_MEM; goto fail; }
+    r = pop3_command(s, cmd, 0);
+    xfree(cmd);
+  }
+  if (r == MAIL_OK) {
+    sys_snprintf(s->line, sizeof(s->line), "PASS %s", a->pass);
+    char *cmd = xstrdup(s->line);
+    if (cmd == NULL) { r = MAIL_ERR_MEM; goto fail; }
+    r = pop3_command(s, cmd, 1);
+    xfree(cmd);
+  }
+  if (r != MAIL_OK) {
+    if (r == MAIL_ERR_PROTO) {
+      set_error(s->ctx, "Login rejected", s->result);
+      r = MAIL_ERR_AUTH;
+    }
+    goto fail;
+  }
+
+  /* mail drop size */
+  if ((r = pop3_command(s, "STAT", 0)) != MAIL_OK) goto fail;
+  s->pop3_count = sys_atoi(s->result);
+  s->exists = s->pop3_count;
+  s->fresh = 1;
+  return MAIL_OK;
+
+fail:
+  conn_close(s->conn);
+  s->conn = NULL;
+  return r;
+}
+
+/* live, logged-in POP3 connection; `renew` forces a new session (fresh mail drop snapshot) */
+static int pop3_ensure(mail_session_t *s, int renew) {
+  int r;
+
+  s->fresh = 0;
+  if (s->conn) {
+    if (renew) {
+      /* QUIT commits pending deletions and ends this snapshot */
+      pop3_command(s, "QUIT", 0);
+      mail_session_disconnect(s);
+      if (s->ctx) s->ctx->error[0] = 0;
+    } else {
+      r = pop3_command(s, "NOOP", 0);
+      if (r == MAIL_OK) return MAIL_OK;
+      if (r == MAIL_ERR_CANCEL) return r;
+      debug(DEBUG_INFO, TAG, "POP3 connection is stale, reconnecting");
+      mail_session_disconnect(s);
+      if (s->ctx) s->ctx->error[0] = 0;
+    }
+  }
+
+  return pop3_connect(s);
+}
+
+typedef struct {
+  mail_header_t *headers;
+  int n;
+  int first;              /* lowest message number in headers */
+  int sizes;              /* 1: LIST response, 0: UIDL response */
+} pop3_list_t;
+
+/* "num uidl" / "num size" lines of UIDL and LIST */
+static int pop3_list_line(mail_session_t *s, const char *line, void *data) {
+  pop3_list_t *pl = (pop3_list_t *)data;
+  const char *p;
+  int num, idx;
+
+  num = sys_atoi(line);
+  idx = num - pl->first;
+  if (num <= 0 || idx < 0 || idx >= pl->n) return 0;
+  p = line;
+  while (sys_isdigit((unsigned char)*p)) p++;
+  p = skip_spaces(p);
+  if (pl->sizes) {
+    pl->headers[idx].size = (uint32_t)sys_strtoul(p, NULL, 10);
+  } else {
+    str_copy(pl->headers[idx].uidl, p, MAIL_UIDL_LEN);
+    str_trim(pl->headers[idx].uidl);
+  }
+  (void)s;
+  return 0;
+}
+
+static int pop3_fetch_headers_once(mail_session_t *s, int max, mail_header_t **headers, int *nheaders, int *total) {
+  pop3_list_t pl;
+  pop3_body_t body;
+  mail_header_t *h, tmp;
+  char status[MAIL_STATUS_LEN], value[256];
+  int r, first, n, i, j;
+
+  if ((r = pop3_ensure(s, 1)) != MAIL_OK) return r;
+  *total = s->pop3_count;
+  if (s->pop3_count <= 0) return MAIL_OK;
+
+  if (max < 1) max = 1;
+  first = s->pop3_count - max + 1;
+  if (first < 1) first = 1;
+  n = s->pop3_count - first + 1;
+
+  sys_memset(&pl, 0, sizeof(pl));
+  if ((pl.headers = xcalloc(n, sizeof(mail_header_t))) == NULL) return MAIL_ERR_MEM;
+  pl.n = n;
+  pl.first = first;
+  for (i = 0; i < n; i++) pl.headers[i].uid = first + i;
+
+  /* unique ids and sizes */
+  if ((r = pop3_command(s, "UIDL", 0)) != MAIL_OK) goto fail;
+  if ((r = pop3_read_multiline(s, NULL, pop3_list_line, &pl)) != MAIL_OK) goto fail;
+  pl.sizes = 1;
+  if ((r = pop3_command(s, "LIST", 0)) == MAIL_OK) {
+    if ((r = pop3_read_multiline(s, NULL, pop3_list_line, &pl)) != MAIL_OK) goto fail;
+  } else if (r != MAIL_ERR_PROTO) {
+    goto fail;
+  }
+
+  /* remember number <-> UIDL for later RETR / DELE */
+  pop3_cache_free(s);
+  s->pop3_count = *total;
+  if ((s->pop3_cache = xcalloc(n, sizeof(s->pop3_cache[0]))) != NULL) {
+    for (i = 0; i < n; i++) {
+      s->pop3_cache[i].num = pl.headers[i].uid;
+      str_copy(s->pop3_cache[i].uidl, pl.headers[i].uidl, MAIL_UIDL_LEN);
+    }
+    s->pop3_ncache = n;
+  }
+
+  /* headers, newest first */
+  for (i = n - 1; i >= 0; i--) {
+    h = &pl.headers[i];
+    sys_snprintf(status, sizeof(status), "Fetching header %d of %d...", n - i, n);
+    if ((r = progress(s->ctx, status)) != MAIL_OK) goto fail;
+    sys_snprintf(s->line, sizeof(s->line), "TOP %u 0", (unsigned int)h->uid);
+    {
+      char *cmd = xstrdup(s->line);
+      if (cmd == NULL) { r = MAIL_ERR_MEM; goto fail; }
+      r = pop3_command(s, cmd, 0);
+      xfree(cmd);
+    }
+    if (r == MAIL_ERR_PROTO) {
+      /* TOP not supported: leave the header empty rather than failing */
+      if (s->ctx) s->ctx->error[0] = 0;
+      str_copy(h->subject, "(headers not available)", sizeof(h->subject));
+      continue;
+    }
+    if (r != MAIL_OK) goto fail;
+    sys_memset(&body, 0, sizeof(body));
+    body.cap = 16384;
+    r = pop3_read_multiline(s, &body, NULL, NULL);
+    if (r == MAIL_OK && body.buf) {
+      if (header_get(body.buf, body.len, "From", value, sizeof(value))) mail_decode_header(value, h->from, sizeof(h->from));
+      if (header_get(body.buf, body.len, "Subject", value, sizeof(value))) mail_decode_header(value, h->subject, sizeof(h->subject));
+      if (header_get(body.buf, body.len, "Date", value, sizeof(value))) mail_short_date(value, h->date, sizeof(h->date));
+    }
+    if (body.buf) xfree(body.buf);
+    if (r != MAIL_OK) goto fail;
+    if (h->subject[0] == 0) str_copy(h->subject, "(no subject)", sizeof(h->subject));
+    if (h->from[0] == 0) str_copy(h->from, "(unknown sender)", sizeof(h->from));
+  }
+
+  /* newest (highest number) first */
+  for (i = 0; i < n / 2; i++) {
+    j = n - 1 - i;
+    tmp = pl.headers[i];
+    pl.headers[i] = pl.headers[j];
+    pl.headers[j] = tmp;
+  }
+
+  *headers = pl.headers;
+  *nheaders = n;
+  return MAIL_OK;
+
+fail:
+  xfree(pl.headers);
+  return r;
+}
+
+int mail_pop3_fetch_headers(mail_session_t *s, int max, mail_header_t **headers, int *nheaders, int *total) {
+  int r;
+
+  if (s == NULL || headers == NULL || nheaders == NULL || total == NULL) return MAIL_ERR_ARG;
+  *headers = NULL;
+  *nheaders = 0;
+  *total = 0;
+  if (s->ctx) s->ctx->error[0] = 0;
+
+  r = pop3_fetch_headers_once(s, max, headers, nheaders, total);
+  if (r != MAIL_OK && r != MAIL_ERR_PROTO && r != MAIL_ERR_AUTH) mail_session_disconnect(s);
+
+  return r;
+}
+
+typedef struct {
+  const char *uidl;
+  uint32_t num;
+} pop3_find_t;
+
+static int pop3_find_line(mail_session_t *s, const char *line, void *data) {
+  pop3_find_t *f = (pop3_find_t *)data;
+  const char *p = line;
+  char uidl[MAIL_UIDL_LEN];
+
+  while (sys_isdigit((unsigned char)*p)) p++;
+  str_copy(uidl, skip_spaces(p), sizeof(uidl));
+  str_trim(uidl);
+  if (sys_strcmp(uidl, f->uidl) == 0) f->num = (uint32_t)sys_atoi(line);
+  (void)s;
+  return 0;
+}
+
+/* message number of a UIDL in the current session (0 = gone) */
+static int pop3_resolve(mail_session_t *s, const char *uidl, uint32_t *num) {
+  pop3_find_t f;
+  int i, r;
+
+  *num = 0;
+  if (uidl == NULL || uidl[0] == 0) {
+    set_error(s->ctx, "Message has no unique id", NULL);
+    return MAIL_ERR_ARG;
+  }
+  for (i = 0; i < s->pop3_ncache; i++) {
+    if (sys_strcmp(s->pop3_cache[i].uidl, uidl) == 0) {
+      *num = s->pop3_cache[i].num;
+      return MAIL_OK;
+    }
+  }
+
+  f.uidl = uidl;
+  f.num = 0;
+  if ((r = pop3_command(s, "UIDL", 0)) != MAIL_OK) return r;
+  if ((r = pop3_read_multiline(s, NULL, pop3_find_line, &f)) != MAIL_OK) return r;
+  if (f.num == 0) {
+    set_error(s->ctx, "Message is no longer on the server", NULL);
+    return MAIL_ERR_PROTO;
+  }
+  *num = f.num;
+  return MAIL_OK;
+}
+
+static int pop3_fetch_message_once(mail_session_t *s, const char *uidl, int limit, mail_message_t *msg) {
+  pop3_body_t body;
+  uint32_t num;
+  int r;
+
+  if ((r = pop3_ensure(s, 0)) != MAIL_OK) return r;
+  if ((r = pop3_resolve(s, uidl, &num)) != MAIL_OK) return r;
+  if ((r = progress(s->ctx, "Downloading message...")) != MAIL_OK) return r;
+
+  sys_snprintf(s->line, sizeof(s->line), "RETR %u", (unsigned int)num);
+  {
+    char *cmd = xstrdup(s->line);
+    if (cmd == NULL) return MAIL_ERR_MEM;
+    r = pop3_command(s, cmd, 0);
+    xfree(cmd);
+  }
+  if (r != MAIL_OK) return r;
+
+  sys_memset(&body, 0, sizeof(body));
+  body.cap = limit > 0 ? limit : 65536;
+  r = pop3_read_multiline(s, &body, NULL, NULL);
+  if (r != MAIL_OK) {
+    if (body.buf) xfree(body.buf);
+    return r;
+  }
+  if (body.buf == NULL) {
+    if ((body.buf = xcalloc(1, 1)) == NULL) return MAIL_ERR_MEM;
+  }
+  parse_message(body.buf, body.len, body.truncated, msg);
+  xfree(body.buf);
+
+  return MAIL_OK;
+}
+
+int mail_pop3_fetch_message(mail_session_t *s, const char *uidl, int limit, mail_message_t *msg) {
+  int r;
+
+  if (s == NULL || msg == NULL) return MAIL_ERR_ARG;
+  sys_memset(msg, 0, sizeof(mail_message_t));
+  if (s->ctx) s->ctx->error[0] = 0;
+
+  RETRY_ONCE(s, pop3_fetch_message_once(s, uidl, limit, msg));
+  if (r != MAIL_OK && r != MAIL_ERR_PROTO && r != MAIL_ERR_AUTH) mail_session_disconnect(s);
+
+  return r;
+}
+
+static int pop3_delete_message_once(mail_session_t *s, const char *uidl) {
+  uint32_t num;
+  int r;
+
+  if ((r = pop3_ensure(s, 0)) != MAIL_OK) return r;
+  if ((r = pop3_resolve(s, uidl, &num)) != MAIL_OK) return r;
+  if ((r = progress(s->ctx, "Deleting message...")) != MAIL_OK) return r;
+
+  sys_snprintf(s->line, sizeof(s->line), "DELE %u", (unsigned int)num);
+  {
+    char *cmd = xstrdup(s->line);
+    if (cmd == NULL) return MAIL_ERR_MEM;
+    r = pop3_command(s, cmd, 0);
+    xfree(cmd);
+  }
+  if (r != MAIL_OK) return r;
+
+  /* only QUIT makes the deletion permanent */
+  r = pop3_command(s, "QUIT", 0);
+  mail_session_disconnect(s);
+  if (r == MAIL_ERR_CANCEL) return r;
+  return r == MAIL_OK ? MAIL_OK : MAIL_ERR_PROTO;
+}
+
+int mail_pop3_delete_message(mail_session_t *s, const char *uidl) {
+  int r;
+
+  if (s == NULL) return MAIL_ERR_ARG;
+  if (s->ctx) s->ctx->error[0] = 0;
+
+  RETRY_ONCE(s, pop3_delete_message_once(s, uidl));
+  if (r != MAIL_OK) mail_session_disconnect(s);
+
+  return r;
+}
+
+/*
+ * Protocol independent entry points
+ */
+
+int mail_list_folders(mail_session_t *s, mail_folder_t **folders, int *nfolders) {
+  if (s == NULL || folders == NULL || nfolders == NULL) return MAIL_ERR_ARG;
+  if (s->account.proto == MAIL_PROTO_POP3) {
+    if ((*folders = xcalloc(1, sizeof(mail_folder_t))) == NULL) return MAIL_ERR_MEM;
+    str_copy((*folders)[0].name, "INBOX", MAIL_FOLDER_LEN);
+    (*folders)[0].selectable = 1;
+    *nfolders = 1;
+    return MAIL_OK;
+  }
+  return mail_imap_list_folders(s, folders, nfolders);
+}
+
+int mail_fetch_headers(mail_session_t *s, const char *folder, int max, mail_header_t **headers, int *nheaders, int *total) {
+  if (s == NULL) return MAIL_ERR_ARG;
+  if (s->account.proto == MAIL_PROTO_POP3) return mail_pop3_fetch_headers(s, max, headers, nheaders, total);
+  return mail_imap_fetch_headers(s, folder, max, headers, nheaders, total);
+}
+
+int mail_fetch_message(mail_session_t *s, const char *folder, const mail_header_t *hdr, int limit, mail_message_t *msg) {
+  if (s == NULL || hdr == NULL) return MAIL_ERR_ARG;
+  if (s->account.proto == MAIL_PROTO_POP3) return mail_pop3_fetch_message(s, hdr->uidl, limit, msg);
+  return mail_imap_fetch_message(s, folder, hdr->uid, limit, msg);
+}
+
+int mail_delete_message(mail_session_t *s, const char *folder, const mail_header_t *hdr) {
+  if (s == NULL || hdr == NULL) return MAIL_ERR_ARG;
+  if (s->account.proto == MAIL_PROTO_POP3) return mail_pop3_delete_message(s, hdr->uidl);
+  return mail_imap_delete_message(s, folder, hdr->uid);
 }
 
 /*

@@ -1,8 +1,8 @@
 # Mail for PumpkinOS
 
 An e-mail client that runs as a native PumpkinOS application. It reads mail from
-an IMAP4rev1 mailbox and sends mail through SMTP, over connections secured by the
-PumpkinOS secure provider (TLS).
+an IMAP4rev1 mailbox or a POP3 mail drop and sends mail through SMTP, over
+connections secured by the PumpkinOS secure provider (TLS).
 
 * Message list of the newest messages of a folder (unread messages in bold),
   with a folder popup fed by the server's `LIST` response.
@@ -18,8 +18,15 @@ PumpkinOS secure provider (TLS).
   `text/plain; charset=ISO-8859-1` in quoted-printable, with non-ASCII headers
   RFC 2047 encoded.
 * One account, stored in the application preferences: name, address, login,
-  IMAP server/port/security, SMTP server/port/security and the number of headers
-  to fetch.
+  incoming protocol (IMAP4 or POP3) with server/port/security, SMTP
+  server/port/security and the number of headers to fetch.
+* POP3 (RFC 1939): `USER`/`PASS` login, `STLS` for STARTTLS, `UIDL`/`LIST`/`TOP`
+  for the message list, `RETR` to read, `DELE` + `QUIT` to delete (the deletion
+  is committed by closing the session). Messages are identified by their UIDL,
+  so they can still be opened after a reconnect renumbers the mail drop. POP3 has
+  no folders (the folder popup is hidden) and no server-side read flag, so the
+  UIDLs of opened messages are remembered in a saved preference (last 48).
+  Messages stay on the server unless deleted in the app.
 * All network work runs in a worker thread; a small modal dialog shows the
   progress and lets the user cancel.
 
@@ -31,10 +38,10 @@ that the startup script loads before `libos` (`liblopenssl` with OpenSSL, or
 `components/liblmbedtls`, enabled with `ENABLE_HTTPS` in menuconfig). The Mail
 application obtains the provider with `pumpkin_get_secure()` and uses it for:
 
-* **SSL/TLS** — implicit TLS on connect (IMAPS 993, SMTPS 465). This is the default.
+* **SSL/TLS** — implicit TLS on connect (IMAPS 993, POP3S 995, SMTPS 465). This is the default.
 * **STARTTLS** — plain connection, upgraded with the `STARTTLS` command
-  (IMAP 143, SMTP submission 587). The client refuses to continue when the server
-  does not offer STARTTLS.
+  (IMAP 143, SMTP submission 587) or `STLS` (POP3 110). The client refuses to
+  continue when the server does not offer it.
 * **None** — unencrypted. Only meant for local test servers; the password is
   sent in clear text.
 
@@ -44,7 +51,7 @@ is reported as "Secure connection failed"; details are in `pumpkin.log`
 (lines tagged `MAIL` and `SECURE`). When no provider is loaded, the secure modes
 fail with an explanatory message.
 
-Authentication uses IMAP `LOGIN` and SMTP `AUTH PLAIN` (falling back to
+Authentication uses IMAP `LOGIN`, POP3 `USER`/`PASS` and SMTP `AUTH PLAIN` (falling back to
 `AUTH LOGIN`). Providers such as Gmail need an app-specific password.
 
 The password is stored in the saved application preferences, unencrypted, like
@@ -55,7 +62,7 @@ the other settings of a Palm OS application.
 | File | Purpose |
 |---|---|
 | `Mail.c` | User interface (forms, event handlers, worker-thread job control) |
-| `mailnet.c` / `mailnet.h` | Connection layer over the secure provider, IMAP, SMTP, MIME and header decoding, message construction. Only depends on libpit. |
+| `mailnet.c` / `mailnet.h` | Connection layer over the secure provider, IMAP, POP3, SMTP, MIME and header decoding, message construction. Only depends on libpit. |
 | `resource.rcp` / `resource.h` | Forms, menus and alerts |
 | `mail32.bmp` / `mail64.bmp` | Application icon |
 | `esp32.h`, `make_esp32_prc.sh` | ESP32 firmware build support |

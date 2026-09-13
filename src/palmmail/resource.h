@@ -14,12 +14,13 @@
 #define ComposeMenu     1200
 
 /* main form */
-#define msgList         1001
+#define msgGad          1001
 #define newBtn          1002
 #define getBtn          1003
 #define folderTrig      1004
 #define folderList      1005
 #define accountBtn      1006
+#define msgScl          1007
 
 /* view form */
 #define bodyFld         1101
@@ -68,6 +69,8 @@
 #define smtpSecLbl      1327
 #define fetchLbl        1328
 #define fetchUnitLbl    1329
+#define protoTrig       1330
+#define protoList       1331
 
 /* wait form */
 #define waitCancelBtn   1401

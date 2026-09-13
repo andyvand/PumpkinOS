@@ -21,6 +21,10 @@ extern "C" {
 #define MAIL_SEC_STARTTLS  1   /* plain TCP, upgraded with STARTTLS */
 #define MAIL_SEC_TLS       2   /* implicit TLS (IMAPS 993 / SMTPS 465) */
 
+/* incoming protocol */
+#define MAIL_PROTO_IMAP    0
+#define MAIL_PROTO_POP3    1
+
 /* return codes */
 #define MAIL_OK            0
 #define MAIL_ERR_IO       -1   /* connect, read or write failed */
@@ -45,6 +49,7 @@ extern "C" {
 #define MAIL_FROM_LEN      64
 #define MAIL_SUBJECT_LEN   96
 #define MAIL_DATE_LEN      40
+#define MAIL_UIDL_LEN      72
 
 #define MAIL_MAX_FOLDERS   64
 
@@ -57,7 +62,7 @@ typedef struct {
   char imap_host[MAIL_HOST_LEN];
   uint16_t imap_port;
   uint8_t imap_sec;                /* MAIL_SEC_* */
-  uint8_t pad1;
+  uint8_t proto;                   /* MAIL_PROTO_*: protocol spoken to imap_host */
   char smtp_host[MAIL_HOST_LEN];
   uint16_t smtp_port;
   uint8_t smtp_sec;                /* MAIL_SEC_* */
@@ -67,7 +72,8 @@ typedef struct {
 
 /* one entry of the message list */
 typedef struct {
-  uint32_t uid;
+  uint32_t uid;                    /* IMAP UID, or POP3 message number */
+  char uidl[MAIL_UIDL_LEN];        /* POP3 unique id (empty for IMAP) */
   uint32_t size;
   uint8_t seen;
   uint8_t answered;
@@ -112,7 +118,7 @@ typedef struct {
   char error[MAIL_ERROR_LEN];      /* human readable description of the last failure */
 } mail_ctx_t;
 
-/* an IMAP session: keeps the connection open between operations */
+/* an IMAP or POP3 session (account->proto decides): keeps the connection open between operations */
 typedef struct mail_session_t mail_session_t;
 
 /* the session keeps its own copy of *ctx; change it later through mail_session_ctx() */
@@ -142,6 +148,23 @@ int mail_imap_fetch_message(mail_session_t *s, const char *folder, uint32_t uid,
 int mail_imap_delete_message(mail_session_t *s, const char *folder, uint32_t uid);
 
 void mail_message_free(mail_message_t *msg);
+
+/* protocol independent entry points: dispatch to the IMAP or POP3 code
+   according to the account's `proto`. For POP3 the folder is ignored (there
+   is only the mail drop), the folder list is just "INBOX", the message is
+   identified through hdr->uidl, and there is no server-side \Seen flag */
+int mail_list_folders(mail_session_t *s, mail_folder_t **folders, int *nfolders);
+int mail_fetch_headers(mail_session_t *s, const char *folder, int max,
+                       mail_header_t **headers, int *nheaders, int *total);
+int mail_fetch_message(mail_session_t *s, const char *folder, const mail_header_t *hdr,
+                       int limit, mail_message_t *msg);
+int mail_delete_message(mail_session_t *s, const char *folder, const mail_header_t *hdr);
+
+/* POP3 (RFC 1939): USER/PASS login, STLS for MAIL_SEC_STARTTLS */
+int mail_pop3_fetch_headers(mail_session_t *s, int max, mail_header_t **headers, int *nheaders, int *total);
+int mail_pop3_fetch_message(mail_session_t *s, const char *uidl, int limit, mail_message_t *msg);
+/* DELE + QUIT: the deletion is committed by closing the session */
+int mail_pop3_delete_message(mail_session_t *s, const char *uidl);
 
 /* send a message. `rcpts` is a comma separated list of addresses
    (display names allowed); `data` is the complete RFC 5322 message with

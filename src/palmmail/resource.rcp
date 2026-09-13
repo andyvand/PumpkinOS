@@ -15,7 +15,8 @@ BEGIN
   POPUPTRIGGER "Folder" folderTrig 112 1 46 12 RIGHTANCHOR
   LIST "" folderList 56 1 102 AUTO NONUSABLE VISIBLEITEMS 8
   POPUPLIST folderTrig folderList
-  LIST "" msgList 0 15 160 132 VISIBLEITEMS 12
+  GADGET ID msgGad 0 15 153 132
+  SCROLLBAR ID msgScl 153 15 7 132 VALUE 0 MIN 0 MAX 0 PAGESIZE 11
   BUTTON "New" newBtn 1 147 AUTO 12
   BUTTON "Get Mail" getBtn PREVRIGHT+4 147 AUTO 12
   BUTTON "Account" accountBtn PREVRIGHT+4 147 AUTO 12
@@ -121,7 +122,9 @@ BEGIN
   FIELD userFld 42 40 116 11 SINGLELINE MAXCHARS 95 EDITABLE UNDERLINED
   LABEL "Pass:" passLbl 1 52 FONT 1
   FIELD passFld 42 52 116 11 SINGLELINE MAXCHARS 63 EDITABLE UNDERLINED
-  LABEL "IMAP:" imapLbl 1 64 FONT 1
+  POPUPTRIGGER "IMAP4" protoTrig 0 63 40 12 LEFTANCHOR
+  LIST "IMAP4" "POP3" protoList 0 63 44 AUTO NONUSABLE VISIBLEITEMS 2
+  POPUPLIST protoTrig protoList
   FIELD imapHostFld 42 64 84 11 SINGLELINE MAXCHARS 95 EDITABLE UNDERLINED
   FIELD imapPortFld 130 64 28 11 SINGLELINE MAXCHARS 5 EDITABLE UNDERLINED NUMERIC
   LABEL "Secure:" imapSecLbl 1 76 FONT 1
@@ -181,7 +184,7 @@ ALERT NoAccountAlert
 INFORMATION
 BEGIN
   TITLE "Welcome"
-  MESSAGE "No mail account is set up yet. Enter your e-mail address, password and the IMAP and SMTP servers of your provider."
+  MESSAGE "No mail account is set up yet. Enter your e-mail address, password and the incoming (IMAP4 or POP3) and SMTP servers of your provider."
   BUTTONS "OK"
 END
 
