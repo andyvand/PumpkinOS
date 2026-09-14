@@ -358,13 +358,13 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
       data->width = width;
       data->height = height;
       data->depth = depth;
-      // The Android host presents by blitting a single Bitmap; unlike X11/Wayland
-      // it never delivers expose/damage events, so PumpkinOS never sees a
-      // WINDOW_EXPOSE to trigger a full-screen composite. Without that, only
-      // per-widget dirty rects are copied into the (black-initialized) bitmap and
-      // the erased form background never reaches it — the form shows as black
-      // with only the widgets painted. Compositing the full frame every tick
-      // (cheap at this resolution) keeps the background correct.
+      // The Android host presents a shadow framebuffer through the SurfaceView's
+      // ANativeWindow; unlike X11/Wayland it only synthesises a WINDOW_EXPOSE
+      // when the surface is (re)created, never on damage. Without a full-screen
+      // composite, only per-widget dirty rects reach the (black-initialized)
+      // framebuffer and the erased form background never does — the form shows
+      // as black with only the widgets painted. Compositing the full frame every
+      // tick (cheap at this resolution) keeps the background correct.
       data->fullrefresh = 1;
       // Force a 32-bit ARGB host surface. The application still draws at its
       // own (16-bit) depth — the same combination the desktop uses — but the

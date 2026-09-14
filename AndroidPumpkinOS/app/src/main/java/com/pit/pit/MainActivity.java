@@ -41,15 +41,18 @@ public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
         super.onStart();
         PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "onStart");
         // The content view is only inflated for ACTION_MAIN launches (see
-        // onCreate). If this activity was started with any other intent, the
-        // CustomView doesn't exist — bail out instead of NPE'ing on getBitmap().
-        CustomView cv = findViewById(R.id.customView);
-        if (cv == null) {
+        // onCreate). If this activity was started with any other intent there
+        // is no surface to render to, so don't boot the OS.
+        PumpkinSurfaceView sv = findViewById(R.id.pumpkinView);
+        if (sv == null) {
             PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "no content view; not starting");
             return;
         }
+        // The surface itself is delivered to native code by the view's
+        // SurfaceHolder callbacks; the OS thread just starts rendering into it
+        // once it exists.
         Pumpkin pumpkin = getPumpkin();
-        pumpkin.start(cv.getBitmap());
+        pumpkin.start();
     }
 
     @Override
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
     }
 
     @Override
-    public void updateDisplay(boolean finish) {
+    public void pumpkinTick(boolean finish) {
         long t = System.currentTimeMillis();
         if ((t - lastCheck) >= BATTERY_CHECK_PERIOD) {
             IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -99,8 +102,6 @@ public class MainActivity extends AppCompatActivity implements PumpkinUpdate {
             lastCheck = t;
         }
 
-        CustomView cv = findViewById(R.id.customView);
-        if (cv != null) cv.invalidate();
         if (finish) {
             PumpkinLog.log(PumpkinLog.INFO, "MainActivity", "finishAndRemoveTask");
             finishAndRemoveTask();

@@ -20,8 +20,12 @@ PROGRAM=liblopenssl
 SOURCE=liblopenssl.c
 
 ifneq ($(OPENSSL),)
+ifneq ($(OSNAME),Android)
 CUSTOMFLAGS=-I$(OPENSSL)/include
 LIBS=-L$(OPENSSL)/lib -lssl -lcrypto
+else
+LIBS=-lssl -lcrypto
+endif
 else
 LIBS=-lssl -lcrypto
 endif

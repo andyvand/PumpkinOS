@@ -150,6 +150,7 @@ add_library( # Sets the name of the library.
         PumpkinOS/src/libpit/httpc.c
         PumpkinOS/src/libpit/httpd.c
         PumpkinOS/src/libpit/template.c
+        PumpkinOS/src/liblopenssl/liblopenssl.c
         )
 
 add_library( # Sets the name of the library.
@@ -435,7 +436,8 @@ target_link_libraries( # Specifies the target library.
         scriptlua
         pumpkin
 
-        -ljnigraphics
+        # ANativeWindow (direct rendering into the SurfaceView)
+        -landroid
 
         # Links the target library to the log library
         # included in the NDK.
@@ -448,7 +450,7 @@ target_link_libraries(
 
 target_link_libraries(
         pit
-        ${log-lib}
+        ${log-lib} -lssl -lcrypto
 )
 
 target_link_libraries(

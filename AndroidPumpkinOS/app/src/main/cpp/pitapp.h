@@ -10,16 +10,14 @@ int pitInit(void);
 void pitFinish(int pe);
 void pitRequestFinish(void);
 void pitDeploy(char *path);
-void pitUpdate(JNIEnv *env, jobject bitmap);
+void pitSetSurface(JNIEnv *env, jobject surface);
 void pitPause(int paused);
 void pitTouch(int down, int x, int y);
 void pitKey(int key);
 void pitSetBattery(int level);
 
 void window_init(int pe);
-void window_bitmap(JNIEnv *env, jobject bitmap);
-void window_lock_bitmap(void);
-void window_unlock_bitmap(void);
+void window_set_surface(JNIEnv *env, jobject surface);
 
 #ifdef __cplusplus
 }

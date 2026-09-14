@@ -5,6 +5,8 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <jni.h>
 
@@ -31,6 +33,8 @@
 #include "pitapp.h"
 
 extern int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int width, int height, int depth, int fullscreen, int dia, int single, char *launcher);
+extern int liblopenssl_init(int pe, script_ref_t obj);
+extern int liblopenssl_load(void);
 
 int pitInit(void) {
   script_engine_t *engine;
@@ -38,6 +42,7 @@ int pitInit(void) {
   window_provider_t *wp = NULL;
   audio_provider_t *ap = NULL;
   bt_provider_t *bt = NULL;
+  secure_provider_t *sec = NULL;
   gps_parse_line_f gps_parse_line;
 
   debug_setsyslevel(NULL, DEBUG_INFO);
@@ -53,17 +58,34 @@ int pitInit(void) {
   //vfs_local_mount("/data/user/0/com.pit.pit/", "/");
   vfs_local_mount("/data/data/com.pit.pit/", "/");
 
+  // An Android app process starts with "/" (read-only) as its working
+  // directory. libpit creates HTTP response files and other scratch files
+  // with bare relative names (sys_mkstemp), which then fail with EROFS and
+  // every web page shows as "connection closed before any data arrived".
+  // Work from the app's private data directory and keep temp files in its
+  // cache directory, which the system may purge when space is low.
+  chdir("/data/data/com.pit.pit");
+  mkdir("/data/data/com.pit.pit/cache", 0700);
+  sys_set_tmpdir("/data/data/com.pit.pit/cache");
+
   if (script_init(engine) != -1) {
     if ((pe = script_create(engine)) != -1) {
       window_init(pe);
       wp = script_get_pointer(pe, WINDOW_PROVIDER);
       ap = script_get_pointer(pe, AUDIO_PROVIDER);
       bt = script_get_pointer(pe, BT_PROVIDER);
+
       gps_parse_line = script_get_pointer(pe, GPS_PARSE_LINE_PROVIDER);
       pumpkin_global_init(engine, wp, ap, bt, gps_parse_line);
+
+      // TLS+SSL
+      liblopenssl_load();
+      liblopenssl_init(pe, 0);
+      sec = script_get_pointer(pe, SECURE_PROVIDER);
+
       // depth 16 = application drawing depth (the well-tested path, same as the
       // desktop); libos_start_direct forces a 32-bit ARGB host surface.
-      libos_start_direct(wp, NULL, 0, 0, 16, 0, 1, 0, "Launcher");
+      libos_start_direct(wp, sec, 0, 0, 16, 0, 1, 0, "Launcher");
     }
   }
 
@@ -104,8 +126,8 @@ void pitDeploy(char *path) {
   // XXX update Launcher
 }
 
-void pitUpdate(JNIEnv *env, jobject bitmap) {
-  window_bitmap(env, bitmap);
+void pitSetSurface(JNIEnv *env, jobject surface) {
+  window_set_surface(env, surface);
 }
 
 void pitPause(int paused) {

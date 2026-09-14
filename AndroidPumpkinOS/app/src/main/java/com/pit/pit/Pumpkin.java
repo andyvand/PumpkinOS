@@ -3,10 +3,10 @@ package com.pit.pit;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Surface;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,17 +49,22 @@ public class Pumpkin extends Application {
         handler = new Handler(Looper.getMainLooper());
         installFiles();
 
+        // Housekeeping tick while the activity is in the foreground: battery
+        // level updates and detecting that the native OS thread has exited.
+        // Display updates are NOT driven from here any more: the native
+        // compositor posts frames straight to the SurfaceView (see window.c
+        // and PumpkinSurfaceView).
         r = new Runnable() {
             public void run() {
                 if (updater != null && !paused) {
-                    updater.updateDisplay(exited);
-                    if (!exited) handler.postDelayed(this, 100);
+                    updater.pumpkinTick(exited);
+                    if (!exited) handler.postDelayed(this, 250);
                 }
             }
         };
     }
 
-    public void start(Bitmap bitmap) {
+    public void start() {
         Runnable r = () -> {
             PumpkinLog.log(PumpkinLog.INFO, "Application", "pumpkin thread begin");
             // Mark the OS as running so MainActivity's onPause/onResume actually
@@ -67,7 +72,6 @@ public class Pumpkin extends Application {
             // is always false, so the native OS is never paused when backgrounded
             // nor refreshed on return, which left a frozen/stale frame on resume.
             pumpkinSetOn(true);
-            pitUpdate(bitmap);
             pe = pitInit();
             if (pe != -1) pitFinish(pe);
             pumpkinSetOn(false);
@@ -217,6 +221,10 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.todolist_a32, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_a32, dir, "UnicornArm.prc");
                 copyFile(R.raw.spacetrader_a32, dir, "SpaceTrader.prc");
+                copyFile(R.raw.minehunt_a32, dir, "MineHunt.prc");
+                copyFile(R.raw.gnuboy_a32, dir, "GnuBoy.prc");
+                copyFile(R.raw.browser_a32, dir, "Browser.prc");
+                copyFile(R.raw.mail_a32, dir, "Mail.prc");
             } else if (getArch() == 10) { // arm64-v8a
                 copyFile(R.raw.launcher_a64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_a64, dir, "AddressBook.prc");
@@ -229,6 +237,10 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.todolist_a64, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_a64, dir, "UnicornArm.prc");
                 copyFile(R.raw.spacetrader_a64, dir, "SpaceTrader.prc");
+                copyFile(R.raw.minehunt_a64, dir, "MineHunt.prc");
+                copyFile(R.raw.gnuboy_a64, dir, "GnuBoy.prc");
+                copyFile(R.raw.browser_a64, dir, "Browser.prc");
+                copyFile(R.raw.mail_a64, dir, "Mail.prc");
             } else if (getArch() == 17) { // x86
                 copyFile(R.raw.launcher_i32, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_i32, dir, "AddressBook.prc");
@@ -241,6 +253,10 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.todolist_i32, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_i32, dir, "UnicornArm.prc");
                 copyFile(R.raw.spacetrader_i32, dir, "SpaceTrader.prc");
+                copyFile(R.raw.minehunt_i32, dir, "MineHunt.prc");
+                copyFile(R.raw.gnuboy_i32, dir, "GnuBoy.prc");
+                copyFile(R.raw.browser_i32, dir, "Browser.prc");
+                copyFile(R.raw.mail_i32, dir, "Mail.prc");
             } else if (getArch() == 18) { // x86_64
                 copyFile(R.raw.launcher_i64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_i64, dir, "AddressBook.prc");
@@ -253,6 +269,10 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.todolist_i64, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_i64, dir, "UnicornArm.prc");
                 copyFile(R.raw.spacetrader_i64, dir, "SpaceTrader.prc");
+                copyFile(R.raw.minehunt_i64, dir, "MineHunt.prc");
+                copyFile(R.raw.gnuboy_i64, dir, "GnuBoy.prc");
+                copyFile(R.raw.browser_i64, dir, "Browser.prc");
+                copyFile(R.raw.mail_i64, dir, "Mail.prc");
             } else if (getArch() == 26) { // riscv64
                 copyFile(R.raw.launcher_r64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_r64, dir, "AddressBook.prc");
@@ -265,6 +285,10 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.todolist_r64, dir, "ToDoList.prc");
                 copyFile(R.raw.unicornarm_r64, dir, "UnicornArm.prc");
                 copyFile(R.raw.spacetrader_r64, dir, "SpaceTrader.prc");
+                copyFile(R.raw.minehunt_r64, dir, "MineHunt.prc");
+                copyFile(R.raw.gnuboy_r64, dir, "GnuBoy.prc");
+                copyFile(R.raw.browser_r64, dir, "Browser.prc");
+                copyFile(R.raw.mail_r64, dir, "Mail.prc");
             }
         } catch (Exception ex) {
             Log.e("Pumpkin", Objects.requireNonNull(ex.getMessage()));
@@ -320,13 +344,11 @@ public class Pumpkin extends Application {
     private native void pitFinish(int pe);
     private native void pitDeploy(String path);
     private native void pitRequestFinish();
-    public native void pitUpdate(Bitmap bitmap);
+    // Hand the SurfaceView's Surface to the native compositor (null when the
+    // surface is destroyed). Frames are rendered directly into it.
+    public native void pitSetSurface(Surface surface);
     public native void pitPause(boolean paused);
     public native void pitTouch(int action, int x, int y);
-    // Held around Canvas.drawBitmap so the UI thread never reads a scanline
-    // while the native compositor is writing it (prevents tearing).
-    public native void pitLockBitmap();
-    public native void pitUnlockBitmap();
     public native void pitSetBattery(int level);
     public native int getArch();
 }

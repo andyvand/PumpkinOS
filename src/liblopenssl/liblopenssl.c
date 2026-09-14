@@ -21,10 +21,18 @@
 #ifdef WINDOWS
 #include <winsock2.h>
 #else
+#ifndef WINDOWS
+#ifndef SSIZE_MAX
+#define SSIZE_MAX LONG_MAX
+#endif
+#endif
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/socket.h>
+#ifdef ANDROID
+#include <dirent.h>
+#endif
 #endif
 
 #include <openssl/ssl.h>
@@ -59,6 +67,19 @@ static const char *ca_bundles[] = {
   "/usr/local/etc/openssl/cert.pem",
   NULL
 };
+
+#ifdef ANDROID
+/* Android has no PEM bundle. The system trust store is a directory of
+ * individual PEM files named after the legacy (MD5) subject hash, which the
+ * OpenSSL hashed-directory lookup (SHA1 based) cannot resolve, so every file
+ * is loaded explicitly. Newer releases update the store through the
+ * conscrypt APEX module; it is preferred when present. */
+static const char *android_ca_dirs[] = {
+  "/apex/com.android.conscrypt/cacerts",
+  "/system/etc/security/cacerts",
+  NULL
+};
+#endif
 
 struct secure_config_t {
   SSL_CTX *ctx;
@@ -190,6 +211,39 @@ static int has_ca_certs(SSL_CTX *ctx) {
   return objs && sk_X509_OBJECT_num(objs) > 0;
 }
 
+#ifdef ANDROID
+static int load_ca_dir(SSL_CTX *ctx, const char *dir) {
+  X509_STORE *store = SSL_CTX_get_cert_store(ctx);
+  struct dirent *e;
+  DIR *d;
+  BIO *bio;
+  X509 *x;
+  char path[512];
+  int n = 0;
+
+  if (store == NULL || (d = opendir(dir)) == NULL) return 0;
+
+  while ((e = readdir(d)) != NULL) {
+    if (e->d_name[0] == '.') continue;
+    snprintf(path, sizeof(path), "%s/%s", dir, e->d_name);
+    if ((bio = BIO_new_file(path, "r")) == NULL) {
+      ERR_clear_error();
+      continue;
+    }
+    /* each file holds one PEM certificate followed by a textual dump */
+    while ((x = PEM_read_bio_X509(bio, NULL, NULL, NULL)) != NULL) {
+      if (X509_STORE_add_cert(store, x) == 1) n++;
+      X509_free(x);
+    }
+    ERR_clear_error();
+    BIO_free(bio);
+  }
+  closedir(d);
+
+  return n;
+}
+#endif
+
 static void load_ca_certs(SSL_CTX *ctx) {
   int i;
 
@@ -204,6 +258,16 @@ static void load_ca_certs(SSL_CTX *ctx) {
   /* SSL_CERT_FILE / SSL_CERT_DIR or the compiled-in OpenSSL directory */
   if (SSL_CTX_set_default_verify_paths(ctx) == 1 && has_ca_certs(ctx)) return;
   ERR_clear_error();
+
+#ifdef ANDROID
+  for (i = 0; android_ca_dirs[i]; i++) {
+    int n = load_ca_dir(ctx, android_ca_dirs[i]);
+    if (n > 0) {
+      debug(DEBUG_INFO, TAG, "loaded %d CA certificates from %s", n, android_ca_dirs[i]);
+      return;
+    }
+  }
+#endif
 
   for (i = 0; ca_bundles[i]; i++) {
     if (SSL_CTX_load_verify_locations(ctx, ca_bundles[i], NULL) == 1) {

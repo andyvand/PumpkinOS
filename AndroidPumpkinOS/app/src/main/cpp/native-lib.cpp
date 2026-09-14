@@ -21,17 +21,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitDeploy(JNIEnv *env
     env->ReleaseStringUTFChars(path, s);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitUpdate(JNIEnv *env, jobject /* this */, jobject bitmap) {
-    jobject obj = env->NewGlobalRef(bitmap);
-    pitUpdate(env, obj);
-}
-
-extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitLockBitmap(JNIEnv *env, jobject /* this */) {
-    window_lock_bitmap();
-}
-
-extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitUnlockBitmap(JNIEnv *env, jobject /* this */) {
-    window_unlock_bitmap();
+// surface is the SurfaceView's android.view.Surface, or null when the surface
+// is destroyed. The native side takes its own reference (ANativeWindow), so no
+// JNI global ref is needed.
+extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitSetSurface(JNIEnv *env, jobject /* this */, jobject surface) {
+    pitSetSurface(env, surface);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitTouch(JNIEnv *env, jobject /* this */, int action, int x, int y) {

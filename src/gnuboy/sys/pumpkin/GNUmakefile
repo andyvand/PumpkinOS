@@ -15,13 +15,23 @@ PROGRAM = GnuBoy
 APPNAME = GNUBoy
 APPID   = GBoy
 
-UNAME_S := $(shell uname -s)
-UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_S),)
+UNAME_S ?= $(shell uname -s)
+endif
+
+ifeq ($(UNAME_M),)
+UNAME_M ?= $(shell uname -m)
+endif
 
 # The SYS_* triple must match the one baked into $(PUMPKIN)/bin/libpumpkin:
 # at runtime the app's native code is loaded from the PRC resource
 # 'dlib' id = SYS_OS*64 + SYS_CPU*8 + SYS_SIZE.
+ifeq ($(UNAME_S),Android)
+SYS_OS ?= 4
+else
 SYS_OS ?= 1
+endif
+
 # mirror $(PUMPKIN)/src/common.mak: macOS reports 64-bit ARM as "arm64",
 # Linux as "aarch64"; only other arm* machines are 32-bit
 ifeq ($(UNAME_M),arm64)
@@ -61,6 +71,32 @@ ifeq ($(UNAME_S),Darwin)
 CC = clang -arch x86_64 -arch arm64 -mmacosx-version-min=10.14
 LINKFLAGS = -dynamiclib
 OSDEFS = -DDARWIN -D_DARWIN_C_SOURCE -Wno-invalid-pp-token -Wno-string-plus-int -Wno-typedef-redefinition
+else ifeq ($(UNAME_S),Android)
+ifeq ($(NDK),)
+$(error You must define the NDK environment variable)
+endif
+SYS_OS=4
+ifeq ($(MACHINE),i686)
+ANDROID_ARCH=--target=i686-none-linux-androideabi26
+else ifeq ($(MACHINE),x86_64)
+ANDROID_ARCH=--target=x86_64-none-linux-android26
+else ifeq ($(MACHINE),riscv64)
+ANDROID_ARCH=--target=riscv64-none-linux-android35
+else
+ifeq ($(BITS),32)
+ANDROID_ARCH=--target=armv7-none-linux-androideabi26 -march=armv7-a -mthumb
+else
+ANDROID_ARCH=--target=aarch64-none-linux-android26
+endif
+endif
+OSLDEFS=$(ANDROID_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fPIC -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libgcc_real.a -Wl,--exclude-libs,libatomic.a -static-libstdc++ -Wl,--build-id -Wl,--fatal-warnings -Wl,--exclude-libs,libunwind.a -Wl,--no-undefined -Qunused-arguments
+EXTLIBS=-llog -latomic
+SOEXT=.so
+LUAPLAT=linux
+OS=Android
+OSDEFS=$(ANDROID_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -DANDROID -DSOEXT=\"$(SOEXT)\"
+CC=$(NDK)/bin/clang
+LINKFLAGS = -shared
 else
 CC = gcc
 LINKFLAGS = -shared
@@ -113,7 +149,7 @@ $(OBJDIR)/core/%.o: $(GNUBOY)/%.c
 
 $(PROGRAM).dlib: $(OBJS)
 	@echo Linking $(PROGRAM).dlib
-	@$(CC) $(LINKFLAGS) -o $@ $(OBJS) -L$(PUMPKIN)/bin -lpumpkin -lpit
+	@$(CC) $(LINKFLAGS) $(OSLDEFS) -o $@ $(OBJS) -L$(PUMPKIN)/bin -lpumpkin -lpit
 ifeq ($(UNAME_S),Darwin)
 	@# libpumpkin.dylib carries a relative install name; refer to it through
 	@# the rpath of the pumpkin executable instead, like libos does
