@@ -231,6 +231,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.gnuboy_a32, dir, "GnuBoy.prc");
                 copyFile(R.raw.browser_a32, dir, "Browser.prc");
                 copyFile(R.raw.mail_a32, dir, "Mail.prc");
+                copyFile(R.raw.vbam_a32, dir, "VBAM.prc");
             } else if (getArch() == 10) { // arm64-v8a
                 copyFile(R.raw.launcher_a64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_a64, dir, "AddressBook.prc");
@@ -247,6 +248,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.gnuboy_a64, dir, "GnuBoy.prc");
                 copyFile(R.raw.browser_a64, dir, "Browser.prc");
                 copyFile(R.raw.mail_a64, dir, "Mail.prc");
+                copyFile(R.raw.vbam_a64, dir, "VBAM.prc");
             } else if (getArch() == 17) { // x86
                 copyFile(R.raw.launcher_i32, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_i32, dir, "AddressBook.prc");
@@ -263,6 +265,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.gnuboy_i32, dir, "GnuBoy.prc");
                 copyFile(R.raw.browser_i32, dir, "Browser.prc");
                 copyFile(R.raw.mail_i32, dir, "Mail.prc");
+                copyFile(R.raw.vbam_i32, dir, "VBAM.prc");
             } else if (getArch() == 18) { // x86_64
                 copyFile(R.raw.launcher_i64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_i64, dir, "AddressBook.prc");
@@ -279,6 +282,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.gnuboy_i64, dir, "GnuBoy.prc");
                 copyFile(R.raw.browser_i64, dir, "Browser.prc");
                 copyFile(R.raw.mail_i64, dir, "Mail.prc");
+                copyFile(R.raw.vbam_i64, dir, "VBAM.prc");
             } else if (getArch() == 26) { // riscv64
                 copyFile(R.raw.launcher_r64, dir, "Launcher.prc");
                 copyFile(R.raw.addressbook_r64, dir, "AddressBook.prc");
@@ -295,6 +299,7 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.gnuboy_r64, dir, "GnuBoy.prc");
                 copyFile(R.raw.browser_r64, dir, "Browser.prc");
                 copyFile(R.raw.mail_r64, dir, "Mail.prc");
+                copyFile(R.raw.vbam_r64, dir, "VBAM.prc");
             }
         } catch (Exception ex) {
             Log.e("Pumpkin", Objects.requireNonNull(ex.getMessage()));
