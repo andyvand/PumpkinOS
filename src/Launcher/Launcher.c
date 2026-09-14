@@ -119,7 +119,6 @@ typedef struct {
   int sort, dir;
   int  prev, prevX, prevY;
   int num, x[16];
-  MenuBarType *mainMenu, *appListMenu;
   Boolean filterVisible;
   Boolean updateTime;
   launcher_widget_t widgets[MAX_WIDGETS];
@@ -2580,8 +2579,7 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
       launcherScan(data);
       refresh(frm, data);
       UpdateStatus(frm, data, true);
-      frm->mbar = data->mainMenu;
-      MenuSetActiveMenu(frm->mbar);
+      FrmSetMenu(frm, pumpkin_get_mode() == 0 ? MainMenu : ReducedMainMenu);
       break;
     case appSmallCmd:
       frm = FrmGetActiveForm();
@@ -2594,8 +2592,7 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
       launcherScan(data);
       refresh(frm, data);
       UpdateStatus(frm, data, true);
-      frm->mbar = data->appListMenu;
-      MenuSetActiveMenu(frm->mbar);
+      FrmSetMenu(frm, pumpkin_get_mode() == 0 ? AppListMenu : ReducedAppListMenu);
       break;
     case dbCmd:
       if (data->mode != launcher_db) {
@@ -2606,8 +2603,7 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
         launcherScan(data);
         refresh(frm, data);
         UpdateStatus(frm, data, true);
-        frm->mbar = data->mainMenu;
-        MenuSetActiveMenu(frm->mbar);
+        FrmSetMenu(frm, pumpkin_get_mode() == 0 ? MainMenu : ReducedMainMenu);
       }
       break;
     case fileCmd:
@@ -2620,8 +2616,7 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
         refresh(frm, data);
         DrawBattery(false);
         UpdateStatus(frm, data, true);
-        frm->mbar = data->mainMenu;
-        MenuSetActiveMenu(frm->mbar);
+        FrmSetMenu(frm, pumpkin_get_mode() == 0 ? MainMenu : ReducedMainMenu);
       }
       break;
     case taskCmd:
@@ -2633,8 +2628,7 @@ static void MenuEvent(UInt16 id, launcher_data_t *data) {
         launcherScan(data);
         refresh(frm, data);
         UpdateStatus(frm, data, true);
-        frm->mbar = data->mainMenu;
-        MenuSetActiveMenu(frm->mbar);
+        FrmSetMenu(frm, pumpkin_get_mode() == 0 ? MainMenu : ReducedMainMenu);
       }
       break;
     case runCmd:
@@ -2797,8 +2791,7 @@ static Boolean MainFormHandleEvent(EventPtr event) {
     case frmOpenEvent:
     case frmUpdateEvent:
       frm = FrmGetActiveForm();
-      frm->mbar = data->mainMenu;
-      MenuSetActiveMenu(frm->mbar);
+      FrmSetMenu(frm, pumpkin_get_mode() == 0 ? MainMenu : ReducedMainMenu);
       FreeTitle(frm);
       gadIndex = FrmGetObjectIndex(frm, iconsGad);
       sclIndex = FrmGetObjectIndex(frm, iconsScl);
@@ -3362,8 +3355,6 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
   SysNotifyRegister(0, pumpkin_get_app_localid(), sysNotifyAppCrashedEvent,   LauncherNotificationHandler, sysNotifyNormalPriority, data);
   SysNotifyRegister(0, pumpkin_get_app_localid(), sysNotifyTimeChangeEvent,   LauncherNotificationHandler, sysNotifyNormalPriority, data);
 
-  data->mainMenu = MenuInit(pumpkin_get_mode() == 0 ? MainMenu : ReducedMainMenu);
-  data->appListMenu = MenuInit(pumpkin_get_mode() == 0 ? AppListMenu : ReducedAppListMenu);
   data->useTaskbar = !(launchFlags & sysAppLaunchFlagFork);
 
   if (data->useTaskbar) {
@@ -3390,9 +3381,6 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
     removeWidgets(data);
     pumpkin_taskbar_destroy();
   }
-
-  MenuDispose(data->mainMenu);
-  MenuDispose(data->appListMenu);
 
   SysNotifyUnregister(0, pumpkin_get_app_localid(), sysNotifySyncFinishEvent,   sysNotifyNormalPriority);
   SysNotifyUnregister(0, pumpkin_get_app_localid(), sysNotifyDBCreatedEvent,    sysNotifyNormalPriority);
