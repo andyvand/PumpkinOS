@@ -409,6 +409,9 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         native-lib.cpp
         window.c
+        aaudio.c
+        amidi.c
+        smf.c
         pitapp.c
         PumpkinOS/src/libos/libos.c
         )
@@ -438,6 +441,11 @@ target_link_libraries( # Specifies the target library.
 
         # ANativeWindow (direct rendering into the SurfaceView)
         -landroid
+
+        # AAudio output (API 26+, matches minSdk). AMidi (API 29+) is loaded
+        # with dlopen() in amidi.c so the .so still loads on API 26-28.
+        -laaudio
+        -ldl
 
         # Links the target library to the log library
         # included in the NDK.

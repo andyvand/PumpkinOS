@@ -28,6 +28,12 @@ extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitSetSurface(JNIEnv 
     pitSetSurface(env, surface);
 }
 
+// device is an android.media.midi.MidiDevice already opened by MidiManager, or
+// null to disconnect. The native side attaches to it through AMidi.
+extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitSetMidiDevice(JNIEnv *env, jobject /* this */, jobject device) {
+    pitSetMidiDevice(env, device);
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_pit_pit_Pumpkin_pitTouch(JNIEnv *env, jobject /* this */, int action, int x, int y) {
     pitTouch(action, x, y);
 }

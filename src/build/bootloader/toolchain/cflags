@@ -1,5 +1,0 @@
-"-specs=/Users/andyvand/Downloads/PumpkinOS/src/build/bootloader/specs/picolibc.specs"
--mlongcalls
--fno-builtin-memcpy
--fno-builtin-memset
--fno-builtin-bzero

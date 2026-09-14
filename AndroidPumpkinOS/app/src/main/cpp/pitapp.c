@@ -71,6 +71,9 @@ int pitInit(void) {
   if (script_init(engine) != -1) {
     if ((pe = script_create(engine)) != -1) {
       window_init(pe);
+      // MIDI first: the AAudio provider looks the MIDI provider up for SndPlaySmf
+      midi_init(pe);
+      audio_init(pe);
       wp = script_get_pointer(pe, WINDOW_PROVIDER);
       ap = script_get_pointer(pe, AUDIO_PROVIDER);
       bt = script_get_pointer(pe, BT_PROVIDER);
@@ -132,6 +135,10 @@ void pitSetSurface(JNIEnv *env, jobject surface) {
 
 void pitPause(int paused) {
   pumpkin_pause(paused);
+}
+
+void pitSetMidiDevice(JNIEnv *env, jobject device) {
+  midi_set_device(env, device);
 }
 
 void pitSetBattery(int level) {

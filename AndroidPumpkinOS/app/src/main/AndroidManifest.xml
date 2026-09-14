@@ -20,6 +20,9 @@
         </activity>
     </application>
 
+    <!-- MIDI output through android.media.midi / AMidi is optional -->
+    <uses-feature android:name="android.software.midi" android:required="false" />
+
     <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

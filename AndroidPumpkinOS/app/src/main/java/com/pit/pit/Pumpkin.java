@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.media.midi.MidiDevice;
 import android.view.Surface;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public class Pumpkin extends Application {
     private Runnable r;
     private PumpkinUpdate updater;
     private ExecutorService exec;
+    private PumpkinMidi midi;
 
     @Override
     public void onCreate() {
@@ -48,6 +50,7 @@ public class Pumpkin extends Application {
         exited = false;
         handler = new Handler(Looper.getMainLooper());
         installFiles();
+        midi = new PumpkinMidi(this);
 
         // Housekeeping tick while the activity is in the foreground: battery
         // level updates and detecting that the native OS thread has exited.
@@ -114,10 +117,13 @@ public class Pumpkin extends Application {
         exec = Executors.newSingleThreadExecutor(
                 runnable -> new Thread(null, runnable, "pumpkin", 32L * 1024 * 1024));
         exec.execute(r);
+        // Connect an external MIDI device (if any) for SndPlaySmf output.
+        midi.start();
     }
 
     public void stop() {
         PumpkinLog.log(PumpkinLog.INFO, "Application", "stop");
+        midi.stop();
         pumpkinSetOn(false);
         if (!exited) pitRequestFinish();
         if (exec == null) return;
@@ -350,5 +356,7 @@ public class Pumpkin extends Application {
     public native void pitPause(boolean paused);
     public native void pitTouch(int action, int x, int y);
     public native void pitSetBattery(int level);
+    // Attach the native AMidi provider to an opened MidiDevice (null detaches).
+    public native void pitSetMidiDevice(MidiDevice device);
     public native int getArch();
 }
