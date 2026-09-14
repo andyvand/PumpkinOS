@@ -9,10 +9,13 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on macOS:
 ![](/screenshots/pumpkinos_macOS.png)
 
-![](/screenshots/pumpkin.png)
+# PumpkinOS running on Android:
+![](/screenshots/pumpkinos_android.jpg)
 
 # PumpkinOS running on ESP32:
 ![](/screenshots/PumpkinOS_ESP32.png)
+
+![](/screenshots/pumpkin.png)
 
 # Last sync with repo
 Up to date to commit 66a98f9
