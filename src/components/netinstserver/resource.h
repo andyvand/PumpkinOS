@@ -1,0 +1,1 @@
+../../netinstserver/resource.h

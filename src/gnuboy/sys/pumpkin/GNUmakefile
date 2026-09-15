@@ -15,18 +15,18 @@ PROGRAM = GnuBoy
 APPNAME = GNUBoy
 APPID   = GBoy
 
-ifeq ($(UNAME_S),)
-UNAME_S ?= $(shell uname -s)
+ifeq ($(OSNAME),)
+OSNAME ?= $(shell uname -s)
 endif
 
-ifeq ($(UNAME_M),)
-UNAME_M ?= $(shell uname -m)
+ifeq ($(MACHINE),)
+MACHINE ?= $(shell uname -m)
 endif
 
 # The SYS_* triple must match the one baked into $(PUMPKIN)/bin/libpumpkin:
 # at runtime the app's native code is loaded from the PRC resource
 # 'dlib' id = SYS_OS*64 + SYS_CPU*8 + SYS_SIZE.
-ifeq ($(UNAME_S),Android)
+ifeq ($(OSNAME),Android)
 SYS_OS ?= 4
 else
 SYS_OS ?= 1
@@ -34,25 +34,25 @@ endif
 
 # mirror $(PUMPKIN)/src/common.mak: macOS reports 64-bit ARM as "arm64",
 # Linux as "aarch64"; only other arm* machines are 32-bit
-ifeq ($(UNAME_M),arm64)
+ifeq ($(MACHINE),arm64)
 SYS_CPU ?= 1
 SYS_SIZE ?= 2
-else ifeq ($(UNAME_M),aarch64)
+else ifeq ($(MACHINE),aarch64)
 SYS_CPU ?= 1
 SYS_SIZE ?= 2
-else ifeq ($(findstring arm,$(UNAME_M)),arm)
+else ifeq ($(findstring arm,$(MACHINE)),arm)
 SYS_CPU ?= 1
 SYS_SIZE ?= 1
-else ifeq ($(UNAME_M),x86_64)
+else ifeq ($(MACHINE),x86_64)
 SYS_CPU ?= 2
 SYS_SIZE ?= 2
-else ifeq ($(UNAME_M),i386)
+else ifeq ($(MACHINE),i386)
 SYS_CPU ?= 2
 SYS_SIZE ?= 1
-else ifeq ($(UNAME_M),i686)
+else ifeq ($(MACHINE),i686)
 SYS_CPU ?= 2
 SYS_SIZE ?= 1
-else ifeq ($(UNAME_M),riscv64)
+else ifeq ($(MACHINE),riscv64)
 SYS_CPU ?= 3
 SYS_SIZE ?= 2
 else
@@ -67,11 +67,11 @@ DLIB := $(shell printf "dlib%04x.bin" $(DLIBID))
 PILRC = $(PUMPKIN)/tools/pilrc -q -allowLargeRes
 PRCBUILD = $(PUMPKIN)/tools/prcbuild
 
-ifeq ($(UNAME_S),Darwin)
+ifeq ($(OSNAME),Darwin)
 CC = clang -arch x86_64 -arch arm64 -mmacosx-version-min=10.14
 LINKFLAGS = -dynamiclib
 OSDEFS = -DDARWIN -D_DARWIN_C_SOURCE -Wno-invalid-pp-token -Wno-string-plus-int -Wno-typedef-redefinition
-else ifeq ($(UNAME_S),Android)
+else ifeq ($(OSNAME),Android)
 ifeq ($(NDK),)
 $(error You must define the NDK environment variable)
 endif
@@ -150,7 +150,7 @@ $(OBJDIR)/core/%.o: $(GNUBOY)/%.c
 $(PROGRAM).dlib: $(OBJS)
 	@echo Linking $(PROGRAM).dlib
 	@$(CC) $(LINKFLAGS) $(OSLDEFS) -o $@ $(OBJS) -L$(PUMPKIN)/bin -lpumpkin -lpit
-ifeq ($(UNAME_S),Darwin)
+ifeq ($(OSNAME),Darwin)
 	@# libpumpkin.dylib carries a relative install name; refer to it through
 	@# the rpath of the pumpkin executable instead, like libos does
 	@install_name_tool -change ../../bin/libpumpkin.dylib @rpath/libpumpkin.dylib $@

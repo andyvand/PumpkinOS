@@ -1,0 +1,17 @@
+# Net Install - network application installer (server side) for PumpkinOS.
+#
+# Builds NetInstall.prc and installs it into $(ROOT)/vfs/app_install.
+# The desktop client lives in src/netinstclient (Qt); see README.md.
+
+ROOT ?= ../..
+
+PROGRAM=NetInstall
+SOURCE=NetInstall.c netinst.c
+RCP=resource.rcp
+RCPDEP=resource.h netinst32.bmp netinst64.bmp
+APPNAME=Net Install
+APPID=NetI
+
+include $(ROOT)/src/common.mak
+include $(ROOT)/src/commonp.mak
+include $(ROOT)/src/app.mak
