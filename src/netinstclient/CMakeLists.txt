@@ -29,6 +29,7 @@ set(SOURCES
   src/Discovery.h
   src/MainWindow.cpp
   src/MainWindow.h
+  src/NetInst.rc
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)
