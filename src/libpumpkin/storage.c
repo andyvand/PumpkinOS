@@ -39,7 +39,8 @@
 // or if it is "loose" in the heap
 #define dmRecAttached 0x8000
 
-#define STO_MAGIC 'Hndl'
+#define HANDLE_MAGIC 'Hndl'
+#define DB_MAGIC     'dbId'
 
 static const char *watchName = "tempData";
 
@@ -70,6 +71,8 @@ typedef struct storage_handle_t {
 } storage_handle_t;
 
 typedef struct storage_db_t {
+  uint32_t magic;
+  uint32_t dbID;
   uint32_t ftype, readCount, writeCount, uniqueIDSeed;
   uint16_t mode, numRecs, protect;
 
@@ -174,7 +177,7 @@ static storage_handle_t *StoPtrRecoverHandle(void *p) {
       sp = (storage_ptr_t *)((uint8_t *)p - OffsetOf(storage_ptr_t, buffer));
       h = sp->h;
       if ((uint8_t *)h >= sto->base && (uint8_t *)h < sto->end) {
-        if (h->magic != STO_MAGIC) {
+        if (h->magic != HANDLE_MAGIC) {
           debug(DEBUG_ERROR, "STOR", "StoPtrRecoverHandle invalid handle magic 0x%08X for handle %p pointer %p", h->magic, h, p);
           h = NULL;
         }
@@ -515,8 +518,9 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
   if ((f = StoVfsOpen(sto->session, buf, VFS_WRITE | VFS_TRUNC)) != NULL) {
     pumpkin_id2s(db->type, stype);
     pumpkin_id2s(db->creator, screator);
-    sys_snprintf(buf, sizeof(buf)-1, "ftype=%u\ntype='%4s'\ncreator='%4s'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
-      db->ftype, stype, screator, db->attributes, db->uniqueIDSeed, db->version, db->crDate, db->modDate, db->bckDate, db->modNum);
+    db->dbID = pumpkin_dbid_get(db->name);
+    sys_snprintf(buf, sizeof(buf)-1, "ftype=%u\ntype='%4s'\ncreator='%4s'\ndbID=0x%08X\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
+      db->ftype, stype, screator, db->dbID, db->attributes, db->uniqueIDSeed, db->version, db->crDate, db->modDate, db->bckDate, db->modNum);
 #ifdef DOS
     // the directory name is a hash: keep the database name in the header
     n = (int)sys_strlen(buf);
@@ -534,14 +538,7 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
   return r;
 }
 
-static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path);
-
-static int StoReadHeader(storage_t *sto, storage_db_t *db) {
-  char buf[VFS_PATH];
-
-  storage_name(sto, db->name, STO_FILE_HEADER, 0, 0, 0, 0, buf);
-  return StoReadHeaderPath(sto, db, buf);
-}
+static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path, int reg);
 
 #ifdef DOS
 // read the header of the database stored in directory dirname and recover
@@ -552,7 +549,7 @@ static int StoHeaderName(storage_t *sto, char *dirname, char *name, int n) {
 
   sys_memset(&db, 0, sizeof(db));
   sys_snprintf(buf, sizeof(buf)-1, "%s%s/header", sto->path, dirname);
-  if (StoReadHeaderPath(sto, &db, buf) != 0 || db.name[0] == 0) {
+  if (StoReadHeaderPath(sto, &db, buf, 0) != 0 || db.name[0] == 0) {
     debug(DEBUG_ERROR, "STOR", "database directory \"%s\" has no name in its header", dirname);
     return -1;
   }
@@ -563,43 +560,87 @@ static int StoHeaderName(storage_t *sto, char *dirname, char *name, int n) {
 }
 #endif
 
-static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path) {
+#define NUM_HEADERS 11
+
+static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path, int reg) {
   char buf[VFS_PATH];
-  char stype[8], screator[8];
+  char stype[8], screator[8], *s;
   vfs_file_t *f;
-#ifdef DOS
-  char *p;
-  int i;
-#endif
-  int r = -1;
+  int len, r = -1;
 
   if ((f = StoVfsOpen(sto->session, path, VFS_READ)) != NULL) {
-    sys_memset(buf, 0, sizeof(buf));
-    if (vfs_read(f, (uint8_t *)buf, sizeof(buf)-1) > 0) {
-      if (sys_sscanf(buf, "ftype=%u\ntype='%c%c%c%c'\ncreator='%c%c%c%c'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
-           &db->ftype, stype, stype+1, stype+2, stype+3, screator, screator+1, screator+2, screator+3,
-           &db->attributes, &db->uniqueIDSeed, &db->version, &db->crDate, &db->modDate, &db->bckDate, &db->modNum) == 16) {
+    for (;;) {
+      sys_memset(buf, 0, sizeof(buf));
+      if ((s = vfs_gets(f, buf, sizeof(buf)-1)) == NULL) break;
+      if (s[0] == 0 || s[0] == '\n' || s[0] == '#') continue;
+      len = (int)sys_strlen(s);
+      if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = 0;
+
+      if (sys_sscanf(buf, "ftype=%u", &db->ftype) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "type='%c%c%c%c'", stype, stype+1, stype+2, stype+3) == 4) {
         stype[4] = 0;
         pumpkin_s2id(&db->type, stype);
+        continue;
+      }
+      if (sys_sscanf(buf, "creator='%c%c%c%c'", screator, screator+1, screator+2, screator+3) == 4) {
         screator[4] = 0;
         pumpkin_s2id(&db->creator, screator);
-#ifdef DOS
-        if ((p = sys_strstr(buf, "\nname=")) != NULL) {
-          for (p += 6, i = 0; p[i] && p[i] != '\n' && i < dmDBNameLength-1; i++) {
-            db->name[i] = p[i];
-          }
-          db->name[i] = 0;
-        }
-#endif
-        r = 0;
-      } else {
-        debug(DEBUG_ERROR, "STOR", "invalid header \"%s\"", buf);
+        continue;
       }
+      if (sys_sscanf(buf, "dbID=0x%08X", &db->dbID) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "attributes=%u", &db->attributes) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "uniqueIDSeed=%u", &db->uniqueIDSeed) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "version=%u", &db->version) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "crDate=%u", &db->crDate) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "modDate=%u", &db->modDate) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "bckDate=%u", &db->bckDate) == 1) {
+        continue;
+      }
+      if (sys_sscanf(buf, "modNum=%u", &db->modNum) == 1) {
+        continue;
+      }
+#ifdef DOS
+      // the directory name is a hash: the database name is kept in the header
+      if (sys_strncmp(buf, "name=", 5) == 0) {
+        sys_strncpy(db->name, buf + 5, dmDBNameLength - 1);
+        db->name[dmDBNameLength - 1] = 0;
+        continue;
+      }
+#endif
+
+      debug(DEBUG_ERROR, "STOR", "invalid header \"%s\"", buf);
+      break;
     }
     vfs_close(f);
+
+    if (db->ftype && db->type && db->creator) {
+      if (reg) pumpkin_dbid_add(db->name, db->dbID);
+      r = 0;
+    }
   }
 
   return r;
+}
+
+static int StoReadHeader(storage_t *sto, storage_db_t *db) {
+  char buf[VFS_PATH];
+
+  storage_name(sto, db->name, STO_FILE_HEADER, 0, 0, 0, 0, buf);
+  return StoReadHeaderPath(sto, db, buf, 1);
 }
 
 static int StoGetFileLocks(storage_t *sto, storage_db_t *db, int *read_locks, int *write_locks) {
@@ -907,6 +948,7 @@ int StoInit(char *path, mutex_t *mutex) {
             sto = NULL;
             break;
           }
+          db->magic = DB_MAGIC;
 #ifdef DOS
           if (StoHeaderName(sto, ent->name, db->name, dmDBNameLength) != 0) {
             pumpkin_heap_free(db, "storage_db");
@@ -971,6 +1013,7 @@ int StoRefresh(void) {
           }
           if (!found) {
             if ((db = pumpkin_heap_alloc(sizeof(storage_db_t), "storage_db")) != NULL) {
+              db->magic = DB_MAGIC;
               sys_strncpy(db->name, name, dmDBNameLength-1);
               if (StoReadHeader(sto, db) == 0) {
                 dbID = (LocalID)((uint8_t *)db - sto->base);
@@ -1025,7 +1068,7 @@ void StoHeapWalk(uint32_t *p, uint32_t size, uint32_t task) {
   storage_handle_t *h = (storage_handle_t *)p;
   char st[8];
 
-  if (h && size >= sizeof(storage_handle_t) && h->magic == STO_MAGIC) {
+  if (h && size >= sizeof(storage_handle_t) && h->magic == HANDLE_MAGIC) {
     if (h->owner == task) {
       h->owner = 0;
 
@@ -1496,6 +1539,7 @@ Err DmCreateDatabaseEx(const Char *nameP, UInt32 creator, UInt32 type, UInt16 at
           mutex_unlock(sto->mutex);
           return err;
         }
+        db->magic = DB_MAGIC;
         storage_name(sto, (char *)nameP, 0, 0, 0, 0, 0, buf);
         if (StoMkdirClean(sto, buf) == -1) {
           pumpkin_heap_free(db, "storage_db");
@@ -1535,6 +1579,9 @@ Err DmCreateDatabaseEx(const Char *nameP, UInt32 creator, UInt32 type, UInt16 at
       db->crDate = TimGetSeconds();
       db->modDate = db->crDate;
       db->bckDate = db->crDate;
+      if (!existing) {
+        db->dbID = pumpkin_dbid_add(db->name, 0);
+      }
 
       if (StoWriteHeader(sto, db) == -1) {
         pumpkin_heap_free(db, "storage_db");
@@ -1599,7 +1646,7 @@ static storage_handle_t *StoAddRec(storage_t *sto, storage_db_t *db, uint32_t un
   storage_handle_t *h = NULL;
 
   if ((h = pumpkin_heap_alloc(sizeof(storage_handle_t), "Handle")) != NULL) {
-    h->magic = STO_MAGIC;
+    h->magic = HANDLE_MAGIC;
     h->htype = STO_TYPE_REC;
     h->owner = 0;
     h->size = size;
@@ -1619,7 +1666,7 @@ static storage_handle_t *StoAddRes(storage_t *sto, storage_db_t *db, uint32_t ty
   storage_handle_t *h = NULL;
 
   if ((h = pumpkin_heap_alloc(sizeof(storage_handle_t), "Handle")) != NULL) {
-    h->magic = STO_MAGIC;
+    h->magic = HANDLE_MAGIC;
     h->htype = STO_TYPE_RES;
     h->owner = 0;
     h->size = size;
@@ -2117,6 +2164,8 @@ Err DmDeleteDatabase(UInt16 cardNo, LocalID dbID) {
           dbDeleted.type = db->type;
           dbDeleted.attributes = db->attributes;
           StrNCopy(dbDeleted.dbName, db->name, dmDBNameLength-1);
+
+          pumpkin_dbid_remove(db->name);
 
           db->ftype = 0;
           db->readCount = 0;
@@ -2866,7 +2915,7 @@ MemHandle DmNewResourceEx(DmOpenRef dbP, DmResType resType, DmResID resID, UInt3
         db = (storage_db_t *)(sto->base + dbRef->dbID);
         if (db->ftype == STO_TYPE_RES) {
           if ((h = pumpkin_heap_alloc(sizeof(storage_handle_t), "Handle")) != NULL) {
-            h->magic = STO_MAGIC;
+            h->magic = HANDLE_MAGIC;
             h->htype = STO_TYPE_RES | STO_INFLATED;
             h->owner = pumpkin_get_current();
             h->d.res.attr |= dmRecAttrDirty;
@@ -3586,7 +3635,7 @@ MemHandle DmNewRecordEx(DmOpenRef dbP, UInt16 *atP, UInt32 size, void *p, UInt32
         if (db->ftype == STO_TYPE_REC) {
           if (*atP >= db->numRecs) *atP = db->numRecs;
           if ((h = pumpkin_heap_alloc(sizeof(storage_handle_t), "Handle")) != NULL) {
-            h->magic = STO_MAGIC;
+            h->magic = HANDLE_MAGIC;
             h->htype = STO_TYPE_REC | STO_INFLATED;
             h->owner = pumpkin_get_current();
             if (setAttr) {
@@ -3671,7 +3720,7 @@ Err DmAttachRecord(DmOpenRef dbP, UInt16 *atP, MemHandle newH, MemHandle *oldHP)
           if (*atP > db->numRecs) *atP = db->numRecs;
           h = (storage_handle_t *)newH;
 
-          if (h->magic != STO_MAGIC) {
+          if (h->magic != HANDLE_MAGIC) {
             debug(DEBUG_INFO, "STOR", "DmAttachRecord %p trying to attach a non handle", newH);
             h = MemPtrRecoverHandle(newH);
           }
@@ -4529,7 +4578,7 @@ void *StoNewDecodedResource(void *h, UInt32 size, DmResType resType, DmResID res
     if (h == NULL) {
       // h will be NULL in case of FrmNewForm()
       if ((handle = pumpkin_heap_alloc(sizeof(storage_handle_t), "Handle")) != NULL) {
-        handle->magic = STO_MAGIC;
+        handle->magic = HANDLE_MAGIC;
         handle->htype = STO_TYPE_RES;
         handle->owner = pumpkin_get_current();
         handle->size = size;
@@ -4697,7 +4746,7 @@ MemHandle MemHandleNew(UInt32 size) {
 
   if (size) {
     if ((h = pumpkin_heap_alloc(sizeof(storage_handle_t), "Handle")) != NULL) {
-      h->magic = STO_MAGIC;
+      h->magic = HANDLE_MAGIC;
       h->htype = STO_TYPE_MEM | STO_INFLATED;
       h->owner = pumpkin_get_current();
       h->size = size;
@@ -4769,7 +4818,7 @@ MemPtr MemHandleLockEx(MemHandle h, Boolean decoded) {
 
   if (h) {
     handle = (storage_handle_t *)h;
-    if (handle->magic != STO_MAGIC) {
+    if (handle->magic != HANDLE_MAGIC) {
       debug(DEBUG_INFO, "STOR", "MemHandleLockEx %p trying to lock a non handle", handle);
       handle = MemPtrRecoverHandle(h);
     }
@@ -4832,7 +4881,7 @@ Err MemHandleUnlock(MemHandle h) {
 
   if (h) {
     handle = (storage_handle_t *)h;
-    if (handle->magic != STO_MAGIC) {
+    if (handle->magic != HANDLE_MAGIC) {
       debug(DEBUG_INFO, "STOR", "MemHandleUnlock %p trying to unlock a non handle", handle);
       handle = MemPtrRecoverHandle(h);
     }
@@ -5250,7 +5299,7 @@ UInt32 MemHandleSize(MemHandle h) {
 
   if (h) {
     handle = (storage_handle_t *)h;
-    if (handle->magic != STO_MAGIC) {
+    if (handle->magic != HANDLE_MAGIC) {
       debug(DEBUG_INFO, "STOR", "MemHandleSize %p non handle", handle);
       handle = MemPtrRecoverHandle(h);
     }
