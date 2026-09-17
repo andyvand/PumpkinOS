@@ -10,7 +10,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(netinstclient VERSION 1.0 LANGUAGES CXX)
+project(netinstclient VERSION 1.0 LANGUAGES CXX RC)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,6 +42,10 @@ target_link_libraries(netinstclient PRIVATE
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::Network
 )
+
+if(MINGW)
+  target_link_options(netinstclient PRIVATE -Wl,--subsystem,windows)
+endif()
 
 target_compile_definitions(netinstclient PRIVATE
   NETINSTCLIENT_VERSION="${PROJECT_VERSION}"
