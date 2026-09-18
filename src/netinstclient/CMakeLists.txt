@@ -38,14 +38,15 @@ else()
   add_executable(netinstclient ${SOURCES})
 endif()
 
+set_target_properties(netinstclient PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
+
 target_link_libraries(netinstclient PRIVATE
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::Network
 )
-
-if(MINGW)
-  target_link_options(netinstclient PRIVATE -Wl,--subsystem,windows)
-endif()
 
 target_compile_definitions(netinstclient PRIVATE
   NETINSTCLIENT_VERSION="${PROJECT_VERSION}"
