@@ -257,25 +257,139 @@ static int sendKeyDown(UInt16 eType, UInt16 chr, UInt16 keyCode, UInt16 modifier
   return 1;
 }
 
+static int fillKeyEvent(int key, int mods, EventType *event) {
+  int native = pumpkin_get_native_keys();
+
+  // keyDownEvent and keyUpEvent structures are the same.
+  // using data.keyDown here will work for both.
+  event->data.keyDown.chr = 0;
+  event->data.keyDown.keyCode = 0;
+  event->data.keyDown.modifiers = 0;
+
+  switch (key) {
+    case 13:
+      event->data.keyDown.chr = 10;
+      break;
+    case WINDOW_KEY_F1:
+      event->data.keyDown.chr = vchrHard1;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F2:
+      event->data.keyDown.chr = vchrHard2;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F3:
+      event->data.keyDown.chr = vchrHard3;
+       event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F4:
+      event->data.keyDown.chr = vchrHard4;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F5:
+      if (native) {
+        event->data.keyDown.chr = vchrHard5;
+      } else {
+        event->data.keyDown.chr = vchrMenu;
+      }
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F6:
+      event->data.keyDown.chr = vchrHard6;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F7:
+      event->data.keyDown.chr = vchrHard7;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_F8:
+      event->data.keyDown.chr = vchrHard8;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+/*
+    case WINDOW_KEY_F9:
+      event->data.keyDown.chr = vchrHard9;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+*/
+    case WINDOW_KEY_F10:
+      event->data.keyDown.chr = vchrHard10;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_UP:
+      event->data.keyDown.chr = vchrPageUp;
+      break;
+    case WINDOW_KEY_DOWN:
+      event->data.keyDown.chr = vchrPageDown;
+      break;
+    case WINDOW_KEY_INS:
+      event->data.keyDown.chr = vchrNativeInsert;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_DEL:
+      event->data.keyDown.chr = vchrNativeDelete;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_HOME:
+      if (native) {
+        event->data.keyDown.chr = vchrNativeHome;
+        event->data.keyDown.modifiers |= commandKeyMask;
+      } else if (pumpkin_is_launched() && pumpkin_get_app_creator() != PrefGetPreference(prefLauncherAppCreator)) {
+        // the home key terminates the current app, but never the Launcher itself
+        debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents keyDownEvent appStopEvent");
+        MemSet(event, sizeof(EventType), 0);
+        event->eType = appStopEvent;
+        EvtAddEventToQueue(event);
+        return 1;
+      }
+      break;
+    case WINDOW_KEY_END:
+      event->data.keyDown.chr = vchrNativeEnd;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_PGUP:
+      event->data.keyDown.chr = vchrNativePgUp;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_PGDOWN:
+      event->data.keyDown.chr = vchrNativePgDown;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_CUSTOM:
+      event->data.keyDown.chr = mods;
+      event->data.keyDown.modifiers |= commandKeyMask;
+      break;
+    case WINDOW_KEY_LEFT:
+    case WINDOW_KEY_RIGHT:
+    case WINDOW_KEY_F9:
+      break;
+    default:
+      event->data.keyDown.chr = key;
+      break;
+  }
+
+  return 0;
+}
+
 int EvtPumpEvents(Int32 timeoutUs) {
   evt_module_t *module = (evt_module_t *)pumpkin_get_local_storage(evt_key);
-  // XXX hang debug: rate-limited alive marker for any event-pump loop
-  // (EvtGetEvent, Evt*EventAvail, EvtGetPen all come through here)
-  static uint64_t lastAlive = 0;
-  uint64_t nowAlive = sys_get_clock();
   EventType event;
-
-  if (nowAlive - lastAlive > 2000000) {
-    lastAlive = nowAlive;
-    debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents alive (timeout %d)", timeoutUs);
-  }
   UInt8 buf[1024];
   UInt32 n;
   int32_t wait;
   uint64_t t0, t, dt;
   UInt32 ticks;
-  int native;
   int ev, key, mods, buttons, forever, r = 0;
+  // XXX hang debug: rate-limited alive marker for any event-pump loop
+  // (EvtGetEvent, Evt*EventAvail, EvtGetPen all come through here)
+  static uint64_t lastAlive = 0;
+  uint64_t nowAlive;
+
+  nowAlive = sys_get_clock();
+  if (nowAlive - lastAlive > 2000000) {
+    lastAlive = nowAlive;
+    debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents alive (timeout %d)", timeoutUs);
+  }
 
   t0 = sys_get_clock();
   MemSet(&event, sizeof(EventType), 0);
@@ -398,125 +512,22 @@ int EvtPumpEvents(Int32 timeoutUs) {
         case WINDOW_KEY_F9:
           r = sendKeyDown(keyDownEvent, vchrNavChange, navChangeSelect | navBitSelect, commandKeyMask);
           break;
-         default:
-      native = pumpkin_get_native_keys();
-      event.data.keyDown.chr = 0;
-      event.data.keyDown.keyCode = 0;
-      event.data.keyDown.modifiers = 0;
-
-      switch (key) {
-        case 13:
-          event.data.keyDown.chr = 10;
-          break;
-        case WINDOW_KEY_F1:
-          event.data.keyDown.chr = vchrHard1;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F2:
-          event.data.keyDown.chr = vchrHard2;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F3:
-          event.data.keyDown.chr = vchrHard3;
-           event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F4:
-          event.data.keyDown.chr = vchrHard4;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F5:
-          if (native) {
-            event.data.keyDown.chr = vchrHard5;
-          } else {
-            event.data.keyDown.chr = vchrMenu;
-          }
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F6:
-          event.data.keyDown.chr = vchrHard6;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F7:
-          event.data.keyDown.chr = vchrHard7;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F8:
-          event.data.keyDown.chr = vchrHard8;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-/*
-        case WINDOW_KEY_F9:
-          event.data.keyDown.chr = vchrHard9;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-*/
-        case WINDOW_KEY_F10:
-          event.data.keyDown.chr = vchrHard10;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_UP:
-          event.data.keyDown.chr = vchrPageUp;
-          break;
-        case WINDOW_KEY_DOWN:
-          event.data.keyDown.chr = vchrPageDown;
-          break;
-        case WINDOW_KEY_INS:
-          event.data.keyDown.chr = vchrNativeInsert;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_DEL:
-          event.data.keyDown.chr = vchrNativeDelete;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_HOME:
-          if (native) {
-            event.data.keyDown.chr = vchrNativeHome;
-            event.data.keyDown.modifiers |= commandKeyMask;
-          } else if (pumpkin_is_launched() && pumpkin_get_app_creator() != PrefGetPreference(prefLauncherAppCreator)) {
-            // the home key terminates the current app, but never the Launcher itself
-            debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents keyDownEvent appStopEvent");
-            MemSet(&event, sizeof(EventType), 0);
-            event.eType = appStopEvent;
-            EvtAddEventToQueue(&event);
+        default:
+          if (fillKeyEvent(key, mods, &event)) {
             return 1;
           }
-          break;
-        case WINDOW_KEY_END:
-          event.data.keyDown.chr = vchrNativeEnd;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_PGUP:
-          event.data.keyDown.chr = vchrNativePgUp;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_PGDOWN:
-          event.data.keyDown.chr = vchrNativePgDown;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_CUSTOM:
-          event.data.keyDown.chr = mods;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_LEFT:
-        case WINDOW_KEY_RIGHT:
-        case WINDOW_KEY_F9:
-          break;
-        default:
-          event.data.keyDown.chr = key;
-          break;
-      }
-
-      if (event.data.keyDown.chr) {
-        event.eType = keyDownEvent;
-        if (mods & WINDOW_MOD_SHIFT) event.data.keyDown.modifiers |= shiftKeyMask;
-        if (mods & WINDOW_MOD_CTRL)  event.data.keyDown.modifiers |= controlKeyMask;
-        if (mods & WINDOW_MOD_LALT)  event.data.keyDown.modifiers |= optionKeyMask;
-        EvtAddEventToQueue(&event);
-        r = 1;
-      }
+          if (event.data.keyDown.chr) {
+            event.eType = keyDownEvent;
+            if (mods & WINDOW_MOD_SHIFT) event.data.keyDown.modifiers |= shiftKeyMask;
+            if (mods & WINDOW_MOD_CTRL)  event.data.keyDown.modifiers |= controlKeyMask;
+            if (mods & WINDOW_MOD_LALT)  event.data.keyDown.modifiers |= optionKeyMask;
+            EvtAddEventToQueue(&event);
+            r = 1;
+          }
           break;
        }
        break;
+
     case MSG_KEYUP:
       switch (key) {
         case WINDOW_KEY_SHIFT:
@@ -537,125 +548,20 @@ int EvtPumpEvents(Int32 timeoutUs) {
         case WINDOW_KEY_F9:
           r = sendKeyDown(keyDownEvent, vchrNavChange, navChangeSelect, commandKeyMask);
           break;
+        default:
+          if (fillKeyEvent(key, mods, &event) == 0) {
+            if (event.data.keyUp.chr) {
+              event.eType = keyUpEvent;
+              if (mods & WINDOW_MOD_SHIFT) event.data.keyUp.modifiers |= shiftKeyMask;
+              if (mods & WINDOW_MOD_CTRL)  event.data.keyUp.modifiers |= controlKeyMask;
+              if (mods & WINDOW_MOD_LALT)  event.data.keyUp.modifiers |= optionKeyMask;
+              EvtAddEventToQueue(&event);
+              r = 1;
+            }
+          }
+          break;
        }
        break;
-
-#if 0
-    case MSG_KEY:
-      native = pumpkin_get_native_keys();
-      event.data.keyDown.chr = 0;
-      event.data.keyDown.keyCode = 0;
-      event.data.keyDown.modifiers = 0;
-
-      switch (key) {
-        case 13:
-          event.data.keyDown.chr = 10;
-          break;
-        case WINDOW_KEY_F1:
-          event.data.keyDown.chr = vchrHard1;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F2:
-          event.data.keyDown.chr = vchrHard2;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F3:
-          event.data.keyDown.chr = vchrHard3;
-           event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F4:
-          event.data.keyDown.chr = vchrHard4;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F5:
-          if (native) {
-            event.data.keyDown.chr = vchrHard5;
-          } else {
-            event.data.keyDown.chr = vchrMenu;
-          }
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F6:
-          event.data.keyDown.chr = vchrHard6;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F7:
-          event.data.keyDown.chr = vchrHard7;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_F8:
-          event.data.keyDown.chr = vchrHard8;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-/*
-        case WINDOW_KEY_F9:
-          event.data.keyDown.chr = vchrHard9;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-*/
-        case WINDOW_KEY_F10:
-          event.data.keyDown.chr = vchrHard10;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_UP:
-          event.data.keyDown.chr = vchrPageUp;
-          break;
-        case WINDOW_KEY_DOWN:
-          event.data.keyDown.chr = vchrPageDown;
-          break;
-        case WINDOW_KEY_INS:
-          event.data.keyDown.chr = vchrNativeInsert;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_DEL:
-          event.data.keyDown.chr = vchrNativeDelete;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_HOME:
-          if (native) {
-            event.data.keyDown.chr = vchrNativeHome;
-            event.data.keyDown.modifiers |= commandKeyMask;
-          } else {
-            debug(DEBUG_INFO, PALMOS_MODULE, "EvtPumpEvents keyDownEvent vchrLaunch");
-            EvtEnqueueKey(vchrLaunch, 0, commandKeyMask);
-            return 1;
-          }
-          break;
-        case WINDOW_KEY_END:
-          event.data.keyDown.chr = vchrNativeEnd;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_PGUP:
-          event.data.keyDown.chr = vchrNativePgUp;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_PGDOWN:
-          event.data.keyDown.chr = vchrNativePgDown;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_CUSTOM:
-          event.data.keyDown.chr = mods;
-          event.data.keyDown.modifiers |= commandKeyMask;
-          break;
-        case WINDOW_KEY_LEFT:
-        case WINDOW_KEY_RIGHT:
-        case WINDOW_KEY_F9:
-          break;
-        default:
-          event.data.keyDown.chr = key;
-          break;
-      }
-
-      if (event.data.keyDown.chr) {
-        event.eType = keyDownEvent;
-        if (mods & WINDOW_MOD_SHIFT) event.data.keyDown.modifiers |= shiftKeyMask;
-        if (mods & WINDOW_MOD_CTRL)  event.data.keyDown.modifiers |= controlKeyMask;
-        if (mods & WINDOW_MOD_LALT)  event.data.keyDown.modifiers |= optionKeyMask;
-        EvtAddEventToQueue(&event);
-        r = 1;
-      }
-      break;
-#endif
 
     case MSG_BUTTON:
       event.screenX = module->screenX;
