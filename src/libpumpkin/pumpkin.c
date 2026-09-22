@@ -144,6 +144,7 @@ typedef struct {
   int lockable;
   int osversion;
   int m68k;
+  int pace;
   char name[dmDBNameLength];
   uint16_t density, depth;
   uint32_t alarm_time;
@@ -3719,12 +3720,13 @@ int pumpkin_sys_event(void) {
             pumpkin_module.buttonMask |= arg1;
             pumpkin_module.dragging = -1;
             if (i != -1 && i == pumpkin_module.current_task) {
+              mult = pumpkin_module.tasks[i].density == kDensityLow && pumpkin_module.density == kDensityDouble ? 2 : 1;
               if (pumpkin_module.mode == 1) {
-                pumpkin_forward_msg(i, MSG_MOTION, tx, ty, 0);
+                //pumpkin_forward_msg(i, MSG_MOTION, tx/mult, ty/mult, 0);
                 pumpkin_module.tasks[i].penX = tx;
                 pumpkin_module.tasks[i].penY = ty;
               }
-              pumpkin_forward_msg(i, MSG_BUTTON, 0, 0, arg1);
+              pumpkin_forward_msg(i, MSG_BUTTON, tx/mult, ty/mult, arg1);
             }
           }
         }
@@ -3761,7 +3763,10 @@ int pumpkin_sys_event(void) {
         pumpkin_module.dragging = -1;
 
         if (i != -1 && (pumpkin_module.locked || arg1 == 1)) {
-          pumpkin_forward_msg(i, MSG_BUTTON, 0, 0, 0);
+          mult = pumpkin_module.tasks[i].density == kDensityLow && pumpkin_module.density == kDensityDouble ? 2 : 1;
+          tx = pumpkin_module.tasks[i].penX;
+          ty = pumpkin_module.tasks[i].penY;
+          pumpkin_forward_msg(i, MSG_BUTTON, tx/mult, ty/mult, 0);
         }
         break;
       case WINDOW_MOTION:
@@ -3774,10 +3779,7 @@ int pumpkin_sys_event(void) {
           pumpkin_module.dragged = 1;
 
         } else if (i != -1 && pumpkin_module.tasks[i].active) {
-          mult = 1;
-          if (pumpkin_module.tasks[i].density == kDensityLow && pumpkin_module.density == kDensityDouble) {
-            mult = 2;
-          }
+          mult = pumpkin_module.tasks[i].density == kDensityLow && pumpkin_module.density == kDensityDouble ? 2 : 1;
 
           if (pumpkin_module.locked) {
             if (wman_xy(pumpkin_module.wm, pumpkin_module.tasks[i].taskId, &tx, &ty) == 0) {
@@ -3799,12 +3801,14 @@ int pumpkin_sys_event(void) {
               x -= tx;
               y -= ty;
               if (x >= 0 && x < pumpkin_module.tasks[i].width && y >= 0 && y < pumpkin_module.tasks[i].height) {
+/*
                 // try not to flood the task with penMove events
                 if ((pumpkin_module.tasks[i].penX != x || pumpkin_module.tasks[i].penY != y) &&
                     (now - pumpkin_module.tasks[i].lastMotion) > 5000) {
                   pumpkin_forward_msg(i, MSG_MOTION, x/mult, y/mult, 0);
                   pumpkin_module.tasks[i].lastMotion = now;
                 }
+*/
                 pumpkin_module.tasks[i].penX = x;
                 pumpkin_module.tasks[i].penY = y;
               }
@@ -3942,7 +3946,8 @@ static void pumpkin_update_single_app(void) {
 
 static int pumpkin_event_single_app(int *key, int *mods, int *buttons, uint8_t *data, uint32_t *n, uint32_t usec) {
   int ev, arg1, arg2, wait;
-  int x, y, tmp;
+  //int x, y;
+  int tmp;
 
   if ((ev = get_event(&arg1, &arg2, &tmp)) != 0) {
     *key = arg1;
@@ -3998,11 +4003,17 @@ static int pumpkin_event_single_app(int *key, int *mods, int *buttons, uint8_t *
           pumpkin_module.buttonMask |= arg1;
           pumpkin_module.tasks[0].penX = pumpkin_module.lastX;
           pumpkin_module.tasks[0].penY = pumpkin_module.lastY;
+/*
           put_event(MSG_BUTTON, 0, 0, 1);
           *key = pumpkin_module.lastX;
           *mods = pumpkin_module.lastY;
           *buttons = 0;
           ev = MSG_MOTION;
+*/
+          *key = pumpkin_module.lastX;
+          *mods = pumpkin_module.lastY;
+          *buttons = 1;
+          ev = MSG_BUTTON;
           break;
         case WINDOW_BUTTONUP:
           pumpkin_module.wp->status(pumpkin_module.w, &arg1, &arg2, &tmp);
@@ -4013,10 +4024,12 @@ static int pumpkin_event_single_app(int *key, int *mods, int *buttons, uint8_t *
             break;
           }
           pumpkin_module.buttonMask &= ~arg1;
-          *key = *mods = 0;
+          *key = pumpkin_module.lastX;
+          *mods = pumpkin_module.lastY;
           *buttons = 0;
           ev = MSG_BUTTON;
           break;
+/*
         case WINDOW_MOTION:
           ev = 0;
           x = arg1;
@@ -4035,6 +4048,7 @@ static int pumpkin_event_single_app(int *key, int *mods, int *buttons, uint8_t *
           pumpkin_module.lastX = x;
           pumpkin_module.lastY = y;
           break;
+*/
         default:
           ev = 0;
           break;
@@ -5408,6 +5422,16 @@ void pumpkin_set_m68k(int m68k) {
 int pumpkin_is_m68k(void) {
   pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
   return task ? task->m68k : 0;
+}
+
+void pumpkin_set_pace(int pace) {
+  pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
+  if (task) task->pace = pace;
+}
+
+int pumpkin_is_pace(void) {
+  pumpkin_task_t *task = (pumpkin_task_t *)thread_get(task_key);
+  return task ? task->pace : 0;
 }
 
 void pumpkin_set_preference(UInt32 creator, UInt16 id, void *p, UInt16 size, Boolean saved) {
