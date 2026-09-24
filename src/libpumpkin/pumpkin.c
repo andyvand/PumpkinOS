@@ -2773,7 +2773,9 @@ static int pumpkin_pause_task(char *name, int *call_sub) {
           *call_sub = 1;
         }
       } else {
-        *call_sub = 1;
+        // XXX disable calling as subroutine for now,
+        // until there is reliable way to pass parameters.
+        //*call_sub = 1;
       }
       mutex_unlock(mutex);
 
