@@ -194,6 +194,14 @@ void palmos_intltrap(uint32_t sp, uint16_t idx, uint32_t sel) {
       m68k_set_reg(M68K_REG_D0, resw);
       }
       break;
+    case intlTxtCharWidth: {
+      // Int16 TxtCharWidth(WChar inChar)
+      uint16_t inChar = ARG16;
+      UInt16 res = TxtCharWidth(inChar);
+      debug(DEBUG_TRACE, "EmuPalmOS", "TxtCharWidth(%d): %d", inChar, res);
+      m68k_set_reg(M68K_REG_D0, res);
+      }
+      break;
     //case intlIntlInit:
     //case intlTxtByteAttr:
     //case intlTxtCharXAttr:
@@ -206,7 +214,6 @@ void palmos_intltrap(uint32_t sp, uint16_t idx, uint32_t sel) {
     //case intlTxtMaxEncoding:
     //case intlTxtTransliterate:
     //case intlTxtCaselessCompare:
-    //case intlTxtCharWidth:
     //case intlTxtGetTruncationOffset:
     //case intlIntlGetRoutineAddress:
     //case intlIntlHandleEvent:
