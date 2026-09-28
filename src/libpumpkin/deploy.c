@@ -95,7 +95,7 @@ void pumpkin_registry_create(UInt32 creator) {
   regPos.y = (sheight - regDim.height) / 2;
   pumpkin_reg_set(creator, regPositionID, &regPos, sizeof(RegPositionType));
 
-  regRunFlags.flags = regRunFlagReset | regRunFlagSound; // fork: sound enabled by default
+  regRunFlags.flags = regRunFlagFirstRun | regRunFlagSound; // fork: sound enabled by default
   pumpkin_reg_set(creator, regRunFlagsID, &regRunFlags, sizeof(RegRunFlagsType));
 
   regHeap.heapSize = heapSize;
