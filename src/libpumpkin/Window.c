@@ -2989,6 +2989,12 @@ Err WinGetSupportedDensity(UInt16 *densityP) {
           err = errNone;
         }
         break;
+      case kDensityDouble:
+        *densityP = 0;
+        break;
+      default:
+        debug(DEBUG_ERROR, "Window", "WinGetSupportedDensity invalid density %u", *densityP);
+        break;
     }
   }
 
