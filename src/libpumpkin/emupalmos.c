@@ -663,6 +663,7 @@ void decode_event(uint32_t eventP, EventType *event) {
     case appStopEvent:
     case winDisplayChangedEvent:
     case appRaiseEvent:
+    case wheelEvent:
       break;
     case keyDownEvent:
     case keyUpEvent:
@@ -906,6 +907,7 @@ void encode_event(uint32_t eventP, EventType *event) {
     case appStopEvent:
     case winDisplayChangedEvent:
     case appRaiseEvent:
+    case wheelEvent:
       break;
     case keyDownEvent:
     case keyUpEvent:
