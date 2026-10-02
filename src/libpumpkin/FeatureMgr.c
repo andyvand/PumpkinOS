@@ -2,6 +2,7 @@
 #include <VFSMgr.h>
 #include <PenInputMgr.h>
 #include <SonyCLIE.h>
+#include <HsExtCommon.h>
 #include <INetMgr.h>
 
 #include "RegistryMgr.h"
@@ -352,6 +353,21 @@ static Err FtrGetEx(UInt32 creator, UInt16 featureNum, UInt32 *valueP, Boolean *
           break;
       }
       break;
+/*
+    case hsFtrCreator:
+      switch (featureNum) {
+        case hsFtrIDVersion:
+          // 0xMMmfsHHh
+          *valueP = 0x10003000;
+          err = errNone;
+          break;
+        default:
+          debug(DEBUG_ERROR, "Feature", "FtrGet hsFtrCreator %d not defined", featureNum);
+          err = ftrErrNoSuchFeature;
+          break;
+      }
+      break;
+*/
     default:
       if (module->numFeatures > 0) {
         for (i = 0; i < module->numFeatures; i++) {
