@@ -30,17 +30,25 @@ static void showPage(FormType *frm, UInt16 page, Boolean visible) {
     id = FrmGetObjectId(frm, index);
     if (id > 2000 && id < 10000) {
       if (FrmGetObjectType(frm, index) == frmListObj) continue;
+      if (!(id >= firstId && id <= lastId)) {
+        if (visible) {
+          FrmHideObject(frm, index);
+        } else {
+          FrmSetUsable(frm, index, false);
+        }
+      }
+    }
+  }
+
+  for (index = 0; index < num; index++) {
+    id = FrmGetObjectId(frm, index);
+    if (id > 2000 && id < 10000) {
+      if (FrmGetObjectType(frm, index) == frmListObj) continue;
       if (id >= firstId && id <= lastId) {
         if (visible) {
           FrmShowObject(frm, index);
         } else {
           FrmSetUsable(frm, index, true);
-        }
-      } else {
-        if (visible) {
-          FrmHideObject(frm, index);
-        } else {
-          FrmSetUsable(frm, index, false);
         }
       }
     }
@@ -131,7 +139,8 @@ Boolean editRegistry(FormType *frm, UInt32 creator, char *name) {
   UInt32 regSize;
   UInt16 page, osversion, density, depth, heapSize, heapAlign, index, id, num, i;
   char buf[16], *text;
-  Boolean littleEndian, enableSound, fastScreenWrite, armScreenWrite, lenientMemCheck, r = false;
+  Boolean littleEndian, enableSound, fastScreenWrite, armScreenWrite, lenientMemCheck;
+  Boolean handspringExt, r = false;
 
   FrmSetTitle(frm, name);
 
@@ -163,6 +172,7 @@ Boolean editRegistry(FormType *frm, UInt32 creator, char *name) {
   fastScreenWrite = regFlagsP ? regFlagsP->flags & regFlagFastScreenWrite : false;
   armScreenWrite  = regFlagsP ? regFlagsP->flags & regFlagARMScreenWrite  : false;
   lenientMemCheck = regFlagsP ? regFlagsP->flags & regFlagLenientMemCheck : false;
+  handspringExt   = regFlagsP ? regFlagsP->flags & regFlagHandspringExt : false;
 
   // set OS version
   index = FrmGetObjectIndex(frm, osList);
@@ -231,6 +241,11 @@ Boolean editRegistry(FormType *frm, UInt32 creator, char *name) {
   index = FrmGetObjectIndex(frm, lenientMemCheckCtl);
   ctl = FrmGetObjectPtr(frm, index);
   CtlSetValue(ctl, lenientMemCheck);
+
+  // set handspringExt
+  index = FrmGetObjectIndex(frm, handspringExtCtl);
+  ctl = FrmGetObjectPtr(frm, index);
+  CtlSetValue(ctl, handspringExt);
 
   FrmSetEventHandler(frm, eventHandler);
   if (FrmDoDialog(frm) == regOkBtn) {
@@ -320,6 +335,14 @@ Boolean editRegistry(FormType *frm, UInt32 creator, char *name) {
       regFlags.flags |= regFlagLenientMemCheck;
     } else {
       regFlags.flags &= ~regFlagLenientMemCheck;
+    }
+
+    index = FrmGetObjectIndex(frm, handspringExtCtl);
+    ctl = FrmGetObjectPtr(frm, index);
+    if (CtlGetValue(ctl)) {
+      regFlags.flags |= regFlagHandspringExt;
+    } else {
+      regFlags.flags &= ~regFlagHandspringExt;
     }
 
     pumpkin_reg_set(creator, regFlagsID, &regFlags, sizeof(RegFlagsType));
