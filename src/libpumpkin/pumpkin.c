@@ -2566,6 +2566,7 @@ int pumpkin_launch(launch_request_t *request) {
   launch_data_t *data;
   client_request_t creq;
   PumpkinPreferencesType prefs;
+  char screator[8], stype[8];
   UInt32 border;
   int i, running, index, wait_ack, maxWidth, maxHeight, r = -1;
 
@@ -2632,6 +2633,9 @@ int pumpkin_launch(launch_request_t *request) {
     if ((data = sys_calloc(1, sizeof (launch_data_t))) != NULL) {
       dbID = DmFindDatabase(0, request->name);
       DmDatabaseInfo(0, dbID, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &type, &creator);
+      pumpkin_id2s(type, stype);
+      pumpkin_id2s(creator, screator);
+      debug(DEBUG_INFO, PUMPKINOS, "launch name \"%s\" dbID 0x%08X type '%s' creator '%s'", request->name, dbID, stype, screator);
       data->creator = creator;
       data->width = APP_SCREEN_WIDTH;
       data->height = APP_SCREEN_HEIGHT;
