@@ -26,6 +26,7 @@ typedef struct FormList {
 typedef struct {
   FormType *currentForm;
   FormList *list;
+  FieldType *activeField;
   Boolean centerDialogs;
 } frm_module_t;
 
@@ -80,6 +81,38 @@ int FrmFinishModule(void) {
   }
 
   return 0;
+}
+
+FieldType *FldGetActiveField(void) {
+  frm_module_t *module = (frm_module_t *)pumpkin_get_local_storage(frm_key);
+
+  return module->activeField;
+}
+
+void FldSetActiveField(FieldType *fldP, Boolean justSet) {
+  frm_module_t *module = (frm_module_t *)pumpkin_get_local_storage(frm_key);
+
+  if (!justSet) {
+    InsPtEnable(false);
+
+    if (fldP) {
+      debug(DEBUG_TRACE, "Form", "FldSetActiveField field %d", fldP->id);
+    } else {
+      debug(DEBUG_TRACE, "Form", "FldSetActiveField field NULL");
+    }
+
+    if (module->activeField) {
+      debug(DEBUG_TRACE, "Form", "FldSetActiveField release current focus");
+      FldReleaseFocus(module->activeField);
+    }
+  }
+
+  module->activeField = fldP;
+
+  if (!justSet && module->activeField) {
+    debug(DEBUG_TRACE, "Form", "FldSetActiveField grab new focus");
+    FldGrabFocus(module->activeField);
+  }
 }
 
 static const char *FrmObjectTypeName(UInt16 type) {
@@ -962,7 +995,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
             if (formP->activeList != -1) break;
             handled = CtlHandleEvent(obj.control, eventP);
             if (handled) {
-              FldSetActiveField(NULL);
+              FldSetActiveField(NULL, false);
               formP->selectedObject = i;
             }
             break;
@@ -970,7 +1003,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
             handled = LstHandleEvent(obj.list, eventP);
             if (handled) {
               FrmReleaseFocus(formP);
-              FldSetActiveField(NULL);
+              FldSetActiveField(NULL, false);
               formP->selectedObject = i;
             }
             break;
@@ -979,7 +1012,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
             handled = SclHandleEvent(obj.scrollBar, eventP);
             if (handled) {
               FrmReleaseFocus(formP);
-              FldSetActiveField(NULL);
+              FldSetActiveField(NULL, false);
               formP->selectedObject = i;
             }
             break;
@@ -987,7 +1020,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
             if (formP->activeList != -1) break;
             handled = TblHandleEvent(obj.table, eventP);
             if (handled) {
-              FldSetActiveField(NULL);
+              FldSetActiveField(NULL, false);
               formP->selectedObject = i;
             }
             break;
@@ -997,7 +1030,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
             RctSetRectFromAddr(&rect, obj.title, 0);
             if (RctPtInRectangle(eventP->screenX, eventP->screenY, &rect)) {
               FrmReleaseFocus(formP);
-              //FldSetActiveField(NULL);
+              //FldSetActiveField(NULL, false);
               formP->selectedObject = i;
               xmemset(&event, 0, sizeof(EventType));
               event.eType = frmTitleEnterEvent;
@@ -1014,7 +1047,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
               if (RctPtInRectangle(eventP->screenX, eventP->screenY, &obj.gadget->rect)) {
                 FrmReleaseFocus(formP);
                 formP->selectedObject = i;
-                FldSetActiveField(NULL);
+                FldSetActiveField(NULL, false);
                 MemSet(&event, sizeof(EventType), 0);
                 event.eType = frmGadgetEnterEvent;
                 event.screenX = eventP->screenX;
@@ -1032,7 +1065,7 @@ Boolean FrmHandleEvent(FormType *formP, EventType *eventP) {
       }
 
       if (!handled) {
-        FldSetActiveField(NULL);
+        FldSetActiveField(NULL, false);
       }
       break;
 
@@ -1428,11 +1461,11 @@ UInt16 FrmGetFocus(const FormType *formP) {
 
 void FrmSetFocus(FormType *formP, UInt16 fieldIndex) {
   if (formP) {
-    FldSetActiveField(NULL);
+    FldSetActiveField(NULL, false);
 
     if (fieldIndex < formP->numObjects) {
       if (formP->objects[fieldIndex].objectType == frmFieldObj) {
-        FldSetActiveField(formP->objects[fieldIndex].object.field);
+        FldSetActiveField(formP->objects[fieldIndex].object.field, false);
       }
     }
   }
@@ -1758,7 +1791,7 @@ static UInt16 FrmDoDialogResponse(FormType *formP, Int32 timeout, UInt16 fieldID
       if (formP->objects[index].objectType == frmFieldObj) {
         obj = formP->objects[index].object;
         if (obj.field->attr.hasFocus) {
-          FldSetActiveField(obj.field);
+          FldSetActiveField(obj.field, false);
           found = true;
           break;
         }
@@ -1766,7 +1799,7 @@ static UInt16 FrmDoDialogResponse(FormType *formP, Int32 timeout, UInt16 fieldID
     }
 
     if (!found) {
-      FldSetActiveField(NULL);
+      FldSetActiveField(NULL, false);
     }
 
     for (stop = false; !stop;) {
@@ -1798,7 +1831,7 @@ static UInt16 FrmDoDialogResponse(FormType *formP, Int32 timeout, UInt16 fieldID
       }
     }
 
-    FldSetActiveField(NULL);
+    FldSetActiveField(NULL, false);
     FrmEraseForm(formP);
     MenuSetActiveMenu(NULL);
     FrmSetActiveForm(previous);
