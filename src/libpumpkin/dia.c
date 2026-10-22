@@ -25,6 +25,21 @@
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
+#elif defined(DOS)
+// MS-DOS: 640x480 VESA screen at double density, laid out like a Tungsten
+// T3: a 640x320 application area over a 160 pixel DIA strip holding the
+// graffiti area (130) and the icon bar (30). The hard-button row of the
+// taskbar artwork is left out (the PC keyboard has those keys), so the
+// 320x94 artwork is clipped to its icon row. The 320 pixel wide artwork is
+// centered in the 640 pixel strip (taskbar_offset / graffiti_offset); the
+// columns outside it are dead space. Values are at low density, dia_init()
+// doubles them.
+#define DIA_WIDTH     320
+#define DIA_HEIGHT    240
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT - BUTTONS_HEIGHT / 2)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
+#define DIA_NO_HARD_BUTTONS 1
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272
@@ -181,7 +196,13 @@ dia_t *dia_init(window_provider_t *wp, window_t *w, int encoding, int depth, int
 
     // the hard-button row in the 160x47 taskbar artwork is 32px tall
     // (icon strip above it is the remaining 15px), on ESP32 as well
+#ifdef DIA_NO_HARD_BUTTONS
+    // no hard-button row: the DIA strip ends with the icon strip and the
+    // hard-button hit zone in dia_clicked() is empty
+    dia->button_height = 0;
+#else
     dia->button_height = BUTTONS_HEIGHT / 2;
+#endif
 
     if (dbl) {
       dia->width *= 2;

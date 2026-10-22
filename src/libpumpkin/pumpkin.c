@@ -65,7 +65,7 @@
 #endif
 
 #define VFS_CARD      "/app_card/"
-#define VFS_INSTALL   "/app_install/"
+#define VFS_INSTALL   VFS_INSTALL_DIR "/"
 
 #define SMALL_HEAP_SIZE (128*1024)
 
@@ -75,11 +75,15 @@
 #define HEAP_SIZE (8*1024*1024)
 #elif defined(LINUX) || defined(ANDROID) || defined(WINDOWS)
 #define HEAP_SIZE (32*1024*1024)
+#elif defined(DOS)
+// 32MB global heap (HEAP_SIZE*8) + 4MB per task: fits a 64MB DOS machine
+// without sending the DPMI host into disk swapping
+#define HEAP_SIZE (4*1024*1024)
 #else
 #define HEAP_SIZE (16*1024*1024)
 #endif
 
-#define APP_STORAGE "/app_storage/"
+#define APP_STORAGE VFS_STORAGE_DIR "/"
 
 #define MAX_PLUGINS 256
 
@@ -549,7 +553,7 @@ void pumpkin_enum_plugins(UInt32 type, void (*callback)(pumpkin_plugin_t *plugin
   }
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 extern pluginMainF ViPluginInit(UInt32 *type, UInt32 *id);
 extern pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id);
 #endif
@@ -565,7 +569,7 @@ void pumpkin_load_plugins(void) {
   pluginMainF pluginMain;
   void *lib;
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
   pluginInit = ViPluginInit;
   if ((pluginMain = pluginInit(&type, &id)) != NULL) {
     pumpkin_register_plugin(type, id, pluginMain);
@@ -2291,7 +2295,7 @@ int pumpkin_launcher(char *name, int width, int height) {
     } else {
       wman_add(pumpkin_module.wm, 0, texture, 0, 0, width, height);
       MemSet(&request, sizeof(launch_request_t), 0);
-#if defined(ANDROID) || defined(KERNEL) || defined(ESP32)
+#if defined(ANDROID) || defined(KERNEL) || defined(ESP32) || defined(DOS)
       extern UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
       request.pilot_main = LauncherPilotMain;
 #endif
@@ -2678,7 +2682,7 @@ static int pumpkin_resume_task(int handle) {
   return r;
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 static void pumpkin_forward_launch_code(UInt32 creator, char *name, UInt16 cmd, launch_union_t *param, UInt16 flags) {
   launch_request_t request;
   launch_msg_t msg;
@@ -2739,7 +2743,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
   int handle, call_sub, m68k, launched;
   uint32_t r = 0;
   void *data;
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
   uint32_t creator = 0;
 #endif
   sys_memset(&creq, 0, sizeof(client_request_t));
@@ -2763,7 +2767,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
       // XXX set sysAppLaunchFlagNewGlobals so that the app initializes properly
       creq.data.launch.flags |= sysAppLaunchFlagNewGlobals;
       break;
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
     case sysAppLaunchCmdSystemReset:
       debug(DEBUG_INFO, PUMPKINOS, "sending launch code %d to \"%s\" using call or message", cmd, name);
       if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator) == errNone) {

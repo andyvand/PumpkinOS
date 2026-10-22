@@ -5911,7 +5911,7 @@ static void EventLoop (void)
  *			ABa 07/04/00	Add the todoLaunchCmdImportVObject launch code (DateBook uses it to import vtodo)
  *
  ***********************************************************************/
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 PUBLIC UInt32   ToDoPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

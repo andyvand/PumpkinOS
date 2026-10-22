@@ -20,6 +20,12 @@
 #include "average.h"
 #include "debug.h"
 
+// the audio provider runs in its own thread, which neither the ESP32 nor the
+// (single threaded) MS-DOS build has
+#if defined(ESP32) || defined(DOS)
+#define LIBSDL_NOAUDIO
+#endif
+
 #define SDL_BUTTON1   1
 #define SDL_BUTTON2   2
 
@@ -167,7 +173,7 @@ static libsdl_keymap_t keymap[] = {
 
 static window_provider_t window_provider;
 
-#ifndef ESP32
+#ifndef LIBSDL_NOAUDIO
 static audio_provider_t audio_provider;
 
 static int libsdl_init_audio(void) {
@@ -1172,7 +1178,7 @@ static int libsdl_window_draw_texture(window_t *_window, texture_t *texture, int
   return r;
 }
 
-#ifndef ESP32
+#ifndef LIBSDL_NOAUDIO
 static void audio_destructor(void *p) {
   sdl_audio_t *audio = (sdl_audio_t *)p;
 
@@ -1547,7 +1553,7 @@ static int set_video_driver(char *video_driver) {
   return 1;
 }
 
-#ifndef ESP32
+#ifndef LIBSDL_NOAUDIO
 static int audio_action(void *_arg) {
   sdl_audio_arg_t *arg = (sdl_audio_arg_t *)_arg;
   SDL_AudioDeviceID dev = 0;
@@ -1698,7 +1704,7 @@ int liblsdl3_load(void) {
     set = set_video_driver("wayland");
   }
 
-#ifndef ESP32
+#ifndef LIBSDL_NOAUDIO
   libsdl_init_audio();
 #endif
 
@@ -1737,7 +1743,7 @@ int liblsdl3_load(void) {
 #endif
   window_provider.drop_file = libsdl_window_drop_file;
 
-#ifndef ESP32
+#ifndef LIBSDL_NOAUDIO
   sys_memset(&audio_provider, 0, sizeof(audio_provider));
   audio_provider.init = libsdl_audio_init;
   audio_provider.finish = libsdl_audio_finish;
@@ -1756,7 +1762,7 @@ int liblsdl3_init(int pe, script_ref_t obj) {
   debug(DEBUG_INFO, "SDL", "registering provider %s", WINDOW_PROVIDER);
   script_set_pointer(pe, WINDOW_PROVIDER, &window_provider);
 
-#ifndef ESP32
+#ifndef LIBSDL_NOAUDIO
   debug(DEBUG_INFO, "SDL", "registering provider %s", AUDIO_PROVIDER);
   script_set_pointer(pe, AUDIO_PROVIDER, &audio_provider);
 #endif

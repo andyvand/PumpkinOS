@@ -1120,7 +1120,7 @@ static void FinishData(void) {
   xfree(data);
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

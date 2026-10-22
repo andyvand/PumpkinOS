@@ -27,13 +27,35 @@ ifneq ($(RCP),)
 RESFLAG=res.flag
 endif
 
-PRC=$(VFS)/app_install/$(PROGRAM).prc
+PRC=$(VFS)/$(VFS_INSTALL_DIR)/$(PROGRAM).prc
 
+ifeq ($(OSNAME),msdosdjgpp)
+# Static build: the application code goes into $(BIN)/lib$(PROGRAM).a (linked
+# into pumpkin.exe by src/msdos) and the PRC only carries the resources. The
+# installed PRC gets an 8.3 file name (the database name comes from the PRC
+# header, not from the file name).
+PRC=$(VFS)/$(VFS_INSTALL_DIR)/$(shell printf '%.8s' $(PROGRAM)).prc
+ifneq ($(OBJS),)
+APPLIB=$(BIN)/lib$(PROGRAM).a
+endif
+
+$(PROGRAM).prc: $(APPLIB) $(RESFLAG) $(RESOPT)
+	@echo Building $(PROGRAM).prc
+	@$(PRCBUILD) -f $(PROGRAM).prc -t $(APPTYPE) -c $(APPID) -n "$(APPNAME)" resources/*
+	@echo Installing $(PROGRAM).prc
+	@cp $(PROGRAM).prc $(PRC)
+
+$(APPLIB): $(OBJS)
+	@echo Creating lib$(PROGRAM).a
+	@rm -f $(APPLIB)
+	@$(AR) -cr $(APPLIB) $(OBJS)
+else
 $(PROGRAM).prc: $(DLIB_OPT) $(RESFLAG) $(RESOPT)
 	@echo Building $(PROGRAM).prc
 	@$(PRCBUILD) -f $(PROGRAM).prc -t $(APPTYPE) -c $(APPID) -n "$(APPNAME)" $(DLIB_OPT) resources/*
 	@echo Installing $(PROGRAM).prc
 	@cp $(PROGRAM).prc $(PRC)
+endif
 
 $(DLIB): $(PROGRAM).dlib
 	@cp $(PROGRAM).dlib $(DLIB)
@@ -71,4 +93,4 @@ res.flag: $(RCP) $(RCPDEP)
 	@touch res.flag
 
 clean:
-	@rm -f $(PRC) $(PROGRAM).prc $(PROGRAM).dlib $(OBJS) $(DLIB) $(STUBS).c $(STUBS_OPT) $(STUBS).txt resources/*.bin *.flag *.mod
+	@rm -f $(PRC) $(PROGRAM).prc $(PROGRAM).dlib $(OBJS) $(DLIB) $(APPLIB) $(STUBS).c $(STUBS_OPT) $(STUBS).txt resources/*.bin *.flag *.mod

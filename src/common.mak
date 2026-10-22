@@ -94,8 +94,13 @@ else
 $(error Missing BITS parameter (must be either 32 or 64))
 endif
 
+ifeq ($(OSNAME),msdosdjgpp)
+AR=i686-pc-msdosdjgpp-ar
+NM=i686-pc-msdosdjgpp-nm -j -u
+else
 AR=ar
 NM=nm -j -u
+endif
 
 ifneq (,$(wildcard /boot/firmware/config.txt))
 RPI=4
@@ -117,7 +122,25 @@ OS=Linux
 OSDEFS=$(MBITS) -DLINUX $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\"
 CC=gcc
 FC=gfortran
-
+else ifeq ($(OSNAME),msdosdjgpp)
+# MS-DOS (DJGPP cross compiler). Everything is linked statically into a
+# single pumpkinos.exe (see src/msdos), there are no shared objects.
+SYS_OS=7
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=DOS
+DJGPP_PREFIX=/usr/local/i686-pc-msdosdjgpp
+OSDEFS=$(MBITS) -march=i586 -mtune=i586 -DDOS -DSOEXT=\"$(SOEXT)\" -Wno-format -Wno-attributes
+CC=i686-pc-msdosdjgpp-gcc
+CPP=i686-pc-msdosdjgpp-g++
+PICFLAG=
+# the DJGPP headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+# 8.3 VFS layout (must match VFS_*_DIR in libpumpkin/pumpkin.h)
+VFS_INSTALL_DIR=app_inst
+VFS_STORAGE_DIR=app_stor
+VFS_PROGRAMS_DIR=PALM/Progs
 else ifeq ($(OSNAME),Darwin)
 SYS_OS=1
 SOEXT=.dylib
@@ -207,11 +230,18 @@ endif
 EM_CC=emcc
 EM_AR=emar
 
+# VFS layout (see VFS_*_DIR in libpumpkin/pumpkin.h)
+VFS_INSTALL_DIR?=app_install
+VFS_STORAGE_DIR?=app_storage
+VFS_PROGRAMS_DIR?=PALM/Programs
+
 ifeq ($(TYPE),release)
 OPTIMIZATION=-O2
 #MUTE_DEBUG=-DMUTE_DEBUG
 ifeq ($(OSNAME),Darwin)
 STRIP=echo
+else ifeq ($(OSNAME),msdosdjgpp)
+STRIP=i686-pc-msdosdjgpp-strip
 else
 STRIP=strip
 endif
@@ -223,8 +253,10 @@ STRIP=echo
 endif
 
 SYSDEFS=-DSYS_CPU=$(SYS_CPU) -DSYS_SIZE=$(SYS_SIZE) -DSYS_OS=$(SYS_OS) -DSYS_ENDIAN=$(SYS_ENDIAN)
-CPPFLAGS=-Wall -Wno-unknown-pragmas -fsigned-char -Wno-multichar $(OPTIMIZATION) -fPIC -fno-stack-protector -I$(LIBPIT) -DSYSTEM_NAME=\"$(SYSNAME)\" -DSYSTEM_VERSION=\"$(VERSION)\" -DSYSTEM_OS=\"$(OS)\" -DAPPNAME="\"$(APPNAME)\"" -DAPPID=\'$(APPID)\' $(CUSTOMFLAGS) $(SYSDEFS) $(OSDEFS) $(MUTE_DEBUG) -DLOGTRAP_SYS
-CFLAGS=$(CPPFLAGS) -ffreestanding -std=c99
+PICFLAG?=-fPIC
+CPPFLAGS=-Wall -Wno-unknown-pragmas -fsigned-char -Wno-multichar $(OPTIMIZATION) $(PICFLAG) -fno-stack-protector -I$(LIBPIT) -DSYSTEM_NAME=\"$(SYSNAME)\" -DSYSTEM_VERSION=\"$(VERSION)\" -DSYSTEM_OS=\"$(OS)\" -DAPPNAME="\"$(APPNAME)\"" -DAPPID=\'$(APPID)\' $(CUSTOMFLAGS) $(SYSDEFS) $(OSDEFS) $(MUTE_DEBUG) -DLOGTRAP_SYS
+CSTD?=-std=c99
+CFLAGS=$(CPPFLAGS) -ffreestanding $(CSTD)
 HOSTCFLAGS=-Wall
 FFLAGS=-fPIC $(OPTIMIZATION)
 

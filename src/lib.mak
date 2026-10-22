@@ -15,6 +15,7 @@ LIB=$(BIN)/$(PROGRAM)
 
 $(LIB)$(EXT):
 
+ifeq ($(STATIC),)
 ifeq ($(OSNAME),Msys)
 $(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
 	@echo Linking $(PROGRAM)$(SOEXT)
@@ -31,6 +32,7 @@ $(LIB)$(SOEXT): $(EXTDEPS) $(OBJS)
 	@echo Linking $(PROGRAM)$(SOEXT)
 	@$(CC) $(OSDEFS) -shared -o $(LIB)$(SOEXT) $(OBJS) -L$(BIN) -lpit $(LIBS)
 	@$(STRIP) $(LIB)$(SOEXT)
+endif
 endif
 
 $(LIB).a: $(OBJS)

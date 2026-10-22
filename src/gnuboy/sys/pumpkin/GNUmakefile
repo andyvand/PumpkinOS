@@ -97,11 +97,25 @@ OS=Android
 OSDEFS=$(ANDROID_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -DANDROID -DSOEXT=\"$(SOEXT)\"
 CC=$(NDK)/bin/clang
 LINKFLAGS = -shared
+else ifeq ($(OSNAME),msdosdjgpp)
+# MS-DOS: static library linked into pumpkinos.exe by src/msdos, the PRC
+# only carries the resources (see src/app.mak)
+SYS_OS = 7
+CC = i686-pc-msdosdjgpp-gcc
+AR = i686-pc-msdosdjgpp-ar
+STATIC = 1
+OSDEFS = -DDOS -Wno-format -Wno-attributes
+# 8.3 VFS layout (see VFS_*_DIR in libpumpkin/pumpkin.h)
+INSTALL_DIR = app_inst
+PRCFILE = $(shell printf '%.8s' $(PROGRAM)).prc
 else
 CC = gcc
 LINKFLAGS = -shared
 OSDEFS = -DLINUX
 endif
+
+INSTALL_DIR ?= app_install
+PRCFILE ?= $(PROGRAM).prc
 
 PUMPDEFS = -DSYS_CPU=$(SYS_CPU) -DSYS_SIZE=$(SYS_SIZE) -DSYS_OS=$(SYS_OS) \
            -DSYS_ENDIAN=$(SYS_ENDIAN) -DUNIX
@@ -113,8 +127,13 @@ PUMPKIN_INCLUDES = -I. -I$(PUMPKIN)/src/libpit -I$(PUMPKIN)/src/libpumpkin -I$(P
            -I$(PALMOS)/Core/Hardware -I$(PALMOS)/Extensions/ExpansionMgr
 
 OPT ?= -O3
+ifeq ($(STATIC),1)
+PICFLAG =
+else
+PICFLAG = -fPIC
+endif
 COMMONFLAGS = -std=gnu11 -Wall -Wno-unknown-pragmas -Wno-unused-function -Wno-multichar \
-              -fsigned-char -fPIC $(OPT) -DGNUBOY_PUMPKIN -DIS_LITTLE_ENDIAN -D_GNU_SOURCE $(OSDEFS)
+              -fsigned-char $(PICFLAG) $(OPT) -DGNUBOY_PUMPKIN -DIS_LITTLE_ENDIAN -D_GNU_SOURCE $(OSDEFS)
 
 # the emulator core only sees the gnuboy tree (its sys.h/debug.h clash
 # with the libpit headers of the same name)
@@ -164,6 +183,21 @@ res.flag: resource.rcp resource.h gnuboy.bmp
 	@$(PILRC) resource.rcp resources
 	@touch res.flag
 
+ifeq ($(STATIC),1)
+APPLIB = $(PUMPKIN)/bin/lib$(PROGRAM).a
+
+$(APPLIB): $(OBJS)
+	@echo Creating lib$(PROGRAM).a
+	@rm -f $(APPLIB)
+	@$(AR) -cr $(APPLIB) $(OBJS)
+
+$(PROGRAM).prc: $(APPLIB) res.flag
+	@echo Building $(PROGRAM).prc
+	@$(PRCBUILD) -f $(PROGRAM).prc -t appl -c $(APPID) -n "$(APPNAME)" resources/*
+	@echo Installing $(PRCFILE) into $(PUMPKIN)/vfs/$(INSTALL_DIR)
+	@mkdir -p $(PUMPKIN)/vfs/$(INSTALL_DIR)
+	@cp $(PROGRAM).prc $(PUMPKIN)/vfs/$(INSTALL_DIR)/$(PRCFILE)
+else
 $(PROGRAM).prc: $(PROGRAM).dlib res.flag
 	@echo Building $(PROGRAM).prc
 	@cp $(PROGRAM).dlib $(DLIB)
@@ -172,8 +206,9 @@ $(PROGRAM).prc: $(PROGRAM).dlib res.flag
 	@echo Installing $(PROGRAM).prc into $(PUMPKIN)/vfs/app_install
 	@mkdir -p $(PUMPKIN)/vfs/app_install
 	@cp $(PROGRAM).prc $(PUMPKIN)/vfs/app_install/
+endif
 
 clean:
-	rm -rf $(OBJDIR) resources res.flag $(PROGRAM).dlib $(PROGRAM).prc $(DLIB)
+	rm -rf $(OBJDIR) resources res.flag $(PROGRAM).dlib $(PROGRAM).prc $(DLIB) $(APPLIB)
 
 .PHONY: all clean

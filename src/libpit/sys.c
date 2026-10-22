@@ -43,10 +43,13 @@
 #endif
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #define __USE_GNU
+#ifndef DOS
 #include <pthread.h>
+#endif
 #undef __USE_GNU
 #include <signal.h>
 #include <sys/time.h>
@@ -79,7 +82,9 @@
 #include <sys/statvfs.h>
 #endif
 #else
+#ifndef DOS
 #include <sys/syscall.h>
+#endif
 
 #if defined(DARWIN)
 #include <sys/mount.h>
@@ -91,11 +96,50 @@
 #include <sys/vfs.h>
 #endif
 #endif
+
 #include <sys/wait.h>
+
+#ifndef DOS
 #include <arpa/inet.h>
+#endif
+
 #include <netinet/in.h>
+
+#ifndef DOS
 #include <netinet/tcp.h>
 #include <netdb.h>
+#endif
+#endif
+
+#ifdef DOS
+// DJGPP has neither struct timespec nor clock_gettime: emulate them with
+// gettimeofday (wall clock) and uclock (high resolution monotonic clock)
+struct timespec {
+  time_t tv_sec;
+  long tv_nsec;
+};
+typedef int clockid_t;
+#define CLOCK_REALTIME  0
+#define CLOCK_MONOTONIC 1
+#define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
+#define _POSIX_TIMERS 1
+
+static int clock_gettime(clockid_t clockid, struct timespec *tp) {
+  struct timeval tv;
+  uclock_t uc;
+
+  if (clockid == CLOCK_MONOTONIC) {
+    uc = uclock();
+    tp->tv_sec = uc / UCLOCKS_PER_SEC;
+    tp->tv_nsec = (long)(((uc % UCLOCKS_PER_SEC) * 1000000000LL) / UCLOCKS_PER_SEC);
+  } else {
+    gettimeofday(&tv, NULL);
+    tp->tv_sec = tv.tv_sec;
+    tp->tv_nsec = tv.tv_usec * 1000L;
+  }
+
+  return 0;
+}
 #endif
 
 #if defined(DARWIN)
@@ -751,7 +795,7 @@ uint32_t sys_get_tid(void) {
 #if defined(EMSCRIPTEN)
   return 0;
 #endif
-#if defined(KERNEL) || defined(ESP32)
+#if defined(KERNEL) || defined(ESP32) || defined(DOS)
   return 0;
 #endif
 }
@@ -915,6 +959,25 @@ int sys_readdir(sys_dir_t *dir, char *name, int len) {
 
   return 0;
 }
+
+#ifdef DOS
+// Like sys_readdir but also returns whether the entry is a directory, taken
+// from the DJGPP dirent d_type. This lets the caller avoid stat() while
+// enumerating: on DOS stat() uses the same findfirst/findnext DTA as
+// readdir(), so stat()ing each entry mid-loop corrupts the enumeration and
+// truncates large directories.
+int sys_readdir_isdir(sys_dir_t *dir, char *name, int len, int *isdir) {
+  struct dirent *ent;
+  errno = 0;
+  if ((ent = readdir(dir->dir)) == NULL) {
+    if (errno) debug_errno("SYS", "readdir");
+    return -1;
+  }
+  sys_strncpy(name, ent->d_name, len);
+  if (isdir) *isdir = (ent->d_type == DT_DIR) ? 1 : 0;
+  return 0;
+}
+#endif
 
 int sys_rewinddir(sys_dir_t *dir) {
   int r = -1;
@@ -1284,6 +1347,10 @@ int sys_select(int fd, uint32_t us) {
 
   ptr_unlock(fd, TAG_FD);
   return r;
+#elif defined(DOS)
+  // DJGPP: select() is only meaningful for devices and there are no
+  // sockets, a file descriptor is always ready
+  return 1;
 #else
   return socket_select(fd, us, 1);
 #endif
@@ -1503,9 +1570,12 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
   return r;
 
 #else
+#ifndef DOS
+  // DJGPP: read() never blocks on DOS files, skip the select
   if ((r = sys_select(fd, us)) <= 0) {
     return r;
   }
+#endif
 
   if ((r = read(fd, buf, len)) < 0) {
     debug_errno("SYS", "read");
@@ -1779,7 +1849,7 @@ fail:
   if (w != INVALID_SOCKET) closesocket(w);
 
   return -1;
-#elif defined(KERNEL) || defined(ESP32)
+#elif defined(KERNEL) || defined(ESP32) || defined(DOS)
   return -1;
 #else
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == -1) {
@@ -1804,7 +1874,7 @@ int sys_peek(int fd) {
     return r;
   }
 
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(DOS)
   // XXX how to do this on Windows ?
   char buf;
   if ((r = recv(fd, &buf, 1, MSG_PEEK)) < 0) {
@@ -2166,7 +2236,7 @@ int sys_mkdir(const char *pathname) {
 }
 
 int sys_serial_open(char *device, char *word, int baud) {
-#if defined(KERNEL) || defined(ESP32)
+#if defined(KERNEL) || defined(ESP32) || defined(DOS)
   return -1;
 #elif defined(WINDOWS)
   WCHAR *wbuf = (WCHAR *)sys_malloc((strlen(device) + 1) * sizeof(WCHAR));
@@ -2314,7 +2384,7 @@ int sys_serial_open(char *device, char *word, int baud) {
 }
 
 int sys_serial_baud(int serial, int baud) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   debug(DEBUG_ERROR, "SYS", "sys_serial_baud not implemented");
   return -1;
 #else
@@ -2386,7 +2456,7 @@ int sys_serial_baud(int serial, int baud) {
 }
 
 int sys_serial_word(int serial, char *word) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   debug(DEBUG_ERROR, "SYS", "sys_serial_word not implemented");
   return -1;
 #else
@@ -2450,7 +2520,7 @@ int sys_serial_word(int serial, char *word) {
 }
 
 void *sys_tty_raw(int fd) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   return NULL;
 #else
   struct termios term;
@@ -2471,7 +2541,7 @@ void *sys_tty_raw(int fd) {
 }
 
 int sys_tty_restore(int fd, void *p) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   return 0;
 #else
   int r = -1;
@@ -2486,7 +2556,7 @@ int sys_tty_restore(int fd, void *p) {
 }
 
 int sys_termsize(int fd, int *cols, int *rows) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   return -1;
 #else
   struct winsize ws;
@@ -2513,7 +2583,7 @@ void sys_srand(unsigned int seed) {
 }
 
 int sys_isatty(int fd) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   return 0;
 #else
   return isatty(fd);
@@ -2521,7 +2591,7 @@ int sys_isatty(int fd) {
 }
 
 int sys_daemonize(void) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   return -1;
 #else
   pid_t pid;
@@ -2814,7 +2884,7 @@ int sys_set_thread_name(char *name) {
   return 0;
 }
 
-#if !defined(WINDOWS) && !defined(KERNEL)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS)
 static void sys_set_signals(int op) {
   sigset_t set;
 
@@ -2822,9 +2892,11 @@ static void sys_set_signals(int op) {
   sigaddset(&set, SIGINT);
   sigaddset(&set, SIGTERM);
   sigaddset(&set, SIGQUIT);
+#ifndef DOS
   sigaddset(&set, SIGTTIN);
   sigaddset(&set, SIGTTOU);
   sigaddset(&set, SIGCHLD);
+#endif
   sigaddset(&set, SIGUSR1);
   sigaddset(&set, SIGUSR2);
 
@@ -2833,13 +2905,13 @@ static void sys_set_signals(int op) {
 #endif
 
 void sys_block_signals(void) {
-#if !defined(WINDOWS) && !defined(KERNEL)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS)
   sys_set_signals(SIG_BLOCK);
 #endif
 }
 
 void sys_unblock_signals(void) {
-#if !defined(WINDOWS) && !defined(KERNEL)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS)
   sys_set_signals(SIG_UNBLOCK);
 #endif
 }
@@ -3041,7 +3113,7 @@ void sys_set_finish(int status) {
   thread_set_flags(FLAG_FINISH);
 }
 
-#ifndef KERNEL
+#if !(defined(KERNEL) || defined(DOS)) && !defined(DOS)
 
 static const char *sys_inet_ntop(int af, const void *a0, char *s, uint32_t l) {
   const unsigned char *a = a0;
@@ -3310,7 +3382,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
 #endif
 
 uint32_t sys_socket_ipv4(char *host) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   struct sockaddr_storage a;
@@ -3328,14 +3400,14 @@ uint32_t sys_socket_ipv4(char *host) {
 }
 
 int sys_socket_fill_addr(void *a, char *host, int port, int *len) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   return sys_tcpip_fill_addr((struct sockaddr_storage *)a, host, port, len, 0);
 #endif
 }
 
-#if !defined(KERNEL)
+#if !(defined(KERNEL) || defined(DOS))
 
 static int sys_tcpip_type(int *type, int *proto) {
   switch (*type) {
@@ -3431,7 +3503,7 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
 #endif
 
 int sys_socket_open_connect_timeout(char *host, int port, int type, uint32_t us) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #elif defined(WINDOWS)
   int sock;
@@ -3451,7 +3523,7 @@ int sys_socket_open_connect(char *host, int port, int type) {
 }
 
 int sys_socket_open(int type, int ipv6) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   int sock, addrlen;
@@ -3473,7 +3545,7 @@ int sys_socket_connect(int sock, char *host, int port) {
   fd_t *f;
 #endif
 
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   struct sockaddr_storage addr;
@@ -3511,7 +3583,7 @@ int sys_socket_connect(int sock, char *host, int port) {
 #endif
 }
 
-#if !defined(KERNEL)
+#if !(defined(KERNEL) || defined(DOS))
 static int sys_tcpip_bind(int sock, char *host, int *pport) {
   struct sockaddr_storage addr;
   struct sockaddr_in *addr4;
@@ -3608,7 +3680,7 @@ static int sys_tcpip_bind(int sock, char *host, int *pport) {
 #endif
 
 int sys_socket_binds(int sock, char *host, int *port) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #elif defined(WINDOWS)
   fd_t *f;
@@ -3629,7 +3701,7 @@ int sys_socket_binds(int sock, char *host, int *port) {
 }
 
 int sys_socket_listen(int sock, int n) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   if (listen(sock, n) == -1) {
@@ -3642,7 +3714,7 @@ int sys_socket_listen(int sock, int n) {
 }
 
 int sys_socket_bind(char *host, int *port, int type) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   struct sockaddr_storage addr;
@@ -3672,7 +3744,7 @@ int sys_socket_bind(char *host, int *port, int type) {
 #endif
 }
 
-#if !defined(KERNEL)
+#if !(defined(KERNEL) || defined(DOS))
 static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int port, int type) {
   struct sockaddr_storage src_addr, addr;
   int sock, addrlen, src_ipv6, ipv6, reuse, len;
@@ -3681,7 +3753,7 @@ static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int 
     return -1;
   }
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(DOS)
   reuse = 1;
   if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse, sizeof(reuse)) == -1) {
     debug_errno("SYS", "setsockopt SO_REUSEADDR");
@@ -3715,7 +3787,7 @@ static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int 
 #endif
 
 int sys_socket_bind_connect(char *src_host, int src_port, char *host, int port, int type) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #elif defined(WINDOWS)
   int sock;
@@ -3730,7 +3802,7 @@ int sys_socket_bind_connect(char *src_host, int src_port, char *host, int port, 
 #endif
 }
 
-#if !defined(KERNEL)
+#if !(defined(KERNEL) || defined(DOS))
 static int sys_tcpip_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *tv, int nf) {
   struct sockaddr_storage addr;
   struct sockaddr_in *addr4;
@@ -3789,7 +3861,7 @@ static int sys_tcpip_accept(int sock, char *host, int hlen, int *port, sys_timev
 #endif
 
 int sys_socket_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *tv) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #elif defined(WINDOWS)
   fd_t *f;
@@ -3811,7 +3883,7 @@ int sys_socket_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *
 #endif
 }
 
-#if !defined(KERNEL)
+#if !(defined(KERNEL) || defined(DOS))
 static int sys_tcpip_sendto(int sock, char *host, int port, unsigned char *buf, int n) {
   struct sockaddr_storage addr;
   int len, r;
@@ -3844,14 +3916,14 @@ int sys_socket_sendto(int sock, char *host, int port, unsigned char *buf, int n)
   }
 
   ptr_unlock(sock, TAG_FD);
-#elif !defined(KERNEL)
+#elif !(defined(KERNEL) || defined(DOS))
   r = sys_tcpip_sendto(sock, host, port, buf, n);
 #endif
 
   return r;
 }
 
-#if !defined(KERNEL)
+#if !(defined(KERNEL) || defined(DOS))
 static int sys_tcpip_recvfrom(int sock, char *host, int hlen, int *port, unsigned char *buf, int n, sys_timeval_t *tv, int nf) {
   struct sockaddr_storage addr;
   struct sockaddr_in *addr4;
@@ -3911,7 +3983,7 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
   }
 
   ptr_unlock(sock, TAG_FD);
-#elif !defined(KERNEL)
+#elif !(defined(KERNEL) || defined(DOS))
   r = sys_tcpip_recvfrom(sock, host, hlen, port, buf, n, tv, 1);
 #endif
 
@@ -3919,7 +3991,7 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
 }
 
 int sys_setsockopt(int sock, int level, int optname, const void *optval, int optlen) {
-#if defined(KERNEL)
+#if (defined(KERNEL) || defined(DOS))
   return -1;
 #else
   int ilevel, ioptname, r = -1;
@@ -3989,7 +4061,7 @@ int sys_socket_shutdown(int sock, int dir) {
   }
 
   ptr_unlock(sock, TAG_FD);
-#elif !defined(KERNEL)
+#elif !(defined(KERNEL) || defined(DOS))
   int d = 0;
 
   if (dir & SYS_SHUTDOWN_RD) d |= SHUT_RD;
@@ -4002,7 +4074,7 @@ int sys_socket_shutdown(int sock, int dir) {
 }
 
 int sys_fork_exec(char *filename, char *argv[], int fd) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   return -1;
 #else
   char *envp[] = { NULL };
@@ -4267,7 +4339,12 @@ int sys_mkstemp(void) {
 #endif
 
   sys_memset(buf, 0, sizeof(buf));
+#ifdef DOS
+  // 8.3 file name
+  sys_snprintf(buf, sizeof(buf) - 1, "%stXXXXXX", sys_tmpdir);
+#else
   sys_snprintf(buf, sizeof(buf) - 1, "%stmpXXXXXX", sys_tmpdir);
+#endif
 #if defined(_MSC_VER)
 #if __STDC_WANT_SECURE_LIB__
   sys_strncpy(temppath, buf, FILE_PATH);
@@ -4354,7 +4431,7 @@ int sys_sscanf(const char *str, const char *format, ...) {
 }
 
 sys_size_t sys_getpagesize(void) {
-#if defined(WINDOWS) || defined(KERNEL)
+#if defined(WINDOWS) || defined(KERNEL) || defined(DOS)
   return 4096; // XXX
 #else
   return sysconf(_SC_PAGE_SIZE);

@@ -81,7 +81,17 @@ static void buildpath(vfs_module_t *module, UInt16 volRefNum, char *dst, char *s
   }
 
   if (StrNCaselessCompare(s, "palm/programs", 13) == 0) {
-    MemMove(s, "PALM/Programs", 13);
+#ifdef DOS
+    // 8.3 layout: the Programs directory is PALM/Progs
+    char rest[MAX_PATH];
+    StrNCopy(rest, &s[13], MAX_PATH - 1);
+    rest[MAX_PATH - 1] = 0;
+    s[0] = 0;
+    StrNCat(dst, VFS_PROGRAMS_DIR, MAX_PATH - 1);
+    StrNCat(dst, rest, MAX_PATH - 1);
+#else
+    MemMove(s, VFS_PROGRAMS_DIR, 13);
+#endif
   }
 }
 

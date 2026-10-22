@@ -299,9 +299,12 @@ double sys_atan2(double y, double x) {
   return atan2(y, x);
 }
 
+#ifndef DOS
+// the DJGPP libm has no fmodl: the DOS build uses the one in fmodl.c
 long double sys_fmodl(long double x, long double y) {
   return fmodl(x, y);
 }
+#endif
 
 double sys_modf(double x, double *iptr) {
   return modf(x, iptr);

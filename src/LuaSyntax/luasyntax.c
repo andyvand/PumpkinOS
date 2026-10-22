@@ -447,7 +447,7 @@ static void *PluginMain(void *p) {
   return &plugin;
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id)
 #else
 pluginMainF PluginInit(UInt32 *type, UInt32 *id)

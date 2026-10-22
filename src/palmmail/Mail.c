@@ -1834,7 +1834,7 @@ static void EventLoop(mail_app_t *a) {
   } while (event.eType != appStopEvent && !a->stop);
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 UInt32 MailPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

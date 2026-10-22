@@ -1,6 +1,6 @@
 include common.mak
 
-DIRS=../bin ../lib ../tools ../vfs/app_card/PALM/Programs ../vfs/app_install ../vfs/app_storage
+DIRS=../bin ../lib ../tools ../vfs/app_card/$(VFS_PROGRAMS_DIR) ../vfs/$(VFS_INSTALL_DIR) ../vfs/$(VFS_STORAGE_DIR)
 BASE_MODULES=pilrc prcbuild libpit lua libpumpkin libos libshell BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
 
 ifeq ($(OSNAME),GNU/Linux)
@@ -71,6 +71,14 @@ TLS_MODULE=liblopenssl
 endif
 
 EXTRA_MODULES=$(UNICORN_MODULE) $(TLS_MODULE) windows
+
+else ifeq ($(OSNAME),msdosdjgpp)
+
+# MS-DOS/DJGPP: no script engine, no shared libraries. Every application is
+# compiled into a static library and linked, together with libpit, libpumpkin,
+# libos and the SDL3 window provider, into one bin/pumpkinos.exe by src/msdos.
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
+EXTRA_MODULES=msdos
 
 else ifeq ($(OSNAME),Emscripten)
 

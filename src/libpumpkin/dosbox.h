@@ -1,4 +1,4 @@
-#define DOSBOX_LIBRETRO "PALM/Programs/Libretro"
+#define DOSBOX_LIBRETRO VFS_PROGRAMS_DIR "/Libretro"
 #define DOSBOX_HOME     DOSBOX_LIBRETRO "/dosbox"
 
 #define dosboxLaunchCmd sysAppLaunchCmdCustomBase

@@ -70,7 +70,7 @@
 
 #define TAG "GNUBOY"
 
-#define ROM_DIR   "/PALM/Programs/GnuBoy"
+#define ROM_DIR   "/" VFS_PROGRAMS_DIR "/GnuBoy"
 #define SAVE_DIR  ROM_DIR "/saves"
 #define MAX_ROMS  256
 #define MAX_PATH  512
@@ -1306,7 +1306,7 @@ static Boolean chooser_loop(void)
 /* PilotMain                                                          */
 /* ------------------------------------------------------------------ */
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 UInt32 GnuBoyPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

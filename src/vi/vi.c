@@ -4497,7 +4497,7 @@ static void *PluginMain(void *p) {
   return e;
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 pluginMainF ViPluginInit(UInt32 *type, UInt32 *id)
 #else
 pluginMainF PluginInit(UInt32 *type, UInt32 *id)

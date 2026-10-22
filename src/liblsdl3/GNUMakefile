@@ -13,6 +13,9 @@ MIXER_FLAGS=-DSDL_MIXER
 
 ifeq ($(OSNAME),Kernel)
 STATIC=1
+else ifeq ($(OSNAME),msdosdjgpp)
+# DJGPP SDL3 (VESA video / Sound Blaster audio), no SDL3_mixer
+STATIC=1
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

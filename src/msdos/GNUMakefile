@@ -1,0 +1,37 @@
+# PumpkinOS for MS-DOS (DJGPP + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider and every
+# application/plugin static library produced by the other modules into a
+# single, self-contained bin/pumpkin.exe (an 8.3 name, see README.md). Build
+# from src/ with:
+#
+#   make OSNAME=msdosdjgpp MACHINE=i686 -f GNUMakefile
+#
+# At runtime pumpkin.exe expects the vfs/ directory (vfs/app_inst with the
+# .prc files) next to the executable, or given with -vfs <dir>.
+
+include ../common.mak
+
+PROGRAM=$(BIN)/pumpkin.exe
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a
+
+all: $(PROGRAM)
+
+$(PROGRAM): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkin.exe
+	@$(CC) $(MBITS) -o $(PROGRAM) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 $(APPLDFLAGS) -lpit -Wl,--end-group -lSDL3 $(EXTLIBS)
+	@$(STRIP) $(PROGRAM)
+
+clean:
+	@rm -f $(PROGRAM) $(OBJS)

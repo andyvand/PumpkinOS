@@ -64,6 +64,18 @@ extern "C" {
 
 #define BUTTONS_HEIGHT 64
 
+// VFS layout: the application install directory, the storage directory and
+// the card "Programs" directory. MS-DOS keeps every name within 8.3.
+#ifdef DOS
+#define VFS_INSTALL_DIR  "/app_inst"
+#define VFS_STORAGE_DIR  "/app_stor"
+#define VFS_PROGRAMS_DIR "PALM/Progs"
+#else
+#define VFS_INSTALL_DIR  "/app_install"
+#define VFS_STORAGE_DIR  "/app_storage"
+#define VFS_PROGRAMS_DIR "PALM/Programs"
+#endif
+
 // Native size of the DIA artwork (BOOT bitmaps 32500/32501) at low density:
 // the graffiti writing area is 160x65 and the taskbar below it is 160x47
 // (double these at high density). DIA layout and hit-testing must slice the

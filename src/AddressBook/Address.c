@@ -167,7 +167,7 @@ static Boolean	PrvAppLaunchCmdDatabaseInit(DmOpenRef dbP);
  *         art   7/24/95   Initial Revision
  *
  ***********************************************************************/
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 PUBLIC UInt32   AddrPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 PUBLIC UInt32   PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

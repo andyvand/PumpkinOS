@@ -17,6 +17,20 @@ $(PROGRAM): $(OBJS)
 	@echo Creating $(PROGRAM).a
 	@$(ARCMD) $(PROGRAM) $(OBJS)
 
+else ifeq ($(OSNAME),msdosdjgpp)
+
+# MS-DOS: single threaded (threadnull/mutexnull), no script engine (the stub
+# lives in src/msdos/script.c). The DJGPP libc has no sockets: the network
+# code compiles against the stubs in sys.c and fails at runtime. fmodl.o
+# supplies the long double fmod missing from the DJGPP libm.
+PROGRAM=$(BIN)/libpit.a
+OBJS=$(SOURCE:%.c=%.o) threadnull.o mutexnull.o httpc.o httpd.o template.o fmodl.o
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpit.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
 else ifeq ($(OSNAME),Kernel)
 
 PROGRAM=$(BIN)/libpit.a

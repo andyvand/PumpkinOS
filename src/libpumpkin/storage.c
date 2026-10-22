@@ -187,6 +187,70 @@ static storage_handle_t *StoPtrRecoverHandle(void *p) {
   return h;
 }
 
+#ifdef DOS
+// MS-DOS keeps every file name within 8.3:
+// - a database directory is the 8 hex digit FNV-1a hash of the database
+//   name; the name itself is stored in the header file ("name=" line) and
+//   read back from there when the storage is scanned (see StoHeaderName),
+// - a resource file is the 48 bit value type<<16|id written with 11 base 36
+//   digits split as 8.3 (see StoResName / StoParseResName),
+// - a record file already is "%08X.%02X" (unique id, attributes).
+static uint32_t StoNameHash(const uint8_t *s) {
+  uint32_t h = 2166136261u;
+
+  for (; *s; s++) {
+    h ^= *s;
+    h *= 16777619u;
+  }
+
+  return h;
+}
+
+static void StoEscapeName(uint8_t *src, char *dst, int n) {
+  sys_snprintf(dst, n, "%08X", StoNameHash(src));
+  debug(DEBUG_TRACE, "STOR", "StoEscapeName \"%s\" -> \"%s\"", src, dst);
+}
+
+static const char sto_base36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+static void StoResName(uint32_t type, uint32_t id, char *dst) {
+  uint64_t v = (((uint64_t)type) << 16) | (id & 0xFFFF);
+  char digits[11];
+  int i;
+
+  for (i = 10; i >= 0; i--) {
+    digits[i] = sto_base36[v % 36];
+    v /= 36;
+  }
+  sys_memcpy(dst, digits, 8);
+  dst[8] = '.';
+  sys_memcpy(&dst[9], &digits[8], 3);
+  dst[12] = 0;
+}
+
+static int StoParseResName(char *name, uint32_t *type, uint32_t *id) {
+  uint64_t v = 0;
+  int i, c, d;
+
+  if (sys_strlen(name) != 12 || name[8] != '.') return 0;
+
+  for (i = 0; i < 12; i++) {
+    if (i == 8) continue;
+    c = name[i];
+    if (c >= '0' && c <= '9') d = c - '0';
+    else if (c >= 'A' && c <= 'Z') d = c - 'A' + 10;
+    else if (c >= 'a' && c <= 'z') d = c - 'a' + 10;
+    else return 0;
+    v = v * 36 + d;
+  }
+  if (v >> 48) return 0;
+
+  *type = (uint32_t)(v >> 16);
+  *id = (uint32_t)(v & 0xFFFF);
+
+  return 1;
+}
+#else
 static void StoEscapeName(uint8_t *src, char *dst, int n) {
   int i, j;
 
@@ -226,6 +290,7 @@ static void StoUnescapeName(char *src, char *dst, int n) {
 
   debug(DEBUG_TRACE, "STOR", "StoUnescapeName \"%s\" -> \"%s\"", src, dst);
 }
+#endif
 
 static vfs_file_t *StoVfsOpen(vfs_session_t *session, char *path, int mode) {
   return vfs_open(session, path, mode);
@@ -257,6 +322,62 @@ static int StoVfsChecktype(vfs_session_t *session, char *path) {
 
 static void *StoVfsLoadlib(vfs_session_t *session, char *path, int *first_load) {
   return vfs_loadlib(session, path, first_load);
+}
+
+#define MAX_DEPLOY_ELEMENTS 1024
+
+// Create database directory "path". If it already exists (a directory left
+// behind by a previous, possibly incompatible, install that StoInit did not
+// load), empty it so the fresh database starts from a clean directory instead
+// of inheriting orphaned element files. Returns 0 on success, -1 on failure.
+//
+// Without this, DmCreateDatabase failed with EEXIST whenever a stale storage
+// directory was present (e.g. an app_stor/ carried over from an older build),
+// which on MS-DOS left every such database uncreated and its resources (fonts,
+// forms) missing.
+#define STO_NAME_MAX 64
+
+static int StoMkdirClean(storage_t *sto, char *path) {
+  vfs_dir_t *dir;
+  vfs_ent_t *ent;
+  char *names;
+  char buf[VFS_PATH];
+  int i, n;
+
+  // If the directory does not exist yet, create it (the common case).
+  if (StoVfsChecktype(sto->session, path) != VFS_DIR) {
+    return StoVfsMkdir(sto->session, path);
+  }
+
+  // It already exists (a directory left behind by a previous install that
+  // StoInit did not load): empty it so the fresh database starts clean.
+  debug(DEBUG_INFO, "STOR", "reusing existing storage directory \"%s\", purging stale files", path);
+
+  if ((names = sys_malloc(MAX_DEPLOY_ELEMENTS * STO_NAME_MAX)) == NULL) {
+    return 0;
+  }
+
+  // collect the names first, then unlink (removing entries while enumerating
+  // confuses the DOS findfirst/findnext directory walk)
+  if ((dir = StoVfsOpendir(sto->session, path)) != NULL) {
+    for (n = 0; n < MAX_DEPLOY_ELEMENTS;) {
+      if ((ent = StoVfsReaddir(dir)) == NULL) break;
+      if (ent->type != VFS_FILE) continue;
+      sys_strncpy(&names[n * STO_NAME_MAX], ent->name, STO_NAME_MAX - 1);
+      names[n * STO_NAME_MAX + STO_NAME_MAX - 1] = 0;
+      n++;
+    }
+    vfs_closedir(dir);
+
+    for (i = 0; i < n; i++) {
+      sys_snprintf(buf, sizeof(buf) - 1, "%s/%s", path, &names[i * STO_NAME_MAX]);
+      StoVfsUnlink(sto->session, buf);
+    }
+  }
+
+  sys_free(names);
+
+  return 0;
 }
 
 static void storage_name(storage_t *sto, char *name, int file, int id, uint32_t type, uint8_t attr, uint32_t uniqueId, char *buf) {
@@ -301,10 +422,15 @@ static void storage_name(storage_t *sto, char *name, int file, int id, uint32_t 
         for (i = 0; i < 4; i++) {
           if (!((st[i] >= 'a' && st[i] <= 'z') || (st[i] >= 'A' && st[i] <= 'Z') || (st[i] >= '0' && st[i] <= '9'))) st[i] = '_';
         }
+#ifdef DOS
+        buf[n] = '/';
+        StoResName(type, id, &buf[n+1]);
+#else
 		if (sys_strncmp(st, "dlib", 4) == 0)
 			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08X.%d.%s", st, type, id, screator);
 		else
 			sys_snprintf(&buf[n], VFS_PATH - n - 1, "/%s.%08X.%d", st, type, id);
+#endif
       } else {
         sys_snprintf(&buf[n], VFS_PATH-n-1, "/%08X.%02X", uniqueId, attr);
       }
@@ -377,6 +503,11 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
     pumpkin_id2s(db->creator, screator);
     sys_snprintf(buf, sizeof(buf)-1, "ftype=%u\ntype='%4s'\ncreator='%4s'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
       db->ftype, stype, screator, db->attributes, db->uniqueIDSeed, db->version, db->crDate, db->modDate, db->bckDate, db->modNum);
+#ifdef DOS
+    // the directory name is a hash: keep the database name in the header
+    n = (int)sys_strlen(buf);
+    sys_snprintf(&buf[n], sizeof(buf)-1-n, "name=%s\n", db->name);
+#endif
     n = (int)sys_strlen(buf);
     if (vfs_write(f, (uint8_t *)buf, n) == n) {
       r = 0;
@@ -389,14 +520,46 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
   return r;
 }
 
+static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path);
+
 static int StoReadHeader(storage_t *sto, storage_db_t *db) {
+  char buf[VFS_PATH];
+
+  storage_name(sto, db->name, STO_FILE_HEADER, 0, 0, 0, 0, buf);
+  return StoReadHeaderPath(sto, db, buf);
+}
+
+#ifdef DOS
+// read the header of the database stored in directory dirname and recover
+// the database name from its "name=" line
+static int StoHeaderName(storage_t *sto, char *dirname, char *name, int n) {
+  char buf[VFS_PATH];
+  storage_db_t db;
+
+  sys_memset(&db, 0, sizeof(db));
+  sys_snprintf(buf, sizeof(buf)-1, "%s%s/header", sto->path, dirname);
+  if (StoReadHeaderPath(sto, &db, buf) != 0 || db.name[0] == 0) {
+    debug(DEBUG_ERROR, "STOR", "database directory \"%s\" has no name in its header", dirname);
+    return -1;
+  }
+  sys_strncpy(name, db.name, n-1);
+  name[n-1] = 0;
+
+  return 0;
+}
+#endif
+
+static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path) {
   char buf[VFS_PATH];
   char stype[8], screator[8];
   vfs_file_t *f;
+#ifdef DOS
+  char *p;
+  int i;
+#endif
   int r = -1;
 
-  storage_name(sto, db->name, STO_FILE_HEADER, 0, 0, 0, 0, buf);
-  if ((f = StoVfsOpen(sto->session, buf, VFS_READ)) != NULL) {
+  if ((f = StoVfsOpen(sto->session, path, VFS_READ)) != NULL) {
     sys_memset(buf, 0, sizeof(buf));
     if (vfs_read(f, (uint8_t *)buf, sizeof(buf)-1) > 0) {
       if (sys_sscanf(buf, "ftype=%u\ntype='%c%c%c%c'\ncreator='%c%c%c%c'\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
@@ -406,6 +569,14 @@ static int StoReadHeader(storage_t *sto, storage_db_t *db) {
         pumpkin_s2id(&db->type, stype);
         screator[4] = 0;
         pumpkin_s2id(&db->creator, screator);
+#ifdef DOS
+        if ((p = sys_strstr(buf, "\nname=")) != NULL) {
+          for (p += 6, i = 0; p[i] && p[i] != '\n' && i < dmDBNameLength-1; i++) {
+            db->name[i] = p[i];
+          }
+          db->name[i] = 0;
+        }
+#endif
         r = 0;
       } else {
         debug(DEBUG_ERROR, "STOR", "invalid header \"%s\"", buf);
@@ -722,7 +893,14 @@ int StoInit(char *path, mutex_t *mutex) {
             sto = NULL;
             break;
           }
+#ifdef DOS
+          if (StoHeaderName(sto, ent->name, db->name, dmDBNameLength) != 0) {
+            pumpkin_heap_free(db, "storage_db");
+            continue;
+          }
+#else
           StoUnescapeName(ent->name, db->name, dmDBNameLength);
+#endif
           db->next = sto->list;
           if (StoReadHeader(sto, db) != 0) {
             pumpkin_heap_free(db, "storage_db");
@@ -769,7 +947,11 @@ int StoRefresh(void) {
         for (;;) {
           ent = StoReadEnt(dir);
           if (ent == NULL) break;
+#ifdef DOS
+          if (StoHeaderName(sto, ent->name, name, dmDBNameLength) != 0) continue;
+#else
           StoUnescapeName(ent->name, name, dmDBNameLength);
+#endif
           for (old = oldList, found = 0; old && !found; old = old->next) {
             found = sys_strncmp(old->name, name, sys_strlen(name)) == 0;
           }
@@ -994,6 +1176,10 @@ Err DmSetDatabaseInfo(UInt16 cardNo, LocalID  dbID, const Char *nameP,
           storage_name(sto, (char *)nameP, 0, 0, 0, 0, 0, buf2);
           if (StoVfsRename(sto->session, buf1, buf2) == 0) {
             sys_strncpy(db->name, nameP, dmDBNameLength - 1);
+#ifdef DOS
+            // the header carries the name, update it in the renamed directory
+            StoWriteHeader(sto, db);
+#endif
             err = errNone;
           }
         } else {
@@ -1247,7 +1433,7 @@ Err DmCreateDatabaseEx(const Char *nameP, UInt32 creator, UInt32 type, UInt16 at
             return err;
           }
           storage_name(sto, (char *)nameP, 0, 0, 0, 0, 0, buf);
-          if (StoVfsMkdir(sto->session, buf) == -1) {
+          if (StoMkdirClean(sto, buf) == -1) {
             pumpkin_heap_free(db, "storage_db");
             mutex_unlock(sto->mutex);
             return err;
@@ -1265,7 +1451,7 @@ Err DmCreateDatabaseEx(const Char *nameP, UInt32 creator, UInt32 type, UInt16 at
           return err;
         }
         storage_name(sto, (char *)nameP, 0, 0, 0, 0, 0, buf);
-        if (StoVfsMkdir(sto->session, buf) == -1) {
+        if (StoMkdirClean(sto, buf) == -1) {
           pumpkin_heap_free(db, "storage_db");
           mutex_unlock(sto->mutex);
           return err;
@@ -1478,9 +1664,12 @@ static int StoMapResources(storage_t *sto, storage_db_t *db) {
   vfs_dir_t *dir;
   vfs_ent_t *ent;
   char buf[VFS_PATH];
+#ifndef DOS
   char st[8];
+  int n;
+#endif
   uint32_t type, id;
-  int n, r = -1;
+  int r = -1;
 
   if (db->elements == NULL) {
     storage_name(sto, db->name, 0, 0, 0, 0, 0, buf);
@@ -1490,10 +1679,16 @@ static int StoMapResources(storage_t *sto, storage_db_t *db) {
         if (ent == NULL) break;
         if (ent->type != VFS_FILE) continue;
         if (!sys_strcmp(ent->name, ".") || !sys_strcmp(ent->name, "..")) continue;
+#ifdef DOS
+        if (StoParseResName(ent->name, &type, &id)) {
+          StoAddRes(sto, db, type, id, ent->size);
+        }
+#else
         st[4] = 0;
         if ((n = sys_sscanf(ent->name, "%c%c%c%c.%08X.%d", st, st+1, st+2, st+3, &type, &id)) == 6) {
           StoAddRes(sto, db, type, id, ent->size);
         }
+#endif
       }
       vfs_closedir(dir);
       StoSortHandles(db);

@@ -43,6 +43,19 @@ systrap.wasm: systrap.c switch.c
 	@echo Compiling $<
 	@$(EM_CC) $(CFLAGS) -c systrap.c -o systrap.wasm
 
+else ifeq ($(OSNAME),msdosdjgpp)
+
+PROGRAM=$(BIN)/libpumpkin.a
+OBJS=$(SOURCE:%.c=%.o)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpumpkin.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
+systrap.o: systrap.c switch.c
+	@echo Compiling $<
+	@$(CC) $(CFLAGS) -c systrap.c -o systrap.o
+
 else ifeq ($(OSNAME),Kernel)
 
 LAUNCHER=$(SRC)/Launcher

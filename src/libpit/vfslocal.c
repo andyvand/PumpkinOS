@@ -17,6 +17,17 @@ typedef struct vfs_priv_t {
   char path[VFS_PATH];
   char aux[VFS_PATH];
   sys_dir_t *dir;
+#ifdef DOS
+  // On DOS the directory is snapshotted at opendir time (see
+  // vfs_local_opendir): names and dir-flags are read with readdir only, then
+  // the handle is closed, so that the per-entry stat() done later in
+  // vfs_local_readdir cannot corrupt the findfirst/findnext enumeration (both
+  // share the DOS DTA; stat()ing mid-loop truncated large directories).
+  char (*names)[16];
+  uint8_t *isdir;
+  int nnames;
+  int iname;
+#endif
 } vfs_priv_t;
 
 typedef struct vfs_fpriv_t {
@@ -162,25 +173,66 @@ static vfs_ent_t *vfs_local_readdir(vfs_priv_t *priv) {
   char name[FILE_PATH];
   sys_stat_t st;
 
-  if (!priv || !priv->dir) {
+  if (!priv) {
     return NULL;
   }
+#ifndef DOS
+  if (!priv->dir) {
+    return NULL;
+  }
+#endif
 
   for (;;) {
-    if (sys_readdir(priv->dir, name, sizeof(name)-1) == -1) {
+#ifdef DOS
+    // Return the next entry from the snapshot taken at opendir time, then
+    // stat() it for size/times. The enumeration is already complete and the
+    // directory handle closed, so this stat() cannot corrupt it.
+    int isdir;
+    if (priv->iname >= priv->nnames) {
       return NULL;
+    }
+    sys_strncpy(name, priv->names[priv->iname], sizeof(name)-1);
+    isdir = priv->isdir[priv->iname];
+    priv->iname++;
+
+    if (name[0] == '.' && (name[1] == 0 || (name[1] == '.' && name[2] == 0))) {
+      continue;
     }
 
     sys_strncpy(priv->aux, priv->path, VFS_PATH-1);
     sys_strncat(priv->aux, name, VFS_PATH-sys_strlen(priv->aux)-1);
 
+    sys_memset(&st, 0, sizeof(st));
     if (sys_stat(priv->aux, &st) == -1) {
+      // fall back to the type from the directory snapshot (size unknown)
+      st.mode = isdir ? SYS_IFDIR : SYS_IFREG;
+    }
+    break;
+#else
+    if (sys_readdir(priv->dir, name, sizeof(name)-1) == -1) {
       return NULL;
+    }
+
+    // skip "." and ".." so they never need to be stat'd (on some DOS/FAT
+    // setups stat of these fails and must not abort the whole enumeration)
+    if (name[0] == '.' && (name[1] == 0 || (name[1] == '.' && name[2] == 0))) {
+      continue;
+    }
+
+    sys_strncpy(priv->aux, priv->path, VFS_PATH-1);
+    sys_strncat(priv->aux, name, VFS_PATH-sys_strlen(priv->aux)-1);
+
+    // a single entry that cannot be stat'd must be skipped, not end the
+    // directory read (otherwise one bad entry hides every entry after it,
+    // which on MS-DOS left StoInit with no databases and deploy with no PRCs)
+    if (sys_stat(priv->aux, &st) == -1) {
+      continue;
     }
 
     if (st.mode & (SYS_IFREG | SYS_IFDIR)) {
       break;
     }
+#endif
   }
 
   sys_memset(&priv->current, 0, sizeof(vfs_ent_t));
@@ -200,9 +252,14 @@ static int vfs_local_rewinddir(vfs_priv_t *priv) {
   int r = -1;
 
   if (priv) {
+#ifdef DOS
+    priv->iname = 0;
+    r = 0;
+#else
     if (priv->dir) {
       r = sys_rewinddir(priv->dir);
     }
+#endif
   }
 
   return r;
@@ -215,6 +272,11 @@ static int vfs_local_closedir(vfs_priv_t *priv) {
     if (priv->dir) {
       r = sys_closedir(priv->dir);
     }
+#ifdef DOS
+    if (priv->names) sys_free(priv->names);
+    if (priv->isdir) sys_free(priv->isdir);
+    r = 0;
+#endif
     xfree(priv);
   }
 
@@ -249,6 +311,38 @@ static vfs_priv_t *vfs_local_opendir(char *path, void *_data) {
     xfree(priv);
     return NULL;
   }
+
+#ifdef DOS
+  // Snapshot the whole directory now, using readdir only (the entry type comes
+  // from the DJGPP dirent, no stat). Then close the handle. vfs_local_readdir
+  // walks this snapshot and stat()s each entry for its size — safe, because the
+  // findfirst/findnext enumeration (which shares the DOS DTA with stat) is
+  // already finished. Without this, stat()ing each entry mid-enumeration
+  // corrupted the DTA and truncated large directories (e.g. Space Trader's
+  // ~625-file database returned only ~85 entries, losing most resources).
+  {
+    char name[FILE_PATH];
+    int isdir, cap = 0;
+
+    for (;;) {
+      if (sys_readdir_isdir(priv->dir, name, sizeof(name)-1, &isdir) == -1) break;
+      if (priv->nnames >= cap) {
+        int ncap = cap ? cap * 2 : 64;
+        char (*nn)[16] = sys_realloc(priv->names, ncap * 16);
+        uint8_t *nd = sys_realloc(priv->isdir, ncap);
+        if (nn == NULL || nd == NULL) { if (nn) priv->names = nn; if (nd) priv->isdir = nd; break; }
+        priv->names = nn; priv->isdir = nd; cap = ncap;
+      }
+      sys_strncpy(priv->names[priv->nnames], name, 15);
+      priv->names[priv->nnames][15] = 0;
+      priv->isdir[priv->nnames] = (uint8_t)isdir;
+      priv->nnames++;
+    }
+    sys_closedir(priv->dir);
+    priv->dir = NULL;
+    priv->iname = 0;
+  }
+#endif
 
   return priv;
 }

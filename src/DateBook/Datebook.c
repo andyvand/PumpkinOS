@@ -1369,7 +1369,7 @@ Char* DateParamString(const Char* inTemplate, const Char* param0,
  *			rbb	11/12/99	Added recentFormFeature to pick default view on launch
  *
  ***********************************************************************/
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 PUBLIC UInt32   DatePilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

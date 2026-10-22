@@ -178,6 +178,9 @@ int sys_daemonize(void);
 sys_dir_t *sys_opendir(const char *pathname);
 
 int sys_readdir(sys_dir_t *dir, char *name, int len);
+#ifdef DOS
+int sys_readdir_isdir(sys_dir_t *dir, char *name, int len, int *isdir);
+#endif
 
 int sys_rewinddir(sys_dir_t *dir);
 

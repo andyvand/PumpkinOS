@@ -421,7 +421,7 @@ static void launcherResetItems(launcher_data_t *data) {
   data->numItems = 0;
 }
 
-#ifdef ESP32
+#if defined(ESP32) || defined(DOS)
 extern UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 CommandPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 MemoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
@@ -471,8 +471,8 @@ static void launcherScanApps(launcher_data_t *data) {
         data->item[i].type = sysFileTApplication;
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
-#ifdef ESP32
-        if (creator == 'pref') {
+#if defined(ESP32) || defined(DOS)
+        if (creator == 'Pref') {
             data->item[i].pilot_main = PrefPilotMain;
         } else if (creator == 'CmdP') {
             data->item[i].pilot_main = CommandPilotMain;
@@ -494,7 +494,7 @@ static void launcherScanApps(launcher_data_t *data) {
             data->item[i].pilot_main = MailPilotMain;
         } else if (creator == 'NetI') {
             data->item[i].pilot_main = NetInstPilotMain;
-#ifdef ESP_GNUBOY
+#if defined(ESP_GNUBOY) || defined(DOS)
         } else if (creator == 'GBoy') {
             data->item[i].pilot_main = GnuBoyPilotMain;
 #endif
@@ -581,8 +581,8 @@ static void launcherScanAppsSmall(launcher_data_t *data) {
         data->item[i].type = sysFileTApplication;
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
-#ifdef ESP32
-        if (creator == 'pref') {
+#if defined(ESP32) || defined(DOS)
+        if (creator == 'Pref') {
             data->item[i].pilot_main = PrefPilotMain;
         } else if (creator == 'CmdP') {
             data->item[i].pilot_main = CommandPilotMain;
@@ -2908,7 +2908,7 @@ static void CheckNotifications(void) {
 
   if (deploy) {
     debug(DEBUG_INFO, "Launcher", "CheckNotifications deploy");
-    pumpkin_deploy_files("/app_install");
+    pumpkin_deploy_files(VFS_INSTALL_DIR);
     reload = true;
   }
 
@@ -3159,7 +3159,7 @@ static void removeWidgets(launcher_data_t *data) {
   }
 }
 
-#if defined(ANDROID) || defined(EMSCRIPTEN) || defined(KERNEL) || defined(ESP32)
+#if defined(ANDROID) || defined(EMSCRIPTEN) || defined(KERNEL) || defined(ESP32) || defined(DOS)
 UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
@@ -3199,6 +3199,9 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
       break;
     case 6:
       debug(DEBUG_INFO, PUMPKINOS, "Host OS is Kernel");
+      break;
+    case 7:
+      debug(DEBUG_INFO, PUMPKINOS, "Host OS is MS-DOS");
       break;
     default:
       debug(DEBUG_ERROR, PUMPKINOS, "Host OS is unknown");

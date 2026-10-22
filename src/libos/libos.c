@@ -224,6 +224,11 @@ static int libos_action(void *arg) {
     // application area = panel height minus the DIA strip (graffiti area +
     // taskbar artwork at native size); must match dia_get_main_dimension()
     height = data->dia ? (data->height - (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)) : data->height;
+#elif defined(DOS)
+    // 640x480 screen: the DIA strip is the graffiti area plus the icon bar
+    // without the hard-button row (160 pixels at double density), leaving a
+    // 640x320 application area; must match dia_get_main_dimension()
+    height = data->dia ? (data->height - (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT - BUTTONS_HEIGHT / 2) * (data->density == kDensityDouble ? 2 : 1)) : data->height;
 #else
     height = data->dia ? ((data->height - BUTTONS_HEIGHT) * 2) / 3 : data->height;
 #endif
@@ -247,7 +252,7 @@ static int libos_action(void *arg) {
     pumpkin_set_depth(data->depth);
 
     debug(DEBUG_INFO, PUMPKINOS, "deploying applications");
-    pumpkin_deploy_files("/app_install");
+    pumpkin_deploy_files(VFS_INSTALL_DIR);
     debug(DEBUG_INFO, PUMPKINOS, "init misc");
     pumpkin_init_misc();
     debug(DEBUG_INFO, PUMPKINOS, "load plugins");
@@ -401,7 +406,7 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
 }
 #endif
 
-#if defined(KERNEL) || defined(ESP32) || defined(ANDROID)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS)
 int libos_start(int pe) {
 #else
 static int libos_start(int pe) {
@@ -541,7 +546,7 @@ static int libos_start(int pe) {
   return r;
 }
 
-#if defined(KERNEL) || defined(ESP32) || defined(ANDROID)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS)
 int libos_app_init(int pe) {
 #else
 static int libos_app_init(int pe) {
