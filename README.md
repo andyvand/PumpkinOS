@@ -9,6 +9,9 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on macOS:
 ![](/screenshots/pumpkinos_macOS.png)
 
+# PumpkinOS running on DOS
+![](/screenshots/PumpkinOS_DOS.png)
+
 # PumpkinOS running on Android:
 ![](/screenshots/pumpkinos_android.jpg)
 
