@@ -95,11 +95,18 @@ static Err stream_callback(void *userdata, SndStreamRef channel, void *buffer, U
 	(void)userdata;
 	(void)channel;
 
+#ifndef DOS
 	/* pace the unthrottled pull loop to real time */
 	now = sys_get_clock();
 	if (pullDue == 0 || pullDue < now - 500000) pullDue = now;
 	if (pullDue > now) sys_usleep((uint32_t)(pullDue - now));
 	pullDue += (int64_t)numberofframes * 1000000 / pcm.hz;
+#else
+	/* MS-DOS: there is no audio thread, the host pulls from the application's
+	   event loop only when its audio queue runs low (already real time paced);
+	   sleeping here would stall the emulator */
+	(void)now;
+#endif
 
 	if (!paused && ringMutex && mutex_lock(ringMutex) == 0) {
 		avail = ringWrite - ringRead;

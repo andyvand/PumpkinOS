@@ -422,6 +422,7 @@ static void launcherResetItems(launcher_data_t *data) {
 }
 
 #if defined(ESP32) || defined(DOS)
+extern UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 CommandPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 MemoPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
@@ -434,6 +435,31 @@ extern UInt32 BrowserPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 MailPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 NetInstPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 GnuBoyPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+
+// PilotMain of a statically linked application (ESP32 and DOS builds, where
+// the applications are linked into the executable and the PRCs only carry
+// the resources), NULL if the creator is not one of them. Also used by
+// pumpkin_launcher() to start an application directly in single-app mode.
+UInt32 (*LauncherStaticPilotMain(UInt32 creator))(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags) {
+  switch (creator) {
+    case 'lnch': return LauncherPilotMain;
+    case 'Pref': return PrefPilotMain;
+    case 'CmdP': return CommandPilotMain;
+    case 'memo': return MemoPilotMain;
+    case 'addr': return AddrPilotMain;
+    case 'todo': return ToDoPilotMain;
+    case 'date': return DatePilotMain;
+    case 'STra': return SpaceTraderPilotMain;
+    case 'mine': return MineHuntPilotMain;
+    case 'Brws': return BrowserPilotMain;
+    case 'PMal': return MailPilotMain;
+    case 'NetI': return NetInstPilotMain;
+#if defined(ESP_GNUBOY) || defined(DOS)
+    case 'GBoy': return GnuBoyPilotMain;
+#endif
+  }
+  return NULL;
+}
 #endif
 
 static void launcherScanApps(launcher_data_t *data) {
@@ -472,33 +498,7 @@ static void launcherScanApps(launcher_data_t *data) {
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
 #if defined(ESP32) || defined(DOS)
-        if (creator == 'Pref') {
-            data->item[i].pilot_main = PrefPilotMain;
-        } else if (creator == 'CmdP') {
-            data->item[i].pilot_main = CommandPilotMain;
-        } else if (creator == 'memo') {
-            data->item[i].pilot_main = MemoPilotMain;
-        } else if (creator == 'addr') {
-            data->item[i].pilot_main = AddrPilotMain;
-        } else if (creator == 'todo') {
-            data->item[i].pilot_main = ToDoPilotMain;
-        } else if (creator == 'date') {
-            data->item[i].pilot_main = DatePilotMain;
-        } else if (creator == 'STra') {
-            data->item[i].pilot_main = SpaceTraderPilotMain;
-        } else if (creator == 'mine') {
-            data->item[i].pilot_main = MineHuntPilotMain;
-        } else if (creator == 'Brws') {
-            data->item[i].pilot_main = BrowserPilotMain;
-        } else if (creator == 'PMal') {
-            data->item[i].pilot_main = MailPilotMain;
-        } else if (creator == 'NetI') {
-            data->item[i].pilot_main = NetInstPilotMain;
-#if defined(ESP_GNUBOY) || defined(DOS)
-        } else if (creator == 'GBoy') {
-            data->item[i].pilot_main = GnuBoyPilotMain;
-#endif
-        }
+        data->item[i].pilot_main = LauncherStaticPilotMain(creator);
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
           if ((nameRes = DmGet1Resource(ainRsc, 1000)) != NULL) {
@@ -582,19 +582,7 @@ static void launcherScanAppsSmall(launcher_data_t *data) {
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
 #if defined(ESP32) || defined(DOS)
-        if (creator == 'Pref') {
-            data->item[i].pilot_main = PrefPilotMain;
-        } else if (creator == 'CmdP') {
-            data->item[i].pilot_main = CommandPilotMain;
-        } else if (creator == 'memo') {
-            data->item[i].pilot_main = MemoPilotMain;
-        } else if (creator == 'addr') {
-            data->item[i].pilot_main = AddrPilotMain;
-        } else if (creator == 'todo') {
-            data->item[i].pilot_main = ToDoPilotMain;
-        } else if (creator == 'date') {
-            data->item[i].pilot_main = DatePilotMain;
-        }
+        data->item[i].pilot_main = LauncherStaticPilotMain(creator);
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
           if ((nameRes = DmGet1Resource(ainRsc, 1000)) != NULL) {

@@ -7,6 +7,7 @@
 #include "sys.h"
 #include "script.h"
 #include "pwindow.h"
+#include "audio.h"
 #include "gpio.h"
 #include "pspi.h"
 #include "secure.h"
@@ -15,6 +16,7 @@
 static void *gpiop = NULL;
 static void *spip = NULL;
 static void *wp = NULL;
+static void *ap = NULL;
 static void *securep = NULL;
 
 // defaults: a 640x480 VESA mode (available on every VESA BIOS) in single
@@ -30,6 +32,9 @@ static int cfg_depth = 16;
 static int cfg_mode = 1;
 static int cfg_dia = 1;
 static int cfg_fullscreen = 1;
+// application started instead of the Launcher (-app <name>), empty = Launcher
+// (libos "app" parameter: does not change the launcher preference)
+static char cfg_launcher[64];
 
 int msdos_script_set(const char *name, int value) {
   if (!sys_strcmp(name, "width")) cfg_width = value;
@@ -45,6 +50,12 @@ int msdos_script_set(const char *name, int value) {
   return 0;
 }
 
+int msdos_script_set_launcher(const char *name) {
+  sys_memset(cfg_launcher, 0, sizeof(cfg_launcher));
+  sys_strncpy(cfg_launcher, name, sizeof(cfg_launcher)-1);
+  return 0;
+}
+
 int script_set_pointer(int pe, char *name, void *p) {
   if (!sys_strcmp(name, GPIO_PROVIDER)) {
     gpiop = p;
@@ -52,6 +63,8 @@ int script_set_pointer(int pe, char *name, void *p) {
     spip = p;
   } else if (!sys_strcmp(name, WINDOW_PROVIDER)) {
     wp = p;
+  } else if (!sys_strcmp(name, AUDIO_PROVIDER)) {
+    ap = p;
   } else if (!sys_strcmp(name, SECURE_PROVIDER)) {
     securep = p;
   }
@@ -68,6 +81,9 @@ void *script_get_pointer(int pe, char *name) {
   }
   if (!sys_strcmp(name, WINDOW_PROVIDER)) {
     return wp;
+  }
+  if (!sys_strcmp(name, AUDIO_PROVIDER)) {
+    return ap;
   }
   if (!sys_strcmp(name, SECURE_PROVIDER)) {
     return securep;
@@ -109,6 +125,12 @@ int script_object_set(int pe, script_ref_t obj, script_arg_t *key, script_arg_t 
 
 int script_object_get(int pe, script_ref_t obj, script_arg_t *key, script_arg_t *value) {
   if (key->type == SCRIPT_ARG_STRING) {
+    if (!sys_strcmp(key->value.s, "app") && cfg_launcher[0]) {
+      value->type = SCRIPT_ARG_LSTRING;
+      value->value.l.s = cfg_launcher;
+      value->value.l.n = sys_strlen(cfg_launcher);
+      return 0;
+    }
     OBJ_INTEGER("density",    cfg_density);
     OBJ_INTEGER("width",      cfg_width);
     OBJ_INTEGER("height",     cfg_height);

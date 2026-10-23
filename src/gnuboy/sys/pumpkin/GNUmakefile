@@ -104,7 +104,9 @@ SYS_OS = 7
 CC = i686-pc-msdosdjgpp-gcc
 AR = i686-pc-msdosdjgpp-ar
 STATIC = 1
-OSDEFS = -DDOS -Wno-format -Wno-attributes
+# same CPU target as $(PUMPKIN)/src/common.mak: the DJGPP default (pentiumpro)
+# emits cmov instructions, which a Pentium/i586 does not have
+OSDEFS = -DDOS -march=i586 -mtune=i586 -Wno-format -Wno-attributes
 # 8.3 VFS layout (see VFS_*_DIR in libpumpkin/pumpkin.h)
 INSTALL_DIR = app_inst
 PRCFILE = $(shell printf '%.8s' $(PROGRAM)).prc

@@ -46,6 +46,7 @@ static void usage(const char *prog) {
   fprintf(stderr, "  -mode <n>      1 = single application (default), 0 = desktop\n");
   fprintf(stderr, "  -dia <0|1>     dynamic input area (default 1)\n");
   fprintf(stderr, "  -window        do not switch to fullscreen\n");
+  fprintf(stderr, "  -app <name>    start this application instead of the Launcher\n");
   fprintf(stderr, "  -vfs <dir>     VFS root directory (default <exe dir>/vfs)\n");
   fprintf(stderr, "  -log <file>    log file (default <exe dir>/pumpkin.log; stderr goes to pumpkin.err)\n");
   fprintf(stderr, "  -d <level>     log level: 0 = errors, 1 = info (default), 2 = trace; <level>:<system> for one system\n");
@@ -81,6 +82,8 @@ int main(int argc, char *argv[]) {
       msdos_script_set("dia", 0);
     } else if (!strcmp(argv[i], "-window")) {
       msdos_script_set("fullscreen", 0);
+    } else if (i < argc-1 && !strcmp(argv[i], "-app")) {
+      msdos_script_set_launcher(argv[++i]);
     } else if (i < argc-1 && !strcmp(argv[i], "-vfs")) {
       vfs_arg = argv[++i];
     } else if (i < argc-1 && !strcmp(argv[i], "-log")) {

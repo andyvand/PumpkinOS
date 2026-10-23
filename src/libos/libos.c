@@ -23,6 +23,7 @@ typedef struct {
   int width, height, density, hdepth, depth, abgr, mono, xfactor, yfactor, rotate;
   int software, fullscreen, fullrefresh, dia, taskbar, mode, osversion;
   char launcher[MAX_STR];
+  char app[MAX_STR]; // single-app mode: application started instead of the launcher
   char driver[MAX_STR];
   window_provider_t *wp;
   audio_provider_t *ap;
@@ -275,8 +276,16 @@ static int libos_action(void *arg) {
     choose_launcher(data);
 
     if (data->mode == 1) {
-      debug(DEBUG_INFO, PUMPKINOS, "starting \"%s\"", data->launcher);
-      pumpkin_launcher(data->launcher, data->width, height);
+      // "app" starts an application directly (without changing the launcher
+      // preference); when it exits PumpkinOS exits
+      if (data->app[0] && DmFindDatabase(0, data->app) != 0) {
+        debug(DEBUG_INFO, PUMPKINOS, "starting \"%s\"", data->app);
+        pumpkin_launcher(data->app, data->width, height);
+      } else {
+        if (data->app[0]) debug(DEBUG_ERROR, PUMPKINOS, "application \"%s\" not found", data->app);
+        debug(DEBUG_INFO, PUMPKINOS, "starting \"%s\"", data->launcher);
+        pumpkin_launcher(data->launcher, data->width, height);
+      }
     } else {
       debug(DEBUG_INFO, PUMPKINOS, "event loop begin");
       EventLoop(data);
@@ -296,7 +305,7 @@ static int libos_action(void *arg) {
 typedef enum {
   PARAM_WIDTH = 1, PARAM_HEIGHT, PARAM_DENSITY, PARAM_HDEPTH, PARAM_DEPTH, PARAM_ABGR, PARAM_XFACTOR, PARAM_YFACTOR, PARAM_ROTATE,
   PARAM_FULLSCREEN, PARAM_DIA, PARAM_TASKBAR, PARAM_MODE, PARAM_SOFTWARE, PARAM_FULLREFRESH,
-  PARAM_DRIVER, PARAM_LAUNCHER, PARAM_OSVERSION, PARAM_DEVICEID, PARAM_COMPANYID, PARAM_LOGTRAP, PARAM_IMMEDIATE, PARAM_OPENGL
+  PARAM_DRIVER, PARAM_LAUNCHER, PARAM_APP, PARAM_OSVERSION, PARAM_DEVICEID, PARAM_COMPANYID, PARAM_LOGTRAP, PARAM_IMMEDIATE, PARAM_OPENGL
 } param_id_t;
 
 typedef struct {
@@ -323,6 +332,7 @@ static param_t params[] = {
   { PARAM_FULLREFRESH,  SCRIPT_ARG_BOOLEAN, "fullrefresh"  },
   { PARAM_DRIVER,       SCRIPT_ARG_LSTRING, "driver"       },
   { PARAM_LAUNCHER,     SCRIPT_ARG_LSTRING, "launcher"     },
+  { PARAM_APP,          SCRIPT_ARG_LSTRING, "app"          },
   { PARAM_OSVERSION,    SCRIPT_ARG_LSTRING, "palmos"       },
   { PARAM_DEVICEID,     SCRIPT_ARG_LSTRING, "deviceID"     },
   { PARAM_COMPANYID,    SCRIPT_ARG_LSTRING, "companyID"    },
@@ -484,6 +494,10 @@ static int libos_start(int pe) {
             case PARAM_LAUNCHER:
               sys_memset(data->launcher, 0, MAX_STR);
               sys_strncpy(data->launcher, v.value.l.s, v.value.l.n < MAX_STR ? v.value.l.n : MAX_STR);
+              break;
+            case PARAM_APP:
+              sys_memset(data->app, 0, MAX_STR);
+              sys_strncpy(data->app, v.value.l.s, v.value.l.n < MAX_STR ? v.value.l.n : MAX_STR-1);
               break;
             default:
               debug(DEBUG_INFO, PUMPKINOS, "making parameter \"%s\" available", params[i].name);

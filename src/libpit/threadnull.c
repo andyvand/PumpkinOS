@@ -238,6 +238,8 @@ int thread_server_read_timeout_from(uint32_t usec, unsigned char **buf, unsigned
   int r = 0;
   
   if (buf && len) {
+    *buf = NULL;
+    *len = 0;
     targ = &tasks[current];
     if (targ->nmsg == 0) return 0;
 

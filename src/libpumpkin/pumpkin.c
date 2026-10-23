@@ -2295,7 +2295,15 @@ int pumpkin_launcher(char *name, int width, int height) {
     } else {
       wman_add(pumpkin_module.wm, 0, texture, 0, 0, width, height);
       MemSet(&request, sizeof(launch_request_t), 0);
-#if defined(ANDROID) || defined(KERNEL) || defined(ESP32) || defined(DOS)
+#if defined(ESP32) || defined(DOS)
+      // the applications are linked statically: pick the PilotMain of the
+      // requested application (normally the Launcher) by its creator
+      extern UInt32 (*LauncherStaticPilotMain(UInt32 creator))(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
+      request.pilot_main = LauncherStaticPilotMain(creator);
+      if (request.pilot_main == NULL) {
+        debug(DEBUG_ERROR, PUMPKINOS, "no static PilotMain for \"%s\"", name);
+      }
+#elif defined(ANDROID) || defined(KERNEL)
       extern UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
       request.pilot_main = LauncherPilotMain;
 #endif

@@ -20,10 +20,22 @@
 #include "average.h"
 #include "debug.h"
 
-// the audio provider runs in its own thread, which neither the ESP32 nor the
-// (single threaded) MS-DOS build has
-#if defined(ESP32) || defined(DOS)
+// the audio provider runs in its own thread, which the ESP32 build does not have
+#if defined(ESP32)
 #define LIBSDL_NOAUDIO
+#endif
+
+// MS-DOS: PumpkinOS is single threaded there (threadnull), so the audio
+// provider cannot run its own thread either. Instead the application's audio
+// callback is pulled from the window provider event functions (which every
+// PalmOS event loop calls continuously) and pushed into an SDL audio stream;
+// SDL's own cooperative audio thread moves it to the Sound Blaster whenever
+// the main thread yields (SDL_PumpEvents / SDL_Delay).
+#if defined(DOS)
+#define LIBSDL_AUDIO_PUMP
+#define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
+#define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
+static int libsdl_audio_pump(void);
 #endif
 
 #define SDL_BUTTON1   1
@@ -414,6 +426,9 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
   SDL_Event ev;
   int has_ev, r = 0;
 
+#ifdef LIBSDL_AUDIO_PUMP
+  if (libsdl_audio_pump() && (wait < 0 || wait > LIBSDL_PUMP_WAIT_MS)) wait = LIBSDL_PUMP_WAIT_MS;
+#endif
   has_ev = wait < 0 ? SDL_WaitEvent(&ev) : SDL_WaitEventTimeout(&ev, wait);
 
   if (has_ev) {
@@ -483,6 +498,11 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
   buttons = window->buttons;
 
   for (;;) {
+#ifdef LIBSDL_AUDIO_PUMP
+    // feed the audio stream, and while a stream is playing return early
+    // (with no event) instead of blocking, so that it is fed again soon
+    if (libsdl_audio_pump() && (wait < 0 || wait > LIBSDL_PUMP_WAIT_MS)) wait = LIBSDL_PUMP_WAIT_MS;
+#endif
     if (wait) {
       // wait: timeout in ms, or -1 to wait forever
       has_ev = wait < 0 ? SDL_WaitEvent(&ev) : SDL_WaitEventTimeout(&ev, wait);
@@ -1231,6 +1251,7 @@ static audio_t libsdl_audio_create(int pcm, int channels, int rate, void *data) 
   return ptr;
 }
 
+#ifndef LIBSDL_AUDIO_PUMP
 static int libsdl_audio_start(int handle, audio_t _audio, int (*getaudio)(void *buffer, int len, void *data), void *data) {
   sdl_audio_t *audio;
   uint32_t ptr;
@@ -1246,6 +1267,7 @@ static int libsdl_audio_start(int handle, audio_t _audio, int (*getaudio)(void *
 
   return r;
 }
+#endif
 
 static int libsdl_audio_destroy(audio_t audio) {
   return ptr_free(audio, TAG_AUDIO);
@@ -1264,8 +1286,10 @@ static int libsdl_mixer_init(void) {
       if (s) debug(DEBUG_INFO, "SDL", "mixer audio decoder %s", s);
     }
     r = 0;
+    debug(DEBUG_INFO, "SDL", "mixer init ok");
+  } else {
+    debug(DEBUG_ERROR, "SDL", "mixer init failed: %s", SDL_GetError());
   }
-  debug(DEBUG_INFO, "SDL", "mixer init %d", r);
 #endif
 
   return r;
@@ -1283,6 +1307,11 @@ static const char *libsdl_find_soundfont(void) {
   static const char *const candidates[] = {
     "soundfont.sf2",
     "./soundfont.sf2",
+    "../soundfont.sf2", // PumpkinOS tree layout, running from bin/
+#ifdef DOS
+    "soundfon.sf2",     // 8.3 name
+    "../soundfon.sf2",
+#endif
     "/usr/local/share/soundfonts/default.sf2",
     NULL
   };
@@ -1553,7 +1582,7 @@ static int set_video_driver(char *video_driver) {
   return 1;
 }
 
-#ifndef LIBSDL_NOAUDIO
+#if !defined(LIBSDL_NOAUDIO) && !defined(LIBSDL_AUDIO_PUMP)
 static int audio_action(void *_arg) {
   sdl_audio_arg_t *arg = (sdl_audio_arg_t *)_arg;
   SDL_AudioDeviceID dev = 0;
@@ -1690,6 +1719,188 @@ static int libsdl_audio_init(int pcm, int channels, int rate) {
 
 static int libsdl_audio_finish(int handle) {
   return thread_end("AUDIO", handle);
+}
+#endif
+
+#ifdef LIBSDL_AUDIO_PUMP
+// Single threaded audio provider (MS-DOS), see the comment at the top.
+// The sources (SndStreams) started by the applications are queued and
+// played one after the other, like the audio thread does.
+
+#define LIBSDL_PUMP_MAX_SOURCES 16
+
+typedef struct {
+  SDL_AudioDeviceID dev;
+  SDL_AudioStream *stream;
+  SDL_AudioSpec spec;     // current input format of the stream
+  uint32_t ptrs[LIBSDL_PUMP_MAX_SOURCES]; // queue of audio sources
+  int iptr, nptr;
+} sdl_audio_pump_t;
+
+static sdl_audio_pump_t pump;
+static uint64_t pump_stat_t0;  // periodic statistics (bytes moved per interval)
+static uint32_t pump_stat_bytes;
+
+static int libsdl_audio_init(int pcm, int channels, int rate) {
+  SDL_AudioSpec desired, obtained;
+
+  if (pump.stream != NULL) return 1;
+
+  sys_memset(&desired, 0, sizeof(desired));
+  switch (pcm) {
+    case PCM_U8:  desired.format = SDL_AUDIO_U8;  break;
+    case PCM_S32: desired.format = SDL_AUDIO_S32; break;
+    default:      desired.format = SDL_AUDIO_S16; break;
+  }
+  desired.freq = rate;
+  desired.channels = channels;
+
+  if ((pump.stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, NULL, NULL)) == NULL) {
+    debug(DEBUG_ERROR, "SDL", "SDL_OpenAudioDeviceStream failed: %s", SDL_GetError());
+    return -1;
+  }
+
+  if ((pump.dev = SDL_GetAudioStreamDevice(pump.stream)) == 0) {
+    debug(DEBUG_ERROR, "SDL", "SDL_GetAudioStreamDevice failed: %s", SDL_GetError());
+    SDL_DestroyAudioStream(pump.stream);
+    pump.stream = NULL;
+    return -1;
+  }
+
+  SDL_GetAudioStreamFormat(pump.stream, &pump.spec, &obtained);
+  SDL_ResumeAudioStreamDevice(pump.stream);
+  SDL_ResumeAudioDevice(pump.dev);
+  pump.iptr = pump.nptr = 0;
+  debug(DEBUG_INFO, "SDL", "open device %d (%d Hz, %d channel(s), format 0x%04X)", pump.dev, obtained.freq, obtained.channels, obtained.format);
+
+#ifdef SDL_MIXER
+  if ((mixer = MIX_CreateMixerDevice(pump.dev, &obtained)) == NULL) {
+    debug(DEBUG_ERROR, "SDL", "create mixer failed: %s", SDL_GetError());
+  } else {
+    debug(DEBUG_INFO, "SDL", "mixer inited");
+  }
+#endif
+
+  // the handle is only tested for > 0 by the callers
+  return 1;
+}
+
+static int libsdl_audio_finish(int handle) {
+  for (; pump.nptr > 0; pump.nptr--) {
+    ptr_free(pump.ptrs[pump.iptr], TAG_AUDIO);
+    pump.iptr = (pump.iptr + 1) % LIBSDL_PUMP_MAX_SOURCES;
+  }
+
+  if (pump.dev > 0) {
+    debug(DEBUG_INFO, "SDL", "close device %d", pump.dev);
+    SDL_CloseAudioDevice(pump.dev);
+    pump.dev = 0;
+  }
+
+  if (pump.stream != NULL) {
+    SDL_DestroyAudioStream(pump.stream);
+    pump.stream = NULL;
+  }
+
+  return 0;
+}
+
+static int libsdl_audio_start(int handle, audio_t _audio, int (*getaudio)(void *buffer, int len, void *data), void *data) {
+  sdl_audio_t *audio;
+  int r = -1;
+
+  if (handle > 0 && pump.stream != NULL && (audio = ptr_lock(_audio, TAG_AUDIO)) != NULL) {
+    audio->getaudio = getaudio;
+    audio->data = data;
+    ptr_unlock(_audio, TAG_AUDIO);
+
+    if (pump.nptr < LIBSDL_PUMP_MAX_SOURCES) {
+      pump.ptrs[(pump.iptr + pump.nptr) % LIBSDL_PUMP_MAX_SOURCES] = _audio;
+      pump.nptr++;
+      debug(DEBUG_INFO, "SDL", "audio source %d queued (%d queued)", _audio, pump.nptr);
+      libsdl_audio_pump();
+      r = 0;
+    } else {
+      debug(DEBUG_ERROR, "SDL", "audio source queue full");
+    }
+  }
+
+  return r;
+}
+
+// Pull from the current source until the stream holds LIBSDL_PUMP_LEAD_MS
+// of audio. Returns 1 if a source is (still) playing, 0 otherwise.
+static int libsdl_audio_pump(void) {
+  sdl_audio_t *audio;
+  SDL_AudioSpec inspec;
+  uint32_t ptr;
+  int len1, len2, frame, lead, done, n;
+
+  if (pump.stream == NULL) return 0;
+
+  for (n = 0; pump.nptr > 0 && n < 4; n++) {
+    ptr = pump.ptrs[pump.iptr];
+    done = 1;
+
+    if ((audio = ptr_lock(ptr, TAG_AUDIO)) != NULL) {
+      done = 0;
+      if (audio->format != pump.spec.format || audio->channels != pump.spec.channels || audio->rate != pump.spec.freq) {
+        inspec.format = audio->format;
+        inspec.channels = audio->channels;
+        inspec.freq = audio->rate;
+        debug(DEBUG_INFO, "SDL", "set stream input format=0x%04X channels=%d rate=%d", inspec.format, inspec.channels, inspec.freq);
+        if (SDL_SetAudioStreamFormat(pump.stream, &inspec, NULL) == false) {
+          debug(DEBUG_ERROR, "SDL", "SDL_SetAudioStreamFormat failed: %s", SDL_GetError());
+        } else {
+          pump.spec = inspec;
+        }
+      }
+      frame = SDL_AUDIO_BYTESIZE(audio->format) * audio->channels;
+      lead = (audio->rate * frame * LIBSDL_PUMP_LEAD_MS) / 1000;
+
+      while (SDL_GetAudioStreamQueued(pump.stream) < lead) {
+        len1 = audio->bsize * audio->channels;
+        len2 = audio->getaudio(audio->buffer, len1, audio->data);
+        debug(DEBUG_TRACE, "SDL", "get audio len=%d bytes", len2);
+        if (len2 <= 0) {
+          done = 1;
+          break;
+        }
+        len2 -= len2 % frame; // SDL rejects partial sample frames
+        if (SDL_PutAudioStreamData(pump.stream, audio->buffer, len2) == false) {
+          debug(DEBUG_ERROR, "SDL", "SDL_PutAudioStreamData failed: %s", SDL_GetError());
+        }
+        pump_stat_bytes += len2;
+        if (len2 != len1) {
+          // a short buffer ends the source, like in the audio thread
+          done = 1;
+          break;
+        }
+      }
+      ptr_unlock(ptr, TAG_AUDIO);
+
+      // once every 5 seconds: bytes pushed since the last report and bytes
+      // still queued (steady pushing with a bounded queue means the device
+      // is consuming the audio)
+      uint64_t now = sys_get_clock();
+      if (pump_stat_t0 == 0) pump_stat_t0 = now;
+      if (now - pump_stat_t0 >= 5000000) {
+        debug(DEBUG_INFO, "SDL", "audio pump: %u bytes pushed in %u ms, %d queued", pump_stat_bytes, (uint32_t)((now - pump_stat_t0) / 1000), SDL_GetAudioStreamQueued(pump.stream));
+        pump_stat_t0 = now;
+        pump_stat_bytes = 0;
+      }
+    }
+
+    if (!done) break;
+
+    // this source is finished: free it (like the audio thread) and go on with the next one
+    ptr_free(ptr, TAG_AUDIO);
+    debug(DEBUG_INFO, "SDL", "audio source %d finished", ptr);
+    pump.iptr = (pump.iptr + 1) % LIBSDL_PUMP_MAX_SOURCES;
+    pump.nptr--;
+  }
+
+  return pump.nptr > 0;
 }
 #endif
 

@@ -727,8 +727,8 @@ int gnuboy_pump_events(uint32_t us)
 {
 	EventType event;
 	Err err;
-	unsigned char *buf;
-	unsigned int len;
+	unsigned char *buf = NULL; /* not touched by the single threaded (threadnull) read when the mailbox is empty */
+	unsigned int len = 0;
 
 	if (thread_must_end()) {
 		appStopped = true;

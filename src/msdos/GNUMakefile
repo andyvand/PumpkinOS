@@ -26,11 +26,17 @@ APPLDFLAGS=$(addprefix -l,$(APPS))
 
 MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a
 
+# SDL3 (VESA video, Sound Blaster audio) and SDL3_mixer with its decoders
+# (FluidSynth for MIDI, libxmp, Vorbis, mpg123, WavPack) from the DJGPP sysroot
+# (EXTLIBDIRS=-L<dir> on the make command line looks there first, e.g. for
+# a locally built libSDL3_mixer.a)
+SDLLIBS=$(EXTLIBDIRS) -lSDL3 -lSDL3_mixer -lfluidsynth -lxmp -lvorbisfile -lvorbis -logg -lmpg123 -lsyn123 -lwavpack -lopus -lz
+
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkin.exe
-	@$(CC) $(MBITS) -o $(PROGRAM) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 $(APPLDFLAGS) -lpit -Wl,--end-group -lSDL3 $(EXTLIBS)
+	@$(CC) $(MBITS) -o $(PROGRAM) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 $(APPLDFLAGS) -lpit -Wl,--end-group -Wl,--start-group $(SDLLIBS) -Wl,--end-group -lstdc++ -lsupc++ -lm $(EXTLIBS)
 	@$(STRIP) $(PROGRAM)
 
 clean:
