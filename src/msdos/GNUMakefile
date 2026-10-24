@@ -36,7 +36,7 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkin.exe
-	@$(CC) $(MBITS) -o $(PROGRAM) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto -lwatt -lpthread $(APPLDFLAGS) -lpit -Wl,--end-group -Wl,--start-group $(SDLLIBS) -Wl,--end-group -lstdc++ -lsupc++ -lm $(EXTLIBS)
+	@$(CC) $(MBITS) -o $(PROGRAM) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto -lwatt $(APPLDFLAGS) -lpit -Wl,--end-group -Wl,--start-group $(SDLLIBS) -Wl,--end-group -lstdc++ -lsupc++ -lm $(EXTLIBS)
 	@$(STRIP) $(PROGRAM)
 
 clean:

@@ -11,6 +11,7 @@
 #include <SDL3/SDL_main.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 
@@ -72,7 +73,7 @@ static void exe_dir(const char *argv0, char *buf, int len) {
 }
 
 int main(int argc, char *argv[]) {
-  char dir[MAX_PATH_LEN], vfsdir[MAX_PATH_LEN], tmpdir[MAX_PATH_LEN], logfile[MAX_PATH_LEN], errfile[MAX_PATH_LEN];
+  char dir[MAX_PATH_LEN], vfsdir[MAX_PATH_LEN], tmpdir[MAX_PATH_LEN], logfile[MAX_PATH_LEN], errfile[MAX_PATH_LEN], cafile[MAX_PATH_LEN];
   const char *vfs_arg = NULL, *log_arg = NULL;
   char *d, *p;
   sys_stat_t st;
@@ -142,6 +143,10 @@ int main(int argc, char *argv[]) {
   debug_init(logfile);
   debug(DEBUG_INFO, "MAIN", "%s starting on %s (vfs \"%s\")", SYSTEM_NAME, SYSTEM_OS, vfsdir);
 
+  // Watt-32 TCP/IP (packet driver, WATTCP.CFG or DHCP): done while the
+  // screen is still in text mode so that its messages can be seen
+  sys_dos_net_init();
+
   ptr_init();
   thread_init();
   vfs_init();
@@ -163,9 +168,15 @@ int main(int argc, char *argv[]) {
   sys_set_tmpdir(tmpdir);
 
 #ifndef NO_HTTPS
-    liblopenssl_load();
-    liblopenssl_init(0, 0);
-    debug(DEBUG_INFO, "MAIN", "TLS provider loaded (OpenSSL).\n");
+  // OpenSSL looks for the CA bundle in SSL_CERT_FILE: use cacert.pem next to
+  // the executable when it exists
+  sys_snprintf(cafile, MAX_PATH_LEN-1, "%scacert.pem", dir);
+  if (sys_stat(cafile, &st) == 0) {
+    setenv("SSL_CERT_FILE", cafile, 0);
+  }
+  liblopenssl_load();
+  liblopenssl_init(0, 0);
+  debug(DEBUG_INFO, "MAIN", "TLS provider loaded (OpenSSL)");
 #endif
 
   libos_app_init(0);

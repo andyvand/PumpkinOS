@@ -28,7 +28,9 @@
 #endif
 #include <unistd.h>
 #include <fcntl.h>
-#ifndef DOS
+#ifdef DOS
+#include <sys/poll.h>  /* Watt-32 */
+#else
 #include <poll.h>
 #endif
 #include <sys/socket.h>

@@ -4,6 +4,14 @@
 # $(OPENSSL)/include, libraries in $(OPENSSL)/lib). When it is not given the
 # usual Homebrew locations are tried, and finally the system default paths.
 
+ifeq ($(OSNAME),msdosdjgpp)
+# MS-DOS: OpenSSL (built for DJGPP on top of Watt-32) lives in the cross
+# compiler sysroot. The host installation must not be used: its headers are
+# configured with OPENSSL_THREADS and include <pthread.h>, which on DJGPP is
+# GNU Pth and renames poll()/read()/write() to the Pth wrappers.
+OPENSSL=sysroot
+endif
+
 ifeq ($(OPENSSL),)
 ifneq ($(wildcard /usr/local/include/openssl/ssl.h),)
 OPENSSL=/usr/local
@@ -20,11 +28,13 @@ PROGRAM=liblopenssl
 SOURCE=liblopenssl.c
 
 ifneq ($(OPENSSL),)
-ifneq ($(OSNAME),Android)
+ifeq ($(OSNAME),Android)
+LIBS=-lssl -lcrypto
+else ifeq ($(OPENSSL),sysroot)
+LIBS=-lssl -lcrypto
+else
 CUSTOMFLAGS=-I$(OPENSSL)/include
 LIBS=-L$(OPENSSL)/lib -lssl -lcrypto
-else
-LIBS=-lssl -lcrypto
 endif
 else
 LIBS=-lssl -lcrypto

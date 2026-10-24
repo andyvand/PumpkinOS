@@ -196,6 +196,13 @@ int sys_create(const char *pathname, int flags, uint32_t mode);
 
 int sys_select(int fd, uint32_t us);
 
+#ifdef DOS
+// Watt-32 TCP/IP initialization (MS-DOS build, see dosnet.c)
+int sys_dos_net_init(void);
+
+int sys_dos_net_ready(void);
+#endif
+
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us);
 
 int sys_read(int fd, uint8_t *buf, int len);

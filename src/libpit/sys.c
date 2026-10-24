@@ -218,6 +218,17 @@ struct sys_dir_t {
 #define closesocket(s) close(s)
 #endif
 
+#if defined(DOS)
+#include <sys/fsext.h>
+
+// Watt-32 sockets are DJGPP file system extension descriptors: everything
+// else is a plain DOS file (or device), which never blocks and for which
+// select() is unreliable (a file at EOF is reported as not ready)
+static int dos_is_socket(int fd) {
+  return fd >= 0 && __FSEXT_get_function(fd) != NULL;
+}
+#endif
+
 #if defined(ESP32)
 static void sys_tmpfile_closed(int fd);
 #endif
@@ -1355,6 +1366,8 @@ int sys_select(int fd, uint32_t us) {
 
   ptr_unlock(fd, TAG_FD);
   return r;
+#elif defined(DOS)
+  return dos_is_socket(fd) ? socket_select(fd, us, 1) : 1;
 #else
   return socket_select(fd, us, 1);
 #endif
@@ -1574,7 +1587,6 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
   return r;
 
 #else
-  // DJGPP: read() never blocks on DOS files, skip the select
   if ((r = sys_select(fd, us)) <= 0) {
     return r;
   }
@@ -1875,6 +1887,12 @@ int sys_peek(int fd) {
   if ((r = sys_select(fd, 0)) <= 0) {
     return r;
   }
+
+#if defined(DOS)
+  if (!dos_is_socket(fd)) {
+    return r;
+  }
+#endif
 
 #if !defined(WINDOWS)
   // XXX how to do this on Windows ?

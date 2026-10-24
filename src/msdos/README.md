@@ -80,8 +80,26 @@ the executable.
 DOSBox-X settings known to work: `machine=svga_s3`, `cputype=ppro_slow`,
 `memsize=64`, `CWSDPMI.EXE` on the path (long file names are not needed).
 
+## Network
+
+TCP/IP comes from Watt-32 (linked statically, with its DJGPP file system
+extension the sockets are ordinary file descriptors). It needs a packet
+driver loaded before `pumpkin.exe` starts, for example `NE2000.COM 0x60`
+for an NE2000 card (DOSBox-X: `ne2000=true` and `backend=slirp` in the
+`[ne2000]` section, then `NE2000.COM 0x60 3 0x300`). The IP configuration
+is read from `WATTCP.CFG` in the current directory (or in the directory the
+`WATTCP.CFG` environment variable points to); without one Watt-32 asks a
+DHCP server. Initialization happens at startup while the screen is still in
+text mode, so the Watt-32 messages can be read; without a packet driver the
+network is simply unavailable (Browser, Mail and Net Install cannot
+connect) and the error is logged.
+
+`https://` connections use OpenSSL (the DJGPP build in the cross compiler
+sysroot, see `liblopenssl/`). Certificate verification needs a CA bundle:
+put `cacert.pem` (for example the one from https://curl.se/docs/caextract.html)
+next to `pumpkin.exe`; it is passed to OpenSSL through `SSL_CERT_FILE`.
+
 ## Not available on DOS
 
-No network (the DJGPP libc has no sockets: Browser, Mail and Net Install start
-but cannot connect), no audio provider (it needs a thread), no serial ports,
-no TLS, no Lua scripting and no desktop (multi window) mode.
+No audio provider (it needs a thread), no serial ports, no Lua scripting
+and no desktop (multi window) mode.
