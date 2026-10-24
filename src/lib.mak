@@ -1,3 +1,7 @@
+ifeq ($(OSNAME),msdosdjgpp)
+STATIC=1
+endif
+
 ifeq ($(STATIC),1)
 OBJS=$(SOURCE:%.c=%.o)
 EXT=.a

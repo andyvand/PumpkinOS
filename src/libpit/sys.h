@@ -237,11 +237,11 @@ void sys_fdzero(sys_fdset_t *fds);
 
 int sys_fdisset(int n, sys_fdset_t *fds);
 
-int sys_serial_open(char *device, char *word, int baud);
+int sys_serial_open(char *device, char *w, int baud);
 
 int sys_serial_baud(int serial, int baud);
 
-int sys_serial_word(int serial, char *word);
+int sys_serial_word(int serial, char *w);
 
 void *sys_tty_raw(int fd);
 

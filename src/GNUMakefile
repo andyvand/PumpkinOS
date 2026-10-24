@@ -77,7 +77,7 @@ else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS/DJGPP: no script engine, no shared libraries. Every application is
 # compiled into a static library and linked, together with libpit, libpumpkin,
 # libos and the SDL3 window provider, into one bin/pumpkinos.exe by src/msdos.
-BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
 EXTRA_MODULES=msdos
 
 else ifeq ($(OSNAME),Emscripten)

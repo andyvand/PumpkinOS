@@ -28,7 +28,9 @@
 #endif
 #include <unistd.h>
 #include <fcntl.h>
+#ifndef DOS
 #include <poll.h>
+#endif
 #include <sys/socket.h>
 #ifdef ANDROID
 #include <dirent.h>

@@ -49,6 +49,16 @@
 #define __USE_GNU
 #ifndef DOS
 #include <pthread.h>
+#else
+typedef uint32_t in_addr_t;
+
+#ifndef SHUT_RD
+#define SHUT_RD 0
+#endif
+
+#ifndef SHUT_WR
+#define SHUT_WR 1
+#endif
 #endif
 #undef __USE_GNU
 #include <signal.h>
@@ -69,7 +79,9 @@
 #endif
 
 #include <errno.h>
+#ifndef DOS
 #include <sys/ioctl.h>
+#endif
 #include <sys/socket.h>
 #if defined(SERENITY) || defined(ESP32)
 #include <sys/select.h>
@@ -99,25 +111,21 @@
 
 #include <sys/wait.h>
 
-#ifndef DOS
 #include <arpa/inet.h>
-#endif
-
 #include <netinet/in.h>
-
-#ifndef DOS
 #include <netinet/tcp.h>
 #include <netdb.h>
-#endif
 #endif
 
 #ifdef DOS
 // DJGPP has neither struct timespec nor clock_gettime: emulate them with
 // gettimeofday (wall clock) and uclock (high resolution monotonic clock)
+#if 0
 struct timespec {
   time_t tv_sec;
   long tv_nsec;
 };
+#endif
 typedef int clockid_t;
 #define CLOCK_REALTIME  0
 #define CLOCK_MONOTONIC 1
@@ -1347,10 +1355,6 @@ int sys_select(int fd, uint32_t us) {
 
   ptr_unlock(fd, TAG_FD);
   return r;
-#elif defined(DOS)
-  // DJGPP: select() is only meaningful for devices and there are no
-  // sockets, a file descriptor is always ready
-  return 1;
 #else
   return socket_select(fd, us, 1);
 #endif
@@ -1570,12 +1574,10 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
   return r;
 
 #else
-#ifndef DOS
   // DJGPP: read() never blocks on DOS files, skip the select
   if ((r = sys_select(fd, us)) <= 0) {
     return r;
   }
-#endif
 
   if ((r = read(fd, buf, len)) < 0) {
     debug_errno("SYS", "read");
@@ -1874,7 +1876,7 @@ int sys_peek(int fd) {
     return r;
   }
 
-#if !defined(WINDOWS) && !defined(DOS)
+#if !defined(WINDOWS)
   // XXX how to do this on Windows ?
   char buf;
   if ((r = recv(fd, &buf, 1, MSG_PEEK)) < 0) {
@@ -2235,7 +2237,7 @@ int sys_mkdir(const char *pathname) {
   return r;
 }
 
-int sys_serial_open(char *device, char *word, int baud) {
+int sys_serial_open(char *device, char *w, int baud) {
 #if defined(KERNEL) || defined(ESP32) || defined(DOS)
   return -1;
 #elif defined(WINDOWS)
@@ -2301,30 +2303,30 @@ int sys_serial_open(char *device, char *word, int baud) {
   dcb.fRtsControl = RTS_CONTROL_DISABLE;
   dcb.fAbortOnError = FALSE;
 
-  switch (sys_tolower(word[0])) {
+  switch (sys_tolower(w[0])) {
     case 'n': dcb.Parity = NOPARITY; break;
     case 'o': dcb.Parity = ODDPARITY; break;
     case 'e': dcb.Parity = EVENPARITY; break;
     default:
-      debug(DEBUG_ERROR, "SYS", "invalid parity %c", word[0]);
+      debug(DEBUG_ERROR, "SYS", "invalid parity %c", w[0]);
       return -1;
   }
 
-  switch (word[1]) {
+  switch (w[1]) {
     case '5': dcb.ByteSize = 5; break;
     case '6': dcb.ByteSize = 6; break;
     case '7': dcb.ByteSize = 7; break;
     case '8': dcb.ByteSize = 8; break;
     default:
-      debug(DEBUG_ERROR, "SYS", "invalid word size %c", word[1]);
+      debug(DEBUG_ERROR, "SYS", "invalid w size %c", w[1]);
       return -1;
   }
 
-  switch (word[2]) {
+  switch (w[2]) {
     case '1': dcb.StopBits = ONESTOPBIT; break;
     case '2': dcb.StopBits = TWOSTOPBITS; break;
     default:
-      debug(DEBUG_ERROR, "SYS", "invalid stop bits %c", word[2]);
+      debug(DEBUG_ERROR, "SYS", "invalid stop bits %c", w[2]);
       return -1;
   }
 
@@ -2372,7 +2374,7 @@ int sys_serial_open(char *device, char *word, int baud) {
     return -1;
   }
 
-  if (sys_serial_word(serial, word) == -1) {
+  if (sys_serial_word(serial, w) == -1) {
     close(serial);
     return -1;
   }
@@ -2455,7 +2457,7 @@ int sys_serial_baud(int serial, int baud) {
 #endif
 }
 
-int sys_serial_word(int serial, char *word) {
+int sys_serial_word(int serial, char *w) {
 #if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS)
   debug(DEBUG_ERROR, "SYS", "sys_serial_word not implemented");
   return -1;
@@ -2463,35 +2465,35 @@ int sys_serial_word(int serial, char *word) {
   struct termios termios;
   int parity = 0, wordsize = 0, stopbits = 0;
 
-  if (!word || sys_strlen(word) != 3) {
+  if (!w || sys_strlen(w) != 3) {
     debug(DEBUG_ERROR, "SYS", "invalid word specification");
     return 1;
   }
 
-  switch (sys_tolower(word[0])) {
+  switch (sys_tolower(w[0])) {
     case 'n': parity = 0; break;
     case 'o': parity = PARENB | PARODD; break;
     case 'e': parity = PARENB; break;
     default:
-      debug(DEBUG_ERROR, "SYS", "invalid parity %c", word[0]);
+      debug(DEBUG_ERROR, "SYS", "invalid parity %c", w[0]);
       return -1;
   }
 
-  switch (word[1]) {
+  switch (w[1]) {
     case '5': wordsize = CS5; break;
     case '6': wordsize = CS6; break;
     case '7': wordsize = CS7; break;
     case '8': wordsize = CS8; break;
     default:
-      debug(DEBUG_ERROR, "SYS", "invalid word size %c", word[1]);
+      debug(DEBUG_ERROR, "SYS", "invalid word size %c", w[1]);
       return -1;
   }
 
-  switch (word[2]) {
+  switch (w[2]) {
     case '1': stopbits = 0; break;
     case '2': stopbits = CSTOPB; break;
     default:
-      debug(DEBUG_ERROR, "SYS", "invalid stop bits %c", word[2]);
+      debug(DEBUG_ERROR, "SYS", "invalid stop bits %c", w[2]);
       return -1;
   }
 
@@ -3113,7 +3115,7 @@ void sys_set_finish(int status) {
   thread_set_flags(FLAG_FINISH);
 }
 
-#if !(defined(KERNEL) || defined(DOS)) && !defined(DOS)
+#if !defined(KERNEL)
 
 static const char *sys_inet_ntop(int af, const void *a0, char *s, uint32_t l) {
   const unsigned char *a = a0;
@@ -3382,7 +3384,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
 #endif
 
 uint32_t sys_socket_ipv4(char *host) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   struct sockaddr_storage a;
@@ -3400,14 +3402,14 @@ uint32_t sys_socket_ipv4(char *host) {
 }
 
 int sys_socket_fill_addr(void *a, char *host, int port, int *len) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   return sys_tcpip_fill_addr((struct sockaddr_storage *)a, host, port, len, 0);
 #endif
 }
 
-#if !(defined(KERNEL) || defined(DOS))
+#if !defined(KERNEL)
 
 static int sys_tcpip_type(int *type, int *proto) {
   switch (*type) {
@@ -3503,7 +3505,7 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
 #endif
 
 int sys_socket_open_connect_timeout(char *host, int port, int type, uint32_t us) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #elif defined(WINDOWS)
   int sock;
@@ -3523,7 +3525,7 @@ int sys_socket_open_connect(char *host, int port, int type) {
 }
 
 int sys_socket_open(int type, int ipv6) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   int sock, addrlen;
@@ -3545,7 +3547,7 @@ int sys_socket_connect(int sock, char *host, int port) {
   fd_t *f;
 #endif
 
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   struct sockaddr_storage addr;
@@ -3583,7 +3585,7 @@ int sys_socket_connect(int sock, char *host, int port) {
 #endif
 }
 
-#if !(defined(KERNEL) || defined(DOS))
+#if !defined(KERNEL)
 static int sys_tcpip_bind(int sock, char *host, int *pport) {
   struct sockaddr_storage addr;
   struct sockaddr_in *addr4;
@@ -3680,7 +3682,7 @@ static int sys_tcpip_bind(int sock, char *host, int *pport) {
 #endif
 
 int sys_socket_binds(int sock, char *host, int *port) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #elif defined(WINDOWS)
   fd_t *f;
@@ -3701,7 +3703,7 @@ int sys_socket_binds(int sock, char *host, int *port) {
 }
 
 int sys_socket_listen(int sock, int n) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   if (listen(sock, n) == -1) {
@@ -3714,7 +3716,7 @@ int sys_socket_listen(int sock, int n) {
 }
 
 int sys_socket_bind(char *host, int *port, int type) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   struct sockaddr_storage addr;
@@ -3744,7 +3746,7 @@ int sys_socket_bind(char *host, int *port, int type) {
 #endif
 }
 
-#if !(defined(KERNEL) || defined(DOS))
+#if !defined(KERNEL)
 static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int port, int type) {
   struct sockaddr_storage src_addr, addr;
   int sock, addrlen, src_ipv6, ipv6, reuse, len;
@@ -3753,7 +3755,7 @@ static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int 
     return -1;
   }
 
-#if !defined(EMSCRIPTEN) && !defined(DOS)
+#if !defined(EMSCRIPTEN)
   reuse = 1;
   if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse, sizeof(reuse)) == -1) {
     debug_errno("SYS", "setsockopt SO_REUSEADDR");
@@ -3787,7 +3789,7 @@ static int sys_tcpip_bind_connect(char *src_host, int src_port, char *host, int 
 #endif
 
 int sys_socket_bind_connect(char *src_host, int src_port, char *host, int port, int type) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #elif defined(WINDOWS)
   int sock;
@@ -3802,7 +3804,7 @@ int sys_socket_bind_connect(char *src_host, int src_port, char *host, int port, 
 #endif
 }
 
-#if !(defined(KERNEL) || defined(DOS))
+#if !defined(KERNEL)
 static int sys_tcpip_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *tv, int nf) {
   struct sockaddr_storage addr;
   struct sockaddr_in *addr4;
@@ -3861,7 +3863,7 @@ static int sys_tcpip_accept(int sock, char *host, int hlen, int *port, sys_timev
 #endif
 
 int sys_socket_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *tv) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #elif defined(WINDOWS)
   fd_t *f;
@@ -3883,7 +3885,7 @@ int sys_socket_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *
 #endif
 }
 
-#if !(defined(KERNEL) || defined(DOS))
+#if !defined(KERNEL)
 static int sys_tcpip_sendto(int sock, char *host, int port, unsigned char *buf, int n) {
   struct sockaddr_storage addr;
   int len, r;
@@ -3916,14 +3918,14 @@ int sys_socket_sendto(int sock, char *host, int port, unsigned char *buf, int n)
   }
 
   ptr_unlock(sock, TAG_FD);
-#elif !(defined(KERNEL) || defined(DOS))
+#elif !defined(KERNEL)
   r = sys_tcpip_sendto(sock, host, port, buf, n);
 #endif
 
   return r;
 }
 
-#if !(defined(KERNEL) || defined(DOS))
+#if !defined(KERNEL)
 static int sys_tcpip_recvfrom(int sock, char *host, int hlen, int *port, unsigned char *buf, int n, sys_timeval_t *tv, int nf) {
   struct sockaddr_storage addr;
   struct sockaddr_in *addr4;
@@ -3983,7 +3985,7 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
   }
 
   ptr_unlock(sock, TAG_FD);
-#elif !(defined(KERNEL) || defined(DOS))
+#elif !defined(KERNEL)
   r = sys_tcpip_recvfrom(sock, host, hlen, port, buf, n, tv, 1);
 #endif
 
@@ -3991,7 +3993,7 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
 }
 
 int sys_setsockopt(int sock, int level, int optname, const void *optval, int optlen) {
-#if (defined(KERNEL) || defined(DOS))
+#if defined(KERNEL)
   return -1;
 #else
   int ilevel, ioptname, r = -1;
@@ -4061,7 +4063,7 @@ int sys_socket_shutdown(int sock, int dir) {
   }
 
   ptr_unlock(sock, TAG_FD);
-#elif !(defined(KERNEL) || defined(DOS))
+#elif !defined(KERNEL)
   int d = 0;
 
   if (dir & SYS_SHUTDOWN_RD) d |= SHUT_RD;

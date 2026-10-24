@@ -36,6 +36,11 @@ extern int liblsdl3_unload(void);
 extern int libos_app_init(int pe);
 extern int libos_start(int pe);
 
+#ifndef NO_HTTPS
+extern int liblopenssl_load(void);
+extern int liblopenssl_init(int pe, script_ref_t obj);
+#endif
+
 static void usage(const char *prog) {
   fprintf(stderr, "usage: %s [options]\n", prog);
   fprintf(stderr, "  -width <n>     screen width in pixels (default 640)\n");
@@ -156,6 +161,12 @@ int main(int argc, char *argv[]) {
     sys_mkdir(tmpdir);
   }
   sys_set_tmpdir(tmpdir);
+
+#ifndef NO_HTTPS
+    liblopenssl_load();
+    liblopenssl_init(0, 0);
+    debug(DEBUG_INFO, "MAIN", "TLS provider loaded (OpenSSL).\n");
+#endif
 
   libos_app_init(0);
   libos_start(0);
