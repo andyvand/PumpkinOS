@@ -16,7 +16,13 @@ PROGRAM=$(BIN)/pumpkin.exe
 
 CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
 
-SOURCE=main.c script.c
+# dxesyms.c / dxeshims.c are installed here by an application built as a
+# DXE3 module (VBA-M's src/pumpkinos, make UNAME_S=msdosdjgpp): the
+# dlregsym() table of the symbols pumpkin.exe exports to the module (the
+# PalmOS API, libpit, libc, libgcc, libstdc++) and the Pth wrappers the
+# toolchain's libstdc++ <thread> objects reference. Without the table dlopen
+# fails with "unresolved symbol" on the module's first import.
+SOURCE=main.c script.c $(wildcard dxesyms.c dxeshims.c)
 OBJS=$(SOURCE:%.c=%.o)
 
 # applications and plugins (static libraries built by app.mak)

@@ -3143,6 +3143,18 @@ void *sys_lib_defsymbol(void *lib, char *name, int mandatory) {
   dlerror();
   sym = dlsym(lib, name);
 
+#if defined(DOS)
+  // DJGPP: a DXE3 module's export table holds the COFF symbol names, with the
+  // leading underscore the compiler adds to C symbols, and dlsym() looks the
+  // name up verbatim: "PilotMain" is exported as "_PilotMain".
+  if (sym == NULL) {
+    char uname[FILE_PATH];
+    sys_snprintf(uname, sizeof(uname), "_%s", name);
+    dlerror();
+    sym = dlsym(lib, uname);
+  }
+#endif
+
   if (sym == NULL && mandatory) {
     debug(DEBUG_ERROR, "SYS", "dlsym \"%s\"", dlerror());
   }
