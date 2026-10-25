@@ -1,3 +1,16 @@
+// Cooperative (single stack per task, no preemption) thread scheduler.
+//
+// Every "thread" is a coroutine with its own heap allocated stack. The main
+// program calls thread_run(), which runs the tasks round-robin: a task runs
+// until it calls thread_yield() (directly, or indirectly through
+// thread_server_read_timeout, sys_usleep, the socket waits in sys.c, ...),
+// then the next runnable task is resumed. thread_run() returns when no task
+// is runnable anymore (all finished, or all waiting on a mutex).
+//
+// Used on platforms without a thread library (MS-DOS/DJGPP). The task switch
+// is done with setjmp/longjmp; a new task starts with the stack pointer set
+// to the top of its own stack (x86 only).
+
 #include "sys.h"
 #include "thread.h"
 #include "debug.h"
@@ -46,12 +59,14 @@ typedef struct {
 } thread_arg_t;
 
 static thread_arg_t tasks[MAX_THREADS];
+static void *main_values[MAX_KEYS];  // thread local values of the main program (no task running)
 static thread_key_t *local;
 static thread_key_t *tname;
 static int flags, status;
 
-static int current;
-static jmp_buf jbuf;
+static int current;   // index of the running task, -1 when the main program runs
+static int running;   // inside thread_run()
+static jmp_buf jbuf;  // scheduler context (main stack)
 
 static uint32_t num_threads;
 static thread_ps_t ps[MAX_THREADS];
@@ -61,8 +76,12 @@ static thread_key_t keys[MAX_KEYS];
 
 void thread_init(void) {
   sys_memset(tasks, 0, sizeof(tasks));
+  sys_memset(main_values, 0, sizeof(main_values));
   sys_memset(keys, 0, sizeof(keys));
   sys_memset(ps, 0, sizeof(ps));
+
+  current = -1;
+  running = 0;
 
   local = thread_key();
   tname = thread_key();
@@ -72,18 +91,11 @@ void thread_init(void) {
 
   num_threads = 0;
   num_keys = 0;
-  current = 0;
 }
 
 void thread_close(void) {
   thread_key_delete(tname);
   thread_key_delete(local);
-}
-
-static void exit_current_task(void) {
-  thread_arg_t *targ = &tasks[current];
-  targ->inuse = 0;
-  longjmp(jbuf, EXIT_TASK);
 }
 
 static thread_arg_t *choose_next_task(void) {
@@ -105,47 +117,60 @@ static thread_arg_t *choose_next_task(void) {
   return found ? &tasks[current] : NULL;
 }
 
+// First activation of a task. Runs on the task's own stack, so it must not
+// use anything from the caller's frame (schedule() below), only globals:
+// that frame lives on the main stack and is reused by the scheduler as soon
+// as this task yields for the first time. Never returns (longjmp).
+static void __attribute__((noinline)) task_entry(void) {
+  thread_arg_t *targ = &tasks[current];
+  int id = targ->id;
+
+  targ->status = TASK_RUNNING;
+  thread_set(local, targ);
+  thread_set_name(targ->name);
+  debug(DEBUG_INFO, "THREAD", "thread id %d begin", id);
+
+  targ->action(targ->arg);
+
+  // the task may have yielded (and been resumed) many times: refetch it
+  targ = &tasks[current];
+  debug(DEBUG_INFO, "THREAD", "thread id %d end", id);
+  thread_set(local, NULL);
+  thread_set(tname, NULL);
+  targ->inuse = 0;
+  longjmp(jbuf, EXIT_TASK);
+}
+
 static void schedule(void) {
   thread_arg_t *next = choose_next_task();
 
   if (!next) return;
 
-  current = next->id;
   if (next->status == TASK_CREATED) {
+    // switch to the task's stack (16 byte aligned top) and start it
 #if defined(__x86_64__)
-    register void *top = next->stack_top;
-    asm volatile (
-      "mov %[rs], %%rsp \n"
-      : [rs] "+r" (top)
-    );
-#elif defined(__i686__)
-    register void *top = next->stack_top;
-    asm volatile (
-      "mov %[es], %%esp \n"
-        : [es] "+r" (top)
-    );
+    void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)15);
+    asm volatile ("mov %0, %%rsp" : : "r" (top) : "memory");
+#elif defined(__i386__)
+    void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)15);
+    asm volatile ("mov %0, %%esp" : : "r" (top) : "memory");
+#else
+#error "cooperative threads: unsupported architecture"
 #endif
-
-    next->status = TASK_RUNNING;
-
-    thread_set(local, next);
-    thread_set_name(next->name);
-    debug(DEBUG_INFO, "THREAD", "thread id %d begin", next->id);
-
-    next->action(next->arg);
-
-    debug(DEBUG_INFO, "THREAD", "thread id %d end", next->id);
-    thread_set(local, NULL);
-    thread_set(tname, NULL);
-
-    exit_current_task();
+    task_entry();
   } else {
     longjmp(next->jbuf, 1);
   }
 }
 
 void thread_yield(int waiting) {
-  thread_arg_t *targ = &tasks[current];
+  thread_arg_t *targ;
+
+  // nothing to switch to when called from the main program (before or
+  // outside thread_run): there is no scheduler context to return to
+  if (!running || current < 0) return;
+
+  targ = &tasks[current];
 
   if (waiting) {
     targ->status = TASK_WAITING;
@@ -169,27 +194,53 @@ void thread_resume(int id) {
 
 static void free_current_task(void) {
   thread_arg_t *targ = &tasks[current];
+  int i;
 
-  current = 0;
   sys_free(targ->stack_bottom);
-}
+  targ->stack_bottom = NULL;
+  targ->stack_top = NULL;
 
+  // messages nobody read
+  for (i = 0; i < MAX_MESSAGES; i++) {
+    if (targ->messages[i].buf) {
+      sys_free(targ->messages[i].buf);
+      targ->messages[i].buf = NULL;
+    }
+  }
+  targ->nmsg = targ->imsg = targ->omsg = 0;
+
+  if (num_threads > 0) num_threads--;
+}
 
 int thread_needs_run(void) {
   return 1;
 }
 
 void thread_run(void) {
+  if (running) {
+    // nested call (a task starting another scheduler): the tasks are
+    // already being scheduled by the outer thread_run()
+    return;
+  }
+
+  running = 1;
+  current = -1;
+
   switch (setjmp(jbuf)) {
     case EXIT_TASK:
       free_current_task();
+      // fall through
     case INIT:
     case SCHEDULE:
       schedule();
-      return;
+      break;
     default:
-      return;
+      break;
   }
+
+  // no runnable task left
+  current = -1;
+  running = 0;
 }
 
 thread_key_t *thread_key(void) {
@@ -217,22 +268,21 @@ void thread_key_delete(thread_key_t *key) {
   }
 }
 
-void thread_set(thread_key_t *key, void *value) {
-  thread_arg_t *targ;
+static void **current_values(void) {
+  return (running && current >= 0) ? tasks[current].values : main_values;
+}
 
+void thread_set(thread_key_t *key, void *value) {
   if (key && key->inuse) {
-    targ = &tasks[current];
-    targ->values[key->id - 1] = value;
+    current_values()[key->id - 1] = value;
   }
 }
 
 void *thread_get(thread_key_t *key) {
   void *value = NULL;
-  thread_arg_t *targ;
 
   if (key && key->inuse) {
-    targ = &tasks[current];
-    value = targ->values[key->id - 1];
+    value = current_values()[key->id - 1];
   }
 
   return value;
@@ -269,8 +319,18 @@ int thread_begin(char *tag, int action(void *arg), void *arg) {
   }
 
   if (targ == NULL) {
+    debug(DEBUG_ERROR, "THREAD", "too many threads");
     return -1;
   }
+
+  if ((targ->stack_bottom = sys_malloc(STACK_SIZE)) == NULL) {
+    debug(DEBUG_ERROR, "THREAD", "no memory for thread stack");
+    return -1;
+  }
+
+  sys_memset(targ->values, 0, sizeof(targ->values));
+  sys_memset(targ->messages, 0, sizeof(targ->messages));
+  targ->nmsg = targ->imsg = targ->omsg = 0;
 
   targ->inuse = 1;
   targ->id = i;
@@ -280,8 +340,7 @@ int thread_begin(char *tag, int action(void *arg), void *arg) {
   targ->status = TASK_CREATED;
 
   targ->stack_size = STACK_SIZE;
-  targ->stack_bottom = sys_malloc(targ->stack_size);
-  targ->stack_top = targ->stack_bottom + targ->stack_size;
+  targ->stack_top = (uint8_t *)targ->stack_bottom + targ->stack_size;
 
   num_threads++;
 
@@ -330,29 +389,30 @@ int thread_server_read_timeout(uint32_t usec, unsigned char **buf, unsigned int 
 
 int thread_server_read_timeout_from(uint32_t usec, unsigned char **buf, unsigned int *len, int *client) {
   thread_arg_t *targ;
-  uint32_t d;
   int64_t t0, t;
   int r = 0;
   
   if (buf && len) {
+    *buf = NULL;
+    *len = 0;
+    if (current < 0) return 0;
     targ = &tasks[current];
     t0 = sys_get_clock();
 
-    for (d = 0; d <= usec; d += 100) {
+    for (;;) {
       if (targ->nmsg > 0) break;
       t = sys_get_clock();
-      if ((uint32_t)(t - t0) >= usec) return 0;
+      if ((uint64_t)(t - t0) >= usec) return 0;
       thread_yield(0);
       if (thread_must_end()) return -1;
-      sys_usleep(usec < 100 ? usec : 100);
+      sys_usleep(usec < 1000 ? usec : 1000);
     }
-    if (targ->nmsg == 0) return 0;
 
     if (client) *client = targ->messages[targ->omsg].client;
     *len = targ->messages[targ->omsg].len;
     *buf = targ->messages[targ->omsg].buf;
     targ->messages[targ->omsg].buf = NULL;
-    targ->messages[targ->omsg].len = 999;
+    targ->messages[targ->omsg].len = 0;
     targ->messages[targ->omsg].client = 0;
     targ->omsg++;
     if (targ->omsg == MAX_MESSAGES) targ->omsg = 0;
@@ -369,20 +429,20 @@ int thread_server_read_timeout_from(uint32_t usec, unsigned char **buf, unsigned
 }
 
 int thread_server_peek(void) {
-  thread_arg_t *targ;
-  
-  targ = &tasks[current];
+  if (current < 0) return 0;
 
-  return targ->nmsg > 0;
+  return tasks[current].nmsg > 0;
 }
 
 int thread_end(char *tag, int id) {
   uint8_t packet;
-  int r;
+  int r = 0;
 
-  debug(DEBUG_INFO, "THREAD", "closing thread with id %d", id);
-  packet = 0;
-  r = thread_client_write(id, &packet, 1);
+  if (id >= 0) {
+    debug(DEBUG_INFO, "THREAD", "closing thread with id %d", id);
+    packet = 0;
+    r = thread_client_write(id, &packet, 1);
+  }
 
   return r;
 }
@@ -397,7 +457,7 @@ void thread_get_name(char *name, int len) {
 
   s = (char *)thread_get(tname);
   if (s == NULL) {
-    s = "???";
+    s = "MAIN";
   }
 
   for (i = 0; s[i] && i < len-1; i++) {
@@ -407,7 +467,7 @@ void thread_get_name(char *name, int len) {
 }
 
 void thread_wait_all(void) {
-  // XXX
+  // the tasks run inside thread_run(), nothing to wait for here
 }
 
 void thread_set_flags(unsigned int mask) {
@@ -436,11 +496,11 @@ thread_ps_t *thread_ps(void) {
 
   if ((r = sys_calloc(num_threads + 2, sizeof(thread_ps_t))) != NULL) {
     r[0].tid = 0;
-    r[0].handle = 0;
+    r[0].handle = -1;
     r[0].name = sys_strdup("MAIN");
     r[0].p = 0;
 
-    for (i = 1, j = 0; i < MAX_THREADS && j < num_threads; i++) {
+    for (i = 0, j = 0; i < MAX_THREADS && j < num_threads; i++) {
       if (tasks[i].inuse) {
         r[j+1].tid = i;
         r[j+1].handle = tasks[i].id;

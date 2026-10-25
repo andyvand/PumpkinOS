@@ -24,7 +24,7 @@ APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList Date
 APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
 APPLDFLAGS=$(addprefix -l,$(APPS))
 
-MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
 
 # SDL3 (VESA video, Sound Blaster audio) and SDL3_mixer with its decoders
 # (FluidSynth for MIDI, libxmp, Vorbis, mpg123, WavPack) from the DJGPP sysroot

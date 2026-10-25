@@ -25,8 +25,8 @@
 #define LIBSDL_NOAUDIO
 #endif
 
-// MS-DOS: PumpkinOS is single threaded there (threadnull), so the audio
-// provider cannot run its own thread either. Instead the application's audio
+// MS-DOS: PumpkinOS has only cooperative threads there (threadsc), so the
+// audio provider cannot run its own (preemptive) thread. Instead the application's audio
 // callback is pulled from the window provider event functions (which every
 // PalmOS event loop calls continuously) and pushed into an SDL audio stream;
 // SDL's own cooperative audio thread moves it to the Sound Blaster whenever
@@ -36,6 +36,27 @@
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
 static int libsdl_audio_pump(void);
+
+// MS-DOS: PumpkinOS threads are cooperative coroutines (libpit threadsc),
+// so the event wait must not block inside SDL for the whole timeout: the
+// network tasks (HTTP client, mail, net install) would never run. Poll the
+// SDL queue and yield to the other tasks in between.
+static int libsdl_wait_event(SDL_Event *ev, int wait) {
+  uint64_t t0, t;
+
+  t0 = sys_get_clock();
+  for (;;) {
+    if (SDL_PollEvent(ev)) return 1;
+    if (wait >= 0) {
+      t = sys_get_clock();
+      if ((t - t0) / 1000 >= (uint64_t)wait) return 0;
+    }
+    thread_yield(0);
+    sys_usleep(1000);
+  }
+}
+#define SDL_WaitEvent(ev) libsdl_wait_event(ev, -1)
+#define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
 #define SDL_BUTTON1   1

@@ -270,13 +270,36 @@ static int socket_select(int socket, uint32_t us, int nf) {
 #endif
   fd_set fds;
   int n, r;
+#if defined(DOS)
+  uint64_t t0, t;
 
+  // cooperative threads: do not block in select() for the whole timeout
+  // (the DJGPP select busy-polls and nothing else would run), poll the
+  // socket and yield to the other tasks in between
+  t0 = sys_get_clock();
+  for (;;) {
+    FD_ZERO(&fds);
+    FD_SET(socket, &fds);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    n = select(nf ? (socket + 1) : 0, &fds, NULL, NULL, &tv);
+    if (n != 0) break;
+    if (us != ((uint32_t)-1)) {
+      t = sys_get_clock();
+      if ((uint64_t)(t - t0) >= us) break;
+    }
+    thread_yield(0);
+    if (thread_must_end()) break;
+    usleep(1000);
+  }
+#else
   FD_ZERO(&fds);
   FD_SET(socket, &fds);
 
   tv.tv_sec = us / 1000000;
   tv.tv_usec = us % 1000000;
   n = select(nf ? (socket + 1) : 0, &fds, NULL, NULL, us == ((uint32_t)-1) ? NULL : &tv);
+#endif
 
   if (n == -1) {
     r = (errno == EINTR) ? 0 : -1; // a SIGCHLD can cause EINTR and it should not terminate the main thread wainting on its DGRAM socket
@@ -587,6 +610,23 @@ void sys_usleep(uint32_t us) {
   bcm2835_delayMicroseconds(us);
 #elif defined(WINDOWS)
   Sleep(us);
+#elif defined(DOS)
+  // cooperative threads: a sleeping task gives the other tasks a turn,
+  // long sleeps are sliced so that they keep getting turns
+  uint64_t t0, t;
+
+  thread_yield(0);
+  if (us <= 1000) {
+    usleep(us);
+    return;
+  }
+  t0 = sys_get_clock();
+  for (;;) {
+    t = sys_get_clock();
+    if ((uint64_t)(t - t0) >= us) break;
+    usleep(1000);
+    thread_yield(0);
+  }
 #else
   usleep(us);
 #endif
@@ -3313,6 +3353,12 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
 
   sys_memset((char *)a, 0, sizeof(struct sockaddr_storage));
 
+#if defined(DOS)
+  // Watt-32 has no IPv6 transport: never pick an IPv6 address for a host
+  // name (the connect would fail or hang, e.g. https://en.wikipedia.org)
+  ipv4_only = 1;
+#endif
+
   if (sys_strchr(host, ':') != NULL) {
     // ipv6 numeric address
     addr6 = (struct sockaddr_in6 *)a;
@@ -3349,7 +3395,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
   } else {
     // host name
     sys_memset((char *)&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = ipv4_only ? AF_INET : AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
@@ -3497,11 +3543,33 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
       closesocket(sock);
       return -1;
     }
+#if defined(DOS)
+    // cooperative threads: poll the connection and yield in between (see socket_select)
+    {
+      uint64_t t0 = sys_get_clock(), t;
+      for (;;) {
+        sys_fdzero(&fds);
+        sys_fdset(sock, &fds);
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 0;
+        r = sys_select_fds(sock+1, NULL, &fds, NULL, &timeout);
+        if (r != 0) break;
+        if (us != (uint32_t)-1) {
+          t = sys_get_clock();
+          if ((uint64_t)(t - t0) >= us) break;
+        }
+        thread_yield(0);
+        if (thread_must_end()) break;
+        usleep(1000);
+      }
+    }
+#else
     sys_fdzero(&fds);
     sys_fdset(sock, &fds);
     timeout.tv_sec = us / 1000000;
     timeout.tv_usec = us % 1000000;
     r = sys_select_fds(sock+1, NULL, &fds, NULL, us == -1 ? NULL : &timeout);
+#endif
     if (r == -1) {
       debug_errno("SYS", "connect to %s port %d (ipv%d)", host, port, ipv6 ? 6 : 4);
       closesocket(sock);

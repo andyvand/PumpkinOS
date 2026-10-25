@@ -19,12 +19,13 @@ $(PROGRAM): $(OBJS)
 
 else ifeq ($(OSNAME),msdosdjgpp)
 
-# MS-DOS: single threaded (threadnull/mutexnull), no script engine (the stub
+# MS-DOS: cooperative threads (threadsc: setjmp/longjmp coroutines, run by
+# thread_run() from libos_start; mutexnull), no script engine (the stub
 # lives in src/msdos/script.c). Sockets come from Watt-32 (dosnet.o does the
 # initialization). fmodl.o supplies the long double fmod missing from the
 # DJGPP libm.
 PROGRAM=$(BIN)/libpit.a
-OBJS=$(SOURCE:%.c=%.o) threadnull.o mutexnull.o httpc.o httpd.o template.o fmodl.o dosnet.o
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o fmodl.o dosnet.o
 all: $(PROGRAM)
 $(PROGRAM): $(OBJS)
 	@echo Creating libpit.a

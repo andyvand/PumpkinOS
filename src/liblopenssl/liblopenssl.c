@@ -43,6 +43,17 @@
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
 #include <openssl/opensslv.h>
+#ifdef DOS
+#include <openssl/rand.h>
+#include <openssl/evp.h>
+#include <openssl/core_names.h>
+#include <openssl/params.h>
+#include <time.h>
+#include <sys/time.h>
+#include <cpuid.h>
+#include <sys/farptr.h>
+#include <go32.h>
+#endif
 
 #include "script.h"
 #include "thread.h"
@@ -62,6 +73,7 @@
 
 /* candidate CA bundles used when the OpenSSL default location has none */
 static const char *ca_bundles[] = {
+  "cert.pem",                                           /* DOS */
   "/etc/ssl/cert.pem",                                  /* macOS, FreeBSD, Alpine */
   "/etc/ssl/certs/ca-certificates.crt",                 /* Debian, Ubuntu, Arch */
   "/etc/pki/tls/certs/ca-bundle.crt",                   /* Fedora, RHEL */
@@ -489,11 +501,153 @@ static int liblopenssl_verify(int pe) {
   return script_push_boolean(pe, 0);
 }
 
+#ifdef DOS
+/*
+ * MS-DOS has no entropy source OpenSSL knows about (the DJGPP build only
+ * looks for /dev/urandom), so the default DRBG cannot be instantiated
+ * ("entropy source strength too weak"). Seed it ourselves: collect timing
+ * noise (8254 timer vs. CPU time stamp counter phase and spin counts,
+ * wall clock, BIOS tick count) and install public/private DRBGs whose seed
+ * source is OpenSSL's TEST-RAND fed with that material. The CTR-DRBG
+ * derivation function condenses the raw samples.
+ *
+ * On real hardware the timer/TSC phase is genuinely noisy; under an
+ * emulator much less so, which is one more reason not to trust a DOS
+ * machine with anything valuable.
+ */
+#define DOS_ENTROPY_LEN 2048
+#define DOS_NONCE_LEN   16
+
+static unsigned char dos_entropy[DOS_ENTROPY_LEN];
+static unsigned char dos_nonce[DOS_NONCE_LEN];
+static EVP_RAND_CTX *dos_seed_ctx;
+
+static int dos_has_tsc(void) {
+  unsigned int a, b, c, d;
+  return __get_cpuid(1, &a, &b, &c, &d) ? ((d >> 4) & 1) : 0;
+}
+
+static uint32_t dos_rdtsc(void) {
+  uint32_t lo, hi;
+  asm volatile ("rdtsc" : "=a" (lo), "=d" (hi));
+  return lo ^ hi;
+}
+
+static uint32_t dos_mix(uint32_t h, uint32_t v) {
+  h ^= v;
+  h *= 0x9E3779B1u;
+  return h ^ (h >> 15);
+}
+
+static void dos_gather_entropy(unsigned char *buf, int len) {
+  struct timeval tv;
+  uclock_t u0, u;
+  uint32_t h, n;
+  int i, tsc;
+
+  tsc = dos_has_tsc();
+  gettimeofday(&tv, NULL);
+  h = dos_mix(0x12345678u, (uint32_t)tv.tv_sec);
+  h = dos_mix(h, (uint32_t)tv.tv_usec);
+  h = dos_mix(h, (uint32_t)time(NULL));
+  h = dos_mix(h, _farpeekl(_dos_ds, 0x46C));  // BIOS tick count
+  h = dos_mix(h, (uint32_t)getpid());
+  h = dos_mix(h, (uint32_t)(uintptr_t)&tv);
+  h = dos_mix(h, (uint32_t)uclock());
+  if (tsc) h = dos_mix(h, dos_rdtsc());
+
+  for (i = 0; i < len; i++) {
+    // spin until the 8254 counter changes: the number of iterations and
+    // the TSC value at that moment are the noisy part
+    u0 = uclock();
+    n = 0;
+    do {
+      u = uclock();
+      n++;
+    } while (u == u0 && n < 100000);
+    h = dos_mix(h, (uint32_t)u);
+    h = dos_mix(h, n);
+    if (tsc) h = dos_mix(h, dos_rdtsc());
+    buf[i] = (unsigned char)(h ^ (h >> 8) ^ (h >> 16) ^ (h >> 24));
+  }
+}
+
+static EVP_RAND_CTX *dos_new_drbg(EVP_RAND_CTX *seed) {
+  EVP_RAND *rand;
+  EVP_RAND_CTX *drbg;
+  OSSL_PARAM params[2];
+
+  if ((rand = EVP_RAND_fetch(NULL, "CTR-DRBG", NULL)) == NULL) return NULL;
+  drbg = EVP_RAND_CTX_new(rand, seed);
+  EVP_RAND_free(rand);
+  if (drbg == NULL) return NULL;
+
+  params[0] = OSSL_PARAM_construct_utf8_string(OSSL_DRBG_PARAM_CIPHER, "AES-256-CTR", 0);
+  params[1] = OSSL_PARAM_construct_end();
+  if (EVP_RAND_instantiate(drbg, 256, 0, NULL, 0, params) != 1) {
+    EVP_RAND_CTX_free(drbg);
+    return NULL;
+  }
+
+  return drbg;
+}
+
+static int dos_seed_openssl(void) {
+  EVP_RAND *rand;
+  EVP_RAND_CTX *pub, *priv;
+  OSSL_PARAM params[4];
+  unsigned int strength = 256;
+
+  dos_gather_entropy(dos_entropy, DOS_ENTROPY_LEN);
+  dos_gather_entropy(dos_nonce, DOS_NONCE_LEN);
+
+  if ((rand = EVP_RAND_fetch(NULL, "TEST-RAND", NULL)) == NULL) {
+    liblopenssl_error("TEST-RAND not available");
+    return -1;
+  }
+  dos_seed_ctx = EVP_RAND_CTX_new(rand, NULL);
+  EVP_RAND_free(rand);
+  if (dos_seed_ctx == NULL) {
+    liblopenssl_error("error creating seed source");
+    return -1;
+  }
+
+  params[0] = OSSL_PARAM_construct_uint(OSSL_RAND_PARAM_STRENGTH, &strength);
+  params[1] = OSSL_PARAM_construct_octet_string(OSSL_RAND_PARAM_TEST_ENTROPY, dos_entropy, DOS_ENTROPY_LEN);
+  params[2] = OSSL_PARAM_construct_octet_string(OSSL_RAND_PARAM_TEST_NONCE, dos_nonce, DOS_NONCE_LEN);
+  params[3] = OSSL_PARAM_construct_end();
+  if (EVP_RAND_instantiate(dos_seed_ctx, strength, 0, NULL, 0, params) != 1) {
+    liblopenssl_error("error seeding the seed source");
+    return -1;
+  }
+
+  if ((pub = dos_new_drbg(dos_seed_ctx)) == NULL || (priv = dos_new_drbg(dos_seed_ctx)) == NULL) {
+    liblopenssl_error("error creating DRBG");
+    return -1;
+  }
+
+  // RAND_bytes() / RAND_priv_bytes() now use these (ownership transferred)
+  if (RAND_set0_public(NULL, pub) != 1 || RAND_set0_private(NULL, priv) != 1) {
+    liblopenssl_error("error installing DRBG");
+    return -1;
+  }
+
+  debug(DEBUG_INFO, TAG, "DRBG seeded from DOS timing entropy");
+  return 0;
+}
+#endif
+
 int liblopenssl_load(void) {
   if (OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL) != 1) {
     liblopenssl_error("OPENSSL_init_ssl failed");
     return -1;
   }
+
+#ifdef DOS
+  if (dos_seed_openssl() != 0) {
+    debug(DEBUG_ERROR, TAG, "random number generator not seeded, TLS will not work");
+  }
+#endif
 
   provider.new = liblopenssl_new;
   provider.destroy = liblopenssl_destroy;

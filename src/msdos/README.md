@@ -92,12 +92,28 @@ is read from `WATTCP.CFG` in the current directory (or in the directory the
 DHCP server. Initialization happens at startup while the screen is still in
 text mode, so the Watt-32 messages can be read; without a packet driver the
 network is simply unavailable (Browser, Mail and Net Install cannot
-connect) and the error is logged.
+connect) and the error is logged. Only IPv4 is used: a host name that also
+has IPv6 addresses is always connected through its IPv4 address (Watt-32 has
+no IPv6 transport).
+
+The network clients and servers run as PumpkinOS threads. On DOS these are
+cooperative coroutines (`libpit/threadsc.c`, one heap allocated stack per
+thread, switched with setjmp/longjmp): the PumpkinOS main loop and every
+connection are tasks that give each other a turn whenever they wait (event
+wait in the SDL window provider, `sys_usleep`, the socket waits in `sys.c`).
+Nothing is preempted, so a task that computes for a long time without
+waiting stalls the others.
 
 `https://` connections use OpenSSL (the DJGPP build in the cross compiler
 sysroot, see `liblopenssl/`). Certificate verification needs a CA bundle:
 put `cacert.pem` (for example the one from https://curl.se/docs/caextract.html)
 next to `pumpkin.exe`; it is passed to OpenSSL through `SSL_CERT_FILE`.
+DOS has no entropy source OpenSSL knows about, so `liblopenssl` seeds the
+random number generator itself at startup from timing noise (8254 timer
+against the CPU time stamp counter, wall clock, BIOS tick count) through
+OpenSSL's TEST-RAND seed source. On real hardware that noise is genuine;
+under an emulator it is much weaker, so do not treat a DOS session as a
+secure client for anything valuable.
 
 ## Not available on DOS
 
