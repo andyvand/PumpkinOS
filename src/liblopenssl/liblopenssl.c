@@ -1,5 +1,6 @@
 /*
- * liblopenssl - TLS provider for PumpkinOS built on OpenSSL (1.1.0 or newer).
+ * liblopenssl - TLS provider for PumpkinOS built on OpenSSL (1.1.0 or newer,
+ * including the 4.x API used by the DJGPP/MS-DOS cross build).
  *
  * Registers a secure_provider_t under SECURE_PROVIDER so that libos passes it
  * to the HTTP client, which makes https:// URLs work in pumpkin_http_get()
@@ -64,6 +65,17 @@
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 #error "liblopenssl requires OpenSSL 1.1.0 or newer"
+#endif
+
+/* OpenSSL 4.0 deprecated X509_STORE_get0_objects() (use the get1 variant,
+ * which returns a copy the caller frees) and SSL_set1_host() / SSL_add1_host()
+ * (use SSL_set1_dnsname() for host names and SSL_set1_ipaddr() for IP
+ * literals). The DJGPP sysroot ships OpenSSL 4.x, so build warning-free
+ * there while still compiling against 1.1.x / 3.x elsewhere. */
+#if OPENSSL_VERSION_NUMBER >= 0x40000000L
+#define LIBLOPENSSL_HAVE_OPENSSL_4 1
+#else
+#define LIBLOPENSSL_HAVE_OPENSSL_4 0
 #endif
 
 #define TAG "SECURE"
@@ -221,10 +233,38 @@ static int load_pem_cert_key(SSL_CTX *ctx, char *cert, char *key) {
 static int has_ca_certs(SSL_CTX *ctx) {
   X509_STORE *store = SSL_CTX_get_cert_store(ctx);
   STACK_OF(X509_OBJECT) *objs;
+  int r;
 
   if (store == NULL) return 0;
+#if LIBLOPENSSL_HAVE_OPENSSL_4
+  /* get1: a reference-counted copy of the object list, released below */
+  objs = X509_STORE_get1_objects(store);
+  r = objs && sk_X509_OBJECT_num(objs) > 0;
+  if (objs) sk_X509_OBJECT_pop_free(objs, X509_OBJECT_free);
+#else
   objs = X509_STORE_get0_objects(store);
-  return objs && sk_X509_OBJECT_num(objs) > 0;
+  r = objs && sk_X509_OBJECT_num(objs) > 0;
+#endif
+  return r;
+}
+
+/* register the expected peer identity for host name verification; host may
+   be a DNS name or an IPv4/IPv6 literal */
+static int set_verify_host(SSL *ssl, const char *host) {
+#if LIBLOPENSSL_HAVE_OPENSSL_4
+  ASN1_OCTET_STRING *ip;
+
+  /* SSL_set1_host() used to detect IP literals itself; its 4.0 replacements
+     are split by identity type, so do the detection here */
+  if ((ip = a2i_IPADDRESS(host)) != NULL) {
+    ASN1_OCTET_STRING_free(ip);
+    return SSL_set1_ipaddr(ssl, host);
+  }
+  ERR_clear_error();
+  return SSL_set1_dnsname(ssl, host);
+#else
+  return SSL_set1_host(ssl, host);
+#endif
 }
 
 #ifdef ANDROID
@@ -365,7 +405,7 @@ static secure_t *liblopenssl_connect(secure_config_t *c, char *host, int port, i
     SSL_set_tlsext_host_name(ssl, host);
     if (c->verify) {
       SSL_set_hostflags(ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
-      if (SSL_set1_host(ssl, host) != 1) {
+      if (set_verify_host(ssl, host) != 1) {
         liblopenssl_error("error setting host name");
         SSL_free(ssl);
         return NULL;
