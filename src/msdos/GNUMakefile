@@ -16,13 +16,23 @@ PROGRAM=$(BIN)/pumpkin.exe
 
 CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
 
-# dxesyms.c / dxeshims.c are installed here by an application built as a
-# DXE3 module (VBA-M's src/pumpkinos, make UNAME_S=msdosdjgpp): the
-# dlregsym() table of the symbols pumpkin.exe exports to the module (the
-# PalmOS API, libpit, libc, libgcc, libstdc++) and the Pth wrappers the
-# toolchain's libstdc++ <thread> objects reference. Without the table dlopen
-# fails with "unresolved symbol" on the module's first import.
-SOURCE=main.c script.c $(wildcard dxesyms.c dxeshims.c)
+# Applications may also be DXE3 modules (a dlib resource in the .prc, loaded
+# with dlopen). The loader resolves a module's imports from the dlregsym()
+# tables registered in pumpkin.exe:
+#
+# - dxeexport.c (generated here by dxeexport.py from bin/libpit.a and
+#   bin/libpumpkin.a) exports EVERY global symbol of libpit and libpumpkin,
+#   i.e. the whole PalmOS API, so a module may import any of it. Referencing
+#   each symbol also links the complete libraries into the executable.
+# - dxesyms.c / dxeshims.c are installed here by an application built as a
+#   DXE3 module (VBA-M's src/pumpkinos, make UNAME_S=msdosdjgpp): the table
+#   of libc, libgcc and libstdc++ symbols that module imports, and the Pth
+#   wrappers the toolchain's libstdc++ <thread> objects reference.
+#
+# Without a symbol dlopen fails with "unresolved symbol" on the module's
+# first import of it.
+DXEEXPORT=dxeexport.c
+SOURCE=main.c script.c $(DXEEXPORT) $(wildcard dxesyms*.c dxeshims.c)
 OBJS=$(SOURCE:%.c=%.o)
 
 # applications and plugins (static libraries built by app.mak)
@@ -40,10 +50,14 @@ SDLLIBS=$(EXTLIBDIRS) -lSDL3 -lSDL3_mixer -lfluidsynth -lxmp -lvorbisfile -lvorb
 
 all: $(PROGRAM)
 
+$(DXEEXPORT): dxeexport.py $(BIN)/libpit.a $(BIN)/libpumpkin.a
+	@echo Generating $@
+	@python3 -I dxeexport.py --nm $(firstword $(NM)) -n dxe_pumpkin_table -o $@ $(BIN)/libpit.a $(BIN)/libpumpkin.a
+
 $(PROGRAM): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkin.exe
 	@$(CC) $(MBITS) -o $(PROGRAM) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto -lwatt $(APPLDFLAGS) -lpit -Wl,--end-group -Wl,--start-group $(SDLLIBS) -Wl,--end-group -lstdc++ -lsupc++ -lm $(EXTLIBS)
 	@$(STRIP) $(PROGRAM)
 
 clean:
-	@rm -f $(PROGRAM) $(OBJS)
+	@rm -f $(PROGRAM) $(OBJS) $(DXEEXPORT)

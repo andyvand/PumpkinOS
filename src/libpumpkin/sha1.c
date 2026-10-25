@@ -275,6 +275,11 @@ void SHA1Final(
     sys_memset(&finalcount, '\0', sizeof(finalcount));
 }
 
+// DJGPP: pumpkin.exe exports every libpumpkin symbol to DXE3 modules
+// (msdos/dxeexport.c), which links the whole of this object. The one-shot
+// SHA1() below (unused in the tree) would then collide with OpenSSL's SHA1()
+// in libcrypto, which has a different signature. Leave it out of that build.
+#ifndef DOS
 void SHA1(
     char *hash_out,
     const char *str,
@@ -288,3 +293,4 @@ void SHA1(
         SHA1Update(&ctx, (const unsigned char*)str + ii, 1);
     SHA1Final((unsigned char *)hash_out, &ctx);
 }
+#endif

@@ -44,6 +44,7 @@ static int gameIndex, extraIndex;
 static int gameWads, extraWads;
 static char *gameItems[MAX_ITEMS];
 static int gameVariantIndex[MAX_ITEMS];
+static char *gameWadFile[MAX_ITEMS];
 static char *gameExtraItems[MAX_ITEMS];
 static Boolean ready;
 static uint64_t lastDraw;
@@ -288,7 +289,7 @@ static void gameStart(void) {
   rootdir = getGameRoot(title);
 
   i = gameVariantIndex[gameIndex];
-  wadfile = gameWad(i);
+  wadfile = gameWadFile[i] ? gameWadFile[i] : gameWad(i);
   len = StrLen(rootdir) + 1 + StrLen(wadfile) + 1;
   wad = MemPtrNew(len);
   sys_snprintf(wad, len, "%s/%s", rootdir, wadfile);
@@ -362,6 +363,8 @@ static void gameStart(void) {
 
   for (i = 0; i < MAX_ITEMS; i++) {
     if (gameExtraItems[i]) MemPtrFree(gameExtraItems[i]);
+    if (gameWadFile[i]) MemPtrFree(gameWadFile[i]);
+    gameWadFile[i] = NULL;
   }
 
   if (extrawad) MemPtrFree(extrawad);
@@ -789,7 +792,7 @@ int DG_readdir(dg_dir_t *f, char *name, int len) {
     info.nameP = name;
     info.nameBufLen = len;
     if (VFSDirEntryEnumerate(f->fr, &f->iterator, &info) == errNone) {
-      r = (info.attributes == vfsFileAttrDirectory) ? 1 : 0;
+      r = (info.attributes & vfsFileAttrDirectory) ? 1 : 0;
     }
   }
 
@@ -839,6 +842,7 @@ static void gamePrepare(void) {
   variants = gameVariants();
 
   MemSet(gameExtraItems, sizeof(gameExtraItems), 0);
+  MemSet(gameWadFile, sizeof(gameWadFile), 0);
   extraWads = 1;
   extraIndex = 0;
   gameWads = 0;
@@ -856,12 +860,18 @@ static void gamePrepare(void) {
       ext = getext(name);
       if (!ext || StrCaselessCompare(ext, "wad")) continue;
       for (i = 0; i < variants; i++) {
-        if (!StrCompare(name, gameWad(i))) break;
+        // case-insensitive: DJGPP's readdir returns 8.3 names in lower case
+        if (!StrCaselessCompare(name, gameWad(i))) break;
       }
-      if (i < gameVariants()) {
+      if (i < variants) {
         // game WAD
         if (i < MAX_ITEMS) {
           present[i] = true;
+          // remember the name as it is on the card (DOS may return lower case)
+          if (gameWadFile[i] == NULL) {
+            gameWadFile[i] = MemPtrNew(StrLen(name) + 1);
+            StrCopy(gameWadFile[i], name);
+          }
         }
       } else {
         // extra WAD
