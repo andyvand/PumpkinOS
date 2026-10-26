@@ -29,9 +29,22 @@ else
 UNICORN_INC=-I$(UNICORN)/include
 UNICORN_LIB=$(UNICORN)/build/libunicorn.a
 endif
-else ifeq($(OSNAME),Darwin)
+else ifeq ($(OSNAME),Darwin)
 UNICORN_INC=-I/usr/local/include
 UNICORN_LIB=/usr/local/lib/libunicorn.a
+else ifeq ($(OSNAME),Android)
+UNICORN_INC=-I$(NDK)/sysroot/usr/include
+ifeq ($(MACHINE),aarch64)
+UNICORN_LIB=$(NDK)/sysroot/usr/lib/aarch64-linux-android/libunicorn.a
+else ifeq ($(MACHINE),arm)
+UNICORN_LIB=$(NDK)/sysroot/usr/lib/arm-linux-androideabi/libunicorn.a
+else ifeq ($(MACHINE),i686)
+UNICORN_LIB=$(NDK)/sysroot/usr/lib/i686-linux-android/libunicorn.a
+else ifeq ($(MACHINE),x86_64)
+UNICORN_LIB=$(NDK)/sysroot/usr/lib/x86_64-linux-android/libunicorn.a
+else ifeq ($(MACHINE),riscv64)
+UNICORN_LIB=$(NDK)/sysroot/usr/lib/riscv64-linux-android/libunicorn.a
+endif
 endif
 
 ifeq ($(OSNAME),Msys)

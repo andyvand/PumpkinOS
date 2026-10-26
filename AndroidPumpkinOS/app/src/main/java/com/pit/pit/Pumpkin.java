@@ -221,6 +221,8 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_a32, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_a32, dir, "MemoPad.prc");
                 copyFile(R.raw.command_a32, dir, "Command.prc");
+                copyFile(R.raw.compatdb_a32, dir, "CompatDB.prc");
+                copyFile(R.raw.japanese_a32, dir, "Japanese.prc");
                 copyFile(R.raw.luasyntax_a32, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_a32, dir, "vi.prc");
                 copyFile(R.raw.preferences_a32, dir, "Preferences.prc");
@@ -239,6 +241,8 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_a64, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_a64, dir, "MemoPad.prc");
                 copyFile(R.raw.command_a64, dir, "Command.prc");
+                copyFile(R.raw.compatdb_a64, dir, "CompatDB.prc");
+                copyFile(R.raw.japanese_a64, dir, "Japanese.prc");
                 copyFile(R.raw.luasyntax_a64, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_a64, dir, "vi.prc");
                 copyFile(R.raw.preferences_a64, dir, "Preferences.prc");
@@ -257,6 +261,8 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_i32, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_i32, dir, "MemoPad.prc");
                 copyFile(R.raw.command_i32, dir, "Command.prc");
+                copyFile(R.raw.compatdb_i32, dir, "CompatDB.prc");
+                copyFile(R.raw.japanese_i32, dir, "Japanese.prc");
                 copyFile(R.raw.luasyntax_i32, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_i32, dir, "vi.prc");
                 copyFile(R.raw.preferences_i32, dir, "Preferences.prc");
@@ -275,6 +281,8 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_i64, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_i64, dir, "MemoPad.prc");
                 copyFile(R.raw.command_i64, dir, "Command.prc");
+                copyFile(R.raw.compatdb_i64, dir, "CompatDB.prc");
+                copyFile(R.raw.japanese_i64, dir, "Japanese.prc");
                 copyFile(R.raw.luasyntax_i64, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_i64, dir, "vi.prc");
                 copyFile(R.raw.preferences_i64, dir, "Preferences.prc");
@@ -293,6 +301,8 @@ public class Pumpkin extends Application {
                 copyFile(R.raw.datebook_r64, dir, "DateBook.prc");
                 copyFile(R.raw.memopad_r64, dir, "MemoPad.prc");
                 copyFile(R.raw.command_r64, dir, "Command.prc");
+                copyFile(R.raw.compatdb_r64, dir, "CompatDB.prc");
+                copyFile(R.raw.japanese_r64, dir, "Japanese.prc");
                 copyFile(R.raw.luasyntax_r64, dir, "LuaSyntax.prc");
                 copyFile(R.raw.vi_r64, dir, "vi.prc");
                 copyFile(R.raw.preferences_r64, dir, "Preferences.prc");
