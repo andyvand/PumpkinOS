@@ -211,6 +211,7 @@ add_library( # Sets the name of the library.
         PumpkinOS/src/libpumpkin/notif_serde_wce.c
         PumpkinOS/src/libpumpkin/build.c
         PumpkinOS/src/libpumpkin/pumpkin.c
+        PumpkinOS/src/libpumpkin/WindowAccessor.c
         PumpkinOS/src/libpumpkin/pumpkin_syscall.c
         PumpkinOS/src/libpumpkin/deploy.c
         PumpkinOS/src/libpumpkin/storage.c
