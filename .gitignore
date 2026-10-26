@@ -57,3 +57,4 @@ src/libemulation/tools/zmac/zmac.c
 !/src/data/vfs/app_storage
 !/src/data/vfs/app_install/*
 !src/data/vfs/app_card/PALM/Programs/Command
+/src/msdos/dxeexport.c
