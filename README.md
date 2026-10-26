@@ -21,7 +21,7 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 ![](/screenshots/pumpkinos.png)
 
 # Last sync with repo
-Up to date to commit 66a98f9
+Up to date to commit 9a95d7b1
 
 # Support for MSVC and macOS
 The folder VCProject contains a MSVC buildable project.

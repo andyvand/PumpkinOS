@@ -2,7 +2,7 @@ include ../common.mak
 include ../commonp.mak
 
 PROGRAM=CompatDB
-PRC=$(VFS)/app_install/$(PROGRAM).prc
+PRC=$(VFS)/$(VFS_INSTALL_DIR)/$(PROGRAM).prc
 
 CompatDB.prc:
 	@echo Building $(PROGRAM).prc

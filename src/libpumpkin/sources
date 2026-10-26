@@ -183,6 +183,64 @@ SOURCES= \
     netlibtrap.c \
     gpdlibtrap.c \
     systrap.c \
+    AbtSysTrap.c \
+    AlmSysTrap.c \
+    AttnSysTrap.c \
+    BmpSysTrap.c \
+    CategorySysTrap.c \
+    ClipboardSysTrap.c \
+    CrcSysTrap.c \
+    CtlSysTrap.c \
+    DateSysTrap.c \
+    DaysSysTrap.c \
+    DaySysTrap.c \
+    DlkSysTrap.c \
+    DmSysTrap.c \
+    EncSysTrap.c \
+    ErrSysTrap.c \
+    EvtSysTrap.c \
+    ExgSysTrap.c \
+    FileSysTrap.c \
+    FldSysTrap.c \
+    FntSysTrap.c \
+    FontSysTrap.c \
+    FormAccessor.c \
+    FplSysTrap.c \
+    FrmSysTrap.c \
+    FtrSysTrap.c \
+    GetSysTrap.c \
+    GrfSysTrap.c \
+    GsiSysTrap.c \
+    HostSysTrap.c \
+    HsExt.c \
+    HwrSysTrap.c \
+    inetlibtrap.c \
+    InsSysTrap.c \
+    KeySysTrap.c \
+    LocSysTrap.c \
+    LstSysTrap.c \
+    MemSysTrap.c \
+    MenuSysTrap.c \
+    oemtrap.c \
+    PceSysTrap.c \
+    PenSysTrap.c \
+    PrefSysTrap.c \
+    PrgSysTrap.c \
+    PwdSysTrap.c \
+    RctSysTrap.c \
+    ResSysTrap.c \
+    SclSysTrap.c \
+    SecSysTrap.c \
+    SelectSysTrap.c \
+    SndSysTrap.c \
+    sonyhrtrap.c \
+    SonyLib.c \
+    StrSysTrap.c \
+    TblSysTrap.c \
+    TimeSysTrap.c \
+    TimSysTrap.c \
+    UISysTrap.c \
+    WinSysTrap.c \
     m68kcpu.c \
     softfloat.c \
     m68kops.c \
@@ -229,7 +287,7 @@ DLLENTRY=_DllMainCRTStartup
 
 TARGETTYPE=DYNLINK
 DEFFILE=$(TARGETNAME).def
-CDEFINES=$(CDEFINES) -Dlibpumpkin_EXPORTS -I./emulation -I./emulation/arm -I../PalmOS/Core/System -I../PalmOs/PalmOne -I../PalmOs/PalmOne/Common -I../PalmOs/PalmOne/Common/System -I../PalmOs/PalmOne/68K -I../PalmOs/PalmOne/68K/System -I../PalmOS/PalmOne/Common/Libraries/filebrowser -I../PalmOS/PalmOne/68K/Libraries/filebrowser -I../PalmOS/Libraries/SSL -I../PalmOS/Libraries/CPMLib -I../PalmOS/Libraries/Pdi -I../PalmOS/Garmin -I../PalmOS/Libraries/PalmOSGlue -I../PalmOS/Libraries/INet -I../PalmOS/Core/Hardware -I../PalmOS/Extensions/ExpansionMgr -I../PalmOS/Extensions/Bluetooth -I../PalmOS -I../PalmOS/Libraries -I../PalmOS/Core -I../PalmOS/Core/UI -I../PalmOS/Core/System -I../PalmOS/Dynamic -I./emulation/darm -I./tos -I../libpit/custom_malloc/ -I../libemulation -DARMEMU -I..\..\src\libpit -I..\font -D_WIN32_WCE=800 -DUNDER_CE=0x800 -DCRDATE=1768834074 -DSYSTEM_VERSION="\"1.0\"" -DSYSTEM_NAME="\"pit\"" -DSYSTEM_OS="\"WindowsCE\"" -DAPPNAME="\"\"" -DAPPID=\'\' -DSYS_CPU=1 -DSYS_SIZE=1 -DSYS_OS=2 -DSYS_ENDIAN=1 -DWINDOWS -DWINDOWS32 -DSOEXT="\".dll\"" -DLOGTRAP_SYS -DMUTE_DEBUG
+CDEFINES=$(CDEFINES) -Dlibpumpkin_EXPORTS -I./emulation -I./emulation/arm -I../PalmOS/Core/System -I../PalmOS/Sony -I../PalmOS/Sony/System -I../PalmOS/Sony/Libraries -I../PalmOs/PalmOne -I../PalmOs/PalmOne/Common -I../PalmOs/PalmOne/Common/System -I../PalmOs/PalmOne/68K -I../PalmOs/PalmOne/68K/System -I../PalmOS/PalmOne/Common/Libraries/filebrowser -I../PalmOS/PalmOne/68K/Libraries/filebrowser -I../PalmOS/Libraries/SSL -I../PalmOS/Libraries/CPMLib -I../PalmOS/Libraries/Pdi -I../PalmOS/Garmin -I../PalmOS/Libraries/PalmOSGlue -I../PalmOS/Libraries/INet -I../PalmOS/Core/Hardware -I../PalmOS/Extensions/ExpansionMgr -I../PalmOS/Extensions/Bluetooth -I../PalmOS -I../PalmOS/Libraries -I../PalmOS/Core -I../PalmOS/Core/UI -I../PalmOS/Core/System -I../PalmOS/Sony -I../PalmOS/Sony/System -I../PalmOS/Sony/Libraries -I../PalmOS/Dynamic -I./emulation/darm -I./tos -I../libpit/custom_malloc/ -I../libemulation -DARMEMU -I..\..\src\libpit -I..\font -D_WIN32_WCE=800 -DUNDER_CE=0x800 -DCRDATE=1768834074 -DSYSTEM_VERSION="\"1.0\"" -DSYSTEM_NAME="\"pit\"" -DSYSTEM_OS="\"WindowsCE\"" -DAPPNAME="\"\"" -DAPPID=\'\' -DSYS_CPU=1 -DSYS_SIZE=1 -DSYS_OS=2 -DSYS_ENDIAN=1 -DWINDOWS -DWINDOWS32 -DSOEXT="\".dll\"" -DLOGTRAP_SYS -DMUTE_DEBUG
 FILE_VIEW_PARAMETER_FOLDER= \
     libpumpkin.bib \
     libpumpkin.reg \

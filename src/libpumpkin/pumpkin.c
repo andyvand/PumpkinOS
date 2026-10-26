@@ -2086,6 +2086,7 @@ static int pumpkin_local_init(int i, uint32_t taskId, texture_t *texture, uint32
   task->enableSound = enableSound;
   sys_strncpy(task->name, name, dmDBNameLength-1);
 
+#ifndef DOS
   if (task->creator == pumpkin_get_id_option("logscr")) {
     sys_snprintf(buf, sizeof(buf)-1, "%08X.scr", creator);
     if ((task->logscr = sys_create(buf, SYS_WRITE, 0644)) != -1) {
@@ -2098,6 +2099,7 @@ static int pumpkin_local_init(int i, uint32_t taskId, texture_t *texture, uint32
       sys_write(task->logscr, (uint8_t *)&u16, 2);
     }
   }
+#endif
 
   thread_set(task_key, task);
   if (pumpkin_module.mode != 1) {

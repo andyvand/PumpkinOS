@@ -79,6 +79,9 @@ include_directories(PumpkinOS/src/PalmOS/Core)
 include_directories(PumpkinOS/src/PalmOS/Core/Hardware)
 include_directories(PumpkinOS/src/PalmOS/Core/System)
 include_directories(PumpkinOS/src/PalmOS/Core/UI)
+include_directories(PumpkinOS/src/PalmOS/Sony)
+include_directories(PumpkinOS/src/PalmOS/Sony/System)
+include_directories(PumpkinOS/src/PalmOS/Sony/Libraries)
 include_directories(PumpkinOS/src/PalmOS/Dynamic)
 include_directories(PumpkinOS/src/PalmOS/Extensions/Bluetooth)
 include_directories(PumpkinOS/src/PalmOS/Extensions/ExpansionMgr)
@@ -117,6 +120,9 @@ add_library( # Sets the name of the library.
         PumpkinOS/src/libpit/builtin.c
         PumpkinOS/src/libpit/list.c
         PumpkinOS/src/libpit/sock.c
+        PumpkinOS/src/libpit/base64.c
+        PumpkinOS/src/libpit/sha1.c
+        PumpkinOS/src/libpit/websocket.c
         PumpkinOS/src/libpit/io.c
         PumpkinOS/src/libpit/loadfile.c
         PumpkinOS/src/libpit/util.c
@@ -360,6 +366,64 @@ add_library( # Sets the name of the library.
         PumpkinOS/src/libpumpkin/netlibtrap.c
         PumpkinOS/src/libpumpkin/gpdlibtrap.c
         PumpkinOS/src/libpumpkin/systrap.c
+        PumpkinOS/src/libpumpkin/AbtSysTrap.c
+        PumpkinOS/src/libpumpkin/AlmSysTrap.c
+        PumpkinOS/src/libpumpkin/AttnSysTrap.c
+        PumpkinOS/src/libpumpkin/BmpSysTrap.c
+        PumpkinOS/src/libpumpkin/CategorySysTrap.c
+        PumpkinOS/src/libpumpkin/ClipboardSysTrap.c
+        PumpkinOS/src/libpumpkin/CrcSysTrap.c
+        PumpkinOS/src/libpumpkin/CtlSysTrap.c
+        PumpkinOS/src/libpumpkin/DateSysTrap.c
+        PumpkinOS/src/libpumpkin/DaysSysTrap.c
+        PumpkinOS/src/libpumpkin/DaySysTrap.c
+        PumpkinOS/src/libpumpkin/DlkSysTrap.c
+        PumpkinOS/src/libpumpkin/DmSysTrap.c
+        PumpkinOS/src/libpumpkin/EncSysTrap.c
+        PumpkinOS/src/libpumpkin/ErrSysTrap.c
+        PumpkinOS/src/libpumpkin/EvtSysTrap.c
+        PumpkinOS/src/libpumpkin/ExgSysTrap.c
+        PumpkinOS/src/libpumpkin/FileSysTrap.c
+        PumpkinOS/src/libpumpkin/FldSysTrap.c
+        PumpkinOS/src/libpumpkin/FntSysTrap.c
+        PumpkinOS/src/libpumpkin/FontSysTrap.c
+        PumpkinOS/src/libpumpkin/FormAccessor.c
+        PumpkinOS/src/libpumpkin/FplSysTrap.c
+        PumpkinOS/src/libpumpkin/FrmSysTrap.c
+        PumpkinOS/src/libpumpkin/FtrSysTrap.c
+        PumpkinOS/src/libpumpkin/GetSysTrap.c
+        PumpkinOS/src/libpumpkin/GrfSysTrap.c
+        PumpkinOS/src/libpumpkin/GsiSysTrap.c
+        PumpkinOS/src/libpumpkin/HostSysTrap.c
+        PumpkinOS/src/libpumpkin/HsExt.c
+        PumpkinOS/src/libpumpkin/HwrSysTrap.c
+        PumpkinOS/src/libpumpkin/inetlibtrap.c
+        PumpkinOS/src/libpumpkin/InsSysTrap.c
+        PumpkinOS/src/libpumpkin/KeySysTrap.c
+        PumpkinOS/src/libpumpkin/LocSysTrap.c
+        PumpkinOS/src/libpumpkin/LstSysTrap.c
+        PumpkinOS/src/libpumpkin/MemSysTrap.c
+        PumpkinOS/src/libpumpkin/MenuSysTrap.c
+        PumpkinOS/src/libpumpkin/oemtrap.c
+        PumpkinOS/src/libpumpkin/PceSysTrap.c
+        PumpkinOS/src/libpumpkin/PenSysTrap.c
+        PumpkinOS/src/libpumpkin/PrefSysTrap.c
+        PumpkinOS/src/libpumpkin/PrgSysTrap.c
+        PumpkinOS/src/libpumpkin/PwdSysTrap.c
+        PumpkinOS/src/libpumpkin/RctSysTrap.c
+        PumpkinOS/src/libpumpkin/ResSysTrap.c
+        PumpkinOS/src/libpumpkin/SclSysTrap.c
+        PumpkinOS/src/libpumpkin/SecSysTrap.c
+        PumpkinOS/src/libpumpkin/SelectSysTrap.c
+        PumpkinOS/src/libpumpkin/SndSysTrap.c
+        PumpkinOS/src/libpumpkin/sonyhrtrap.c
+        PumpkinOS/src/libpumpkin/SonyLib.c
+        PumpkinOS/src/libpumpkin/StrSysTrap.c
+        PumpkinOS/src/libpumpkin/TblSysTrap.c
+        PumpkinOS/src/libpumpkin/TimeSysTrap.c
+        PumpkinOS/src/libpumpkin/TimSysTrap.c
+        PumpkinOS/src/libpumpkin/UISysTrap.c
+        PumpkinOS/src/libpumpkin/WinSysTrap.c
         PumpkinOS/src/libpumpkin/m68kcpu.c
         PumpkinOS/src/libpumpkin/softfloat.c
         PumpkinOS/src/libpumpkin/m68kops.c

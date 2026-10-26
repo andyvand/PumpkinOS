@@ -171,6 +171,9 @@
     <ClCompile Include="..\..\..\src\libpit\builtin.c" />
     <ClCompile Include="..\..\..\src\libpit\list.c" />
     <ClCompile Include="..\..\..\src\libpit\sock.c" />
+    <ClCompile Include="..\..\..\src\libpit\base64.c" />
+    <ClCompile Include="..\..\..\src\libpit\sha1.c" />
+    <ClCompile Include="..\..\..\src\libpit\websocket.c" />
     <ClCompile Include="..\..\..\src\libpit\io.c" />
     <ClCompile Include="..\..\..\src\libpit\loadfile.c" />
     <ClCompile Include="..\..\..\src\libpit\util.c" />

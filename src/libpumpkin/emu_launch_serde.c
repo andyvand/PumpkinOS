@@ -1,6 +1,7 @@
 /* This file was generated from "launchcodes.struct". Do not edit. */
 #include <PalmOS.h>
 #include <VFSMgr.h>
+#include <INetMgr.h>
 #include <GPSLib.h>
 
 #ifdef ARMEMU
