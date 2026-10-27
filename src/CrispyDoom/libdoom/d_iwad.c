@@ -21,6 +21,11 @@
 #include <ctype.h>
 #include <string.h>
 
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include "deh_str.h"
 #include "doomkeys.h"
 #include "d_iwad.h"
@@ -94,10 +99,7 @@ static void AddIWADDir(const char *dir)
 
 #if defined(_WIN32) && !defined(_WIN32_WCE)
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-typedef struct 
+typedef struct
 {
     HKEY root;
     char *path;

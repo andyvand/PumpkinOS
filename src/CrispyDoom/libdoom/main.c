@@ -1,6 +1,11 @@
 #include <PalmOS.h>
 #include <VFSMgr.h>
 
+#ifdef __MINGW32__
+#define _INC_STDLIB 1
+#define _INC_STRING_S 1
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>

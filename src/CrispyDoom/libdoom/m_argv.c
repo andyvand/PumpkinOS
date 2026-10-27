@@ -305,7 +305,7 @@ static boolean FileIsDemoLump(const char *filename)
         return false;
     }
 
-    count = fread(buf, 1, sizeof(buf), handle);
+    count = fread(buf, 1, sizeof(buf), (FILE *)handle);
     DG_close(handle);
 
     if (count != sizeof(buf))
@@ -494,8 +494,11 @@ void M_AddLooseFiles(void)
 
     // sort the argument list by file type, except for the zeroth argument
     // which is the executable invocation itself
-
+#ifdef WINDOWS
+    qsort(arguments + 1, myargc - 1, sizeof(*arguments), CompareByFileType);
+#else
     SDL_qsort(arguments + 1, myargc - 1, sizeof(*arguments), CompareByFileType);
+#endif
 
     newargv[0] = myargv[0];
 
