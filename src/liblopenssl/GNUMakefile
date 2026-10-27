@@ -36,7 +36,11 @@ else ifeq ($(OPENSSL),sysroot)
 LIBS=-lssl -lcrypto
 else
 CUSTOMFLAGS=-I$(OPENSSL)/include
+ifeq ($(OSNAME),Msys)
+LIBS=-L$(OPENSSL)/lib -lssl -lcrypto -lws2_32 -lgdi32 -lcrypt32 -lbcrypt
+else
 LIBS=-L$(OPENSSL)/lib -lssl -lcrypto
+endif
 endif
 else
 LIBS=-lssl -lcrypto
