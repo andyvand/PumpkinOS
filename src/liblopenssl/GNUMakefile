@@ -13,7 +13,9 @@ OPENSSL=sysroot
 endif
 
 ifeq ($(OPENSSL),)
-ifneq ($(wildcard /usr/local/include/openssl/ssl.h),)
+ifeq ($(OSNAME),Msys)
+OPENSSL=/usr/local/$(MACHINE)-pc-mingw32
+else ifneq ($(wildcard /usr/local/include/openssl/ssl.h),)
 OPENSSL=/usr/local
 else ifneq ($(wildcard /opt/homebrew/opt/openssl@3/include/openssl/ssl.h),)
 OPENSSL=/opt/homebrew/opt/openssl@3
