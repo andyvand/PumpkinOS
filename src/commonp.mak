@@ -4,8 +4,22 @@ PILRC     = $(TOOLS)/pilrc -q -allowLargeRes
 PRCBUILD  = $(TOOLS)/prcbuild
 BUILDPRC  = /c/msys64/usr/bin/build-prc
 ifeq ($(OSNAME),Msys)
+ifeq ($(MACHINE),x86_64)
 DLIBID    = 146
 DLIB      = dlib0092.bin
+else ifeq ($(MACHINE),arm)
+DLIBID    = 137
+DLIB      = dlib0089.bin
+else ifeq ($(MACHINE),aarch64)
+DLIBID    = 138
+DLIB      = dlib008a.bin
+else ifeq ($(MACHINE),i686)
+DLIBID    = 145
+DLIB      = dlib0091.bin
+else
+DLIBID    = 154
+DLIB      = dlib009a.bin
+endif
 else
 DLIBID    = $(shell expr $(SYS_OS) \* 64 + $(SYS_CPU) \* 8 + $(SYS_SIZE))
 DLIB      = $(shell printf "dlib%04x.bin" $(DLIBID))
