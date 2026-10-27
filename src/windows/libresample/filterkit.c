@@ -144,7 +144,7 @@ float lrsFilterUp(float Imp[],  /* impulse response */
    if (Interp)
       while (Hp < End) {
          t = *Hp;		/* Get filter coeff */
-         t += (*Hdp)*a; /* t is now interp'd filter coeff */
+         t += (float)((*Hdp)*a); /* t is now interp'd filter coeff */
          Hdp += Npc;		/* Filter coeff differences step */
          t *= *Xp;		/* Mult coeff by input sample */
          v += t;			/* The filter output */
@@ -192,7 +192,7 @@ float lrsFilterUD(float Imp[],  /* impulse response */
       while ((Hp = &Imp[(int)Ho]) < End) {
          t = *Hp;		/* Get IR sample */
          Hdp = &ImpD[(int)Ho];  /* get interp bits from diff table*/
-         a = Ho - sys_floor(Ho);	  /* a is logically between 0 and 1 */
+         a = (float)(Ho - sys_floor(Ho));	  /* a is logically between 0 and 1 */
          t += (*Hdp)*a; /* t is now interp'd filter coeff */
          t *= *Xp;		/* Mult coeff by input sample */
          v += t;			/* The filter output */

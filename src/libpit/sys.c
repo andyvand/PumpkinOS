@@ -13,6 +13,10 @@
 #include <io.h>
 #include <stdio.h>
 
+#ifdef __MINGW32__
+#include <sys/stat.h>
+#endif
+
 #ifdef _MSC_VER
 #include "../winpthreads/misc.h"
 #endif

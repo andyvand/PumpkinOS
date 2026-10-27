@@ -66,7 +66,7 @@ int lrsSrcUp(float X[],
     }
 
     *TimePtr = CurrentTime;
-    return (Y - Ystart);        /* Return the number of output samples */
+    return (int)(Y - Ystart);        /* Return the number of output samples */
 }
 
 /* Sampling rate conversion subroutine */
@@ -116,5 +116,5 @@ int lrsSrcUD(float X[],
     }
 
     *TimePtr = CurrentTime;
-    return (Y - Ystart);        /* Return the number of output samples */
+    return (int)(Y - Ystart);        /* Return the number of output samples */
 }

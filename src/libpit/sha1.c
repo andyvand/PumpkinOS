@@ -20,7 +20,6 @@ A million repetitions of "a"
 #include "sys.h"
 #include "sha1.h"
 
-
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
 /* blk0() and blk() perform the initial expand. */
@@ -246,6 +245,7 @@ void SHA1Final(uint8_t digest[20], SHA1_CTX * context) {
     sys_memset(&finalcount, '\0', sizeof(finalcount));
 }
 
+#ifndef ANDROID
 void SHA1(char *hash_out, const char *str, int len) {
     SHA1_CTX ctx;
     uint32_t ii;
@@ -256,4 +256,4 @@ void SHA1(char *hash_out, const char *str, int len) {
     SHA1Final((uint8_t *)hash_out, &ctx);
     hash_out[20] = '\0';
 }
-
+#endif

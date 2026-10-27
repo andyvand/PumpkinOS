@@ -8,7 +8,7 @@
 #include "xalloc.h"
 
 #ifdef WINDOWS
-#include "..\winpthreads\misc.h"
+#include "../winpthreads/misc.h"
 #endif
 
 #ifdef DARWIN

@@ -71,6 +71,25 @@
 
 /* Function prototypes */
 
+void lrsLpFilter(double c[], int N, double frq, double Beta, int Num);
+
+float lrsFilterUp(float Imp[],  /* impulse response */
+                  float ImpD[], /* impulse response deltas */
+                  UWORD Nwing,  /* len of one wing of filter */
+                  BOOL Interp,  /* Interpolate coefs using deltas? */
+                  float *Xp,    /* Current sample */
+                  double Ph,    /* Phase */
+                  int Inc);    /* increment (1 for right wing or -1 for left) */
+
+float lrsFilterUD(float Imp[],  /* impulse response */
+                  float ImpD[], /* impulse response deltas */
+                  UWORD Nwing,  /* len of one wing of filter */
+                  BOOL Interp,  /* Interpolate coefs using deltas? */
+                  float *Xp,    /* Current sample */
+                  double Ph,    /* Phase */
+                  int Inc,    /* increment (1 for right wing or -1 for left) */
+                  double dhb); /* filter sampling period */
+
 int lrsSrcUp(float X[], float Y[], double factor, double *Time,
              UWORD Nx, UWORD Nwing, float LpScl,
              float Imp[], float ImpD[], BOOL Interp);
@@ -80,3 +99,4 @@ int lrsSrcUD(float X[], float Y[], double factor, double *Time,
              float Imp[], float ImpD[], BOOL Interp);
 
 #endif
+
