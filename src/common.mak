@@ -167,7 +167,7 @@ CC=clang -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
 CPP=clang++ -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
 else ifeq ($(OSNAME),Msys)
 SYS_OS=2
-EXTLIBS=-lwsock32 -lws2_32
+EXTLIBS=-lws2_32
 SOEXT=.dll
 LUAPLAT=mingw
 OS=Windows
@@ -179,7 +179,7 @@ CPP=$(MACHINE)-w64-mingw32-g++
 WINDRES=$(MACHINE)-w64-mingw32-windres
 OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\"
 else ifeq ($(REAL_OSNAME),Darwin)
-CC=$(MACH8INE)-pc-mingw32-gcc
+CC=$(MACHINE)-pc-mingw32-gcc
 CPP=$(MACHINE)-pc-mingw32-g++
 WINDRES=$(MACHINE)-pc-mingw32-windres
 else

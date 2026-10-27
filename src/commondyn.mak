@@ -167,7 +167,7 @@ CPP=$(MACHINE)-w64-mingw32-g++
 WINDRES=$(MACHINE)-w64-mingw32-windres
 OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\"
 else ifeq ($(REAL_OSNAME),Darwin)
-CC=$(MACH8INE)-pc-mingw32-gcc
+CC=$(MACHIINE)-pc-mingw32-gcc
 CPP=$(MACHINE)-pc-mingw32-g++
 WINDRES=$(MACHINE)-pc-mingw32-windres
 else
