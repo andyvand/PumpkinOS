@@ -36,10 +36,12 @@ void (WINAPI *_pthread_get_system_time_best_as_file_time) (LPFILETIME) = NULL;
 static ULONGLONG (WINAPI *_pthread_get_tick_count_64) (VOID);
 HRESULT (WINAPI *_pthread_set_thread_description) (HANDLE, PCWSTR) = NULL;
 
+#if !defined(__aarch64__) && !defined(__arm__)
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wprio-ctor-dtor"
 __attribute__((constructor(0)))
+#endif
 #endif
 static void winpthreads_init(void)
 {
