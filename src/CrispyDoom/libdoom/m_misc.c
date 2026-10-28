@@ -208,10 +208,17 @@ int M_rename(const char *oldname, const char *newname)
     return DG_rename((char *)oldname, (char *)newname);
 }
 
+#ifdef __MINGW32__
+int M_stat(const char *path, struct _stat64 *buf)
+{
+    return _stat64(path, buf);
+}
+#else
 int M_stat(const char *path, struct stat *buf)
 {
     return stat(path, buf);
 }
+#endif
 
 char *M_getenv(const char *name)
 {

@@ -38,7 +38,13 @@ char *M_ConvertSysNativeMBToUtf8(const char *str);
 dg_file_t *M_fopen(const char *filename, const char *mode);
 int M_remove(const char *path);
 int M_rename(const char *oldname, const char *newname);
+
+#ifdef __MINGW32__
+int M_stat(const char *path, struct _stat64 *buf);
+#else
 int M_stat(const char *path, struct stat *buf);
+#endif
+
 char *M_getenv(const char *name);
 boolean M_WriteFile(const char *name, const void *source, int length);
 int M_ReadFile(const char *name, byte **buffer);
