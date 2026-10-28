@@ -69,7 +69,7 @@ $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 else ifeq ($(OSNAME),Msys)
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 	@echo Linking $(PROGRAM).dlib
-	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS) --def $(PROGRAM).def
+	@$(CC) -shared -o $(PROGRAM).dlib $(OBJS) $(STUBS_OPT) $(LIBS)
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)
 else
 $(PROGRAM).dlib: $(OBJS) $(STUBS_OPT)

@@ -161,7 +161,11 @@ SOEXT=.dll
 LUAPLAT=mingw
 OS=Windows
 OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\"
-ifeq ($(REAL_OSNAME),GNU/Linux)
+ifeq ($(MACHINE),arm)
+CC=/usr/local/armv7-pc-mingw32/bin/clang
+CPP=/usr/local/armv7-pc-mingw32/bin/clang++
+WINDRES=/usr/local/armv7-pc-mingw32/bin/llvm-windres
+else ifeq ($(REAL_OSNAME),GNU/Linux)
 CC=$(MACHINE)-w64-mingw32-gcc
 CPP=$(MACHINE)-w64-mingw32-g++
 WINDRES=$(MACHINE)-w64-mingw32-windres

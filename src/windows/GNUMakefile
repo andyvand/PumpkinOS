@@ -7,9 +7,15 @@ RES=icon.res version.res
 PROGRAM=$(PUMPKINOS)/pumpkin.exe
 CUSTOMPFLAGS=-I$(RESAMPLE)
 
+ifeq ($(MACHINE),arm)
+LIBS=-lc++ -lc++abi -lunwind
+else
+LIBS=-lstdc++
+endif
+
 $(PROGRAM): $(OBJS) $(RES)
 	@echo Linking pumpkin.exe
-	@$(CPP) -mwindows -o $(PROGRAM) $(OBJS) $(RES) -L$(BIN) -lpit -lpumpkin -lgdi32 -lole32 -luuid -lwinmm
+	@$(CPP) -mwindows -o $(PROGRAM) $(OBJS) $(RES) -L$(BIN) -lpit -lpumpkin -lgdi32 -lole32 -luuid -lwinmm $(LIBS)
 
 drop.o: drop.cpp
 	@echo Compiling $<
