@@ -17,6 +17,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "../libpit/sys.h"
 #include "lua.h"
 
@@ -141,14 +145,6 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
 
 
 #elif defined(LUA_DL_DLL)	/* }{ */
-/*
-** {======================================================================
-** This is an implementation of loadlib for Windows using native functions.
-** =======================================================================
-*/
-
-#include <windows.h>
-
 /*
 ** optional flags for LoadLibraryEx
 */
