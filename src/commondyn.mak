@@ -130,7 +130,7 @@ FC=gfortran
 else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS (DJGPP cross compiler). Everything is linked statically into a
 # single pumpkinos.exe (see src/msdos), there are no shared objects.
-SYS_OS=8
+SYS_OS=7
 EXTLIBS=-lm
 SOEXT=.a
 LUAPLAT=linux
