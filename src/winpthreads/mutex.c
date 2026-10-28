@@ -39,6 +39,7 @@
 #include <windows.h>
 #include <time.h>
 
+#undef  WINPTHREAD_MUTEX_DECL
 #define WINPTHREAD_MUTEX_DECL WINPTHREAD_API
 
 /* public header files */
