@@ -242,7 +242,7 @@ LUAPLAT=mingw
 OS=Windows
 OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\" -I../winpthreads/include
 ifeq ($(REAL_OSNAME),GNU/Linux)
-CC=$(MACH8INE)-w64-mingw32-gcc
+CC=$(MACHINE)-w64-mingw32-gcc
 CPP=$(MACHINE)-w64-mingw32-g++
 WINDRES=$(MACHINE)-w64-mingw32-windres
 else ifeq ($(REAL_OSNAME),Darwin)
