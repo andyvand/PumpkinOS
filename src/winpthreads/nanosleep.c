@@ -15,6 +15,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#undef  WINPTHREAD_NANOSLEEP_DECL
 #define WINPTHREAD_NANOSLEEP_DECL WINPTHREAD_API
 
 /* public header files */

@@ -1,0 +1,65 @@
+include ../common.mak
+
+SOURCE=barrier.c clock.c cond.c misc.c mutex.c nanosleep.c rwlock.c sched.c sem.c spinlock.c thread.c
+
+ifeq ($(OSNAME),Msys)
+CUSTOMFLAGS=-I$(SRC)/font -I$(SRC)/libfatfs -I$(SRC)/libbcm2835 -I. -D_DEFAULT_SOURCE -D__STDC_WANT_SECURE_LIB__=1
+else
+CUSTOMFLAGS=-I$(SRC)/font -I$(SRC)/libfatfs -I$(SRC)/libbcm2835 -I. -D_DEFAULT_SOURCE
+endif
+
+ifeq ($(OSNAME),Emscripten)
+
+PROGRAM=$(BIN)/libwinpthread.a
+OBJS=$(SOURCE:%.c)
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating $(PROGRAM).a
+	@$(ARCMD) $(PROGRAM) $(OBJS)
+
+else ifeq ($(OSNAME),msdosdjgpp)
+
+# MS-DOS: cooperative threads (threadsc: setjmp/longjmp coroutines, run by
+# thread_run() from libos_start; mutexnull), no script engine (the stub
+# lives in src/msdos/script.c). Sockets come from Watt-32 (dosnet.o does the
+# initialization). fmodl.o supplies the long double fmod missing from the
+# DJGPP libm.
+PROGRAM=$(BIN)/libwinpthread.a
+OBJS=$(SOURCE:%.c=%.o)
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libwinpthread.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
+else ifeq ($(OSNAME),Kernel)
+
+PROGRAM=$(BIN)/libwinpthread.a
+OBJS=$(SOURCE:%.c=%.o)
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating $(PROGRAM).a
+	@$(ARCMD) $(PROGRAM) $(OBJS)
+
+else
+
+PROGRAM=$(BIN)/libwinpthread.a
+OBJS=$(SOURCE:%.c=%.o)
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Linking libpit$(SOEXT)
+ifeq ($(OSNAME),Android)
+	@$(CC) -shared -o $(PROGRAM) $(OBJS) $(EXTLIBS) $(OSLDEFS) -Wl,-soname,libpit$(SOEXT) -lm
+	@$(STRIP) $(PROGRAM)
+else ifeq ($(OSNAME),Darwin)
+	@$(CC) -dynamiclib -o $(PROGRAM) -install_name @rpath/libpit$(SOEXT) -o $(PROGRAM) $(OBJS) $(EXTLIBS) $(OSLDEFS)
+	@$(STRIP) $(PROGRAM)
+	@codesign -f -s "Developer ID Application" $(PROGRAM)
+else
+	@$(CC) -shared -o $(PROGRAM) $(OBJS) -lpthread $(EXTLIBS) -lm
+	@$(STRIP) $(PROGRAM)
+endif
+endif
+
+clean:
+	@rm -f $(PROGRAM) $(OBJS)

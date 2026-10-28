@@ -18,6 +18,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#undef  WINPTHREAD_CLOCK_DECL
 #define WINPTHREAD_CLOCK_DECL WINPTHREAD_API
 
 /* public header files */
