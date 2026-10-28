@@ -2,7 +2,6 @@
 #define STRICT
 
 #include <windows.h>
-
 #include <PalmOS.h>
 
 #include "sys.h"
@@ -12,7 +11,7 @@
 #include "xalloc.h"
 #include "debug.h"
 
-class FileDropTarget : public IDropTarget {
+class FileDropTarget /*: public IDropTarget*/ {
 
 public:
   // IUnknown implementation
@@ -220,12 +219,12 @@ void RegisterDropWindow(HWND hwnd, IDropTarget **ppDropTarget, void (*callback)(
 #else
   FileDropTarget *pDropTarget = new FileDropTarget(hwnd, callback, data);
 
-  CoLockObjectExternal(pDropTarget, TRUE, FALSE);
+  CoLockObjectExternal((LPUNKNOWN)pDropTarget, TRUE, FALSE);
 
   debug(DEBUG_TRACE, "WIN32", "RegisterDropWindow");
-  RegisterDragDrop(hwnd, pDropTarget);
+  RegisterDragDrop(hwnd, (LPDROPTARGET)pDropTarget);
 
-  *ppDropTarget = pDropTarget;
+  *ppDropTarget = (IDropTarget*)pDropTarget;
 #endif
 }
 

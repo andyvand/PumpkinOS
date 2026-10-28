@@ -1187,7 +1187,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #endif
 
   sys_memset(&wc, 0, sizeof(WNDCLASS));
-  wc.lpfnWndProc = WindowProc;
+  wc.lpfnWndProc = (WNDPROC)WindowProc;
   wc.hInstance = hInstance;
   wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(1));
   wc.hCursor = LoadCursor(NULL, IDC_ARROW);
