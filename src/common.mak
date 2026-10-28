@@ -157,6 +157,7 @@ CSTD=-std=gnu99
 VFS_INSTALL_DIR=app_inst
 VFS_STORAGE_DIR=app_stor
 VFS_PROGRAMS_DIR=PALM/Progs
+
 else ifeq ($(OSNAME),Darwin)
 SYS_OS=1
 SOEXT=.dylib
@@ -165,28 +166,6 @@ OS=Darwin
 OSDEFS=$(MBITS) -DDARWIN $(RPI_DEFS) -DSOEXT=\"$(SOEXT)\" -Wno-invalid-pp-token -Wno-string-plus-int -Wno-typedef-redefinition -Wno-nonportable-include-path
 CC=clang -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
 CPP=clang++ -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
-else ifeq ($(OSNAME),Msys)
-SYS_OS=2
-EXTLIBS=-lws2_32
-SOEXT=.dll
-LUAPLAT=mingw
-OS=Windows
-OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\"
-OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\"
-ifeq ($(REAL_OSNAME),GNU/Linux)
-CC=$(MACH8INE)-w64-mingw32-gcc
-CPP=$(MACHINE)-w64-mingw32-g++
-WINDRES=$(MACHINE)-w64-mingw32-windres
-OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\"
-else ifeq ($(REAL_OSNAME),Darwin)
-CC=$(MACHINE)-pc-mingw32-gcc
-CPP=$(MACHINE)-pc-mingw32-g++
-WINDRES=$(MACHINE)-pc-mingw32-windres
-else
-CC=gcc
-CPP=g++
-WINDRES=windres
-endif
 
 else ifeq ($(OSNAME),Serenity)
 ifeq ($(SERENITY),)
@@ -255,6 +234,22 @@ OSDEFS=$(MBITS) -DHAIKU -DSOEXT=\"$(SOEXT)\"
 CC=gcc
 FC=gfortran
 
+else ifeq ($(OSNAME),Msys)
+SYS_OS=2
+EXTLIBS=-lws2_32 -L$(BIN) -lwinpthread -lkernel32 -luser32 -lgdi32 -ladvapi32 -lshlwapi
+SOEXT=.dll
+LUAPLAT=mingw
+OS=Windows
+OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\" -I../winpthreads/include
+ifeq ($(REAL_OSNAME),GNU/Linux)
+CC=$(MACH8INE)-w64-mingw32-gcc
+CPP=$(MACHINE)-w64-mingw32-g++
+WINDRES=$(MACHINE)-w64-mingw32-windres
+else ifeq ($(REAL_OSNAME),Darwin)
+CC=$(MACHINE)-pc-mingw32-gcc
+CPP=$(MACHINE)-pc-mingw32-g++
+WINDRES=$(MACHINE)-pc-mingw32-windres
+endif
 else
 $(error Unknown OS $(OSNAME))
 endif

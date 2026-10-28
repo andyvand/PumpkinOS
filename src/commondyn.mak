@@ -156,7 +156,7 @@ CC=clang -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
 CPP=clang++ -arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=gnu11
 else ifeq ($(OSNAME),Msys)
 SYS_OS=2
-EXTLIBS=-lws2_32
+EXTLIBS=-lws2_32 -L$(BIN) -lwinpthread
 SOEXT=.dll
 LUAPLAT=mingw
 OS=Windows

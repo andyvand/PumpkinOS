@@ -55,6 +55,9 @@ else ifeq ($(OSNAME),Darwin)
 	@$(CC) -dynamiclib -o $(PROGRAM) -install_name @rpath/libpit$(SOEXT) -o $(PROGRAM) $(OBJS) $(EXTLIBS) $(OSLDEFS)
 	@$(STRIP) $(PROGRAM)
 	@codesign -f -s "Developer ID Application" $(PROGRAM)
+else ifeq ($(OSNAME),Msys)
+	@$(CC) -shared -o $(PROGRAM) $(OBJS) -L../../bin -lwinpthread $(EXTLIBS) -lm
+	@$(STRIP) $(PROGRAM)
 else
 	@$(CC) -shared -o $(PROGRAM) $(OBJS) -lpthread $(EXTLIBS) -lm
 	@$(STRIP) $(PROGRAM)
