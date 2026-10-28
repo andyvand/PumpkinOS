@@ -1620,7 +1620,7 @@ pthread_create_wrapper (void *args)
   _endthreadex (rslt);
   return rslt;
 
-#if defined(__SEH__)
+/*#if defined(__SEH__)
   asm(
 #ifdef __arm__
     "\t.seh_handler __C_specific_handler, %except\n"
@@ -1631,7 +1631,7 @@ pthread_create_wrapper (void *args)
     "\t.long 1\n"
     "\t.rva .tl_start, .tl_end, _gnu_exception_handler ,.tl_end\n"
     "\t.text\n");
-#endif
+#endif*/
 }
 
 int
