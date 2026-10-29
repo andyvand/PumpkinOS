@@ -26,6 +26,16 @@ with SDL3 built for DJGPP installed in its sysroot
 Add `TYPE=release` for an optimized, stripped executable. The result is
 `bin/pumpkin.exe` plus the application resources in `vfs/app_inst/*.prc`.
 
+The CrispyDoom games are built separately (`make Doom.prc`, `Heretic.prc`,
+`Hexen.prc`, `Strife.prc` in `src/CrispyDoom` with the same `OSNAME` and
+`MACHINE`), which also copies them to `vfs/app_inst`. Their code is a DXE3
+module in a `dlib` resource whose id encodes the platform (`SYS_OS * 64 +
+SYS_CPU * 8 + SYS_SIZE`, 465 on DOS), so a `.prc` from another platform's
+build (a MinGW one carries id 137, 138, 145 or 146) installs fine but the
+game never starts: the log then says `database "Doom" has code resource id
+137 ... but this platform needs id 465`. Always take these `.prc` files from
+the DOS build.
+
 ## 8.3 file names
 
 Every name the DOS build uses fits the 8.3 convention, so it runs on a DOS
@@ -95,6 +105,19 @@ network is simply unavailable (Browser, Mail and Net Install cannot
 connect) and the error is logged. Only IPv4 is used: a host name that also
 has IPv6 addresses is always connected through its IPv4 address (Watt-32 has
 no IPv6 transport).
+
+`libwatt.a` and the Watt-32 headers in the DJGPP sysroot are built from
+Watt-32 2.2.11 (`watt32s.zip` from watt-32.net) with the patch
+`watt32s-djgpp.diff`: `export WATT_ROOT=<tree>; cd <tree>/src;
+sh ./configur.sh djgpp; make -f djgpp.mak`, then copy `lib/libwatt.a` to
+`<sysroot>/lib` and `inc/*` to `<sysroot>/include`. The patch keeps the
+upstream DJGPP rules, which assemble `chksum0.S` and `cpumodel.S` with gcc
+(the nasm `.nas` sources produce objects with the wrong symbol names or in
+COFF sections the DJGPP stub never loads), uses the errno table shipped
+with Watt-32 (the `dj_err` generator takes the errno numbers of the host it
+runs on, which breaks `EAGAIN` and friends when run on macOS), adds
+`-fcommon` (misc.c instantiates every extern data item) and makes
+`sys/cdefs.h` self-contained because it replaces DJGPP's own copy.
 
 The network clients and servers run as PumpkinOS threads. On DOS these are
 cooperative coroutines (`libpit/threadsc.c`, one heap allocated stack per

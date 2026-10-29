@@ -4084,6 +4084,7 @@ void *DmResourceLoadLib(DmOpenRef dbP, DmResType resType, Boolean *firstLoad) {
   storage_handle_t *h;
   DmOpenType *dbRef;
   UInt16 id;
+  uint32_t i;
   char buf[VFS_PATH];
   int first_load;
   void *lib = NULL;
@@ -4099,6 +4100,21 @@ void *DmResourceLoadLib(DmOpenRef dbP, DmResType resType, Boolean *firstLoad) {
         storage_name(sto, db->name, STO_FILE_ELEMENT, id, resType, 0, 0, buf);
         lib = StoVfsLoadlib(sto->session, buf, &first_load);
         *firstLoad = lib != NULL && first_load == 1;
+      } else {
+        // no code resource for this platform: if the database carries code
+        // for another platform (a .prc built for another OS/CPU installed on
+        // this one), say which, since the usual symptom is just the
+        // application silently not starting
+        dbRef = (DmOpenType *)dbP;
+        if (dbRef->dbID >= DBID_BASE && dbRef->dbID < DBID_BASE + MAX_DBIDS && (db = sto->dbs[dbRef->dbID - DBID_BASE]) != NULL && db->ftype == STO_TYPE_RES) {
+          for (i = 0; i < db->numRecs; i++) {
+            h = db->elements[i];
+            if (h && h->d.res.type == resType) {
+              debug(DEBUG_ERROR, "STOR", "database \"%s\" has code resource id %d (os=%d cpu=%d size=%d) but this platform needs id %d (os=%d cpu=%d size=%d): it was built for another platform",
+                db->name, h->d.res.id, h->d.res.id / 64, (h->d.res.id % 64) / 8, h->d.res.id % 8, id, SYS_OS, SYS_CPU, SYS_SIZE);
+            }
+          }
+        }
       }
       mutex_unlock(sto->mutex);
     }
