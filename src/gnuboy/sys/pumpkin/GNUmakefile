@@ -103,8 +103,13 @@ else ifeq ($(OSNAME),Msys)
 # MS-DOS: static library linked into pumpkinos.exe by src/msdos, the PRC
 # only carries the resources (see src/app.mak)
 SYS_OS = 2
+ifeq ($(MACHINE),arm)
+CC = /usr/local/armv7-pc-mingw32/bin/clang
+AR = /usr/local/armv7-pc-mingw32/bin/llvm-ar
+else
 CC = $(MACHINE)-pc-mingw32-gcc
 AR = $(MACHINE)-pc-mingw32-ar
+endif
 # same CPU target as $(PUMPKIN)/src/common.mak: the DJGPP default (pentiumpro)
 # emits cmov instructions, which a Pentium/i586 does not have
 OSDEFS = -DWINDOWS -Wno-format -Wno-attributes
