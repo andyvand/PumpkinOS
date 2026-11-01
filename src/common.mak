@@ -242,14 +242,17 @@ LUAPLAT=mingw
 OS=Windows
 OSDEFS=$(MBITS) -DWINDOWS -DWINDOWS$(BITS) -DSOEXT=\"$(SOEXT)\" -I../winpthreads/include
 ifeq ($(MACHINE),arm)
+AR=/usr/local/armv7-pc-mingw32/bin/llvm-ar
 CC=/usr/local/armv7-pc-mingw32/bin/clang
 CPP=/usr/local/armv7-pc-mingw32/bin/clang++
 WINDRES=/usr/local/armv7-pc-mingw32/bin/llvm-windres
 else ifeq ($(REAL_OSNAME),GNU/Linux)
+AR=$(MACHINE)-w64-mingw32-ar
 CC=$(MACHINE)-w64-mingw32-gcc
 CPP=$(MACHINE)-w64-mingw32-g++
 WINDRES=$(MACHINE)-w64-mingw32-windres
 else ifeq ($(REAL_OSNAME),Darwin)
+AR=$(MACHINE)-pc-mingw32-ar
 CC=$(MACHINE)-pc-mingw32-gcc
 CPP=$(MACHINE)-pc-mingw32-g++
 WINDRES=$(MACHINE)-pc-mingw32-windres

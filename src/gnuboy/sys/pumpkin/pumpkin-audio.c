@@ -21,11 +21,17 @@
  * Licensed under the GPLv2, or later.
  */
 
-#include <PalmOS.h>
-
+/* the C runtime headers must come before PalmOS.h: libpit/sys.h (pulled in
+ * by PalmOS.h) defines __attribute__ away on WINDOWS, which would turn the
+ * MinGW CRT's "extern inline __attribute__((__gnu_inline__))" helpers into
+ * real out-of-line definitions in every object that includes them */
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
+#include <sys/time.h>
+
+#include <PalmOS.h>
 
 #ifdef ESP_PLATFORM
 #include "../../libpit/sys.h"

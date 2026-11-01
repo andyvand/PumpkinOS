@@ -28,6 +28,8 @@ endif
 # 'dlib' id = SYS_OS*64 + SYS_CPU*8 + SYS_SIZE.
 ifeq ($(OSNAME),Android)
 SYS_OS ?= 4
+else ifeq ($(OSNAME),Msys)
+SYS_OS ?= 2
 else
 SYS_OS ?= 1
 endif
@@ -97,6 +99,18 @@ OS=Android
 OSDEFS=$(ANDROID_ARCH) --gcc-toolchain=$(NDK) --sysroot=$(NDK)/sysroot -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -DANDROID -DSOEXT=\"$(SOEXT)\"
 CC=$(NDK)/bin/clang
 LINKFLAGS = -shared
+else ifeq ($(OSNAME),Msys)
+# MS-DOS: static library linked into pumpkinos.exe by src/msdos, the PRC
+# only carries the resources (see src/app.mak)
+SYS_OS = 2
+CC = $(MACHINE)-pc-mingw32-gcc
+AR = $(MACHINE)-pc-mingw32-ar
+# same CPU target as $(PUMPKIN)/src/common.mak: the DJGPP default (pentiumpro)
+# emits cmov instructions, which a Pentium/i586 does not have
+OSDEFS = -DWINDOWS -Wno-format -Wno-attributes
+# 8.3 VFS layout (see VFS_*_DIR in libpumpkin/pumpkin.h)
+PRCFILE = $(shell printf '%.8s' $(PROGRAM)).prc
+LINKFLAGS = -shared
 else ifeq ($(OSNAME),msdosdjgpp)
 # MS-DOS: static library linked into pumpkinos.exe by src/msdos, the PRC
 # only carries the resources (see src/app.mak)
@@ -143,7 +157,7 @@ CORECFLAGS = $(COMMONFLAGS) -I$(GNUBOY)
 # the glue only sees the PumpkinOS tree and reaches gnuboy headers via ../../
 GLUECFLAGS = $(COMMONFLAGS) $(PUMPDEFS) $(PUMPKIN_INCLUDES)
 
-GLUE_SRCS = pumpkin.c pumpkin-audio.c
+GLUE_SRCS = pumpgboy.c pumpkin-audio.c
 
 CORE_SRCS = lcd.c refresh.c lcdc.c palette.c cpu.c mem.c rtc.c hw.c sound.c \
             events.c keytable.c menu.c loader.c save.c debug.c emu.c \

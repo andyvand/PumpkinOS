@@ -25,15 +25,21 @@
  * Licensed under the GPLv2, or later.
  */
 
-#include <PalmOS.h>
-#include <VFSMgr.h>
-
+/* the C runtime headers must come before PalmOS.h: libpit/sys.h (pulled in
+ * by PalmOS.h) defines __attribute__ away on WINDOWS, which would turn the
+ * MinGW CRT's "extern inline __attribute__((__gnu_inline__))" helpers into
+ * real out-of-line definitions in every object that includes them */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <setjmp.h>
+#include <time.h>
+#include <sys/time.h>
+
+#include <PalmOS.h>
+#include <VFSMgr.h>
 
 #ifdef ESP_PLATFORM
 #include "../../libpit/sys.h"
@@ -45,7 +51,7 @@
 #include "fb.h"
 #include "input.h"
 #include "rc.h"
-#include "rckeys.h"'
+#include "rckeys.h"
 #include "emu.h"
 #include "loader.h"
 #include "sys.h"
@@ -1201,7 +1207,7 @@ static void ensure_dirs(void)
 	   by creating a marker file through the VFS and looking for it. */
 	mount = VFSGetMount(volref);
 	if (!mount) mount = "";
-	n = strlen(mount);
+	n = StrLen(mount);
 	if (n > 0 && mount[n - 1] == '/') n--;
 	find_volume_dir(mount, (int)n);
 	snprintf(romDirHost, sizeof(romDirHost), "%.*s%s%s", (int)n, mount, volDir, ROM_DIR);
