@@ -155,9 +155,17 @@ void menu_initpage(enum menu_page page) {
 			if(file->d_name[0] == '.') continue;
 			if (!allowed_ext(file->d_name)) {
 				char path[1024];
+#ifdef __MINGW32__
+				struct _stat64 st;
+#else
 				struct stat st;
+#endif
 				snprintf(path, sizeof path, "%s/%s", romdir, file->d_name);
+#ifdef __MINGW32__
+				if(!_stat64(path, &st) && S_ISDIR(st.st_mode));
+#else
 				if(!stat(path, &st) && S_ISDIR(st.st_mode));
+#endif
 				else continue;
 			}
 			dirlist = realloc(dirlist, sizeof(char*)*(++dirlistcnt));
@@ -323,9 +331,17 @@ entry:;
 		case mk_ok:
 			if(currpage == mp_romsel) {
 				char rd[1024];
+#ifdef __MINGW32__
+				struct _stat64 st;
+#else
 				struct stat st;
+#endif
 				snprintf(rd, sizeof rd, "%s/%s", romdir, ezm.vislines[ezm.vissel]);
+#ifdef __MINGW32__
+				if(!_stat64(rd, &st) && S_ISDIR(st.st_mode)) {
+#else
 				if(!stat(rd, &st) && S_ISDIR(st.st_mode)) {
+#endif
 					free(romdir);
 					romdir = strdup(rd);
 					menu_initpage(mp_romsel);
