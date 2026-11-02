@@ -124,7 +124,10 @@ typedef struct {
 } sys_fdset_t;
 
 #ifdef WINDOWS
+#if !defined(__GNUC__) && !defined(__clang__)
+/* MSVC has no __attribute__; on MinGW/clang keep it, since __stdcall etc. expand to it */
 #define __attribute__(...)
+#endif
 
 typedef va_list sys_va_list;
 #define sys_va_start(v,l) va_start(v,l)
