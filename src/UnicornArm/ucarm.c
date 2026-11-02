@@ -1,5 +1,3 @@
-#include <PalmOS.h>
-
 #ifdef ANDROID
 #include <wchar.h>
 #endif
@@ -15,6 +13,8 @@
 #include "emupalmosinc.h"
 #include "disasm.h"
 #include "debug.h"
+
+#include <PalmOS.h>
 
 #define unicornArmPluginId 'ucAr'
 
