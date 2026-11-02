@@ -4535,6 +4535,10 @@ int sys_mkstempfile(char *buf) {
 #else
   return sys_open(mktemp(buf), SYS_READ | SYS_WRITE);
 #endif
+#elif defined(WINDOWS)
+  // MinGW: mkstemp() would return a C runtime descriptor, not one of ours
+  if (_mktemp(buf) == NULL) return -1;
+  return sys_create(buf, SYS_READ | SYS_WRITE, 0);
 #else
   return mkstemp(buf);
 #endif
@@ -4643,10 +4647,50 @@ static void sys_tmpfile_closed(int fd) {
 }
 #endif
 
+#if defined(WINDOWS) && !defined(_WIN32_WCE)
+// GetTempFileName() creates a unique empty file in the temp directory; it is
+// opened with FILE_FLAG_DELETE_ON_CLOSE because an open file can not be
+// unlinked on Windows (and mkstemp() would return a C runtime descriptor,
+// not one of ours: writes would end up on whatever has that number)
+static int sys_tmpfile_windows(char *buf, int len) {
+  WCHAR wdir[FILE_PATH], wname[MAX_PATH];
+  HANDLE handle;
+#if __STDC_WANT_SECURE_LIB__
+  size_t n = 0;
+#endif
+
+#if __STDC_WANT_SECURE_LIB__
+  mbstowcs_s(&n, wdir, FILE_PATH, sys_tmpdir[0] ? sys_tmpdir : ".", _TRUNCATE);
+#else
+  mbstowcs(wdir, sys_tmpdir[0] ? sys_tmpdir : ".", FILE_PATH);
+#endif
+
+  if (GetTempFileNameW(wdir, L"tmp", 0, wname) == 0) {
+    debug_errno("SYS", "GetTempFileName(\"%s\")", sys_tmpdir[0] ? sys_tmpdir : ".");
+    return -1;
+  }
+
+#if __STDC_WANT_SECURE_LIB__
+  wcstombs_s(&n, buf, len, wname, _TRUNCATE);
+#else
+  wcstombs(buf, wname, len);
+#endif
+
+  handle = CreateFileW(wname, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, NULL);
+  if (handle == INVALID_HANDLE_VALUE) {
+    debug_errno("SYS", "CreateFile(\"%s\")", buf);
+    DeleteFileW(wname);
+    return -1;
+  }
+
+  return fd_open(FD_FILE, handle, NULL, NULL, -1);
+}
+#endif
+
 int sys_mkstemp(void) {
   char buf[FILE_PATH];
   int fd;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && defined(_WIN32_WCE)
 #if __STDC_WANT_SECURE_LIB__
   char temppath[FILE_PATH];
 #endif
@@ -4659,7 +4703,9 @@ int sys_mkstemp(void) {
 #else
   sys_snprintf(buf, sizeof(buf) - 1, "%stmpXXXXXX", sys_tmpdir);
 #endif
-#if defined(_MSC_VER)
+#if defined(WINDOWS) && !defined(_WIN32_WCE)
+  fd = sys_tmpfile_windows(buf, sizeof(buf));
+#elif defined(_MSC_VER)
 #if __STDC_WANT_SECURE_LIB__
   sys_strncpy(temppath, buf, FILE_PATH);
   _mktemp_s(temppath, FILE_PATH);
@@ -4679,7 +4725,8 @@ int sys_mkstemp(void) {
 
 #if defined(ESP32)
   sys_tmpfile_register(fd, buf);
-#else
+#elif !defined(WINDOWS) || defined(_WIN32_WCE)
+  // (on Windows the file is deleted when its last handle is closed)
   sys_unlink(buf);
 #endif
 

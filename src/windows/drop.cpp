@@ -11,7 +11,7 @@
 #include "xalloc.h"
 #include "debug.h"
 
-class FileDropTarget /*: public IDropTarget*/ {
+class FileDropTarget : public IDropTarget {
 
 public:
   // IUnknown implementation
