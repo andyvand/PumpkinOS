@@ -598,3 +598,4 @@ EXPORTS
     yuyv_rgb565 @617
     yuyv_rgba @618
 	sys_setenv @619
+    sys_socket_native @620

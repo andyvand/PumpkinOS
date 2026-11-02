@@ -313,6 +313,8 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
 
 int sys_socket_shutdown(int sock, int dir);
 
+int sys_socket_native(int fd);
+
 int sys_setsockopt(int sock, int level, int optname, const void *optval, int optlen);
 
 void sys_exit(int r);

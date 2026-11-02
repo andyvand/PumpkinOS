@@ -78,7 +78,8 @@ ifneq ($(UNICORN),)
 UNICORN_MODULE=UnicornArm
 endif
  
-ifneq ($(wildcard /mingw64/include/openssl/ssl.h /mingw32/include/openssl/ssl.h),)
+# native MSYS2 (/mingw64, /mingw32) or a cross compiler sysroot (/usr/local/<machine>-pc-mingw32)
+ifneq ($(wildcard /mingw64/include/openssl/ssl.h /mingw32/include/openssl/ssl.h /usr/local/$(MACHINE)-pc-mingw32/include/openssl/ssl.h),)
 TLS_MODULE=liblopenssl
 endif
 

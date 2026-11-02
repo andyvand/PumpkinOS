@@ -14,7 +14,14 @@ endif
 
 ifeq ($(OPENSSL),)
 ifeq ($(OSNAME),Msys)
+# cross compiler sysroot first, then the native MSYS2 prefixes
+ifneq ($(wildcard /usr/local/$(MACHINE)-pc-mingw32/include/openssl/ssl.h),)
 OPENSSL=/usr/local/$(MACHINE)-pc-mingw32
+else ifneq ($(wildcard /mingw32/include/openssl/ssl.h),)
+OPENSSL=/mingw32
+else
+OPENSSL=/mingw64
+endif
 else ifneq ($(wildcard /usr/local/include/openssl/ssl.h),)
 OPENSSL=/usr/local
 else ifneq ($(wildcard /opt/homebrew/opt/openssl@3/include/openssl/ssl.h),)

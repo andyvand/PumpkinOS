@@ -116,7 +116,8 @@ struct secure_config_t {
 
 struct secure_t {
   SSL *ssl;
-  int fd;
+  int fd;    /* PumpkinOS descriptor (sys_select) */
+  int sock;  /* native socket behind it (OpenSSL, select) */
 };
 
 static secure_provider_t provider;
@@ -188,9 +189,9 @@ static int handle_ssl_result(secure_t *s, int r, const char *what) {
 
   switch (err) {
     case SSL_ERROR_WANT_READ:
-      return wait_fd(s->fd, 0, 0) > 0 ? 1 : -1;
+      return wait_fd(s->sock, 0, 0) > 0 ? 1 : -1;
     case SSL_ERROR_WANT_WRITE:
-      return wait_fd(s->fd, 1, 0) > 0 ? 1 : -1;
+      return wait_fd(s->sock, 1, 0) > 0 ? 1 : -1;
     case SSL_ERROR_ZERO_RETURN:
       return 0;
     case SSL_ERROR_SYSCALL:
@@ -384,15 +385,21 @@ static secure_t *liblopenssl_connect(secure_config_t *c, char *host, int port, i
   secure_t *s;
   SSL *ssl;
   long vr;
-  int r, w;
+  int r, w, sock;
 #ifdef SO_NOSIGPIPE
   int one = 1;
 #endif
 
   if (c == NULL || c->ctx == NULL) return NULL;
 
+  /* on Windows the descriptor is not the socket: OpenSSL needs the real one */
+  if ((sock = sys_socket_native(fd)) == -1) {
+    debug(DEBUG_ERROR, TAG, "descriptor %d is not a socket", fd);
+    return NULL;
+  }
+
 #ifdef SO_NOSIGPIPE
-  setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
+  setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
 #endif
 
   if ((ssl = SSL_new(c->ctx)) == NULL) {
@@ -413,7 +420,7 @@ static secure_t *liblopenssl_connect(secure_config_t *c, char *host, int port, i
     }
   }
 
-  if (SSL_set_fd(ssl, fd) != 1) {
+  if (SSL_set_fd(ssl, sock) != 1) {
     liblopenssl_error("error setting file descriptor");
     SSL_free(ssl);
     return NULL;
@@ -425,6 +432,7 @@ static secure_t *liblopenssl_connect(secure_config_t *c, char *host, int port, i
   }
   s->ssl = ssl;
   s->fd = fd;
+  s->sock = sock;
 
   debug(DEBUG_INFO, TAG, "negotiating with %s:%d ...", host ? host : "", port);
   SSL_set_connect_state(ssl);

@@ -233,7 +233,8 @@ static secure_t *libls2n_connect(secure_config_t *c, char *host, int port, int f
   }
   debug(DEBUG_INFO, "SECURE", "s2n_connection_set_config ok");
 
-  if (s2n_connection_set_fd(conn, fd) < 0) {
+  // on Windows the descriptor is not the socket: s2n needs the real one
+  if (s2n_connection_set_fd(conn, sys_socket_native(fd)) < 0) {
     libls2n_error("error setting file descriptor");
     s2n_connection_free(conn);
     return NULL;

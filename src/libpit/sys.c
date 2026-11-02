@@ -324,6 +324,10 @@ static int socket_select(int socket, uint32_t us, int nf) {
 #if defined(KERNEL)
 #define TAG_FD "SYS_FD"
 
+#define fd_lock(fd) ptr_lock(fd, TAG_FD)
+#define fd_unlock(fd) ptr_unlock(fd, TAG_FD)
+#define fd_free(fd) ptr_free(fd, TAG_FD)
+
 #define FD_FILE   1
 
 #define MAX_FNAME 16
@@ -432,6 +436,73 @@ typedef struct {
   uint8_t buf[MAXBUF];
 } fd_t;
 
+// On Windows a descriptor is not the ptr id itself but a small index into
+// fd_table (which holds the ptr id): ptr ids grow without bound, and a
+// descriptor must fit in a sys_fdset_t (0 .. FDSET_SIZE-1) for
+// sys_select_fds() / NetLibSelect() to work.
+static volatile LONG fd_table[FDSET_SIZE];
+
+static int fd_alloc(int id) {
+  int i;
+
+  for (i = 1; i < FDSET_SIZE; i++) {
+    if (InterlockedCompareExchange(&fd_table[i], id, 0) == 0) {
+      return i;
+    }
+  }
+
+  debug(DEBUG_ERROR, "SYS", "max descriptors reached");
+  return -1;
+}
+
+static int fd_id(int fd) {
+  int id = 0;
+
+  if (fd > 0 && fd < FDSET_SIZE) {
+    id = fd_table[fd];
+  }
+
+  if (id == 0) {
+    debug(DEBUG_ERROR, "SYS", "invalid descriptor %d", fd);
+  }
+
+  return id;
+}
+
+static fd_t *fd_lock(int fd) {
+  int id;
+
+  if ((id = fd_id(fd)) == 0) {
+    return NULL;
+  }
+
+  return (fd_t *)ptr_lock(id, TAG_FD);
+}
+
+static void fd_unlock(int fd) {
+  int id;
+
+  if ((id = fd_id(fd)) != 0) {
+    ptr_unlock(id, TAG_FD);
+  }
+}
+
+static int fd_free(int fd) {
+  LONG id;
+
+  if (fd <= 0 || fd >= FDSET_SIZE) {
+    debug(DEBUG_ERROR, "SYS", "invalid descriptor %d", fd);
+    return -1;
+  }
+
+  if ((id = InterlockedExchange(&fd_table[fd], 0)) == 0) {
+    debug(DEBUG_ERROR, "SYS", "invalid descriptor %d", fd);
+    return -1;
+  }
+
+  return ptr_free(id, TAG_FD);
+}
+
 static void fd_destructor(void *p) {
   fd_t *f;
 
@@ -458,7 +529,7 @@ static void fd_destructor(void *p) {
 
 static int fd_open(int type, HANDLE handle, HANDLE eventr, HANDLE eventw, int socket) {
   fd_t *f;
-  int fd;
+  int fd, id;
 
   if ((f = sys_calloc(1, sizeof(fd_t))) == NULL) {
     return -1;
@@ -471,7 +542,7 @@ static int fd_open(int type, HANDLE handle, HANDLE eventr, HANDLE eventw, int so
   f->ovlw.hEvent = eventw;
   f->socket = socket;
 
-  if ((fd = ptr_new(f, fd_destructor)) == -1) {
+  if ((id = ptr_new(f, fd_destructor)) == -1) {
     if (f->ovlr.hEvent) CloseHandle(f->ovlr.hEvent);
     if (f->ovlw.hEvent) CloseHandle(f->ovlw.hEvent);
     if (f->handle) CloseHandle(f->handle);
@@ -479,7 +550,13 @@ static int fd_open(int type, HANDLE handle, HANDLE eventr, HANDLE eventw, int so
     sys_free(f);
     return -1;
   }
-  debug(DEBUG_INFO, "SYS", "fd_open type=%d ptr=%d f=%p", type, fd, f);
+
+  if ((fd = fd_alloc(id)) == -1) {
+    // the destructor closes the handles and frees f
+    ptr_free(id, TAG_FD);
+    return -1;
+  }
+  debug(DEBUG_INFO, "SYS", "fd_open type=%d fd=%d ptr=%d f=%p", type, fd, id, f);
 
   return fd;
 }
@@ -616,7 +693,7 @@ void sys_usleep(uint32_t us) {
 #if defined(KERNEL) && defined(RPI)
   bcm2835_delayMicroseconds(us);
 #elif defined(WINDOWS)
-  Sleep(us);
+  Sleep(us / 1000 + (us % 1000 ? 1 : 0));
 #elif defined(DOS)
   // cooperative threads: a sleeping task gives the other tasks a turn,
   // long sleeps are sliced so that they keep getting turns
@@ -1369,7 +1446,7 @@ int sys_select(int fd, uint32_t us) {
 #endif
   int r = -1;
 
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
@@ -1388,7 +1465,7 @@ int sys_select(int fd, uint32_t us) {
         r = available > 0 ? 1 : 0;
         if (r == 0 && us > 0) {
 #ifdef WINDOWS
-	      Sleep(us);
+	      Sleep(us / 1000 + (us % 1000 ? 1 : 0));
 #else
           usleep(us); // XXX always sleeps for us microseconds
 #endif
@@ -1415,7 +1492,7 @@ int sys_select(int fd, uint32_t us) {
       break;
   }
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
   return r;
 #elif defined(DOS)
   return dos_is_socket(fd) ? socket_select(fd, us, 1) : 1;
@@ -1427,12 +1504,14 @@ int sys_select(int fd, uint32_t us) {
 void sys_fdclr(int n, sys_fdset_t *fds) {
   int slot = n / 32;
   int idx = n % 32;
+  if (n < 0 || n >= FDSET_SIZE) return;
   fds->mask[slot] &= ~(1 << idx);
 }
 
 void sys_fdset(int n, sys_fdset_t *fds) {
   int slot = n / 32;
   int idx = n % 32;
+  if (n < 0 || n >= FDSET_SIZE) return;
   fds->mask[slot] |= (1 << idx);
 }
 
@@ -1446,6 +1525,7 @@ void sys_fdzero(sys_fdset_t *fds) {
 int sys_fdisset(int n, sys_fdset_t *fds) {
   int slot = n / 32;
   int idx = n % 32;
+  if (n < 0 || n >= FDSET_SIZE) return 0;
   return (fds->mask[slot] & (1 << idx)) ? 1 : 0;
 }
 
@@ -1459,7 +1539,7 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
   TIMEVAL tv;
   fd_t *f;
   int map[FDSET_SIZE];
-  int s;
+  int s, count;
 #else
   struct timeval tv;
 #endif
@@ -1474,6 +1554,7 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
     map[i] = 0;
   }
   nfds = 0;
+  count = 0;
 #endif
 
   if (readfds) {
@@ -1481,12 +1562,13 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
     for (i = 0; i < FDSET_SIZE; i++) {
       if (sys_fdisset(i, readfds)) {
 #if defined(WINDOWS)
-        if (i > 0 && (f = ptr_lock(i, TAG_FD)) != NULL) {
+        if (i > 0 && (f = fd_lock(i)) != NULL) {
           if (f->type == FD_SOCKET) {
             FD_SET(f->socket, &rfds);
             map[i] = f->socket;
+            count++;
           }
-          ptr_unlock(i, TAG_FD);
+          fd_unlock(i);
         }
 #else
         FD_SET(i, &rfds);
@@ -1500,12 +1582,13 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
     for (i = 0; i < FDSET_SIZE; i++) {
       if (sys_fdisset(i, writefds)) {
 #if defined(WINDOWS)
-        if (i > 0 && (f = ptr_lock(i, TAG_FD)) != NULL) {
+        if (i > 0 && (f = fd_lock(i)) != NULL) {
           if (f->type == FD_SOCKET) {
             FD_SET(f->socket, &wfds);
             map[i] = f->socket;
+            count++;
           }
-          ptr_unlock(i, TAG_FD);
+          fd_unlock(i);
         }
 #else
         FD_SET(i, &wfds);
@@ -1519,12 +1602,13 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
     for (i = 0; i < FDSET_SIZE; i++) {
       if (sys_fdisset(i, exceptfds)) {
 #if defined(WINDOWS)
-        if (i > 0 && (f = ptr_lock(i, TAG_FD)) != NULL) {
+        if (i > 0 && (f = fd_lock(i)) != NULL) {
           if (f->type == FD_SOCKET) {
             FD_SET(f->socket, &efds);
             map[i] = f->socket;
+            count++;
           }
-          ptr_unlock(i, TAG_FD);
+          fd_unlock(i);
         }
 #else
         FD_SET(i, &efds);
@@ -1533,6 +1617,13 @@ int sys_select_fds(int nfds, sys_fdset_t *readfds, sys_fdset_t *writefds, sys_fd
     }
   }
 
+#if defined(WINDOWS)
+  if (count == 0) {
+    // Winsock select() fails with WSAEINVAL when no socket is given: just wait
+    if (timeout) sys_usleep(timeout->tv_sec * 1000000 + timeout->tv_usec);
+    r = 0;
+  } else
+#endif
   r = select(nfds, readfds ? &rfds : NULL, writefds ? &wfds : NULL, exceptfds ? &efds : NULL, timeout ? &tv : NULL);
 
   if (readfds) {
@@ -1604,7 +1695,7 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
   *nread = 0;
 
 #if defined(WINDOWS)
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
@@ -1619,7 +1710,7 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
     r = fd_read_timeout(f, buf, len, nread, us);
   }
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 
   return r;
 
@@ -1627,13 +1718,13 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
 
   fd_t *f;
 
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
   r = fd_read_timeout(f, buf, len, nread, us);
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 
   return r;
 
@@ -1687,13 +1778,13 @@ int sys_write(int fd, uint8_t *buf, int len) {
   }
 
 #if defined(WINDOWS) || defined(KERNEL)
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
   i = fd_write(f, buf, len);
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 
 #else
   int j, r;
@@ -1737,7 +1828,7 @@ int64_t sys_seek(int fd, int64_t offset, sys_seek_t whence) {
     default: return -1;
   }
 
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
@@ -1751,13 +1842,13 @@ int64_t sys_seek(int fd, int64_t offset, sys_seek_t whence) {
     }
   }
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 
 #elif defined(KERNEL)
   fd_t *f;
   int32_t pos;
 
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
@@ -1766,7 +1857,7 @@ int64_t sys_seek(int fd, int64_t offset, sys_seek_t whence) {
     case SYS_SEEK_CUR: pos = f_tell(&f->fil) + offset; break;
     case SYS_SEEK_END: pos = f_size(&f->fil) - offset; break;
     default:
-      ptr_unlock(fd, TAG_FD);
+      fd_unlock(fd);
       return -1;
   }
 
@@ -1777,7 +1868,7 @@ int64_t sys_seek(int fd, int64_t offset, sys_seek_t whence) {
     }
   }
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 
 #else
   switch (whence) {
@@ -1801,7 +1892,7 @@ int sys_truncate(int fd, int64_t offset) {
 #if defined(WINDOWS)
   fd_t *f;
 
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
@@ -1811,12 +1902,12 @@ int sys_truncate(int fd, int64_t offset) {
     }
   }
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 
 #elif defined(KERNEL)
   fd_t *f;
 
-  if ((f = ptr_lock(fd, TAG_FD)) == NULL) {
+  if ((f = fd_lock(fd)) == NULL) {
     return -1;
   }
 
@@ -1824,7 +1915,7 @@ int sys_truncate(int fd, int64_t offset) {
     r = f_truncate(&f->fil) == FR_OK ? 0 : -1;
   }
 
-  ptr_unlock(fd, TAG_FD);
+  fd_unlock(fd);
 #else
   r = ftruncate(fd, offset);
 #endif
@@ -1851,7 +1942,7 @@ int sys_pipe(int *fd) {
   if ((fd1 = fd_open(FD_PIPE, w, NULL, NULL, -1)) == -1) {
     CloseHandle(r);
     CloseHandle(w);
-    ptr_free(fd0, TAG_FD);
+    fd_free(fd0);
     return -1;
   }
 
@@ -1900,7 +1991,7 @@ int sys_pipe(int *fd) {
 
   if ((fd1 = fd_open(FD_PIPE, (HANDLE)w, NULL, NULL, -1)) == -1) {
     // Cleanup fd0 if fd1 fails
-    ptr_free(fd0, TAG_FD);
+    fd_free(fd0);
     goto fail;
   }
 
@@ -1933,6 +2024,10 @@ int sys_peek(int fd) {
 #if defined(KERNEL)
   return 0;
 #else
+#if defined(WINDOWS)
+  fd_t *f;
+#endif
+  char buf;
   int r;
 
   if ((r = sys_select(fd, 0)) <= 0) {
@@ -1945,9 +2040,24 @@ int sys_peek(int fd) {
   }
 #endif
 
-#if !defined(WINDOWS)
-  // XXX how to do this on Windows ?
-  char buf;
+#if defined(WINDOWS)
+  if ((f = fd_lock(fd)) == NULL) {
+    return -1;
+  }
+
+  if (f->type == FD_SOCKET) {
+    if ((r = recv(f->socket, &buf, 1, MSG_PEEK)) < 0) {
+      if (WSAGetLastError() == WSAEMSGSIZE) {
+        // a datagram bigger than the buffer: there is something to read
+        r = 1;
+      } else {
+        debug_errno("SYS", "recv");
+      }
+    }
+  }
+
+  fd_unlock(fd);
+#else
   if ((r = recv(fd, &buf, 1, MSG_PEEK)) < 0) {
     debug_errno("SYS", "recv");
   }
@@ -1967,7 +2077,7 @@ int sys_fstat(int fd, sys_stat_t *st) {
   if (st) {
     sys_memset(st, 0, sizeof(sys_stat_t));
 
-    if ((f = ptr_lock(fd, TAG_FD)) != NULL) {
+    if ((f = fd_lock(fd)) != NULL) {
       if (f->type == FD_FILE) {
         if (GetFileInformationByHandle(f->handle, &info)) {
           st->mode = SYS_IFREG;
@@ -1980,7 +2090,7 @@ int sys_fstat(int fd, sys_stat_t *st) {
         st->mode = SYS_IFDIR;
         r = 0;
       }
-      ptr_unlock(fd, TAG_FD);
+      fd_unlock(fd);
     }
   }
 
@@ -1991,7 +2101,7 @@ int sys_fstat(int fd, sys_stat_t *st) {
   if (st) {
     sys_memset(st, 0, sizeof(sys_stat_t));
 
-    if ((f = ptr_lock(fd, TAG_FD)) != NULL) {
+    if ((f = fd_lock(fd)) != NULL) {
       if (f->type == FD_FILE) {
         if (f_stat(f->name, &fno) == FR_OK) {
           st->mode = SYS_IFREG;
@@ -1999,7 +2109,7 @@ int sys_fstat(int fd, sys_stat_t *st) {
           r = 0;
         }
       }
-      ptr_unlock(fd, TAG_FD);
+      fd_unlock(fd);
     }
   }
 
@@ -2144,7 +2254,7 @@ int sys_close(int fd) {
   int r = -1;
 
 #if defined(WINDOWS) || defined(KERNEL)
-  r = ptr_free(fd, TAG_FD);
+  r = fd_free(fd);
 #else
   if (fd != -1) {
     r = close(fd);
@@ -3548,14 +3658,25 @@ static int sys_tcpip_socket(char *host, int port, int *type, struct sockaddr_sto
 static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
   struct sockaddr_storage addr;
   int sock, addrlen, ipv6, r;
+#if defined(WINDOWS)
+  u_long nonblock;
+#else
   sys_timeval_t timeout;
   sys_fdset_t fds;
+#endif
 
   if ((sock = sys_tcpip_socket(host, port, &type, &addr, &addrlen, &ipv6, "connect")) == -1) {
     return -1;
   }
 
-#ifndef WINDOWS
+#if defined(WINDOWS)
+  nonblock = 1;
+  if (ioctlsocket(sock, FIONBIO, &nonblock) != 0) {
+    debug_errno("SYS", "ioctlsocket FIONBIO");
+    closesocket(sock);
+    return -1;
+  }
+#else
   if (fcntl(sock, F_SETFL, O_NONBLOCK) != 0) {
     debug_errno("SYS", "fcntl O_NONBLOCK");
     closesocket(sock);
@@ -3564,7 +3685,11 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
 #endif
 
   if (connect(sock, (struct sockaddr *)&addr, addrlen) == -1) {
+#if defined(WINDOWS)
+    if (WSAGetLastError() != WSAEWOULDBLOCK) {
+#else
     if (sys_errno() != EINPROGRESS) {
+#endif
       debug_errno("SYS", "connect to %s port %d (ipv%d)", host, port, ipv6 ? 6 : 4);
       closesocket(sock);
       return -1;
@@ -3589,6 +3714,29 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
         usleep(1000);
       }
     }
+#elif defined(WINDOWS)
+    {
+      // sock is a native socket, not a descriptor: select() on it directly
+      // (Winsock reports a failed connection in the exception set)
+      fd_set wfds, efds;
+      TIMEVAL tv;
+      int err, errlen;
+
+      FD_ZERO(&wfds);
+      FD_SET(sock, &wfds);
+      FD_ZERO(&efds);
+      FD_SET(sock, &efds);
+      tv.tv_sec = us / 1000000;
+      tv.tv_usec = us % 1000000;
+      r = select(0, NULL, &wfds, &efds, us == ((uint32_t)-1) ? NULL : &tv);
+      if (r > 0 && FD_ISSET(sock, &efds)) {
+        err = 0;
+        errlen = sizeof(err);
+        getsockopt(sock, SOL_SOCKET, SO_ERROR, (char *)&err, &errlen);
+        WSASetLastError(err);
+        r = -1;
+      }
+    }
 #else
     sys_fdzero(&fds);
     sys_fdset(sock, &fds);
@@ -3607,6 +3755,12 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
       return -1;
     }
   }
+
+#if defined(WINDOWS)
+  // the descriptor layer guards recv() with select(): back to blocking mode
+  nonblock = 0;
+  ioctlsocket(sock, FIONBIO, &nonblock);
+#endif
 
   debug(DEBUG_INFO, "SYS", "fd %d connected to %s host %s port %d (ipv%d)",
         sock, type == SOCK_STREAM ? "TCP" : "UDP", host, port, ipv6 ? 6 : 4);
@@ -3670,22 +3824,22 @@ int sys_socket_connect(int sock, char *host, int port) {
   }
 
 #if defined(WINDOWS)
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
   if (f->type != FD_SOCKET) {
-    ptr_unlock(sock, TAG_FD);
+    fd_unlock(sock);
     return -1;
   }
 
   if (connect(f->socket, (struct sockaddr *)&addr, len) == -1) {
-    ptr_unlock(sock, TAG_FD);
+    fd_unlock(sock);
     debug_errno("SYS", "connect to %s port %d (ipv%d)", host, port, ipv6 ? 6 : 4);
     return -1;
   }
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 #else
   if (connect(sock, (struct sockaddr *)&addr, len) == -1 && errno != EINPROGRESS) {
     debug_errno("SYS", "connect to %s port %d (ipv%d)", host, port, ipv6 ? 6 : 4);
@@ -3800,13 +3954,13 @@ int sys_socket_binds(int sock, char *host, int *port) {
   fd_t *f;
   int r = -1;
 
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
   r = sys_tcpip_bind(f->socket, host, port);
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 
   return r;
 #else
@@ -3814,16 +3968,37 @@ int sys_socket_binds(int sock, char *host, int *port) {
 #endif
 }
 
-int sys_socket_listen(int sock, int n) {
-#if defined(KERNEL)
-  return -1;
-#else
+#if !defined(KERNEL)
+static int sys_tcpip_listen(int sock, int n) {
   if (listen(sock, n) == -1) {
     debug_errno("SYS", "listen");
     return -1;
   }
 
   return 0;
+}
+#endif
+
+int sys_socket_listen(int sock, int n) {
+#if defined(KERNEL)
+  return -1;
+#elif defined(WINDOWS)
+  fd_t *f;
+  int r = -1;
+
+  if ((f = fd_lock(sock)) == NULL) {
+    return -1;
+  }
+
+  if (f->type == FD_SOCKET) {
+    r = sys_tcpip_listen(f->socket, n);
+  }
+
+  fd_unlock(sock);
+
+  return r;
+#else
+  return sys_tcpip_listen(sock, n);
 #endif
 }
 
@@ -3844,7 +4019,7 @@ int sys_socket_bind(char *host, int *port, int type) {
   }
 
   if (type == SOCK_STREAM) {
-    if (sys_socket_listen(sock, 5) == -1) {
+    if (sys_tcpip_listen(sock, 5) == -1) {
       closesocket(sock);
       return -1;
     }
@@ -3981,7 +4156,7 @@ int sys_socket_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *
   fd_t *f;
   int csock = -1;
 
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
@@ -3989,7 +4164,7 @@ int sys_socket_accept(int sock, char *host, int hlen, int *port, sys_timeval_t *
     csock = sys_tcpip_accept(f->socket, host, hlen, port, tv, 0);
   }
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 
   return csock > 0 ? fd_open(FD_SOCKET, NULL, NULL, NULL, csock) : csock;
 #else
@@ -4021,7 +4196,7 @@ int sys_socket_sendto(int sock, char *host, int port, unsigned char *buf, int n)
 #if defined(WINDOWS)
   fd_t *f;
 
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
@@ -4029,7 +4204,7 @@ int sys_socket_sendto(int sock, char *host, int port, unsigned char *buf, int n)
     r = sys_tcpip_sendto(f->socket, host, port, buf, n);
   }
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 #elif !defined(KERNEL)
   r = sys_tcpip_sendto(sock, host, port, buf, n);
 #endif
@@ -4088,7 +4263,7 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
 #if defined(WINDOWS)
   fd_t *f;
 
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
@@ -4096,7 +4271,7 @@ int sys_socket_recvfrom(int sock, char *host, int hlen, int *port, unsigned char
     r = sys_tcpip_recvfrom(f->socket, host, hlen, port, buf, n, tv, 0);
   }
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 #elif !defined(KERNEL)
   r = sys_tcpip_recvfrom(sock, host, hlen, port, buf, n, tv, 1);
 #endif
@@ -4139,7 +4314,7 @@ int sys_setsockopt(int sock, int level, int optname, const void *optval, int opt
   }
 
 #if defined(WINDOWS)
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
@@ -4147,7 +4322,7 @@ int sys_setsockopt(int sock, int level, int optname, const void *optval, int opt
     r = setsockopt(f->socket, ilevel, ioptname, optval, optlen);
   }
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 #else
   r = setsockopt(sock, ilevel, ioptname, optval, optlen);
 #endif
@@ -4166,15 +4341,15 @@ int sys_socket_shutdown(int sock, int dir) {
   if (dir & SYS_SHUTDOWN_RD) d |= SD_RECEIVE;
   if (dir & SYS_SHUTDOWN_WR) d |= SD_SEND;
 
-  if ((f = ptr_lock(sock, TAG_FD)) == NULL) {
+  if ((f = fd_lock(sock)) == NULL) {
     return -1;
   }
 
   if (f->type == FD_SOCKET) {
-    r = shutdown(sock, d);
+    r = shutdown(f->socket, d);
   }
 
-  ptr_unlock(sock, TAG_FD);
+  fd_unlock(sock);
 #elif !defined(KERNEL)
   int d = 0;
 
@@ -4185,6 +4360,31 @@ int sys_socket_shutdown(int sock, int dir) {
 #endif
 
   return r;
+}
+
+// the native socket behind a descriptor, for libraries that talk to the
+// socket directly (SSL_set_fd); on POSIX systems it is the descriptor itself
+int sys_socket_native(int fd) {
+#if defined(KERNEL)
+  return -1;
+#elif defined(WINDOWS)
+  fd_t *f;
+  int sock = -1;
+
+  if ((f = fd_lock(fd)) == NULL) {
+    return -1;
+  }
+
+  if (f->type == FD_SOCKET) {
+    sock = f->socket;
+  }
+
+  fd_unlock(fd);
+
+  return sock;
+#else
+  return fd;
+#endif
 }
 
 int sys_fork_exec(char *filename, char *argv[], int fd) {
