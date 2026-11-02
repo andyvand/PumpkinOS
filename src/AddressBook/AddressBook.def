@@ -1,7 +1,5 @@
-teLIBRARY AddressBook
 EXPORTS
-	DllMain @97
-    AddrDB @1
+    AddrDB @1 DATA
     AddrDBAppInfoGetPtr @2
     AddrDBAppInfoInit @3
     AddrDBChangeCountry @4
@@ -15,53 +13,53 @@ EXPORTS
     AddrDBNewRecord @12
     AddrDBRecordContainsData @13
     AddrDBSetFieldLabel @14
-    AddrEditFont @15
-    AddrListFont @16
-    AddrRecordFont @17
-    AutoFillInitDB @18
-    AutoFillLookupSave @19
-    AutoFillLookupStringInDatabase @20
-    BitAtPosition @21
-    BusinessCardRecordID @22
-    CategoryName @23
-    CurrentCategory @24
-    CurrentRecord @25
-    CustomEditHandleEvent @26
-    DetailsDeleteRecord @27
-    DetailsHandleEvent @28
-    DialListHandleEvent @29
-    DialListShowDialog @30
-    DialerPresent @31
-    DialerPresentChecked @32
-    EditFieldPosition @33
-    EditHandleEvent @34
-    EditLabelColumnWidth @35
-    EditNewRecord @36
-    EditRowIDWhichHadFocus @37
-    EnableTapDialing @38
-    ListHandleEvent @39
-    ListViewSelectThisRecord @40
-    Lookup @41
-    NoteFont @42
-    NoteViewCreate @43
-    NoteViewDelete @44
-    NoteViewHandleEvent @45
-    NumCharsToHilite @46
-    PhoneLabelLetters @47
-    PilotMain @48
-    PrefsHandleEvent @49
-    PrefsLoad @50
-    PrefsSave @51
-    PriorAddressFormID @52
-    AddrPrivateRecordVisualStatus @53
-    PrvToolsPhoneIsANumber @54
-    RecordLabelColumnWidth @55
-    RecordNeededAfterEditView @56
-    RememberLastCategory @57
-    AddrSaveBackup @58
-    ShowAllCategories @59
-    SortByCompany @60
-    TickAppButtonPushed @61
+    AddrEditFont @15 DATA
+    AddrListFont @16 DATA
+    AddrPrivateRecordVisualStatus @17 DATA
+    AddrRecordFont @18 DATA
+    AddrSaveBackup @19 DATA
+    AutoFillInitDB @20
+    AutoFillLookupSave @21
+    AutoFillLookupStringInDatabase @22
+    BitAtPosition @23
+    BusinessCardRecordID @24 DATA
+    CategoryName @25 DATA
+    CurrentCategory @26 DATA
+    CurrentRecord @27 DATA
+    CustomEditHandleEvent @28
+    DetailsDeleteRecord @29
+    DetailsHandleEvent @30
+    DialListHandleEvent @31
+    DialListShowDialog @32
+    DialerPresent @33 DATA
+    DialerPresentChecked @34 DATA
+    EditFieldPosition @35 DATA
+    EditHandleEvent @36
+    EditLabelColumnWidth @37 DATA
+    EditNewRecord @38
+    EditRowIDWhichHadFocus @39 DATA
+    EnableTapDialing @40 DATA
+    ListHandleEvent @41
+    ListViewSelectThisRecord @42 DATA
+    Lookup @43
+    NoteFont @44 DATA
+    NoteViewCreate @45
+    NoteViewDelete @46
+    NoteViewHandleEvent @47
+    NumCharsToHilite @48 DATA
+    PhoneLabelLetters @49 DATA
+    PilotMain @50
+    PrefsHandleEvent @51
+    PrefsLoad @52
+    PrefsSave @53
+    PriorAddressFormID @54 DATA
+    PrvToolsPhoneIsANumber @55
+    RecordLabelColumnWidth @56 DATA
+    RecordNeededAfterEditView @57 DATA
+    RememberLastCategory @58 DATA
+    ShowAllCategories @59 DATA
+    SortByCompany @60 DATA
+    TickAppButtonPushed @61 DATA
     ToolsAddrBeamBusinessCard @62
     ToolsChangeCategory @63
     ToolsCreateDefaultDatabase @64
@@ -85,8 +83,8 @@ EXPORTS
     ToolsSeekRecord @82
     ToolsSelectFont @83
     ToolsSetDBAttrBits @84
-    TopVisibleFieldIndex @85
-    TopVisibleRecord @86
+    TopVisibleFieldIndex @85 DATA
+    TopVisibleRecord @86 DATA
     TransferExportVCard @87
     TransferImportVCard @88
     TransferPreview @89
@@ -94,6 +92,6 @@ EXPORTS
     TransferRegisterData @91
     TransferSendCategory @92
     TransferSendRecord @93
-    UnnamedRecordStringH @94
-    UnnamedRecordStringPtr @95
+    UnnamedRecordStringH @94 DATA
+    UnnamedRecordStringPtr @95 DATA
     ViewHandleEvent @96

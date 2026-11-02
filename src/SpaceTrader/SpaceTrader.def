@@ -1,0 +1,288 @@
+EXPORTS
+    APLscreen @1 DATA
+    Activity @2 DATA
+    AdaptDifficulty @3
+    AlreadyPaidForNewspaper @4 DATA
+    AlwaysIgnorePirates @5 DATA
+    AlwaysIgnorePolice @6 DATA
+    AlwaysIgnoreTradeInOrbit @7 DATA
+    AlwaysIgnoreTraders @8 DATA
+    AlwaysInfo @9 DATA
+    AnyEmptySlots @10
+    AppHandleEvent @11
+    Arrival @12
+    ArrivedViaWormhole @13 DATA
+    ArtifactOnBoard @14 DATA
+    AttackFleeing @15 DATA
+    AttackIconStatus @16 DATA
+    AutoAttack @17 DATA
+    AutoFlee @18 DATA
+    AutoFuel @19 DATA
+    AutoRepair @20 DATA
+    AveragePricesFormHandleEvent @21
+    BankFormHandleEvent @22
+    BasePrice @23
+    BaseSellPrice @24
+    BuyCargo @25
+    BuyCargoFormHandleEvent @26
+    BuyEquipmentFormHandleEvent @27
+    BuyFuel @28
+    BuyItem @29
+    BuyPrice @30 DATA
+    BuyRepairs @31
+    BuyShipFormHandleEvent @32
+    BuyingPrice @33 DATA
+    CanSuperWarp @34 DATA
+    ChanceOfTradeInOrbit @35 DATA
+    ChanceOfVeryRareEncounter @36 DATA
+    CheatCounter @37 DATA
+    ClearHighScores @38
+    Clicks @39 DATA
+    Cloaked @40
+    CommanderStatusFormHandleEvent @41
+    Continuous @42 DATA
+    CreateFlea @43
+    Credits @44 DATA
+    CurForm @45 DATA
+    CurrentShipFormHandleEvent @46
+    CurrentShipPrice @47
+    CurrentShipPriceWithoutCargo @48
+    CurrentSystemBmp @49 DATA
+    CurrentSystemBmpPtr @50 DATA
+    CurrentVisitedSystemBmp @51 DATA
+    CurrentVisitedSystemBmpPtr @52 DATA
+    CurrentWorth @53
+    DamagedShieldedShipBmp @54 DATA
+    DamagedShieldedShipBmpPtr @55 DATA
+    DamagedShipBmp @56 DATA
+    DamagedShipBmpPtr @57 DATA
+    Days @58 DATA
+    Debt @59 DATA
+    DebugCharAlert @60
+    DebugIntAlert @61
+    DebugLongAlert @62
+    DecreaseRandomSkill @63
+    DefaultFormHandleEvent @64
+    DestroyedFormHandleEvent @65
+    Difficulty @66 DATA
+    DifficultyLevel @67 DATA
+    DiscardCargoFormHandleEvent @68
+    DisplayDumpCredits @69
+    DisplayHeadline @70
+    DisplayPage @71
+    DisplayPlunderCargoBays @72
+    DisplayTradeCargoBays @73
+    DisplayTradeCredits @74
+    DisplayTradeItemName @75
+    DisplayTradeQuantity @76
+    DoWarp @77
+    Dragonfly @78 DATA
+    DragonflyStatus @79 DATA
+    DrawChars @80
+    DrawCharsCentered @81
+    DrawCircle @82
+    DrawGalaxy @83
+    DrawPersonnelRoster @84
+    DrawSellEquipment @85
+    DrawShortRange @86
+    EncounterFormHandleEvent @87
+    EncounterType @88 DATA
+    EnemyShipPrice @89
+    EngineerSkill @90
+    EraseRectangle @91
+    EscapePod @92 DATA
+    EscapeWithPod @93
+    ExecuteWarpFormHandleEvent @94
+    ExperimentStatus @95 DATA
+    FabricRipProbability @96 DATA
+    FighterSkill @97
+    FilledCargoBays @98
+    Gadgettype @99 DATA
+    GalacticChartFormHandleEvent @100
+    GalacticChartSystem @101 DATA
+    GalacticChartUpdateTicks @102 DATA
+    GameLoaded @103 DATA
+    GetAmountToBuy @104
+    GetAmountToPlunder @105
+    GetBitmapHeight @106
+    GetBitmapWidth @107
+    GetCheckBox @108
+    GetField @109
+    GetFirstEmptySlot @110
+    GetFuel @111
+    GetFuelTanks @112
+    GetHullStrength @113
+    GetRandom2 @114
+    GetRandomTradeableItem @115
+    GetScore @116
+    GetTriggerList @117
+    HasGadget @118
+    HasShield @119
+    HasTradeableItems @120
+    HasWeapon @121
+    Hscores @122 DATA
+    IconBmp @123 DATA
+    IconBmpPtr @124 DATA
+    IdentifyStartup @125 DATA
+    IncDays @126
+    IncreaseRandomSkill @127
+    Inspected @128 DATA
+    Insurance @129 DATA
+    InsuranceMoney @130
+    InvasionStatus @131 DATA
+    JaporiDiseaseStatus @132 DATA
+    JarekStatus @133 DATA
+    JustLootedMarie @134 DATA
+    LeaveEmpty @135 DATA
+    LitterWarning @136 DATA
+    LoadGame @137
+    MainFormHandleEvent @138
+    Mercenary @139 DATA
+    MercenaryName @140 DATA
+    MerchantPilotMain @141
+    MonsterHull @142 DATA
+    MonsterStatus @143 DATA
+    MoonBought @144 DATA
+    NameCommander @145 DATA
+    NameH @146 DATA
+    NewCommanderFormHandleEvent @147
+    NewsAutoPay @148 DATA
+    NewsSpecialEventCount @149 DATA
+    NewspaperFormHandleEvent @150
+    NoClaim @151 DATA
+    NthLowestSkill @152
+    OpenQuests @153
+    Opponent @154 DATA
+    OutdatedSoftware @155
+    PackBooleans @156
+    PackBytes @157
+    PayInterest @158
+    PersonnelRosterFormHandleEvent @159
+    PilotMain @160
+    PilotSkill @161
+    PirateKills @162 DATA
+    PlunderCargo @163
+    PlunderFormHandleEvent @164
+    PoliceKills @165 DATA
+    PoliceRecord @166 DATA
+    PoliceRecordScore @167 DATA
+    Politics @168 DATA
+    PossibleToGoThroughRip @169 DATA
+    PriceDifferences @170 DATA
+    QuestsFormHandleEvent @171
+    Raided @172 DATA
+    Rand @173
+    RandSeed @174
+    RandomSkill @175
+    ReactorStatus @176 DATA
+    RealDistance @177
+    RecalculateBuyPrices @178
+    RecalculateSellPrices @179
+    RectangularButton @180
+    RectangularButtonsOn @181 DATA
+    RectangularShortcuts @182
+    RemindLoans @183 DATA
+    Reputation @184 DATA
+    ReputationScore @185 DATA
+    ReserveMoney @186 DATA
+    RetireDestroyedUtopiaFormHandleEvent @187
+    RetireFormHandleEvent @188
+    RomVersionCompatible @189
+    SBuf @190 DATA
+    SBuf2 @191 DATA
+    SBufBays @192
+    SBufMultiples @193
+    SBufShortMultiples @194
+    SaveGame @195
+    Scarab @196 DATA
+    ScarabStatus @197 DATA
+    ScrollButton @198
+    SelectedShipType @199 DATA
+    SellCargo @200
+    SellCargoFormHandleEvent @201
+    SellEquipmentFormHandleEvent @202
+    SellPrice @203 DATA
+    SetCheckBox @204
+    SetControlLabel @205
+    SetField @206
+    SetTriggerList @207
+    SharePreferences @208 DATA
+    ShieldedShipBmp @209 DATA
+    ShieldedShipBmpPtr @210 DATA
+    Shieldtype @211 DATA
+    Ship @212 DATA
+    ShipBmp @213 DATA
+    ShipBmpPtr @214 DATA
+    ShipPrice @215 DATA
+    ShipYardFormHandleEvent @216
+    Shiptype @217 DATA
+    ShiptypeInfoFormHandleEvent @218
+    ShortRangeSystemBmp @219 DATA
+    ShortRangeSystemBmpPtr @220 DATA
+    Shortcut1 @221 DATA
+    Shortcut2 @222 DATA
+    Shortcut3 @223 DATA
+    Shortcut4 @224 DATA
+    ShortcutTarget @225 DATA
+    Shortcuts @226 DATA
+    ShowDumpCargo @227
+    ShowMessage @228
+    ShowShip @229
+    ShowTrackedRange @230 DATA
+    SmallWormholeBmp @231 DATA
+    SmallWormholeBmpPtr @232 DATA
+    SolarSystem @233 DATA
+    SolarSystemName @234 DATA
+    SpaceMonster @235 DATA
+    SpecialCargoFormHandleEvent @236
+    SpecialEvent @237 DATA
+    SpecialEventFormHandleEvent @238
+    SpecialResources @239 DATA
+    SqrDistance @240
+    StartNewGame @241
+    Status @242 DATA
+    SystemBmp @243 DATA
+    SystemBmpPtr @244 DATA
+    SystemInformationFormHandleEvent @245
+    SystemSize @246 DATA
+    TechLevel @247 DATA
+    TextualEncounters @248 DATA
+    ToSpend @249
+    TonicTweakRandomSkill @250
+    TotalCargoBays @251
+    TotalWeapons @252
+    TrackAutoOff @253 DATA
+    TrackedSystem @254 DATA
+    Tradeitem @255 DATA
+    TraderKills @256 DATA
+    TraderSkill @257
+    Travel @258
+    TribbleMessage @259 DATA
+    UnpackBooleans @260
+    UnpackBytes @261
+    UseHWButtons @262 DATA
+    UtopiaFormHandleEvent @263
+    VeryRareEncounter @264 DATA
+    ViewHighScores @265
+    VisitedShortRangeSystemBmp @266 DATA
+    VisitedShortRangeSystemBmpPtr @267 DATA
+    VisitedSystemBmp @268 DATA
+    VisitedSystemBmpPtr @269 DATA
+    WarpFormHandleEvent @270
+    WarpSystem @271 DATA
+    Weapontype @272 DATA
+    WildStatus @273 DATA
+    Wormhole @274 DATA
+    WormholeBmp @275 DATA
+    WormholeBmpPtr @276 DATA
+    WormholeExists @277
+    addNewsEvent @278
+    isNewsEvent @279
+    latestNewsEvent @280
+    my_sqrt @281
+    replaceNewsEvent @282
+    resetNewsEvents @283
+    romVersion @284 DATA
+    setCurrentWinTitle @285
+    setFormTitle @286
+    setLabelText @287

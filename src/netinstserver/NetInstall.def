@@ -1,0 +1,16 @@
+EXPORTS
+    PilotMain @1
+    netinst_client @2
+    netinst_connected @3
+    netinst_create @4
+    netinst_destroy @5
+    netinst_id2s @6
+    netinst_parse_header @7
+    netinst_poll @8
+    netinst_port @9
+    netinst_running @10
+    netinst_start @11
+    netinst_stop @12
+    netinst_transfer @13
+    netinst_valid_filename @14
+    netinst_valid_path @15

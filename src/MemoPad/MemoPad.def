@@ -1,7 +1,5 @@
-LIBRARY MemoPad
 EXPORTS
-    DllMain @17
-    AppResourceList @1
+    AppResourceList @1 DATA
     MemoAppInfoInit @2
     MemoChangeSortOrder @3
     MemoExportMime @4

@@ -1,0 +1,26 @@
+EXPORTS
+    PilotMain @1
+    mail_build_message @2
+    mail_decode_header @3
+    mail_delete_message @4
+    mail_error_string @5
+    mail_extract_address @6
+    mail_fetch_headers @7
+    mail_fetch_message @8
+    mail_imap_delete_message @9
+    mail_imap_fetch_headers @10
+    mail_imap_fetch_message @11
+    mail_imap_list_folders @12
+    mail_list_folders @13
+    mail_message_free @14
+    mail_pop3_delete_message @15
+    mail_pop3_fetch_headers @16
+    mail_pop3_fetch_message @17
+    mail_session_create @18
+    mail_session_ctx @19
+    mail_session_destroy @20
+    mail_session_disconnect @21
+    mail_session_set_account @22
+    mail_short_date @23
+    mail_smtp_send @24
+    mail_utf8_to_latin1 @25

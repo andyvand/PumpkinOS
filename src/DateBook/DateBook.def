@@ -1,25 +1,23 @@
-LIBRARY DateBook
 EXPORTS
-    DllMain @117
     AgendaViewHandleEvent @1
     AgendaViewHandleTblEnter @2
     AgendaViewInit @3
     AgendaViewInitDatebook @4
     AgendaViewInitToDo @5
     AlarmGetTrigger @6
-    AlarmPreset @7
+    AlarmPreset @7 DATA
     AlarmReset @8
     AlarmSetTrigger @9
-    AlarmSnooze @10
-    AlarmSoundRepeatCount @11
-    AlarmSoundRepeatInterval @12
-    AlarmSoundUniqueRecID @13
+    AlarmSnooze @10 DATA
+    AlarmSoundRepeatCount @11 DATA
+    AlarmSoundRepeatInterval @12 DATA
+    AlarmSoundUniqueRecID @13 DATA
     AlarmTriggered @14
     ApptAddException @15
     ApptAppInfoInit @16
     ApptChangeRecord @17
-    ApptDB @18
-    ApptDescFont @19
+    ApptDB @18 DATA
+    ApptDescFont @19 DATA
     ApptFindFirst @20
     ApptGetAlarmTime @21
     ApptGetAppointments @22
@@ -31,77 +29,77 @@ EXPORTS
     ApptPostTriggeredAlarms @28
     ApptRepeatsOnDate @29
     ApptSort @30
-    ApptsH @31
-    ApptsOnlyH @32
+    ApptsH @31 DATA
+    ApptsOnlyH @32 DATA
     AttentionBottleNeckProc @33
     ClearEditState @34
-    CompressDayView @35
-    DateCurrentRecord @36
-    CurrentRecordVisualStatus @37
-    Date @38
-    DateExportVCal @39
-    DateImportVCal @40
-    DateParamString @41
-    DateReceiveData @42
-    DateSendRecord @43
-    DateTransferPreview @44
-    DatebookLoadPrefs @45
-    DatebookSavePrefs @46
-    DayEditPosition @47
-    DayEditSelectionLength @48
-    DayEndHour @49
-    DayStartHour @50
-    DayViewHandleEvent @51
-    DeleteAlarmIfPosted @52
-    DateDetailsHandleEvent @53
-    DetailsP @54
-    DirtyRecord @55
-    DisplayOptionsHandleEvent @56
-    DoSecurity @57
-    DrawTime @58
-    EventInCurrentView @59
-    FindRecordByID @60
-    GetObjectPtr @61
-    GetToDoNotePtr @62
-    GoToAlarmItem @63
-    GoToAppointment @64
-    GoToItem @65
-    InPhoneLookup @66
-    ItemSelected @67
-    LaunchToDoWithRecord @68
-    LongDateFormat @69
-    MonthViewHandleEvent @70
-    MoveEvent @71
-    NoteDownScrollerVisible @72
-    DateNoteFont @73
-    NoteUpScrollerVisible @74
-    DateNoteViewHandleEvent @75
-    NumAppts @76
-    NumApptsOnly @77
-    PendingUpdate @78
+    CompressDayView @35 DATA
+    CurrentRecordVisualStatus @36 DATA
+    Date @37 DATA
+    DateCurrentRecord @38 DATA
+    DateDetailsHandleEvent @39
+    DateExportVCal @40
+    DateImportVCal @41
+    DateNoteFont @42 DATA
+    DateNoteViewHandleEvent @43
+    DateParamString @44
+    DateReceiveData @45
+    DateSendRecord @46
+    DateTransferPreview @47
+    DatebookLoadPrefs @48
+    DatebookSavePrefs @49
+    DayEditPosition @50 DATA
+    DayEditSelectionLength @51 DATA
+    DayEndHour @52 DATA
+    DayStartHour @53 DATA
+    DayViewHandleEvent @54
+    DeleteAlarmIfPosted @55
+    DetailsP @56 DATA
+    DirtyRecord @57
+    DisplayOptionsHandleEvent @58
+    DoSecurity @59
+    DrawTime @60
+    EventInCurrentView @61 DATA
+    FindRecordByID @62
+    GetObjectPtr @63
+    GetToDoNotePtr @64
+    GoToAlarmItem @65
+    GoToAppointment @66
+    GoToItem @67
+    InPhoneLookup @68 DATA
+    ItemSelected @69 DATA
+    LaunchToDoWithRecord @70
+    LongDateFormat @71 DATA
+    MonthViewHandleEvent @72
+    MoveEvent @73
+    NoteDownScrollerVisible @74 DATA
+    NoteUpScrollerVisible @75 DATA
+    NumAppts @76 DATA
+    NumApptsOnly @77 DATA
+    PendingUpdate @78 DATA
     PilotMain @79
     PlayAlarmSound @80
     PreferencesHandleEvent @81
-    PrivateRecordVisualStatus @82
-    RecordDirty @83
-    RepeatDetailsP @84
-    RepeatEndDate @85
+    PrivateRecordVisualStatus @82 DATA
+    RecordDirty @83 DATA
+    RepeatDetailsP @84 DATA
+    RepeatEndDate @85 DATA
     RepeatHandleEvent @86
-    RepeatStartOfWeek @87
-    RepeatingEventType @88
+    RepeatStartOfWeek @87 DATA
+    RepeatingEventType @88 DATA
     RescheduleAlarms @89
-    SaveBackup @90
+    SaveBackup @90 DATA
     SeekCurrentRecord @91
-    ShortDateFormat @92
-    ShowDailyRepeatingAppts @93
-    ShowTimeBars @94
-    ShowTimedAppts @95
-    ShowUntimedAppts @96
-    StartDayOfWeek @97
-    TimeBarColumns @98
-    TimeDisplayTick @99
-    TimeDisplayed @100
-    TimeFormat @101
+    ShortDateFormat @92 DATA
+    ShowDailyRepeatingAppts @93 DATA
+    ShowTimeBars @94 DATA
+    ShowTimedAppts @95 DATA
+    ShowUntimedAppts @96 DATA
+    StartDayOfWeek @97 DATA
+    TimeBarColumns @98 DATA
+    TimeDisplayTick @99 DATA
+    TimeDisplayed @100 DATA
+    TimeFormat @101 DATA
     TimeToWait @102
     ToDoAppInfoInit @103
     ToDoChangeRecord @104
@@ -113,7 +111,7 @@ EXPORTS
     ToDoNewRecord @110
     ToDoSetDBBackupBit @111
     ToDoSort @112
-    TopVisibleAppt @113
+    TopVisibleAppt @113 DATA
     UpdatePostedAlarms @114
     WeekViewHandleEvent @115
-    colorLine @116
+    colorLine @116 DATA

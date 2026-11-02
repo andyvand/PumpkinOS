@@ -1,4 +1,2 @@
-LIBRARY vi
 EXPORTS
-    DllMain @2
     PluginInit @1

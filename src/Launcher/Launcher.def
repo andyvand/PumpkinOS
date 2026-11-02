@@ -1,6 +1,4 @@
-LIBRARY Launcher
 EXPORTS
-    DllMain @17
     PilotMain @1
     editBinary @2
     editBitmap @3

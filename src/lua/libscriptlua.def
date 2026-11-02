@@ -1,6 +1,4 @@
-LIBRARY libscriptlua
 EXPORTS
-    DllMain @326
     ext_script_call @1
     ext_script_create @2
     ext_script_create_function @3

@@ -1,9 +1,7 @@
-LIBRARY ToDoList
 EXPORTS
-    DllMain @21
-    AppResourceList @1
-    TDGetToDoNotePtr @2
-    PilotMain @3
+    AppResourceList @1 DATA
+    PilotMain @2
+    TDGetToDoNotePtr @3
     ToDoAppInfoInit @4
     ToDoChangeRecord @5
     ToDoChangeSortOrder @6

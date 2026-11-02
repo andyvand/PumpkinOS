@@ -4,6 +4,8 @@
 
 #include <unicorn/unicorn.h>
 
+#include <PalmOS.h>
+
 #include "sys.h"
 #include "pumpkin.h"
 #include "RegistryMgr.h"
@@ -13,8 +15,6 @@
 #include "emupalmosinc.h"
 #include "disasm.h"
 #include "debug.h"
-
-#include <PalmOS.h>
 
 #define unicornArmPluginId 'ucAr'
 

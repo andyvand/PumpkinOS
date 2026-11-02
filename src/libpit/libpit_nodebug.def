@@ -1,6 +1,6 @@
 LIBRARY libpit
 EXPORTS
-	DllMain @620
+    DllMain @620
     CustomBlockSize @1
     CustomFree @2
     CustomMalloc @3
@@ -25,8 +25,19 @@ EXPORTS
     conn_filter @26
     conn_set @27
     daysinmonth @28
+    debug_aindent @29
+    debug_bytes_full @30
+    debug_bytes_offset_full @31
+    debug_close @32
+    debug_errno_full @33
+    debug_full @34
     debug_getsyslevel @35
+    debug_indent @36
+    debug_init @37
+    debug_rawtty @38
+    debug_scope @39
     debug_setsyslevel @40
+    debugva_full @41
     desaturate_i420 @42
     desaturate_yuyv @43
     g24 @44
@@ -597,6 +608,6 @@ EXPORTS
     yuyv_rgb @616
     yuyv_rgb565 @617
     yuyv_rgba @618
-	sys_setenv @619
+    sys_setenv @619
     sys_socket_native @620
     sys_socket_native @620
