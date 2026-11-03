@@ -1,4 +1,4 @@
-SOURCE=MineApp.c
+SOURCE=MineApp.c DllMain.c
 RCP=resource.rcp
 APPNAME=MineHunt
 APPID=mine

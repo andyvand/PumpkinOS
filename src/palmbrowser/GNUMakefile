@@ -6,7 +6,7 @@
 ROOT ?= ../..
 
 PROGRAM=Browser
-SOURCE=Browser.c
+SOURCE=Browser.c DllMain.c
 RCP=resource.rcp
 RCPDEP=resource.h globe32.bmp globe64.bmp
 APPNAME=Browser

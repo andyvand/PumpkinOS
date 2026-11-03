@@ -27,7 +27,9 @@
 #define SSIZE_MAX LONG_MAX
 #endif
 #endif
+#ifdef __GNUC__
 #include <unistd.h>
+#endif
 #include <fcntl.h>
 #ifdef DOS
 #include <sys/poll.h>  /* Watt-32 */

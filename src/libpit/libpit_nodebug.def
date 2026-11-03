@@ -1,6 +1,6 @@
 LIBRARY libpit
 EXPORTS
-    DllMain @620
+    DllMain @621
     CustomBlockSize @1
     CustomFree @2
     CustomMalloc @3
@@ -14,7 +14,6 @@ EXPORTS
     bgra_rgb @15
     bgra_rgba @16
     bmp_decode @17
-    ch @18
     cond_broadcast @19
     cond_create @20
     cond_destroy @21
@@ -278,13 +277,13 @@ EXPORTS
     stbi_set_flip_vertically_on_load @283
     stbi_set_unpremultiply_on_load @285
     stbi_write_bmp_to_func @286
-    stbi_write_force_png_filter @287 DATA
+    stbi_write_force_png_filter @287
     stbi_write_jpg_to_func @288
-    stbi_write_png_compression_level @289 DATA
+    stbi_write_png_compression_level @289
     stbi_write_png_to_func @290
     stbi_write_png_to_mem @291
     stbi_write_tga_to_func @292
-    stbi_write_tga_with_rle @293 DATA
+    stbi_write_tga_with_rle @293
     stbi_zlib_compress @294
     stbi_zlib_decode_buffer @295
     stbi_zlib_decode_malloc @296
@@ -292,7 +291,6 @@ EXPORTS
     stbi_zlib_decode_malloc_guesssize_headerflag @298
     stbi_zlib_decode_noheader_buffer @299
     stbi_zlib_decode_noheader_malloc @300
-    str @301
     surface_buffer @303
     surface_color_rgb @304
     surface_copy @305
@@ -609,5 +607,4 @@ EXPORTS
     yuyv_rgb565 @617
     yuyv_rgba @618
     sys_setenv @619
-    sys_socket_native @620
     sys_socket_native @620

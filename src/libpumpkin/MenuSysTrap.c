@@ -121,7 +121,7 @@ void palmos_MenuSysTrap(uint32_t sp, uint16_t idx, uint32_t trap) {
       uint32_t bitmapIdP = ARG32;
       UInt16 l_bitmapIdP = 0;
       uint32_t resultTypeP = ARG32;
-      MenuCmdBarResultType l_resultTypeP;
+      MenuCmdBarResultType l_resultTypeP = (MenuCmdBarResultType)0;
       uint32_t resultP = ARG32;
       UInt32 l_resultP = 0;
       uint32_t nameP = ARG32;

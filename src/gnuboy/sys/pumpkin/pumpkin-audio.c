@@ -29,7 +29,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
+
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 
 #include <PalmOS.h>
 

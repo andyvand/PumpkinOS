@@ -815,7 +815,7 @@ static void getLabel(bmp_edit_t *data) {
 static Boolean eventHandler(EventType *event) {
   FormType *frm;
   ControlType *ctl;
-  FormGadgetTypeInCallback *gad;
+  FormGadgetTypeInCallback *gad = NULL;
   RectangleType bounds, rect, aux;
   RGBColorType rgb, oldf;
   bmp_edit_t *data;

@@ -1,4 +1,4 @@
-SOURCE=japanese.c
+SOURCE=japanese.c DllMain.c
 RCP=resource.rcp
 APPNAME=Japanese
 APPID=lang

@@ -34,7 +34,7 @@ endif
 endif
 
 PROGRAM=liblopenssl
-SOURCE=liblopenssl.c
+SOURCE=liblopenssl.c DllMain.c
 
 ifneq ($(OPENSSL),)
 ifeq ($(OSNAME),Android)

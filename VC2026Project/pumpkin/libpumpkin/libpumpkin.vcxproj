@@ -485,6 +485,7 @@
     <ClCompile Include="..\..\..\src\libpumpkin\wav.c" />
     <ClCompile Include="..\..\..\src\libpumpkin\dia.c" />
     <ClCompile Include="..\..\..\src\libpumpkin\taskbar.c" />
+    <ClCompile Include="..\..\..\src\libpumpkin\WindowAccessor.c" />
     <ClCompile Include="..\..\..\src\libpumpkin\wman.c" />
     <ClCompile Include="..\..\..\src\libpumpkin\peditor.c" />
     <ClCompile Include="..\..\..\src\libpumpkin\syntax.c" />

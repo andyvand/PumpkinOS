@@ -2367,9 +2367,9 @@ EXPORTS
     aes_call @2366
     arm_native_call_pce @2367
     arm_native_call_sub @2368
-    armv7_format_strings @2369 DATA
-    armv7_instr_labels @2370 DATA
-    armv7_instr_types @2371 DATA
+    armv7_format_strings @2369
+    armv7_instr_labels @2370
+    armv7_instr_types @2371
     buffoper @2372
     buffptr @2373
     calibrate @2374
@@ -2406,13 +2406,13 @@ EXPORTS
     darm_condition_name @2405
     darm_disasm @2406
     darm_enctype_name @2407
-    darm_enctypes @2408 DATA
+    darm_enctypes @2408
     darm_immshift_decode @2409
     darm_init @2410
     darm_mnemonic_name @2411
-    darm_mnemonics @2412 DATA
+    darm_mnemonics @2412
     darm_register_name @2413
-    darm_registers @2414 DATA
+    darm_registers @2414
     darm_reglist @2415
     darm_shift_type_name @2416
     darm_str @2417
@@ -2628,10 +2628,10 @@ EXPORTS
     float64_to_int32_round_to_zero @2627
     float64_to_int64 @2628
     float64_to_int64_round_to_zero @2629
-    float_detect_tininess @2630 DATA
-    float_exception_flags @2631 DATA
+    float_detect_tininess @2630
+    float_exception_flags @2631
     float_raise @2632
-    float_rounding_mode @2633 DATA
+    float_rounding_mode @2633
     floatx80_add @2634
     floatx80_div @2635
     floatx80_eq @2636
@@ -2645,7 +2645,7 @@ EXPORTS
     floatx80_mul @2644
     floatx80_rem @2645
     floatx80_round_to_int @2646
-    floatx80_rounding_precision @2647 DATA
+    floatx80_rounding_precision @2647
     floatx80_sqrt @2648
     floatx80_sub @2649
     floatx80_to_float128 @2650
@@ -2664,7 +2664,6 @@ EXPORTS
     heap_alloc @2663
     heap_assertion_error @2664
     heap_base @2665
-    heap_debug_access @2666
     heap_dump @2667
     heap_exhausted_error @2668
     heap_finish @2669
@@ -2686,7 +2685,7 @@ EXPORTS
     int64_to_float32 @2685
     int64_to_float64 @2686
     int64_to_floatx80 @2687
-    jzBuffer @2688 DATA
+    jzBuffer @2688
     jzReadCentralDirectory @2689
     jzReadData @2690
     jzReadEndRecord @2691
@@ -2757,14 +2756,14 @@ EXPORTS
     m68k_set_virq @2756
     m68k_trapname @2757
     m68ki_build_opcode_table @2758
-    m68ki_cpu_names @2759 DATA
-    m68ki_cycles @2760 DATA
-    m68ki_ea_idx_cycle_table @2761 DATA
-    m68ki_exception_cycle_table @2762 DATA
-    m68ki_instruction_jump_table @2763 DATA
-    m68ki_shift_16_table @2764 DATA
-    m68ki_shift_32_table @2765 DATA
-    m68ki_shift_8_table @2766 DATA
+    m68ki_cpu_names @2759
+    m68ki_cycles @2760
+    m68ki_ea_idx_cycle_table @2761
+    m68ki_exception_cycle_table @2762
+    m68ki_instruction_jump_table @2763
+    m68ki_shift_16_table @2764
+    m68ki_shift_32_table @2765
+    m68ki_shift_8_table @2766
     md5Finalize @2767
     md5Init @2768
     md5Step @2769
@@ -2902,9 +2901,9 @@ EXPORTS
     plibc_rename @2901
     plibc_setfd @2902
     plibc_stat @2903
-    plibc_stderr @2904 DATA
-    plibc_stdin @2905 DATA
-    plibc_stdout @2906 DATA
+    plibc_stderr @2904
+    plibc_stdin @2905
+    plibc_stdout @2906
     plibc_strerror @2907
     plibc_tmpnam @2908
     plibc_ungetc @2909
@@ -3024,14 +3023,13 @@ EXPORTS
     pumpkin_haschar @3023
     pumpkin_heap_alloc @3024
     pumpkin_heap_base @3025
-    pumpkin_heap_debug_access @3026
     pumpkin_heap_dump @3027
     pumpkin_heap_dup @3028
     pumpkin_heap_free @3029
     pumpkin_heap_realloc @3030
     pumpkin_heap_size @3031
     pumpkin_http_abort @3032
-    pumpkin_http_get @3033
+    pumpkin_http_get @3033<
     pumpkin_httpd_create @3034
     pumpkin_httpd_destroy @3035
     pumpkin_httpd_status @3036
@@ -3186,7 +3184,7 @@ EXPORTS
     socIcInt @3185
     soundcmd @3186
     ssfn_bbox @3187
-    ssfn_errstr @3188 DATA
+    ssfn_errstr @3188
     ssfn_free @3189
     ssfn_load @3190
     ssfn_mem @3191
@@ -3211,8 +3209,8 @@ EXPORTS
     thumb2_data_shifted_reg @3210
     thumb2_decode_immshift @3211
     thumb2_decode_instruction @3212
-    thumb2_instr_labels @3213 DATA
-    thumb2_instruction_strings @3214 DATA
+    thumb2_instr_labels @3213
+    thumb2_instruction_strings @3214
     thumb2_load_byte_hints @3215
     thumb2_load_halfword_hints @3216
     thumb2_load_store_dual @3217
@@ -3235,8 +3233,8 @@ EXPORTS
     thumb2_proc_state @3234
     thumb2_store_single_item @3235
     thumb_expand_imm @3236
-    thumb_instr_labels @3237 DATA
-    thumb_instr_types @3238 DATA
+    thumb_instr_labels @3237
+    thumb_instr_types @3238
     tos_convert_color @3239
     tos_get_key @3240
     tos_has_key @3241
@@ -3244,23 +3242,23 @@ EXPORTS
     tos_systrap @3243
     tos_write_byte @3244
     tos_write_screen @3245
-    type_bits_instr_lookup @3246 DATA
-    type_brnchmisc_instr_lookup @3247 DATA
-    type_extend_instr_lookup @3248 DATA
-    type_gpi_instr_lookup @3249 DATA
-    type_hints_instr_lookup @3250 DATA
-    type_mul_instr_lookup @3251 DATA
-    type_opless_instr_lookup @3252 DATA
-    type_pas_instr_lookup @3253 DATA
-    type_pusr_instr_lookup @3254 DATA
-    type_rev_instr_lookup @3255 DATA
-    type_sat_instr_lookup @3256 DATA
-    type_shift_instr_lookup @3257 DATA
-    type_stack0_instr_lookup @3258 DATA
-    type_stack1_instr_lookup @3259 DATA
-    type_stack2_instr_lookup @3260 DATA
-    type_sync_instr_lookup @3261 DATA
-    type_uncond2_instr_lookup @3262 DATA
+    type_bits_instr_lookup @3246
+    type_brnchmisc_instr_lookup @3247
+    type_extend_instr_lookup @3248
+    type_gpi_instr_lookup @3249
+    type_hints_instr_lookup @3250
+    type_mul_instr_lookup @3251
+    type_opless_instr_lookup @3252
+    type_pas_instr_lookup @3253
+    type_pusr_instr_lookup @3254
+    type_rev_instr_lookup @3255
+    type_sat_instr_lookup @3256
+    type_shift_instr_lookup @3257
+    type_stack0_instr_lookup @3258
+    type_stack1_instr_lookup @3259
+    type_stack2_instr_lookup @3260
+    type_sync_instr_lookup @3261
+    type_uncond2_instr_lookup @3262
     uarmDisasm @3263
     uarmFinish @3264
     uarmGetReg @3265

@@ -7,7 +7,7 @@
 ROOT ?= ../..
 
 PROGRAM=Mail
-SOURCE=Mail.c mailnet.c
+SOURCE=Mail.c mailnet.c DllMain.c
 RCP=resource.rcp
 RCPDEP=resource.h mail32.bmp mail64.bmp
 APPNAME=Mail

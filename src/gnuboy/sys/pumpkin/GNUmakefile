@@ -162,7 +162,7 @@ CORECFLAGS = $(COMMONFLAGS) -I$(GNUBOY)
 # the glue only sees the PumpkinOS tree and reaches gnuboy headers via ../../
 GLUECFLAGS = $(COMMONFLAGS) $(PUMPDEFS) $(PUMPKIN_INCLUDES)
 
-GLUE_SRCS = pumpgboy.c pumpkin-audio.c
+GLUE_SRCS = pumpgboy.c pumpkin-audio.c DllMain.c
 
 CORE_SRCS = lcd.c refresh.c lcdc.c palette.c cpu.c mem.c rtc.c hw.c sound.c \
             events.c keytable.c menu.c loader.c save.c debug.c emu.c \

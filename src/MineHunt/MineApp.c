@@ -1447,7 +1447,7 @@ static void DrawPiece(WinHandle dstWinH, Int16 row, Int16 col)
 		UInt16		textLen;
 		Int16		textHeight, textWidth;
 		Int16		x, y;
-		WinHandle 	currDrawWindow;
+		WinHandle 	currDrawWindow = NULL;
 		
 		// Set a new draw window, saving the current one
 		if (dstWinH)
@@ -1915,7 +1915,7 @@ static void DrawBitmap(WinHandle winHandle, Int16 resID, Int16 x, Int16 y)
 {
 	MemHandle	resH;
 	BitmapPtr	resP;
-	WinHandle 	currDrawWindow;
+	WinHandle 	currDrawWindow = NULL;
 	
 	// If passed a non-null window Handle, set it up as the draw window, saving
 	// the current draw window

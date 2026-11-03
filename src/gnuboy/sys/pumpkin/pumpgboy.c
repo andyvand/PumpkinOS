@@ -36,7 +36,10 @@
 #include <stdint.h>
 #include <setjmp.h>
 #include <time.h>
+
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 
 #include <PalmOS.h>
 #include <VFSMgr.h>
@@ -73,6 +76,11 @@
 
 #include "pumpkin-glue.h"
 #include "resource.h"
+
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+#define snprintf sprintf_s
+#define vsnprintf vsprintf_s
+#endif
 
 #define TAG "GNUBOY"
 
@@ -1003,7 +1011,11 @@ void vid_settitle(char *t)
 	FormType *frm;
 
 	if (!t) return;
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+	strcpy_s(title, sizeof(title) - 1, t);
+#else
 	strncpy(title, t, sizeof(title) - 1);
+#endif
 	title[sizeof(title) - 1] = 0;
 
 	if (mainFormOpen && (frm = FrmGetActiveForm()) != NULL && FrmGetFormId(frm) == MainForm)
@@ -1177,16 +1189,30 @@ static void find_volume_dir(const char *mount, int n)
 	char path[MAX_PATH];
 	int i;
 
-	strcpy(volDir, "/app_card");
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+	strcpy_s(volDir, sizeof(volDir), "/app_card");
+#else
+	strncpy(volDir, "/app_card", sizeof(volDir));
+#endif
+
 	VFSFileCreate(volref, marker); /* may already exist */
 	if (VFSFileOpen(volref, marker, vfsModeRead, &fr) != errNone) return;
 	VFSFileClose(fr);
 
 	for (i = 0; candidates[i]; i++) {
 		snprintf(path, sizeof(path), "%.*s%s%s", n, mount, candidates[i], marker);
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+		fopen_s(&f, path, "rb");
+		if (f != NULL) {
+#else
 		if ((f = fopen(path, "rb")) != NULL) {
+#endif
 			fclose(f);
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+			strncpy_s(volDir, sizeof(volDir), candidates[i], sizeof(volDir) - 1);
+#else
 			strncpy(volDir, candidates[i], sizeof(volDir) - 1);
+#endif
 			break;
 		}
 	}
@@ -1224,16 +1250,29 @@ int load_rom_and_rc(char *rom)
 	/* per-ROM rc file: <rom without extension>.rc */
 	len = strlen(rom) + 4;
 	rc = malloc(len);
-	strcpy(rc, rom);
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+	strcpy_s(rc, len, rom);
+#else
+	strncpy(rc, rom, len - 1);
+#endif
 	base = strrchr(rc, '/');
 	base = base ? base + 1 : rc;
 	dot = strrchr(base, '.');
 	if (dot) *dot = 0;
-	strcat(rc, ".rc");
+#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
+	strncat_s(rc, len - strlen(rc), ".rc", (len - 1) - strlen(rc));
+#else
+	strncat(rc, ".rc", (len - 1) - strlen(rc));
+#endif
 	rc_sourcefile(rc);
 	free(rc);
 
+#ifdef _MSC_VER
+	rom = _strdup(rom); /* owned (and freed) by the loader */
+#else
 	rom = strdup(rom); /* owned (and freed) by the loader */
+#endif
+
 	if (loader_init(rom)) return -1;
 	emu_reset();
 	return 0;

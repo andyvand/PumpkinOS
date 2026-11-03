@@ -2323,7 +2323,6 @@ EXPORTS
     OPENSSL_hexchar2int @2322
     OPENSSL_hexstr2buf @2323
     OPENSSL_hexstr2buf_ex @2324
-    OPENSSL_ia32cap_P @2325 DATA
     OPENSSL_info @2326
     OPENSSL_init_crypto @2327
     OPENSSL_init_ssl @2328
@@ -5395,8 +5394,6 @@ EXPORTS
     evp_skeymgmt_generate @5394
     evp_skeymgmt_import @5395
     extension_is_relevant @5396
-    gai_strerrorA @5397
-    gai_strerrorW @5398
     generic_export @5399
     generic_free @5400
     generic_get_algorithm_id @5401

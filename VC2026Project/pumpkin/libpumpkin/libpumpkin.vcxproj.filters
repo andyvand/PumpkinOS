@@ -762,5 +762,8 @@
     <ClCompile Include="..\..\..\src\libpumpkin\DllMain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\libpumpkin\WindowAccessor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

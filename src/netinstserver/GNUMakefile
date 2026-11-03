@@ -6,7 +6,7 @@
 ROOT ?= ../..
 
 PROGRAM=NetInstall
-SOURCE=NetInstall.c netinst.c
+SOURCE=NetInstall.c netinst.c DllMain.c
 RCP=resource.rcp
 RCPDEP=resource.h netinst32.bmp netinst64.bmp
 APPNAME=Net Install

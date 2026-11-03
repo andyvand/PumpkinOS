@@ -434,6 +434,7 @@
 #define MOON 2
 
 // size of a UInt16
+#undef  MAX_WORD
 #define MAX_WORD 65535
 
 // these have been added to avoid tracking down the math library.

@@ -475,7 +475,7 @@ void putSample(int pcm, uint8_t *buffer, UInt32 i, float sample) {
       ((int16_t *)buffer)[i] = s;
       break;
     case PCM_S32:
-      if (s < -2147483648) s = -2147483648;
+      if (s < ((Int32)0x80000000)) s = ((Int32)0x80000000);
       else if (s > 2147483647) s = 2147483647; 
       ((int32_t *)buffer)[i] = s;
       break;

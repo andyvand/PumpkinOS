@@ -30,7 +30,7 @@ void palmos_DmSysTrap(uint32_t sp, uint16_t idx, uint32_t trap) {
       uint32_t oldHP = ARG32;
       emupalmos_trap_in(oldHP, trap, 2);
       DmOpenRef dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
-      MemHandle old;
+      MemHandle old = NULL;
       Err res = DmDetachRecord(dbRef, index, oldHP ? &old : NULL);
       if (oldHP) m68k_write_memory_32(oldHP, emupalmos_trap_out(old));
       debug(DEBUG_TRACE, "EmuPalmOS", "DmDetachRecord(0x%08X, %d, 0x%08X): %d", dbP, index, oldHP, res);
@@ -44,7 +44,7 @@ void palmos_DmSysTrap(uint32_t sp, uint16_t idx, uint32_t trap) {
       uint32_t oldHP = ARG32;
       emupalmos_trap_in(oldHP, trap, 2);
       DmOpenRef dbRef = (DmOpenRef)emupalmos_trap_in(dbP, trap, 0);
-      MemHandle old;
+      MemHandle old = NULL;
       Err res = DmDetachResource(dbRef, index, oldHP ? &old : NULL);
       if (oldHP) m68k_write_memory_32(oldHP, emupalmos_trap_out(old));
       debug(DEBUG_TRACE, "EmuPalmOS", "DmDetachsource(0x%08X, %d, 0x%08X): %d", dbP, index, oldHP, res);
