@@ -4769,8 +4769,27 @@ int sys_vsnprintf(char *str, sys_size_t size, const char *format, sys_va_list ap
 #if defined(KERNEL) || defined(_WIN32_WCE)
   return my_vsnprintf(str, size, format, ap);
 #else
-#if __STDC_WANT_SECURE_LIB__
-  return vsprintf_s(str, size, format, ap);
+#if __STDC_WANT_SECURE_LIB__ && defined(WINDOWS)
+  // vsprintf_s() does not truncate: when the formatted text does not fit it calls the CRT
+  // invalid parameter handler, which terminates the process (seen with long HTTP headers
+  // being logged by debug()). Use the truncating variant and keep C99 return semantics.
+  sys_va_list ap2;
+  int r;
+
+  if (str == NULL || size == 0) {
+    return _vscprintf(format, ap);
+  }
+
+  sys_va_copy(ap2, ap);
+  r = _vsnprintf_s(str, size, _TRUNCATE, format, ap2);
+  sys_va_end(ap2);
+
+  if (r < 0) {
+    // output was truncated: return the length that would have been written
+    r = _vscprintf(format, ap);
+  }
+
+  return r;
 #else
   return vsnprintf(str, size, format, ap);
 #endif
