@@ -21,7 +21,6 @@
 #include "ptr.h"
 #include "average.h"
 #include "pumpkin.h"
-#include "libresample.h"
 #include "debug.h"
 
 #ifdef _WIN32_WCE
@@ -120,14 +119,26 @@ struct texture_t {
 
 typedef struct {
   char *tag;
-  WAVEHDR hdr[2];
-  WAVEFORMATEX fmt;
   int (*getaudio)(void *buffer, int len, void *data);
   void *data;
   int pcm, channels, rate;
   uint8_t *buffer;
-  uint32_t bsize;
+  uint32_t bsize;   // bytes per channel in one chunk; buffer holds bsize * channels bytes
 } win_audio_t;
+
+#define WAVE_NUM_BUFFERS 3
+
+// state of the waveOut device owned by the audio thread
+typedef struct {
+  HWAVEOUT hwo;
+  WAVEFORMATEX fmt;
+  int pcm, channels, rate;
+  WAVEHDR hdr[WAVE_NUM_BUFFERS];
+  uint8_t *obuf[WAVE_NUM_BUFFERS];
+  uint32_t osize[WAVE_NUM_BUFFERS];
+  int queued[WAVE_NUM_BUFFERS];
+  int next;
+} win_wave_t;
 
 typedef struct {
   int pcm, channels, rate;
@@ -798,6 +809,15 @@ static void audio_destructor(void *p) {
   }
 }
 
+static int audio_sample_size(int pcm) {
+  switch (pcm) {
+    case PCM_U8:  return 1;
+    case PCM_S16: return 2;
+    case PCM_S32: return 4;
+  }
+  return 0;
+}
+
 static audio_t audio_create(int pcm, int channels, int rate, void *data) {
   win_audio_t *audio;
   int ptr = -1;
@@ -805,45 +825,27 @@ static audio_t audio_create(int pcm, int channels, int rate, void *data) {
   debug(DEBUG_TRACE, "Windows", "audio_create(%d,%d,%d)", pcm, channels, rate);
 
   if ((pcm == PCM_U8 || pcm == PCM_S16 || pcm == PCM_S32) && (channels == 1 || channels == 2) && rate > 0) {
-    if ((audio = sys_malloc(sizeof(win_audio_t))) != NULL) {
-      sys_memset(&audio->fmt, 0, sizeof(WAVEFORMATEX));
-      audio->fmt.wFormatTag = WAVE_FORMAT_PCM;
-      audio->fmt.nChannels = channels;
-      audio->fmt.nSamplesPerSec = rate;
-      switch (pcm) {
-        case PCM_U8:
-          audio->fmt.wBitsPerSample = 8;
-          audio->bsize = 1;
-          break;
-        case PCM_S16:
-          audio->fmt.wBitsPerSample = 16;
-          audio->bsize = 2;
-          break;
-        case PCM_S32:
-          audio->fmt.wBitsPerSample = 32;
-          audio->bsize = 4;
-          break;
-      }
+    if ((audio = sys_calloc(1, sizeof(win_audio_t))) != NULL) {
       audio->pcm = pcm;
       audio->channels = channels;
       audio->rate = rate;
-      audio->bsize *= channels;
-      debug(DEBUG_TRACE, "Windows", "sample size %d", audio->bsize);
-      audio->bsize *= rate;
+
+      // bsize is the number of bytes per channel in one chunk (same convention as the SDL provider);
+      // the buffer holds bsize * channels bytes
+      audio->bsize = audio_sample_size(pcm) * rate;
       if (audio->bsize > 4096) {
         audio->bsize = 4096;
       }
-      audio->buffer = sys_malloc(audio->bsize);
-      debug(DEBUG_TRACE, "Windows", "buffer size %d", audio->bsize);
-
-      audio->fmt.nBlockAlign = (audio->fmt.nChannels * audio->fmt.wBitsPerSample) / 8;
-      audio->fmt.nAvgBytesPerSec = audio->fmt.nSamplesPerSec * audio->fmt.nBlockAlign;
-      audio->fmt.cbSize = 0;
+      // keep whole frames
+      audio->bsize -= audio->bsize % audio_sample_size(pcm);
+      audio->buffer = sys_calloc(1, audio->bsize * audio->channels);
+      debug(DEBUG_TRACE, "Windows", "buffer size %d", audio->bsize * audio->channels);
 
       audio->tag = TAG_AUDIO;
-      if ((ptr = ptr_new(audio, audio_destructor)) == -1) {
-        sys_free(audio->buffer);
+      if (audio->buffer == NULL || (ptr = ptr_new(audio, audio_destructor)) == -1) {
+        if (audio->buffer) sys_free(audio->buffer);
         sys_free(audio);
+        ptr = -1;
       }
     }
   }
@@ -871,19 +873,17 @@ static int audio_destroy(audio_t audio) {
   return ptr_free(audio, TAG_AUDIO);
 }
 
+// all samples are handled internally as signed 32 bit full scale values
+
 static int32_t audio_get_sample(uint8_t *buffer, int i, int pcm) {
   int32_t s = 0;
-  uint8_t u8;
-  int16_t s16;
 
   switch (pcm) {
     case PCM_U8:
-      u8 = buffer[i];
-      s = (u8 >= 128) ? (u8 & 0x7F) << 24 : (u8 << 24) | 0x80000000;
+      s = ((int32_t)buffer[i] - 128) << 24;
       break;
     case PCM_S16:
-      s16 = ((int16_t *)buffer)[i];
-      s = s16 << 16;
+      s = ((int32_t)((int16_t *)buffer)[i]) << 16;
       break;
     case PCM_S32:
       s = ((int32_t *)buffer)[i];
@@ -896,10 +896,10 @@ static int32_t audio_get_sample(uint8_t *buffer, int i, int pcm) {
 static void audio_put_sample(uint8_t *buffer, int32_t s, int i, int pcm) {
   switch (pcm) {
     case PCM_U8:
-      buffer[i] = s >= 0 ? (s >> 24) | 0x80 : (s >> 24) & 0x7F;
+      buffer[i] = (uint8_t)((s >> 24) + 128);
       break;
     case PCM_S16:
-      ((int16_t *)buffer)[i] = s >> 16;
+      ((int16_t *)buffer)[i] = (int16_t)(s >> 16);
       break;
     case PCM_S32:
       ((int32_t *)buffer)[i] = s;
@@ -907,97 +907,185 @@ static void audio_put_sample(uint8_t *buffer, int32_t s, int i, int pcm) {
   }
 }
 
-static int audio_convert(win_audio_t *audio, int pcm, int channels, int rate) {
-  uint8_t *buffer;
-  int32_t s1, s2;
-  int i, j, n = 0;
-  int inBufferUsed;
-  double factor;
-  float *inBuffer;
-  float *outBuffer;
-  void *rs;
-
-  if (audio->rate == rate) {
-    n = audio->bsize;
-    switch (pcm) {
-      case PCM_S16: n <<= 1; break;
-      case PCM_S32: n <<= 2; break;
-    }
-    buffer = sys_malloc(n * channels);
- 
-    n = audio->bsize * audio->channels;
-    for (i = 0, j = 0; i < n;) {
-      s1 = audio_get_sample(audio->buffer, i++, audio->pcm);
-      s2 = (audio->channels == 2) ? audio_get_sample(audio->buffer, i++, audio->pcm) : s1;
-      if (channels == 1) {
-        audio_put_sample(buffer, (s1 + s2) / 2, j++, pcm);
-      } else {
-        audio_put_sample(buffer, s1, j++, pcm);
-        audio_put_sample(buffer, s2, j++, pcm);
-      }
-    }
-    sys_free(audio->buffer);
-    audio->buffer = buffer;
-    n = j;
-
+static void audio_get_frame(uint8_t *buffer, int frame, int pcm, int channels, int32_t *left, int32_t *right) {
+  if (channels == 2) {
+    *left = audio_get_sample(buffer, frame * 2, pcm);
+    *right = audio_get_sample(buffer, frame * 2 + 1, pcm);
   } else {
-    factor = (double)rate / (double)audio->rate;
-    debug(DEBUG_TRACE, "Windows", "converting %d samples from %d to %d (factor %f)", audio->bsize, audio->rate, rate, factor);
-    n = audio->bsize * channels;
-    inBuffer = sys_malloc(n * sizeof(float));
-    n = audio->bsize * audio->channels;
-    for (i = 0, j = 0; i < n;) {
-      s1 = audio_get_sample(audio->buffer, i++, audio->pcm);
-      s2 = (audio->channels == 2) ? audio_get_sample(audio->buffer, i++, audio->pcm) : s1;
-      if (channels == 1) {
-        inBuffer[j++] = (float)(s1 + s2) / 2;
-      } else {
-        inBuffer[j++] = (float)s1;
-		inBuffer[j++] = (float)s2;
-      }
-    }
-    n = (int)((n + 1) * factor + 0.5);
-    outBuffer = sys_malloc(n * sizeof(float));
-    rs = resample_open(1, factor, factor);
-    resample_process(rs, factor, inBuffer, j, 1, &inBufferUsed, outBuffer, n);
-    resample_close(rs);
-    debug(DEBUG_TRACE, "Windows", "inBuffer %d floats, outBuffer %d floats, %d used", j, n, inBufferUsed);
+    *left = *right = audio_get_sample(buffer, frame, pcm);
+  }
+}
 
-    n = inBufferUsed;
-    switch (pcm) {
-      case PCM_S16: n <<= 1; break;
-      case PCM_S32: n <<= 2; break;
-    }
-    buffer = sys_malloc(n);
+static void audio_put_frame(uint8_t *buffer, int frame, int pcm, int channels, int32_t left, int32_t right) {
+  if (channels == 2) {
+    audio_put_sample(buffer, left, frame * 2, pcm);
+    audio_put_sample(buffer, right, frame * 2 + 1, pcm);
+  } else {
+    audio_put_sample(buffer, (int32_t)(((int64_t)left + (int64_t)right) / 2), frame, pcm);
+  }
+}
 
-    for (i = 0; i < inBufferUsed; i++) {
-	  audio_put_sample(buffer, (int32_t)outBuffer[i], i, (int)pcm);
-    }
-    sys_free(audio->buffer);
-    audio->buffer = buffer;
+// Converts len bytes of audio in the stream format (audio->pcm, audio->channels, audio->rate)
+// to the device format (wave->pcm, wave->channels, wave->rate), writing into wave->obuf[i].
+// The output buffer is grown as needed. Returns the number of output bytes.
 
-    sys_free(inBuffer);
-    sys_free(outBuffer);
+static uint32_t audio_convert(win_wave_t *wave, int i, win_audio_t *audio, uint32_t len) {
+  int32_t l0, r0, l1, r1, l, r;
+  uint32_t nin, nout, n, k, k1, size;
+  uint32_t inFrameSize, outFrameSize;
+  double pos, step, frac;
+  uint8_t *obuf;
+
+  inFrameSize = audio_sample_size(audio->pcm) * audio->channels;
+  outFrameSize = audio_sample_size(wave->pcm) * wave->channels;
+  if (inFrameSize == 0 || outFrameSize == 0) return 0;
+
+  nin = len / inFrameSize;
+  if (nin == 0) return 0;
+
+  if (audio->rate == wave->rate) {
+    nout = nin;
+  } else {
+    nout = (uint32_t)(((uint64_t)nin * (uint64_t)wave->rate) / (uint64_t)audio->rate);
+    if (nout == 0) nout = 1;
   }
 
-  return n;
+  size = nout * outFrameSize;
+  if (wave->obuf[i] == NULL || wave->osize[i] < size) {
+    if (wave->obuf[i]) sys_free(wave->obuf[i]);
+    wave->obuf[i] = sys_calloc(1, size);
+    wave->osize[i] = wave->obuf[i] ? size : 0;
+    if (wave->obuf[i] == NULL) return 0;
+  }
+  obuf = wave->obuf[i];
+
+  if (audio->rate == wave->rate) {
+    if (audio->pcm == wave->pcm && audio->channels == wave->channels) {
+      sys_memcpy(obuf, audio->buffer, size);
+    } else {
+      for (n = 0; n < nout; n++) {
+        audio_get_frame(audio->buffer, n, audio->pcm, audio->channels, &l, &r);
+        audio_put_frame(obuf, n, wave->pcm, wave->channels, l, r);
+      }
+    }
+  } else {
+    // linear interpolation resampler
+    step = (double)audio->rate / (double)wave->rate;
+    for (n = 0; n < nout; n++) {
+      pos = n * step;
+      k = (uint32_t)pos;
+      if (k >= nin) k = nin - 1;
+      k1 = (k + 1 < nin) ? k + 1 : k;
+      frac = pos - (double)k;
+      audio_get_frame(audio->buffer, k, audio->pcm, audio->channels, &l0, &r0);
+      audio_get_frame(audio->buffer, k1, audio->pcm, audio->channels, &l1, &r1);
+      l = (int32_t)(l0 + (l1 - l0) * frac);
+      r = (int32_t)(r0 + (r1 - r0) * frac);
+      audio_put_frame(obuf, n, wave->pcm, wave->channels, l, r);
+    }
+  }
+
+  return size;
+}
+
+static int audio_wave_open(win_wave_t *wave) {
+  MMRESULT res;
+
+  sys_memset(&wave->fmt, 0, sizeof(WAVEFORMATEX));
+  wave->fmt.wFormatTag = WAVE_FORMAT_PCM;
+  wave->fmt.nChannels = wave->channels;
+  wave->fmt.nSamplesPerSec = wave->rate;
+  wave->fmt.wBitsPerSample = audio_sample_size(wave->pcm) * 8;
+  wave->fmt.nBlockAlign = (wave->fmt.nChannels * wave->fmt.wBitsPerSample) / 8;
+  wave->fmt.nAvgBytesPerSec = wave->fmt.nSamplesPerSec * wave->fmt.nBlockAlign;
+  wave->fmt.cbSize = 0;
+
+  if ((res = waveOutOpen(&wave->hwo, WAVE_MAPPER, &wave->fmt, 0, 0, CALLBACK_NULL)) != MMSYSERR_NOERROR) {
+    debug(DEBUG_ERROR, "Windows", "waveOutOpen failed: %d", res);
+    wave->hwo = NULL;
+    return -1;
+  }
+
+  debug(DEBUG_INFO, "Windows", "open audio %d,%d,%d", wave->pcm, wave->channels, wave->rate);
+  return 0;
+}
+
+// waits until the header i (if queued) has finished playing and unprepares it
+
+static int audio_wave_wait(win_wave_t *wave, int i) {
+  if (wave->queued[i]) {
+    while (!(wave->hdr[i].dwFlags & WHDR_DONE)) {
+      if (thread_must_end()) return -1;
+      sys_usleep(1000);
+    }
+    waveOutUnprepareHeader(wave->hwo, &wave->hdr[i], sizeof(WAVEHDR));
+    wave->queued[i] = 0;
+  }
+
+  return 0;
+}
+
+static int audio_wave_write(win_wave_t *wave, int i, uint32_t len) {
+  MMRESULT res;
+
+  sys_memset(&wave->hdr[i], 0, sizeof(WAVEHDR));
+  wave->hdr[i].lpData = (LPSTR)wave->obuf[i];
+  wave->hdr[i].dwBufferLength = len;
+
+  if ((res = waveOutPrepareHeader(wave->hwo, &wave->hdr[i], sizeof(WAVEHDR))) != MMSYSERR_NOERROR) {
+    debug(DEBUG_ERROR, "Windows", "waveOutPrepareHeader failed (%d)", res);
+    return -1;
+  }
+
+  if ((res = waveOutWrite(wave->hwo, &wave->hdr[i], sizeof(WAVEHDR))) != MMSYSERR_NOERROR) {
+    debug(DEBUG_ERROR, "Windows", "waveOutWrite failed (%d)", res);
+    waveOutUnprepareHeader(wave->hwo, &wave->hdr[i], sizeof(WAVEHDR));
+    return -1;
+  }
+
+  wave->queued[i] = 1;
+  return 0;
+}
+
+static void audio_wave_close(win_wave_t *wave) {
+  int i;
+
+  if (wave->hwo) {
+    debug(DEBUG_INFO, "Windows", "close audio");
+    waveOutReset(wave->hwo);
+    for (i = 0; i < WAVE_NUM_BUFFERS; i++) {
+      if (wave->queued[i]) {
+        waveOutUnprepareHeader(wave->hwo, &wave->hdr[i], sizeof(WAVEHDR));
+        wave->queued[i] = 0;
+      }
+    }
+    waveOutClose(wave->hwo);
+    wave->hwo = NULL;
+  }
+
+  for (i = 0; i < WAVE_NUM_BUFFERS; i++) {
+    if (wave->obuf[i]) {
+      sys_free(wave->obuf[i]);
+      wave->obuf[i] = NULL;
+      wave->osize[i] = 0;
+    }
+  }
 }
 
 static int audio_action(void *_arg) {
   win_audio_arg_t *arg = (win_audio_arg_t *)_arg;
   win_audio_t *audio;
+  win_wave_t wave;
   unsigned char *msg;
   unsigned int msglen;
-  uint32_t ptr, wait;
-  int len1, len2, r;
-  uint64_t t0, t;
-  WAVEFORMATEX fmt;
-  HWAVEOUT hwo = NULL;
-  WAVEHDR hdr;
-  MMRESULT res;
+  uint32_t ptr, wait, olen;
+  int len1, len2, r, i;
 
   debug(DEBUG_INFO, "Windows", "audio thread starting");
-  sys_memset(&hdr, 0, sizeof(hdr));
+  sys_memset(&wave, 0, sizeof(wave));
+  wave.pcm = arg->pcm;
+  wave.channels = arg->channels;
+  wave.rate = arg->rate;
   wait = 2000;
   ptr = 0;
 
@@ -1009,41 +1097,12 @@ static int audio_action(void *_arg) {
     }
 
     if (r == 1) {
-      if (hwo == NULL) {
-        sys_memset(&fmt, 0, sizeof(WAVEFORMATEX));
-        fmt.wFormatTag = WAVE_FORMAT_PCM;
-        fmt.nChannels = arg->channels;
-        fmt.nSamplesPerSec = arg->rate;
-
-        switch (arg->pcm) {
-          case PCM_U8:  fmt.wBitsPerSample =  8; break;
-          case PCM_S16: fmt.wBitsPerSample = 16; break;
-          case PCM_S32: fmt.wBitsPerSample = 32; break;
-        }
-        fmt.nBlockAlign = (fmt.nChannels * fmt.wBitsPerSample) / 8;
-        fmt.nAvgBytesPerSec = fmt.nSamplesPerSec * fmt.nBlockAlign;
-        fmt.cbSize = 0;
-
-        if ((res = waveOutOpen(&hwo, WAVE_MAPPER, &fmt, 0, 0, CALLBACK_NULL)) != MMSYSERR_NOERROR) {
-          debug(DEBUG_ERROR, "Windows", "waveOutOpen failed: %d", res);
-          break;
-        }
-        debug(DEBUG_INFO, "Windows", "open audio %d,%d,%d", arg->pcm, arg->channels, arg->rate);
-      }
-
       if (msg) {
         wait = 2000;
-        debug(DEBUG_TRACE, "Windows", "set wait=%u", wait);
         if (msglen == 4) {
-          if (ptr) {
-            // a new message was reveiced while the previous one was still playing
-            debug(DEBUG_TRACE, "Windows", "closing ptr %d", ptr);
-            ptr_free(ptr, TAG_AUDIO);
-          }
           ptr = *((uint32_t *)msg);
           debug(DEBUG_TRACE, "Windows", "received ptr %d", ptr);
           wait = 0;
-          debug(DEBUG_TRACE, "Windows", "set wait=%u", wait);
         } else {
           debug(DEBUG_ERROR, "Windows", "received invalid length %u", msglen);
         }
@@ -1051,62 +1110,61 @@ static int audio_action(void *_arg) {
       } else {
         debug(DEBUG_ERROR, "Windows", "received null msg");
       }
-    } else {
-      debug(DEBUG_TRACE, "Windows", "no msg");
-      if (ptr) {
-        if ((audio = ptr_lock(ptr, TAG_AUDIO)) != NULL) {
-          len1 = audio->bsize * audio->channels;
-          len2 = audio->getaudio(audio->buffer, len1, audio->data);
-          if (len2 > 0) {
-            debug(DEBUG_TRACE, "Windows", "got audio len=%d bytes", len2);
+      continue;
+    }
 
-            if (audio->pcm != arg->pcm || audio->channels != arg->channels || audio->rate != arg->rate) {
-              len2 = audio_convert(audio, arg->pcm, arg->channels, arg->rate);
-            }
-            hdr.lpData = (LPSTR)audio->buffer;
-            hdr.dwBufferLength = len2;
-            hdr.dwUser = (DWORD_PTR)NULL;
-            hdr.dwFlags = WHDR_BEGINLOOP | WHDR_ENDLOOP;
-            hdr.dwLoops = 0;
+    if (ptr == 0) {
+      // nothing is playing; the device stays open until the thread exits
+      wait = 2000;
+      continue;
+    }
 
-            if ((res = waveOutPrepareHeader(hwo, &hdr, sizeof(WAVEHDR))) == MMSYSERR_NOERROR) {
-              debug(DEBUG_TRACE, "Windows", "waveOutWrite sending %d bytes", len2);
-              if ((res = waveOutWrite(hwo, &hdr, sizeof(WAVEHDR))) == MMSYSERR_NOERROR) {
-                t0 = sys_get_clock();
-                for (;;) {
-                  if (hdr.dwFlags & WHDR_DONE) {
-                    waveOutUnprepareHeader(hwo, &hdr, sizeof(WAVEHDR));
-                    break;
-                  } else {
-                    sys_usleep(100);
-                  }
-                }
-                t = sys_get_clock();
-                debug(DEBUG_TRACE, "Windows", "waveOutWrite took %u us", (uint32_t)(t - t0));
-                r = 0;
-              } else {
-                debug(DEBUG_ERROR, "Windows", "waveOutWrite failed (%d)", res);
-                waveOutUnprepareHeader(hwo, &hdr, sizeof(WAVEHDR));
-              }
-            } else {
-              debug(DEBUG_ERROR, "Windows", "waveOutPrepareHeader failed (%d)", res);
-            }
-          }
-          ptr_unlock(ptr, TAG_AUDIO);
+    if ((audio = ptr_lock(ptr, TAG_AUDIO)) == NULL) {
+      debug(DEBUG_TRACE, "Windows", "ptr %d deleted", ptr);
+      ptr = 0;
+      wait = 2000;
+      continue;
+    }
 
-          if (len2 <= 0 || len2 != len1) {
-            debug(DEBUG_TRACE, "Windows", "ptr %d ended", ptr);
-            ptr = 0;
-          }
+    if (wave.hwo == NULL && audio_wave_open(&wave) == -1) {
+      ptr_unlock(ptr, TAG_AUDIO);
+      ptr = 0;
+      wait = 2000;
+      continue;
+    }
+
+    len1 = audio->bsize * audio->channels;
+    len2 = audio->getaudio ? audio->getaudio(audio->buffer, len1, audio->data) : -1;
+    if (len2 > len1) len2 = len1;
+
+    if (len2 > 0) {
+      debug(DEBUG_TRACE, "Windows", "got audio len=%d bytes", len2);
+      i = wave.next;
+
+      // wait for the oldest buffer to finish playing before reusing it
+      if (audio_wave_wait(&wave, i) == -1) {
+        ptr_unlock(ptr, TAG_AUDIO);
+        break;
+      }
+
+      if ((olen = audio_convert(&wave, i, audio, (uint32_t)len2)) > 0) {
+        debug(DEBUG_TRACE, "Windows", "waveOutWrite sending %u bytes", olen);
+        if (audio_wave_write(&wave, i, olen) == 0) {
+          wave.next = (i + 1) % WAVE_NUM_BUFFERS;
         }
       }
+      wait = 0;
+    }
+    ptr_unlock(ptr, TAG_AUDIO);
+
+    if (len2 <= 0) {
+      debug(DEBUG_TRACE, "Windows", "ptr %d ended", ptr);
+      ptr = 0;
+      wait = 2000;
     }
   }
 
-  if (hwo) {
-    debug(DEBUG_INFO, "Windows", "close audio");
-    waveOutClose(hwo);
-  }
+  audio_wave_close(&wave);
 
   sys_free(arg);
   debug(DEBUG_INFO, "Windows", "audio thread exiting");
@@ -1115,7 +1173,14 @@ static int audio_action(void *_arg) {
 }
 
 static int audio_init(int pcm, int channels, int rate) {
-  win_audio_arg_t *arg = sys_malloc(sizeof(win_audio_arg_t));
+  win_audio_arg_t *arg;
+
+  if (audio_sample_size(pcm) == 0 || (channels != 1 && channels != 2) || rate <= 0) {
+    debug(DEBUG_ERROR, "Windows", "audio_init invalid format %d,%d,%d", pcm, channels, rate);
+    return -1;
+  }
+
+  if ((arg = sys_calloc(1, sizeof(win_audio_arg_t))) == NULL) return -1;
   arg->pcm = pcm;
   arg->channels = channels;
   arg->rate = rate;
