@@ -65,7 +65,7 @@ UNICORN_LIB=-L$(UNICORN)/build -lunicorn
 endif
 endif
 
-SOURCE=ucarm.c
+SOURCE=ucarm.c DllMain.c
 APPNAME=UnicornArm
 APPID=ucAr
 APPTYPE=plgi
