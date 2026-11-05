@@ -106,7 +106,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -143,7 +143,7 @@ copy Mail.prc $(SolutionDir)\$(Configuration)\Mail.prc
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -178,7 +178,7 @@ copy Mail.prc $(SolutionDir)\$(Configuration)\Mail.prc
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -215,7 +215,7 @@ copy Mail.prc $(SolutionDir)\$(Platform)\$(Configuration)\Mail.prc
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -250,7 +250,7 @@ copy Mail.prc $(SolutionDir)\$(Platform)\$(Configuration)\Mail.prc
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -288,7 +288,7 @@ copy Mail.prc $(SolutionDir)\$(Platform)\$(Configuration)\Mail.prc
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Mail";APPID='PMal';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;MAIL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>

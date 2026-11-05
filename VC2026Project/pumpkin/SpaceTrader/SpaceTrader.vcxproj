@@ -130,7 +130,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -162,7 +162,7 @@ copy SpaceTrader.prc $(SolutionDir)\$(Configuration)\SpaceTrader.prc
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=1;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -192,7 +192,7 @@ copy SpaceTrader.prc $(SolutionDir)\$(Configuration)\SpaceTrader.prc
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -230,7 +230,7 @@ copy SpaceTrader.prc $(SolutionDir)\$(Platform)\$(Configuration)\SpaceTrader.prc
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=2;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -266,7 +266,7 @@ copy SpaceTrader.prc $(SolutionDir)\$(Platform)\$(Configuration)\SpaceTrader.prc
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;_DEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -298,7 +298,7 @@ copy SpaceTrader.prc $(SolutionDir)\$(Platform)\$(Configuration)\SpaceTrader.prc
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=2;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BPP16=1;ARMEMU;CRDATE=1768834074;SYSTEM_VERSION="1.0";SYSTEM_NAME="pit";SYSTEM_OS="Windows";APPNAME="Space Trader";APPID='STra';SYS_CPU=1;SYS_SIZE=2;SYS_OS=2;SYS_ENDIAN=1;WINDOWS;WINDOWS64;SOEXT=".dll";LOGTRAP_SYSWIN32;NDEBUG;SPACETRADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
