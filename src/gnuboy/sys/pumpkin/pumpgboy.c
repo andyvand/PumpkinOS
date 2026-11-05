@@ -77,10 +77,9 @@
 #include "pumpkin-glue.h"
 #include "resource.h"
 
-#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
-#define snprintf sprintf_s
-#define vsnprintf vsprintf_s
-#endif
+/* MSVC 2015+ ships a C99 conforming snprintf/vsnprintf. Do not map them
+   to sprintf_s/vsprintf_s: those invoke the invalid parameter handler
+   (which kills the process) instead of truncating. */
 
 #define TAG "GNUBOY"
 
@@ -1011,11 +1010,8 @@ void vid_settitle(char *t)
 	FormType *frm;
 
 	if (!t) return;
-#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
-	strcpy_s(title, sizeof(title) - 1, t);
-#else
-	strncpy(title, t, sizeof(title) - 1);
-#endif
+	/* truncating copy; strcpy_s would abort on a long ROM name */
+	snprintf(title, sizeof(title), "%s", t);
 	title[sizeof(title) - 1] = 0;
 
 	if (mainFormOpen && (frm = FrmGetActiveForm()) != NULL && FrmGetFormId(frm) == MainForm)
@@ -1247,23 +1243,20 @@ int load_rom_and_rc(char *rom)
 	char *rc, *base, *dot;
 	size_t len;
 
-	/* per-ROM rc file: <rom without extension>.rc */
+	/* per-ROM rc file: <rom without extension>.rc
+	   The buffer holds the whole ROM path plus ".rc", so plain memcpy is
+	   enough. (The former strncat_s call passed the *remaining* space as
+	   the buffer size; the secure CRT then sees an unterminated string and
+	   invokes the invalid parameter handler, which aborts the process on
+	   MSVC builds.) */
 	len = strlen(rom) + 4;
 	rc = malloc(len);
-#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
-	strcpy_s(rc, len, rom);
-#else
-	strncpy(rc, rom, len - 1);
-#endif
+	memcpy(rc, rom, strlen(rom) + 1);
 	base = strrchr(rc, '/');
 	base = base ? base + 1 : rc;
 	dot = strrchr(base, '.');
 	if (dot) *dot = 0;
-#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
-	strncat_s(rc, len - strlen(rc), ".rc", (len - 1) - strlen(rc));
-#else
-	strncat(rc, ".rc", (len - 1) - strlen(rc));
-#endif
+	memcpy(rc + strlen(rc), ".rc", 4);
 	rc_sourcefile(rc);
 	free(rc);
 

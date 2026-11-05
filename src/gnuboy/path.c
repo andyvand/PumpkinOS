@@ -9,7 +9,8 @@
 #include <windows.h>
 #endif
 
-#ifdef ALT_PATH_SEP
+/* ':' would split a Windows drive letter path ("C:/...") */
+#if defined(ALT_PATH_SEP) || defined(_WIN32)
 #define SEP ';'
 #else
 #define SEP ':'
@@ -25,11 +26,6 @@
 #else
 #define PATH_MAX 512
 #endif
-#endif
-
-#if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
-#define strncpy(a,b,c) strncpy_s(a,c,b,c)
-#define strncat(a,b,c) strncat_s(a,c,b,c)
 #endif
 
 char *path_search(char *name, char *mode, char *path)
@@ -55,9 +51,8 @@ char *path_search(char *name, char *mode, char *path)
 		n = strchr(p, SEP);
 		if (n) l = (int)(n - p);
 		else l = (int)strlen(p);
-		strncpy(buf, p, PATH_MAX);
-		strncat(buf, "/", PATH_MAX - strlen(buf));
-		strncat(buf, name, PATH_MAX - strlen(buf) - 1);
+		/* only the current path element, truncated to the buffer */
+		snprintf(buf, PATH_MAX, "%.*s/%s", l, p, name);
 #if defined(_MSC_VER) && __STDC_WANT_SECURE_LIB__
 		fopen_s(&f, buf, mode);
 		if (f != NULL)
