@@ -165,7 +165,7 @@
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\$(Configuration)\GnuBoy.dll ..\..\..\src\gnuboy\sys\pumpkin\dlib0091.bin
 cd ..\..\..\src\gnuboy\sys\pumpkin
-..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0091.bin resources/*"
+..\..\..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0091.bin resources/*"
 copy GnuBoy.prc $(SolutionDir)\$(Configuration)\GnuBoy.prc
 </Command>
     </PostBuildEvent>
@@ -203,7 +203,7 @@ copy GnuBoy.prc $(SolutionDir)\$(Configuration)\GnuBoy.prc
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\$(Configuration)\GnuBoy.dll ..\..\..\src\gnuboy\sys\pumpkin\dlib0091.bin
 cd ..\..\..\src\gnuboy\sys\pumpkin
-..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0091.bin resources/*"
+..\..\..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0091.bin resources/*"
 copy GnuBoy.prc $(SolutionDir)\$(Configuration)\GnuBoy.prc
 </Command>
     </PostBuildEvent>
@@ -239,7 +239,7 @@ copy GnuBoy.prc $(SolutionDir)\$(Configuration)\GnuBoy.prc
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.dll ..\..\..\src\gnuboy\sys\pumpkin\dlib0092.bin
 cd ..\..\..\src\gnuboy\sys\pumpkin
-..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0092.bin resources/*"
+..\..\..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0092.bin resources/*"
 copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
 </Command>
     </PostBuildEvent>
@@ -277,7 +277,7 @@ copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.dll ..\..\..\src\gnuboy\sys\pumpkin\dlib0092.bin
 cd ..\..\..\src\gnuboy\sys\pumpkin
-..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0092.bin resources/*"
+..\..\..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib0092.bin resources/*"
 copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
 </Command>
     </PostBuildEvent>
@@ -313,7 +313,7 @@ copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.dll ..\..\..\src\gnuboy\sys\pumpkin\dlib008a.bin
 cd ..\..\..\src\gnuboy\sys\pumpkin
-..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib008a.bin resources/*"
+..\..\..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib008a.bin resources/*"
 copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
 </Command>
     </PostBuildEvent>
@@ -351,7 +351,7 @@ copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.dll ..\..\..\src\gnuboy\sys\pumpkin\dlib008a.bin
 cd ..\..\..\src\gnuboy\sys\pumpkin
-..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib008a.bin resources/*"
+..\..\..\..\tools\sh.exe -c "../../../../tools/prcbuild.exe -f GnuBoy.prc -t appl -c GBoy -n \"GnuBoy\" dlib008a.bin resources/*"
 copy GnuBoy.prc $(SolutionDir)\$(Platform)\$(Configuration)\GnuBoy.prc
 </Command>
     </PostBuildEvent>
