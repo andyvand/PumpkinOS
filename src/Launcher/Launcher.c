@@ -2767,6 +2767,7 @@ static Boolean MainFormHandleEvent(EventPtr event) {
   data = pumpkin_get_data();
   handled = false;
 
+  if (event != NULL) {
   switch (event->eType) {
     case appRaiseEvent:
       PINSetInputTriggerState(pinInputTriggerEnabled);
@@ -2940,6 +2941,7 @@ static Boolean MainFormHandleEvent(EventPtr event) {
     default:
       break;
   }
+  }
 
   return handled;
 }
@@ -2951,6 +2953,7 @@ static Boolean ApplicationHandleEvent(EventPtr event) {
 
   handled = false;
 
+  if (event != NULL) {
   switch (event->eType) {
     case frmLoadEvent:
       form = event->data.frmLoad.formID;
@@ -2963,6 +2966,7 @@ static Boolean ApplicationHandleEvent(EventPtr event) {
       break;
     default:
       break;
+  }
   }
 
   return handled;
