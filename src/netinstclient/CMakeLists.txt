@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.16)
 project(netinstclient VERSION 1.0 LANGUAGES CXX)
 
 if(WIN32)
-    enable_languages(RC)
+    enable_language(RC)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
