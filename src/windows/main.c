@@ -509,6 +509,7 @@ static window_t *window_create(int encoding, int *width, int *height, int xfacto
 	window->bitmapBuffer = NULL;
 
     sys_memset(&window->bmi, 0, sizeof(V5BMPINFO));
+    sys_memset(&bmh, 0, sizeof(BITMAPV5HEADER));
     bmh.bV5Size = sizeof(BITMAPV5HEADER);
     bmh.bV5Width = window->width;
     bmh.bV5Height = window->height;

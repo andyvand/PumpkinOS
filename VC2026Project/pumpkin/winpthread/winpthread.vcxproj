@@ -157,7 +157,6 @@
       <PreprocessorDefinitions>HAS_TIMESPEC;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -238,7 +237,6 @@
       <PreprocessorDefinitions>HAS_TIMESPEC;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..\src\winpthreads\include</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
