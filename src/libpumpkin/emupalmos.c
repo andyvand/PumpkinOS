@@ -2243,10 +2243,18 @@ static void emupalmos_destroy(emu_state_t *state) {
     if (state->istate) sys_free(state->istate);
 #ifdef ARMEMU
     uint8_t *ram = pumpkin_heap_base();
-    state->istate->armp->armFinish(state->arm);
-    pumpkin_heap_free(ram + state->systable[1], "dalFunctions");
-    pumpkin_heap_free(ram + state->systable[2], "bootFunctions");
-    pumpkin_heap_free(ram + state->systable[3], "uiFunctions");
+    if (state->istate) {
+      if (state->istate->armp) {
+        if (state->istate->armp->armFinish) {
+            state->istate->armp->armFinish(state->arm);
+        }
+      }
+    }
+    if (ram) {
+      pumpkin_heap_free(ram + state->systable[1], "dalFunctions");
+      pumpkin_heap_free(ram + state->systable[2], "bootFunctions");
+      pumpkin_heap_free(ram + state->systable[3], "uiFunctions");
+    }
     pumpkin_heap_free(state->systable, "sysTable");
 
     pumpkin_heap_free(state->istate->armReturnAddr, "returnAddr");

@@ -4778,11 +4778,15 @@ void *StoNewDecodedResource(void *h, UInt32 size, DmResType resType, DmResID res
 }
 
 static void StoDestroyConstant(void *p) {
-  MemChunkFree(p);
+  if (p) {
+    MemChunkFree(p);
+  }
 }
 
 static void StoDestroyWordList(void *p) {
-  MemChunkFree(p);
+  if (p) {
+    MemChunkFree(p);
+  }
 }
 
 static void StoDecodeResource(storage_handle_t *res, Boolean decoded) {
