@@ -4275,7 +4275,7 @@ static void EventLoop (void)
  *								PhoneNumberLookup() as the two tasks are incompatible with each other.
  *
  ***********************************************************************/
-#if defined(ESP32) || defined(DOS)
+#if defined(ESP32) || defined(DOS) || defined(VITA)
 PUBLIC UInt32   MemoPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

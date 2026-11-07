@@ -31,7 +31,10 @@
 // PalmOS event loop calls continuously) and pushed into an SDL audio stream;
 // SDL's own cooperative audio thread moves it to the Sound Blaster whenever
 // the main thread yields (SDL_PumpEvents / SDL_Delay).
-#if defined(DOS)
+//
+// The PlayStation Vita build uses the same cooperative threads (and the same
+// pump): there SDL has a real audio thread draining the stream.
+#if defined(DOS) || defined(VITA)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -57,6 +60,40 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 }
 #define SDL_WaitEvent(ev) libsdl_wait_event(ev, -1)
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
+#endif
+
+#if defined(VITA)
+// PlayStation Vita: the front touch screen is the pen (SDL emulates the mouse
+// from it) and the gamepad buttons stand in for a few keyboard keys:
+// D-pad = arrows, L/R = Page Up/Down, Start = Home (back to the Launcher),
+// Cross = Enter, Circle = Escape, Select = Tab.
+#define LIBSDL_GAMEPAD
+
+static int map_gamepad_button(int button) {
+  switch (button) {
+    case SDL_GAMEPAD_BUTTON_DPAD_UP:        return WINDOW_KEY_UP;
+    case SDL_GAMEPAD_BUTTON_DPAD_DOWN:      return WINDOW_KEY_DOWN;
+    case SDL_GAMEPAD_BUTTON_DPAD_LEFT:      return WINDOW_KEY_LEFT;
+    case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:     return WINDOW_KEY_RIGHT;
+    case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:  return WINDOW_KEY_PGUP;
+    case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER: return WINDOW_KEY_PGDOWN;
+    case SDL_GAMEPAD_BUTTON_START:          return WINDOW_KEY_HOME;
+    case SDL_GAMEPAD_BUTTON_SOUTH:          return '\n';
+    case SDL_GAMEPAD_BUTTON_EAST:           return 27;
+    case SDL_GAMEPAD_BUTTON_BACK:           return '\t';
+  }
+  return 0;
+}
+
+static void open_gamepad(SDL_JoystickID id) {
+  SDL_Gamepad *gamepad;
+
+  if ((gamepad = SDL_OpenGamepad(id)) != NULL) {
+    debug(DEBUG_INFO, "SDL", "gamepad %d \"%s\" opened", (int)id, SDL_GetGamepadName(gamepad));
+  } else {
+    debug(DEBUG_ERROR, "SDL", "SDL_OpenGamepad(%d) failed: %s", (int)id, SDL_GetError());
+  }
+}
 #endif
 
 #define SDL_BUTTON1   1
@@ -244,6 +281,17 @@ static int libsdl_init_video(void) {
   flags = SDL_INIT_VIDEO;
 #ifdef SDL_OPENGL
   flags |= SDL_VIDEO_OPENGL;
+#endif
+#ifdef LIBSDL_GAMEPAD
+  flags |= SDL_INIT_GAMEPAD;
+#endif
+
+#ifdef VITA
+  // the front touch screen drives the mouse (pen), the rear touch pad is
+  // ignored (it would move the pen with the fingers holding the device)
+  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
+  SDL_SetHint(SDL_HINT_VITA_ENABLE_FRONT_TOUCH, "1");
+  SDL_SetHint(SDL_HINT_VITA_ENABLE_BACK_TOUCH, "0");
 #endif
 
   if (SDL_InitSubSystem(flags) == false) {
@@ -491,6 +539,19 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
         *arg2 = ev.wheel.y;
         r = WINDOW_WHEEL;
         break;
+#ifdef LIBSDL_GAMEPAD
+      case SDL_EVENT_GAMEPAD_ADDED:
+        open_gamepad(ev.gdevice.which);
+        break;
+      case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+        *arg1 = map_gamepad_button(ev.gbutton.button);
+        if (*arg1) r = WINDOW_KEYDOWN;
+        break;
+      case SDL_EVENT_GAMEPAD_BUTTON_UP:
+        *arg1 = map_gamepad_button(ev.gbutton.button);
+        if (*arg1) r = WINDOW_KEYUP;
+        break;
+#endif
       case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
         r = -1;
         break;
@@ -694,6 +755,21 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
         r = WINDOW_MOTION;
         debug(DEBUG_INFO, "SDL", "Mouse move to \"%dx%d\"", window->x, window->y);
         break;
+
+#ifdef LIBSDL_GAMEPAD
+      case SDL_EVENT_GAMEPAD_ADDED:
+        open_gamepad(ev.gdevice.which);
+        if (remove == 0) SDL_PollEvent(&ev);
+        continue;
+
+      case SDL_EVENT_GAMEPAD_BUTTON_UP:
+        if ((key = map_gamepad_button(ev.gbutton.button)) != 0) {
+          *ekey = key;
+          *mods = window->mods;
+          r = WINDOW_KEY;
+        }
+        break;
+#endif
 
       case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
         r = -1;
@@ -1332,6 +1408,10 @@ static const char *libsdl_find_soundfont(void) {
 #ifdef DOS
     "soundfon.sf2",     // 8.3 name
     "../soundfon.sf2",
+#endif
+#ifdef VITA
+    "ux0:data/pumpkinos/soundfont.sf2",
+    "app0:soundfont.sf2",
 #endif
     "/usr/local/share/soundfonts/default.sf2",
     NULL

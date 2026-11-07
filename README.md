@@ -54,6 +54,17 @@ So if you use SD card storage the minimum requirement is 4MB storage, 8MB PSRAM.
 So if you use internal storage the minimum requirement is 8MB storage, 8MB PSRAM.
 The support for ESP32 was done by Andy Vandijck.
 
+# Support for PlayStation Vita:
+PumpkinOS also builds for the PlayStation Vita (and PlayStation TV) with the
+vitasdk, as a single statically linked homebrew (`bin/PumpkinOS.vpk`):
+
+    cd src
+    make OSNAME=vita -f GNUMakefile
+
+See [src/vita/README.md](src/vita/README.md) for the requirements, the
+controls (front touch screen = pen, Start = back to the Launcher) and the
+runtime layout (`ux0:data/pumpkinos/`).
+
 Launcher is the first application that runs when PumpkinOS starts. It shows a panel from which you can start other applications.
 Preferences will eventually contain all preference options for configuring PumpkinOS.
 Command is a command shell, still experimental. This release does not contain the four classic PIM applications from PalmOS.

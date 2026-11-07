@@ -1,0 +1,93 @@
+# PumpkinOS for the PlayStation Vita (vitasdk + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider, the OpenSSL TLS
+# provider and every application static library produced by the other modules
+# into one executable, then packs it with the LiveArea assets and the
+# application PRCs into bin/PumpkinOS.vpk (see README.md). Build from src/
+# with:
+#
+#   make OSNAME=vita -f GNUMakefile
+#
+# VITASDK may point at the SDK root (default /usr/local/vitasdk).
+
+include ../common.mak
+
+TITLE=PumpkinOS
+TITLE_ID=PMPK00001
+
+ELF=$(BIN)/pumpkinos.elf
+VELF=$(BIN)/pumpkinos.velf
+EBOOT=$(BIN)/eboot.bin
+SFO=$(BIN)/param.sfo
+VPK=$(BIN)/PumpkinOS.vpk
+STAGE=$(BIN)/vpk
+
+VITA_ELF_CREATE=$(VITASDK)/bin/vita-elf-create
+VITA_MAKE_FSELF=$(VITASDK)/bin/vita-make-fself
+VITA_MKSFOEX=$(VITASDK)/bin/vita-mksfoex
+VITA_PACK_VPK=$(VITASDK)/bin/vita-pack-vpk
+PKG_CONFIG=$(VITASDK)/bin/arm-vita-eabi-pkg-config
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+# EXTLIBDIRS=-L<dir> on the make command line looks there first, e.g. for a
+# libfluidsynth.a built without -fPIC (vita-elf-create rejects the GOT
+# relocations of position independent code: "Invalid relocation type 25").
+#
+# SDL3 (GXM video, SceAudio, touch and gamepad) and SDL3_mixer with its
+# decoders (FluidSynth is C++, hence -lstdc++), plus the SceXxx module stubs
+# they need, from the vitasdk
+SDLLIBS=$(shell VITASDK=$(VITASDK) $(PKG_CONFIG) --static --libs sdl3-mixer sdl3)
+# SceNet / SceNetCtl for the sockets (libpit/vitanet.c), SceSysmodule to load
+# them; pthread (newlib's pthread-embedded) for OpenSSL and FluidSynth
+# (PumpkinOS itself uses the cooperative threads of libpit/threadsc.c)
+VITALIBS=-lSceNet_stub -lSceNetCtl_stub -lSceSysmodule_stub -lpthread
+
+# LiveArea assets
+SCE_SYS=sce_sys/icon0.png sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/template.xml
+
+all: $(VPK)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@$(CC) -Wl,-q -Wl,-z,nocopyreloc -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) $(SDLLIBS) $(VITALIBS) -lstdc++ -lm $(EXTLIBS)
+
+# the debug information is of no use on the device (and makes eboot.bin huge)
+$(VELF): $(ELF)
+	@echo Creating pumpkinos.velf
+	@$(VITASDK)/bin/arm-vita-eabi-strip -g $(ELF)
+	@$(VITA_ELF_CREATE) $(ELF) $(VELF)
+
+$(EBOOT): $(VELF)
+	@echo Creating eboot.bin
+	@$(VITA_MAKE_FSELF) -s $(VELF) $(EBOOT)
+
+$(SFO): GNUMakefile
+	@echo Creating param.sfo
+	@$(VITA_MKSFOEX) -s TITLE_ID=$(TITLE_ID) "$(TITLE)" $(SFO)
+
+# The VPK carries the application PRCs (vfs/app_install) and, when present
+# in the PumpkinOS root, the soundfont (MIDI) and the CA bundle (https).
+# They are copied to ux0:data/pumpkinos/ on the first run (see main.c).
+$(VPK): $(EBOOT) $(SFO) $(SCE_SYS)
+	@echo Creating PumpkinOS.vpk
+	@rm -rf $(STAGE)
+	@mkdir -p $(STAGE)/vfs/app_install
+	@cp $(VFS)/app_install/*.prc $(STAGE)/vfs/app_install/
+	@if [ -f $(PUMPKINOS)/soundfont.sf2 ]; then cp $(PUMPKINOS)/soundfont.sf2 $(STAGE)/; fi
+	@if [ -f $(PUMPKINOS)/cacert.pem ]; then cp $(PUMPKINOS)/cacert.pem $(STAGE)/; fi
+	@$(VITA_PACK_VPK) -s $(SFO) -b $(EBOOT) -a sce_sys=sce_sys $$(for f in $(STAGE)/*; do printf -- '-a %s=%s ' $$f $$(basename $$f); done) $(VPK)
+
+clean:
+	@rm -f $(ELF) $(VELF) $(EBOOT) $(SFO) $(VPK) $(OBJS)
+	@rm -rf $(STAGE)

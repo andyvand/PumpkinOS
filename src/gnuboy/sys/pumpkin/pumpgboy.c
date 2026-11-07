@@ -1344,7 +1344,7 @@ static Boolean chooser_loop(void)
 /* PilotMain                                                          */
 /* ------------------------------------------------------------------ */
 
-#if defined(ESP32) || defined(DOS)
+#if defined(ESP32) || defined(DOS) || defined(VITA)
 UInt32 GnuBoyPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

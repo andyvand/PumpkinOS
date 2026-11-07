@@ -34,7 +34,14 @@ ifeq ($(OSNAME),msdosdjgpp)
 # into pumpkin.exe by src/msdos) and the PRC only carries the resources. The
 # installed PRC gets an 8.3 file name (the database name comes from the PRC
 # header, not from the file name).
+STATIC_APP=1
 PRC=$(VFS)/$(VFS_INSTALL_DIR)/$(shell printf '%.8s' $(PROGRAM)).prc
+else ifeq ($(OSNAME),vita)
+# Static build as well (linked into eboot.bin by src/vita), regular file names
+STATIC_APP=1
+endif
+
+ifeq ($(STATIC_APP),1)
 ifneq ($(OBJS),)
 APPLIB=$(BIN)/lib$(PROGRAM).a
 endif

@@ -230,6 +230,11 @@ static int libos_action(void *arg) {
     // without the hard-button row (160 pixels at double density), leaving a
     // 640x320 application area; must match dia_get_main_dimension()
     height = data->dia ? (data->height - (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT - BUTTONS_HEIGHT / 2) * (data->density == kDensityDouble ? 2 : 1)) : data->height;
+#elif defined(VITA)
+    // 960x544 screen: the DIA strip is the whole graffiti area plus taskbar
+    // artwork (224 pixels at double density), leaving a 960x320 application
+    // area; must match dia_get_main_dimension()
+    height = data->dia ? (data->height - (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT) * (data->density == kDensityDouble ? 2 : 1)) : data->height;
 #else
     height = data->dia ? ((data->height - BUTTONS_HEIGHT) * 2) / 3 : data->height;
 #endif
@@ -419,7 +424,7 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
 }
 #endif
 
-#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS) || defined(VITA)
 int libos_start(int pe) {
 #else
 static int libos_start(int pe) {
@@ -563,7 +568,7 @@ static int libos_start(int pe) {
   return r;
 }
 
-#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS) || defined(VITA)
 int libos_app_init(int pe) {
 #else
 static int libos_app_init(int pe) {

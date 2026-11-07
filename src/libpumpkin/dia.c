@@ -40,6 +40,20 @@
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #define DIA_NO_HARD_BUTTONS 1
+#elif defined(VITA)
+// PlayStation Vita: 960x544 screen at double density. The DIA strip at the
+// bottom keeps the whole taskbar artwork, hard-button row included (there
+// is no keyboard, so the buttons are the way to the four PIM applications),
+// which makes it 224 pixels tall and leaves a 960x320 application area (a
+// classic 160 pixel tall Palm screen at double density). The 320 pixel wide
+// artwork is centered in the 960 pixel strip (taskbar_offset /
+// graffiti_offset); the columns outside it are dead space. Values are at
+// low density, dia_init() doubles them.
+#define DIA_WIDTH     480
+#define DIA_HEIGHT    272
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272

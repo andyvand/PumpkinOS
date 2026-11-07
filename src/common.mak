@@ -20,7 +20,12 @@ SYSNAME=pit
 VERSION=1.0
 
 ifeq ($(MACHINE),)
+ifeq ($(OSNAME),vita)
+# the PlayStation Vita is always a 32-bit ARM (Cortex-A9)
+MACHINE := arm
+else
 MACHINE := $(shell uname -m)
+endif
 endif
 
 ifeq ($(MACHINE),arm64)
@@ -103,6 +108,10 @@ endif
 ifeq ($(OSNAME),msdosdjgpp)
 AR=i686-pc-msdosdjgpp-ar
 NM=i686-pc-msdosdjgpp-nm -j -u
+else ifeq ($(OSNAME),vita)
+VITASDK?=/usr/local/vitasdk
+AR=$(VITASDK)/bin/arm-vita-eabi-ar
+NM=$(VITASDK)/bin/arm-vita-eabi-nm -j -u
 else
 AR=ar
 NM=nm -j -u
@@ -157,6 +166,23 @@ CSTD=-std=gnu99
 VFS_INSTALL_DIR=app_inst
 VFS_STORAGE_DIR=app_stor
 VFS_PROGRAMS_DIR=PALM/Progs
+
+else ifeq ($(OSNAME),vita)
+# PlayStation Vita (vitasdk cross compiler, newlib). Like MS-DOS everything is
+# linked statically into a single executable (see src/vita), there are no
+# shared objects.
+SYS_OS=8
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=Vita
+VITASDK?=/usr/local/vitasdk
+OSDEFS=-march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -DVITA -DSOEXT=\"$(SOEXT)\" -Wno-format -Wno-attributes
+CC=$(VITASDK)/bin/arm-vita-eabi-gcc
+CPP=$(VITASDK)/bin/arm-vita-eabi-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
 
 else ifeq ($(OSNAME),Darwin)
 SYS_OS=1
@@ -277,6 +303,8 @@ ifeq ($(OSNAME),Darwin)
 STRIP=echo
 else ifeq ($(OSNAME),msdosdjgpp)
 STRIP=i686-pc-msdosdjgpp-strip
+else ifeq ($(OSNAME),vita)
+STRIP=$(VITASDK)/bin/arm-vita-eabi-strip
 else
 STRIP=strip
 endif

@@ -10,6 +10,9 @@ ifeq ($(OSNAME),msdosdjgpp)
 # configured with OPENSSL_THREADS and include <pthread.h>, which on DJGPP is
 # GNU Pth and renames poll()/read()/write() to the Pth wrappers.
 OPENSSL=sysroot
+else ifeq ($(OSNAME),vita)
+# PlayStation Vita: the vitasdk ships OpenSSL in the cross compiler sysroot
+OPENSSL=sysroot
 endif
 
 ifeq ($(OPENSSL),)

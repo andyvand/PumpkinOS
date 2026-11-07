@@ -1,5 +1,7 @@
 ifeq ($(OSNAME),msdosdjgpp)
 STATIC=1
+else ifeq ($(OSNAME),vita)
+STATIC=1
 endif
 
 ifeq ($(STATIC),1)

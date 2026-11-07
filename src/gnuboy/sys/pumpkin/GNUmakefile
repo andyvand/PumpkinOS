@@ -30,6 +30,8 @@ ifeq ($(OSNAME),Android)
 SYS_OS ?= 4
 else ifeq ($(OSNAME),Msys)
 SYS_OS ?= 2
+else ifeq ($(OSNAME),vita)
+SYS_OS ?= 8
 else
 SYS_OS ?= 1
 endif
@@ -129,6 +131,14 @@ OSDEFS = -DDOS -march=i586 -mtune=i586 -Wno-format -Wno-attributes
 # 8.3 VFS layout (see VFS_*_DIR in libpumpkin/pumpkin.h)
 INSTALL_DIR = app_inst
 PRCFILE = $(shell printf '%.8s' $(PROGRAM)).prc
+else ifeq ($(OSNAME),vita)
+# PlayStation Vita: static library linked into eboot.bin by src/vita, the
+# PRC only carries the resources (see src/app.mak)
+VITASDK ?= /usr/local/vitasdk
+CC = $(VITASDK)/bin/arm-vita-eabi-gcc
+AR = $(VITASDK)/bin/arm-vita-eabi-ar
+STATIC = 1
+OSDEFS = -DVITA -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

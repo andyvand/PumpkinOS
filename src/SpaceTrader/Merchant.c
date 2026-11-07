@@ -984,7 +984,7 @@ long MerchantPilotMain( Word cmd, Ptr cmdPBP, Word launchFlags )
 // *************************************************************************
 // This is the main entry point for the application.
 // *************************************************************************
-#if defined(ESP_PLATFORM) || defined(DOS)
+#if defined(ESP_PLATFORM) || defined(DOS) || defined(VITA)
 DWord SpaceTraderPilotMain( Word cmd, Ptr cmdPBP, Word launchFlags)
 #else
 DWord PilotMain( Word cmd, Ptr cmdPBP, Word launchFlags)

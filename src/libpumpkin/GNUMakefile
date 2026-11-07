@@ -45,8 +45,9 @@ systrap.wasm: systrap.c sc_case.c sc_prot.h
 	@echo Compiling $<
 	@$(EM_CC) $(CFLAGS) -c systrap.c -o systrap.wasm
 
-else ifeq ($(OSNAME),msdosdjgpp)
+else ifneq ($(filter msdosdjgpp vita,$(OSNAME)),)
 
+# MS-DOS and PlayStation Vita: static library
 PROGRAM=$(BIN)/libpumpkin.a
 OBJS=$(SOURCE:%.c=%.o)
 $(PROGRAM): $(OBJS)

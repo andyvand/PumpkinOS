@@ -208,6 +208,13 @@ int sys_dos_net_init(void);
 int sys_dos_net_ready(void);
 #endif
 
+#ifdef VITA
+// SceNet TCP/IP initialization (PlayStation Vita build, see vitanet.c)
+int sys_vita_net_init(void);
+
+int sys_vita_net_ready(void);
+#endif
+
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us);
 
 int sys_read(int fd, uint8_t *buf, int len);

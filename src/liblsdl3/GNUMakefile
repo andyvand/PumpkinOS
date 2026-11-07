@@ -18,6 +18,11 @@ else ifeq ($(OSNAME),msdosdjgpp)
 # libraries are linked by src/msdos
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),vita)
+# vitasdk SDL3 (GXM video, SceAudio) with SDL3_mixer; the static libraries
+# are linked by src/vita
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3
