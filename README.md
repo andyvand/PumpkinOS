@@ -18,6 +18,9 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on PS Vita:
 ![](/screenshots/PumpkinOS_Vita.png)
 
+# PumpkinOS running on Nintendo Switch:
+![](/screenshots/PumpkinOS_Switch.png)
+
 # PumpkinOS running on ESP32:
 ![](/screenshots/PumpkinOS_ESP32.png)
 
