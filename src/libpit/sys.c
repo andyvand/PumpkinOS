@@ -250,6 +250,11 @@ static int vita_is_socket(int fd) {
 }
 #endif
 
+#if defined(SWITCH)
+// largest socket read passed to the bsd service in one call (see sys_read_timeout)
+#define SWITCH_SOCKET_CHUNK 16384
+#endif
+
 #if defined(ESP32)
 static void sys_tmpfile_closed(int fd);
 #endif
@@ -1752,25 +1757,19 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
   }
 
 #if defined(SWITCH)
-  // libnx routes read()/write() on a socket to the bsd service's Read/Write
-  // commands, which are not the same as Recv/Send and do not work on
-  // Ryujinx (read() returns 0 with data pending, so the connection looks
-  // closed); use the socket calls, which are what the TLS provider uses too
-  if (vita_is_socket(fd)) {
-    r = recv(fd, buf, len, 0);
-  } else {
-    r = read(fd, buf, len);
+  // Ryujinx (1.2) truncates the length of the bsd Recv/Read buffer to a
+  // signed 16-bit value: a 64KB read returns 0 bytes (the connection looks
+  // closed) and a 32KB read crashes the emulator. Real hardware does not
+  // care. A socket is a stream and the callers loop anyway, so read it in
+  // smaller pieces (OpenSSL does the same, which is why HTTPS worked).
+  if (len > SWITCH_SOCKET_CHUNK && vita_is_socket(fd)) {
+    len = SWITCH_SOCKET_CHUNK;
   }
-  if (r < 0) {
-    debug_errno("SYS", "read");
-    return r;
-  }
-#else
+#endif
   if ((r = read(fd, buf, len)) < 0) {
     debug_errno("SYS", "read");
     return r;
   }
-#endif
 
   *nread = r;
   return 1;
@@ -1822,17 +1821,9 @@ int sys_write(int fd, uint8_t *buf, int len) {
 
 #else
   int j, r;
-#if defined(SWITCH)
-  // same as in sys_read_timeout: send() instead of write() on a socket
-  int is_socket = vita_is_socket(fd);
-#endif
 
   for (i = 0, j = 0; i < len && j < 20; j++) {
-#if defined(SWITCH)
-    r = is_socket ? (int)send(fd, buf+i, len-i, 0) : (int)write(fd, buf+i, len-i);
-#else
     r = write(fd, buf+i, len-i);
-#endif
 
     if (r == -1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
