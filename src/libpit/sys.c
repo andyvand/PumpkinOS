@@ -1751,10 +1751,26 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
     return r;
   }
 
+#if defined(SWITCH)
+  // libnx routes read()/write() on a socket to the bsd service's Read/Write
+  // commands, which are not the same as Recv/Send and do not work on
+  // Ryujinx (read() returns 0 with data pending, so the connection looks
+  // closed); use the socket calls, which are what the TLS provider uses too
+  if (vita_is_socket(fd)) {
+    r = recv(fd, buf, len, 0);
+  } else {
+    r = read(fd, buf, len);
+  }
+  if (r < 0) {
+    debug_errno("SYS", "read");
+    return r;
+  }
+#else
   if ((r = read(fd, buf, len)) < 0) {
     debug_errno("SYS", "read");
     return r;
   }
+#endif
 
   *nread = r;
   return 1;
@@ -1806,9 +1822,17 @@ int sys_write(int fd, uint8_t *buf, int len) {
 
 #else
   int j, r;
+#if defined(SWITCH)
+  // same as in sys_read_timeout: send() instead of write() on a socket
+  int is_socket = vita_is_socket(fd);
+#endif
 
   for (i = 0, j = 0; i < len && j < 20; j++) {
+#if defined(SWITCH)
+    r = is_socket ? (int)send(fd, buf+i, len-i, 0) : (int)write(fd, buf+i, len-i);
+#else
     r = write(fd, buf+i, len-i);
+#endif
 
     if (r == -1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
