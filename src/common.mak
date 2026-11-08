@@ -23,6 +23,9 @@ ifeq ($(MACHINE),)
 ifeq ($(OSNAME),vita)
 # the PlayStation Vita is always a 32-bit ARM (Cortex-A9)
 MACHINE := arm
+else ifeq ($(OSNAME),switch)
+# the Nintendo Switch is always a 64-bit ARM (Cortex-A57)
+MACHINE := aarch64
 else
 MACHINE := $(shell uname -m)
 endif
@@ -112,6 +115,10 @@ else ifeq ($(OSNAME),vita)
 VITASDK?=/usr/local/vitasdk
 AR=$(VITASDK)/bin/arm-vita-eabi-ar
 NM=$(VITASDK)/bin/arm-vita-eabi-nm -j -u
+else ifeq ($(OSNAME),switch)
+DEVKITPRO?=/opt/devkitpro
+AR=$(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-ar
+NM=$(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-nm -j -u
 else
 AR=ar
 NM=nm -j -u
@@ -180,6 +187,30 @@ VITASDK?=/usr/local/vitasdk
 OSDEFS=-march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -DVITA -DSOEXT=\"$(SOEXT)\" -Wno-format -Wno-attributes
 CC=$(VITASDK)/bin/arm-vita-eabi-gcc
 CPP=$(VITASDK)/bin/arm-vita-eabi-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
+else ifeq ($(OSNAME),switch)
+# Nintendo Switch (devkitPro devkitA64 cross compiler, newlib + libnx). Like
+# MS-DOS and the Vita everything is linked statically into a single
+# executable (see src/switch), there are no shared objects. The NRO is
+# position independent: every object is compiled with -fPIE (the devkitPro
+# switch_rules flags), the libraries from $(DEVKITPRO)/portlibs/switch were
+# built the same way.
+SYS_OS=9
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=Switch
+DEVKITPRO?=/opt/devkitpro
+DEVKITA64=$(DEVKITPRO)/devkitA64
+LIBNX=$(DEVKITPRO)/libnx
+PORTLIBS=$(DEVKITPRO)/portlibs/switch
+SWITCH_ARCH=-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -ftls-model=local-exec
+OSDEFS=$(SWITCH_ARCH) -D__SWITCH__ -DSWITCH -DSOEXT=\"$(SOEXT)\" -I$(PORTLIBS)/include -I$(LIBNX)/include -Wno-format -Wno-attributes
+CC=$(DEVKITA64)/bin/aarch64-none-elf-gcc
+CPP=$(DEVKITA64)/bin/aarch64-none-elf-g++
 PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
@@ -305,6 +336,8 @@ else ifeq ($(OSNAME),msdosdjgpp)
 STRIP=i686-pc-msdosdjgpp-strip
 else ifeq ($(OSNAME),vita)
 STRIP=$(VITASDK)/bin/arm-vita-eabi-strip
+else ifeq ($(OSNAME),switch)
+STRIP=$(DEVKITA64)/bin/aarch64-none-elf-strip
 else
 STRIP=strip
 endif

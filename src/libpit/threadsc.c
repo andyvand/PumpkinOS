@@ -8,9 +8,9 @@
 // is runnable anymore (all finished, or all waiting on a mutex).
 //
 // Used on platforms without a thread library (MS-DOS/DJGPP) or where the
-// system threads are not wanted (PlayStation Vita). The task switch is done
-// with setjmp/longjmp; a new task starts with the stack pointer set to the
-// top of its own stack (x86 and 32-bit ARM only).
+// system threads are not wanted (PlayStation Vita, Nintendo Switch). The
+// task switch is done with setjmp/longjmp; a new task starts with the stack
+// pointer set to the top of its own stack (x86, 32-bit ARM and AArch64 only).
 
 #include "sys.h"
 #include "thread.h"
@@ -158,6 +158,10 @@ static void schedule(void) {
 #elif defined(__arm__)
     // AAPCS: the stack is 8 byte aligned at a public interface
     void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)7);
+    asm volatile ("mov sp, %0" : : "r" (top) : "memory");
+#elif defined(__aarch64__)
+    // AAPCS64: sp must be 16 byte aligned whenever it is used to access memory
+    void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)15);
     asm volatile ("mov sp, %0" : : "r" (top) : "memory");
 #else
 #error "cooperative threads: unsupported architecture"

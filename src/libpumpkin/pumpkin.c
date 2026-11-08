@@ -78,9 +78,10 @@
 // 32MB global heap (HEAP_SIZE*8) + 4MB per task: fits a 64MB DOS machine
 // without sending the DPMI host into disk swapping
 #define HEAP_SIZE (4*1024*1024)
-#elif defined(VITA)
+#elif defined(VITA) || defined(SWITCH)
 // 64MB global heap (HEAP_SIZE*8) + 8MB per task, out of the newlib heap
-// sized in src/vita/main.c (_newlib_heap_size_user)
+// (sized in src/vita/main.c by _newlib_heap_size_user on the Vita, all the
+// memory the system grants the process on the Switch)
 #define HEAP_SIZE (8*1024*1024)
 #else
 #define HEAP_SIZE (16*1024*1024)
@@ -582,7 +583,7 @@ void pumpkin_enum_plugins(UInt32 type, void (*callback)(pumpkin_plugin_t *plugin
   }
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
 extern pluginMainF ViPluginInit(UInt32 *type, UInt32 *id);
 extern pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id);
 #endif
@@ -598,7 +599,7 @@ void pumpkin_load_plugins(void) {
   pluginMainF pluginMain;
   void *lib;
 
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
   pluginInit = ViPluginInit;
   if ((pluginMain = pluginInit(&type, &id)) != NULL) {
     pumpkin_register_plugin(type, id, pluginMain);
@@ -2091,7 +2092,10 @@ static int pumpkin_local_init(int i, uint32_t taskId, texture_t *texture, uint32
   sys_strncpy(task->name, name, dmDBNameLength-1);
 
 #ifndef DOS
-  if (task->creator == pumpkin_get_id_option("logscr")) {
+  // only when the option is set: in single application mode the creator of
+  // the launcher task is still 0 here, as is the id of a missing option, so a
+  // plain comparison would dump every screen update into 00000000.scr
+  if (pumpkin_get_id_option("logscr") != 0 && task->creator == pumpkin_get_id_option("logscr")) {
     sys_snprintf(buf, sizeof(buf)-1, "%08X.scr", creator);
     if ((task->logscr = sys_create(buf, SYS_WRITE, 0644)) != -1) {
       debug(DEBUG_INFO, "logscr", "writing logscr to \"%s\"", buf);
@@ -2417,7 +2421,7 @@ int pumpkin_launcher(char *name, int width, int height) {
     } else {
       wman_add(pumpkin_module.wm, 0, texture, 0, 0, width, height);
       MemSet(&request, sizeof(launch_request_t), 0);
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
       // the applications are linked statically: pick the PilotMain of the
       // requested application (normally the Launcher) by its creator
       extern UInt32 (*LauncherStaticPilotMain(UInt32 creator))(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
@@ -2824,7 +2828,7 @@ static int pumpkin_resume_task(int handle) {
   return r;
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
 static void pumpkin_forward_launch_code(UInt32 creator, char *name, UInt16 cmd, launch_union_t *param, UInt16 flags) {
   launch_request_t request;
   launch_msg_t msg;
@@ -2885,7 +2889,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
   int handle, call_sub, m68k, launched;
   uint32_t r = 0;
   void *data;
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
   uint32_t creator = 0;
 #endif
   sys_memset(&creq, 0, sizeof(client_request_t));
@@ -2911,7 +2915,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
       // XXX set sysAppLaunchFlagNewGlobals so that the app initializes properly
       creq.data.launch.flags |= sysAppLaunchFlagNewGlobals;
       break;
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
     case sysAppLaunchCmdSystemReset:
       debug(DEBUG_INFO, PUMPKINOS, "sending launch code %d to \"%s\" using call or message", cmd, name);
       if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator) == errNone) {

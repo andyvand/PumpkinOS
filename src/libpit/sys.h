@@ -215,6 +215,15 @@ int sys_vita_net_init(void);
 int sys_vita_net_ready(void);
 #endif
 
+#ifdef SWITCH
+// libnx BSD socket service initialization (Nintendo Switch build, see switchnet.c)
+int sys_switch_net_init(void);
+
+int sys_switch_net_ready(void);
+
+void sys_switch_net_finish(void);
+#endif
+
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us);
 
 int sys_read(int fd, uint8_t *buf, int len);

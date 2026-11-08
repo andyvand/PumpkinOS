@@ -39,6 +39,9 @@ PRC=$(VFS)/$(VFS_INSTALL_DIR)/$(shell printf '%.8s' $(PROGRAM)).prc
 else ifeq ($(OSNAME),vita)
 # Static build as well (linked into eboot.bin by src/vita), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),switch)
+# Static build as well (linked into PumpkinOS.nro by src/switch), regular file names
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)

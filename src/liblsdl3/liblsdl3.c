@@ -32,9 +32,10 @@
 // SDL's own cooperative audio thread moves it to the Sound Blaster whenever
 // the main thread yields (SDL_PumpEvents / SDL_Delay).
 //
-// The PlayStation Vita build uses the same cooperative threads (and the same
-// pump): there SDL has a real audio thread draining the stream.
-#if defined(DOS) || defined(VITA)
+// The PlayStation Vita and Nintendo Switch builds use the same cooperative
+// threads (and the same pump): there SDL has a real audio thread draining
+// the stream.
+#if defined(DOS) || defined(VITA) || defined(SWITCH)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -62,12 +63,22 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA)
-// PlayStation Vita: the front touch screen is the pen (SDL emulates the mouse
-// from it) and the gamepad buttons stand in for a few keyboard keys:
-// D-pad = arrows, L/R = Page Up/Down, Start = Home (back to the Launcher),
-// Cross = Enter, Circle = Escape, Select = Tab.
+#if defined(VITA) || defined(SWITCH)
+// PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
+// emulates the mouse from it) and the gamepad buttons stand in for a few
+// keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
+// to the Launcher), Select (-) = Tab. The confirm/cancel pair follows the
+// platform convention: Cross/Circle on the Vita (south = Enter, east =
+// Escape), A/B on the Switch (east = Enter, south = Escape).
 #define LIBSDL_GAMEPAD
+
+#if defined(SWITCH)
+#define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
+#define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
+#else
+#define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_SOUTH
+#define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
+#endif
 
 static int map_gamepad_button(int button) {
   switch (button) {
@@ -78,8 +89,8 @@ static int map_gamepad_button(int button) {
     case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:  return WINDOW_KEY_PGUP;
     case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER: return WINDOW_KEY_PGDOWN;
     case SDL_GAMEPAD_BUTTON_START:          return WINDOW_KEY_HOME;
-    case SDL_GAMEPAD_BUTTON_SOUTH:          return '\n';
-    case SDL_GAMEPAD_BUTTON_EAST:           return 27;
+    case GAMEPAD_BUTTON_ENTER:              return '\n';
+    case GAMEPAD_BUTTON_ESCAPE:             return 27;
     case SDL_GAMEPAD_BUTTON_BACK:           return '\t';
   }
   return 0;
@@ -292,6 +303,10 @@ static int libsdl_init_video(void) {
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
   SDL_SetHint(SDL_HINT_VITA_ENABLE_FRONT_TOUCH, "1");
   SDL_SetHint(SDL_HINT_VITA_ENABLE_BACK_TOUCH, "0");
+#endif
+#ifdef SWITCH
+  // the touch screen drives the mouse (pen)
+  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 #endif
 
   if (SDL_InitSubSystem(flags) == false) {
@@ -1412,6 +1427,10 @@ static const char *libsdl_find_soundfont(void) {
 #ifdef VITA
     "ux0:data/pumpkinos/soundfont.sf2",
     "app0:soundfont.sf2",
+#endif
+#ifdef SWITCH
+    "sdmc:/switch/pumpkinos/soundfont.sf2",
+    "romfs:/soundfont.sf2",
 #endif
     "/usr/local/share/soundfonts/default.sf2",
     NULL

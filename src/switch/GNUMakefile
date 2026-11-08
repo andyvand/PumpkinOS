@@ -1,0 +1,74 @@
+# PumpkinOS for the Nintendo Switch (devkitPro libnx + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider, the OpenSSL TLS
+# provider and every application static library produced by the other modules
+# into one executable, then wraps it, with the application PRCs embedded as a
+# romfs, into bin/PumpkinOS.nro (see README.md). Build from src/ with:
+#
+#   make OSNAME=switch -f GNUMakefile
+#
+# DEVKITPRO may point at the devkitPro root (default /opt/devkitpro).
+
+include ../common.mak
+
+APP_TITLE=PumpkinOS
+APP_AUTHOR=PumpkinOS
+APP_VERSION=$(VERSION).0
+
+ELF=$(BIN)/pumpkinos.elf
+NRO=$(BIN)/PumpkinOS.nro
+NACP=$(BIN)/pumpkinos.nacp
+ROMFS=$(BIN)/romfs
+ICON=icon.jpg
+
+TOOLS=$(DEVKITPRO)/tools/bin
+ELF2NRO=$(TOOLS)/elf2nro
+NACPTOOL=$(TOOLS)/nacptool
+PKG_CONFIG=$(PORTLIBS)/bin/aarch64-none-elf-pkg-config
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+# SDL3 (EGL/OpenGL video on mesa nouveau, audren audio, touch and HID
+# gamepads) and SDL3_mixer with its decoders (FluidSynth is C++, hence
+# -lstdc++) from the portlibs; the mesa stack SDL's video needs, and libnx
+SDLLIBS=$(shell $(PKG_CONFIG) --static --libs sdl3-mixer sdl3)
+SWITCHLIBS=-lEGL -lglapi -ldrm_nouveau -lnx
+
+# EXTLIBDIRS=-L<dir> on the make command line looks there first
+LDFLAGS=-specs=$(LIBNX)/switch.specs $(SWITCH_ARCH) -Wl,-Map,$(BIN)/pumpkinos.map
+
+all: $(NRO)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(LIBNX)/lib $(SDLLIBS) $(SWITCHLIBS) -lstdc++ -lm $(EXTLIBS)
+
+$(NACP): GNUMakefile
+	@echo Creating pumpkinos.nacp
+	@$(NACPTOOL) --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $(NACP)
+
+# The romfs carries the application PRCs (vfs/app_install) and, when present
+# in the PumpkinOS root, the soundfont (MIDI) and the CA bundle (https).
+# The VFS is copied to sdmc:/switch/pumpkinos/ on the first run (see main.c).
+$(NRO): $(ELF) $(NACP) $(ICON)
+	@echo Creating PumpkinOS.nro
+	@rm -rf $(ROMFS)
+	@mkdir -p $(ROMFS)/vfs/app_install
+	@cp $(VFS)/app_install/*.prc $(ROMFS)/vfs/app_install/
+	@if [ -f $(PUMPKINOS)/soundfont.sf2 ]; then cp $(PUMPKINOS)/soundfont.sf2 $(ROMFS)/; fi
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(ROMFS)/; fi
+	@$(ELF2NRO) $(ELF) $(NRO) --icon=$(ICON) --nacp=$(NACP) --romfsdir=$(ROMFS)
+
+clean:
+	@rm -f $(ELF) $(NRO) $(NACP) $(BIN)/pumpkinos.map $(OBJS)
+	@rm -rf $(ROMFS)

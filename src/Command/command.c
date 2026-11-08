@@ -2349,7 +2349,7 @@ static void StopApplication(void) {
   sys_free(data);
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
 UInt32 CommandPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

@@ -23,6 +23,11 @@ else ifeq ($(OSNAME),vita)
 # are linked by src/vita
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),switch)
+# devkitPro SDL3 (EGL video, audren audio) with SDL3_mixer; the static
+# libraries from portlibs are linked by src/switch
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

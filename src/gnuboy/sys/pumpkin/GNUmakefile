@@ -20,7 +20,15 @@ OSNAME ?= $(shell uname -s)
 endif
 
 ifeq ($(MACHINE),)
+ifeq ($(OSNAME),vita)
+# the PlayStation Vita is always a 32-bit ARM (see $(PUMPKIN)/src/common.mak)
+MACHINE := arm
+else ifeq ($(OSNAME),switch)
+# the Nintendo Switch is always a 64-bit ARM
+MACHINE := aarch64
+else
 MACHINE ?= $(shell uname -m)
+endif
 endif
 
 # The SYS_* triple must match the one baked into $(PUMPKIN)/bin/libpumpkin:
@@ -32,6 +40,8 @@ else ifeq ($(OSNAME),Msys)
 SYS_OS ?= 2
 else ifeq ($(OSNAME),vita)
 SYS_OS ?= 8
+else ifeq ($(OSNAME),switch)
+SYS_OS ?= 9
 else
 SYS_OS ?= 1
 endif
@@ -139,6 +149,14 @@ CC = $(VITASDK)/bin/arm-vita-eabi-gcc
 AR = $(VITASDK)/bin/arm-vita-eabi-ar
 STATIC = 1
 OSDEFS = -DVITA -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=hard -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),switch)
+# Nintendo Switch: static library linked into PumpkinOS.nro by src/switch, the
+# PRC only carries the resources (see src/app.mak)
+DEVKITPRO ?= /opt/devkitpro
+CC = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-gcc
+AR = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-ar
+STATIC = 1
+OSDEFS = -D__SWITCH__ -DSWITCH -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -ftls-model=local-exec -I$(DEVKITPRO)/libnx/include -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

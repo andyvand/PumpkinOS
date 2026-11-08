@@ -68,6 +68,18 @@ See [src/vita/README.md](src/vita/README.md) for the requirements, the
 controls (front touch screen = pen, Start = back to the Launcher) and the
 runtime layout (`ux0:data/pumpkinos/`).
 
+# Support for Nintendo Switch:
+PumpkinOS also builds for the Nintendo Switch with devkitPro (libnx, SDL3
+and OpenSSL from the portlibs), as a single statically linked homebrew
+(`bin/PumpkinOS.nro`, started from the Homebrew Menu):
+
+    cd src
+    make OSNAME=switch -f GNUMakefile
+
+See [src/switch/README.md](src/switch/README.md) for the requirements, the
+controls (touch screen = pen, + = back to the Launcher, A = Enter, B =
+Escape) and the runtime layout (`sdmc:/switch/pumpkinos/`).
+
 Launcher is the first application that runs when PumpkinOS starts. It shows a panel from which you can start other applications.
 Preferences will eventually contain all preference options for configuring PumpkinOS.
 Command is a command shell, still experimental. This release does not contain the four classic PIM applications from PalmOS.

@@ -54,6 +54,18 @@
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
+#elif defined(SWITCH)
+// Nintendo Switch: 1280x720 screen at double density, laid out like the
+// Vita: the DIA strip at the bottom keeps the whole taskbar artwork, hard
+// buttons included (224 pixels), leaving a 1280x496 application area. The
+// 320 pixel wide artwork is centered in the 1280 pixel strip
+// (taskbar_offset / graffiti_offset); the columns outside it are dead
+// space. Values are at low density, dia_init() doubles them.
+#define DIA_WIDTH     640
+#define DIA_HEIGHT    360
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272

@@ -88,6 +88,10 @@
 /* candidate CA bundles used when the OpenSSL default location has none */
 static const char *ca_bundles[] = {
   "cert.pem",                                           /* DOS */
+#ifdef SWITCH
+  "sdmc:/switch/pumpkinos/cert.pem",                    /* Nintendo Switch home, then the romfs */
+  "romfs:/cert.pem",
+#endif
   "/etc/ssl/cert.pem",                                  /* macOS, FreeBSD, Alpine */
   "/etc/ssl/certs/ca-certificates.crt",                 /* Debian, Ubuntu, Arch */
   "/etc/pki/tls/certs/ca-bundle.crt",                   /* Fedora, RHEL */
