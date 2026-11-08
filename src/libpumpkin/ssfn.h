@@ -44,7 +44,7 @@ extern "C" {
 # endif
 #endif
 /* if stdint.h was not included before us */
-#if !defined(_STDINT) && !defined(_STDINT_H)
+#if !defined(_STDINT) && !defined(_STDINT_H) && !defined(_GCC_STDINT_H) && !defined(_GCC_WRAP_STDINT_H)
 typedef unsigned char       uint8_t;
 typedef unsigned short int  uint16_t;
 typedef short int           int16_t;

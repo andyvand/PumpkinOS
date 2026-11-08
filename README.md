@@ -83,6 +83,19 @@ See [src/switch/README.md](src/switch/README.md) for the requirements, the
 controls (touch screen = pen, + = back to the Launcher, A = Enter, B =
 Escape) and the runtime layout (`sdmc:/switch/pumpkinos/`).
 
+# Support for Sony PlayStation Portable:
+PumpkinOS also builds for the PlayStation Portable with the pspdev toolchain
+(pspsdk, SDL3 and OpenSSL from its sysroot), as a single statically linked
+homebrew (`bin/psp/PumpkinOS/EBOOT.PBP`, started from the XMB Game menu):
+
+    cd src
+    make OSNAME=psp -f GNUMakefile
+
+See [src/psp/README.md](src/psp/README.md) for the requirements, the
+controls (analog stick = pointer, Cross = pen, Start = back to the Launcher,
+Triangle = Enter, Circle = Escape) and the runtime layout
+(`ms0:/PSP/GAME/PumpkinOS/`).
+
 Launcher is the first application that runs when PumpkinOS starts. It shows a panel from which you can start other applications.
 Preferences will eventually contain all preference options for configuring PumpkinOS.
 Command is a command shell, still experimental. This release does not contain the four classic PIM applications from PalmOS.

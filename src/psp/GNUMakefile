@@ -1,0 +1,93 @@
+# PumpkinOS for the Sony PlayStation Portable (pspdev pspsdk + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider, the OpenSSL TLS
+# provider and every application static library produced by the other modules
+# into one executable, wraps it into an EBOOT.PBP and stages it with the
+# application PRCs as bin/psp/PumpkinOS/ (the directory to copy to
+# ms0:/PSP/GAME/), also zipped as bin/PumpkinOS_PSP.zip (see README.md).
+# Build from src/ with:
+#
+#   make OSNAME=psp -f GNUMakefile
+#
+# PSPDEV may point at the pspdev root (default /opt/pspdev).
+
+include ../common.mak
+
+TITLE=PumpkinOS
+
+ELF=$(BIN)/pumpkinos.elf
+SELF=$(BIN)/pumpkinos_strip.elf
+SFO=$(BIN)/PARAM.SFO
+STAGE=$(BIN)/psp
+GAME=$(STAGE)/PumpkinOS
+PBP=$(GAME)/EBOOT.PBP
+ZIP=$(BIN)/PumpkinOS_PSP.zip
+ICON=ICON0.PNG
+
+MKSFO=$(PSPDEV)/bin/mksfoex
+PACK_PBP=$(PSPDEV)/bin/pack-pbp
+FIXUP=$(PSPDEV)/bin/psp-fixup-imports
+PSP_STRIP=$(PSPDEV)/bin/psp-strip
+PKG_CONFIG=PSPDEV=$(PSPDEV) $(PSPDEV)/bin/psp-pkg-config
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+# SDL3 (GU video, sceAudio, the built-in controller as a gamepad) and
+# SDL3_mixer with its decoders (FluidSynth is C++, hence -lstdc++), with the
+# sce libraries they need, from the pspdev sysroot
+SDLLIBS=$(shell $(PKG_CONFIG) --static --libs sdl3-mixer sdl3)
+# the network stack (libpit/pspnet.c) and the modules OpenSSL's libcrypto
+# was built against; psp-gcc itself adds libc, libcglue, pthread, psputility,
+# psprtc, pspnet_inet, pspnet_resolver, pspsdk and pspuser
+PSPLIBS=-lpspnet -lpspnet_apctl -lpspnet_inet -lpspnet_resolver -lpsputility -lpsprtc -lpsppower -latomic
+
+# EXTLIBDIRS=-L<dir> on the make command line looks there first
+LDFLAGS=-G0 -Wl,-zmax-page-size=128 -Wl,-Map,$(BIN)/pumpkinos.map
+
+all: $(ZIP)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PSPDEV)/psp/lib -L$(PSPSDK)/lib $(SDLLIBS) $(PSPLIBS) -lstdc++ -lm $(EXTLIBS)
+	@$(FIXUP) $(ELF)
+
+# MEMSIZE=1: use the extra memory of the PSP-2000 and later models (the
+# PSP-1000 only has 32MB, the firmware guards the setting there)
+$(SFO): GNUMakefile
+	@echo Creating PARAM.SFO
+	@$(MKSFO) -d MEMSIZE=1 '$(TITLE)' $(SFO)
+
+# The staged directory carries EBOOT.PBP, the application PRCs
+# (vfs/app_install) and, when present in the PumpkinOS root, the CA bundle
+# (https). The soundfont (MIDI, 6MB in memory) is only included with
+# SOUNDFONT=1 on the make command line: it does not fit a PSP-1000.
+$(PBP): $(ELF) $(SFO) $(ICON)
+	@echo Creating EBOOT.PBP
+	@rm -rf $(STAGE)
+	@mkdir -p $(GAME)/vfs/app_install $(GAME)/vfs/app_storage $(GAME)/vfs/app_card/PALM/Programs
+	@$(PSP_STRIP) $(ELF) -o $(SELF)
+	@$(PACK_PBP) $(PBP) $(SFO) $(ICON) NULL NULL NULL NULL $(SELF) NULL
+	@rm -f $(SELF)
+	@cp $(VFS)/app_install/*.prc $(GAME)/vfs/app_install/
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(GAME)/; fi
+	@if [ "$(SOUNDFONT)" = "1" -a -f $(PUMPKINOS)/soundfont.sf2 ]; then cp $(PUMPKINOS)/soundfont.sf2 $(GAME)/; fi
+	@cp README.md $(GAME)/README.md
+
+$(ZIP): $(PBP)
+	@echo Creating PumpkinOS_PSP.zip
+	@rm -f $(ZIP)
+	@cd $(STAGE) && zip -qr $(abspath $(ZIP)) PumpkinOS
+
+clean:
+	@rm -f $(ELF) $(SELF) $(SFO) $(ZIP) $(BIN)/pumpkinos.map $(OBJS)
+	@rm -rf $(STAGE)

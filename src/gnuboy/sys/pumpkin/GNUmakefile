@@ -26,6 +26,9 @@ MACHINE := arm
 else ifeq ($(OSNAME),switch)
 # the Nintendo Switch is always a 64-bit ARM
 MACHINE := aarch64
+else ifeq ($(OSNAME),psp)
+# the PlayStation Portable is always a 32-bit MIPS
+MACHINE := mips
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -42,6 +45,8 @@ else ifeq ($(OSNAME),vita)
 SYS_OS ?= 8
 else ifeq ($(OSNAME),switch)
 SYS_OS ?= 9
+else ifeq ($(OSNAME),psp)
+SYS_OS ?= 10
 else
 SYS_OS ?= 1
 endif
@@ -69,6 +74,9 @@ SYS_SIZE ?= 1
 else ifeq ($(MACHINE),riscv64)
 SYS_CPU ?= 3
 SYS_SIZE ?= 2
+else ifeq ($(MACHINE),mips)
+SYS_CPU ?= 4
+SYS_SIZE ?= 1
 else
 SYS_CPU ?= 3
 SYS_SIZE ?= 1
@@ -157,6 +165,14 @@ CC = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-gcc
 AR = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-ar
 STATIC = 1
 OSDEFS = -D__SWITCH__ -DSWITCH -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -ftls-model=local-exec -I$(DEVKITPRO)/libnx/include -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),psp)
+# PlayStation Portable: static library linked into EBOOT.PBP by src/psp, the
+# PRC only carries the resources (see src/app.mak)
+PSPDEV ?= /opt/pspdev
+CC = $(PSPDEV)/bin/psp-gcc
+AR = $(PSPDEV)/bin/psp-ar
+STATIC = 1
+OSDEFS = -G0 -DPSP -D_PSP_FW_VERSION=600 -I$(PSPDEV)/psp/include -I$(PSPDEV)/psp/sdk/include -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

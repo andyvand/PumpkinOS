@@ -8,9 +8,10 @@
 // is runnable anymore (all finished, or all waiting on a mutex).
 //
 // Used on platforms without a thread library (MS-DOS/DJGPP) or where the
-// system threads are not wanted (PlayStation Vita, Nintendo Switch). The
+// system threads are not wanted (PlayStation Vita, Nintendo Switch, PSP). The
 // task switch is done with setjmp/longjmp; a new task starts with the stack
-// pointer set to the top of its own stack (x86, 32-bit ARM and AArch64 only).
+// pointer set to the top of its own stack (x86, 32-bit ARM, AArch64 and
+// MIPS only).
 
 #include "sys.h"
 #include "thread.h"
@@ -163,6 +164,10 @@ static void schedule(void) {
     // AAPCS64: sp must be 16 byte aligned whenever it is used to access memory
     void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)15);
     asm volatile ("mov sp, %0" : : "r" (top) : "memory");
+#elif defined(__mips__)
+    // MIPS o32/EABI (PlayStation Portable): the stack is 8 byte aligned
+    void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)7);
+    asm volatile ("move $sp, %0" : : "r" (top) : "memory");
 #else
 #error "cooperative threads: unsupported architecture"
 #endif

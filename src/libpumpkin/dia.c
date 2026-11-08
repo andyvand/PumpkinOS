@@ -66,6 +66,18 @@
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
+#elif defined(PSP)
+// Sony PlayStation Portable: 480x272 screen at low density, the Vita layout
+// at half the scale: the DIA strip at the bottom keeps the whole taskbar
+// artwork, hard-button row included (112 pixels), leaving a 480x160
+// application area (a classic Palm screen, three abreast). The 160 pixel
+// wide artwork is centered in the 480 pixel strip (taskbar_offset /
+// graffiti_offset); the columns outside it are dead space.
+#define DIA_WIDTH     480
+#define DIA_HEIGHT    272
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272

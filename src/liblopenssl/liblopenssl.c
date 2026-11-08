@@ -33,6 +33,8 @@
 #include <fcntl.h>
 #ifdef DOS
 #include <sys/poll.h>  /* Watt-32 */
+#elif defined(PSP)
+#include <sys/select.h> /* no poll() in the pspsdk glue */
 #else
 #include <poll.h>
 #endif
@@ -92,6 +94,10 @@ static const char *ca_bundles[] = {
   "sdmc:/switch/pumpkinos/cert.pem",                    /* Nintendo Switch home, then the romfs */
   "romfs:/cert.pem",
 #endif
+#ifdef PSP
+  "ms0:/PSP/GAME/PumpkinOS/cert.pem",                   /* PlayStation Portable: next to EBOOT.PBP (or SSL_CERT_FILE, see src/psp) */
+  "ef0:/PSP/GAME/PumpkinOS/cert.pem",
+#endif
   "/etc/ssl/cert.pem",                                  /* macOS, FreeBSD, Alpine */
   "/etc/ssl/certs/ca-certificates.crt",                 /* Debian, Ubuntu, Arch */
   "/etc/pki/tls/certs/ca-bundle.crt",                   /* Fedora, RHEL */
@@ -149,7 +155,7 @@ static void liblopenssl_error(const char *what) {
 static int wait_fd(int fd, int want, uint32_t us) {
   uint32_t left = us;
   int slice, r;
-#ifdef WINDOWS
+#if defined(WINDOWS) || defined(PSP)
   fd_set fds;
   struct timeval tv;
 #else
@@ -161,13 +167,21 @@ static int wait_fd(int fd, int want, uint32_t us) {
     slice = WAIT_SLICE_MS;
     if (us && (uint32_t)slice * 1000 > left) slice = (left + 999) / 1000;
 
-#ifdef WINDOWS
+#if defined(WINDOWS) || defined(PSP)
     FD_ZERO(&fds);
+#ifdef WINDOWS
     FD_SET((SOCKET)fd, &fds);
+#else
+    FD_SET(fd, &fds);
+#endif
     tv.tv_sec = slice / 1000;
     tv.tv_usec = (slice % 1000) * 1000;
     r = select(fd + 1, want ? NULL : &fds, want ? &fds : NULL, NULL, &tv);
+#ifdef WINDOWS
     if (r < 0 && WSAGetLastError() == WSAEINTR) continue;
+#else
+    if (r < 0 && errno == EINTR) continue;
+#endif
 #else
     pfd.fd = fd;
     pfd.events = want ? POLLOUT : POLLIN;

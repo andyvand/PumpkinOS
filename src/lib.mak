@@ -4,6 +4,8 @@ else ifeq ($(OSNAME),vita)
 STATIC=1
 else ifeq ($(OSNAME),switch)
 STATIC=1
+else ifeq ($(OSNAME),psp)
+STATIC=1
 endif
 
 ifeq ($(STATIC),1)

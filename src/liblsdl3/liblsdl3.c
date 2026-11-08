@@ -32,10 +32,10 @@
 // SDL's own cooperative audio thread moves it to the Sound Blaster whenever
 // the main thread yields (SDL_PumpEvents / SDL_Delay).
 //
-// The PlayStation Vita and Nintendo Switch builds use the same cooperative
-// threads (and the same pump): there SDL has a real audio thread draining
-// the stream.
-#if defined(DOS) || defined(VITA) || defined(SWITCH)
+// The PlayStation Vita, Nintendo Switch and PSP builds use the same
+// cooperative threads (and the same pump): there SDL has a real audio thread
+// draining the stream.
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -63,22 +63,35 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA) || defined(SWITCH)
+#if defined(VITA) || defined(SWITCH) || defined(PSP)
 // PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
 // emulates the mouse from it) and the gamepad buttons stand in for a few
 // keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
 // to the Launcher), Select (-) = Tab. The confirm/cancel pair follows the
 // platform convention: Cross/Circle on the Vita (south = Enter, east =
 // Escape), A/B on the Switch (east = Enter, south = Escape).
+//
+// PlayStation Portable: no touch screen, so the analog stick moves a pointer
+// drawn by this provider (LIBSDL_STICK_POINTER) and Cross is the pen (mouse
+// button 1); Triangle = Enter, Circle = Escape, Square = Backspace, the
+// rest as above.
 #define LIBSDL_GAMEPAD
 
 #if defined(SWITCH)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
+#elif defined(PSP)
+#define LIBSDL_STICK_POINTER
+#define GAMEPAD_BUTTON_PEN    SDL_GAMEPAD_BUTTON_SOUTH
+#define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_NORTH
+#define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
+#define GAMEPAD_BUTTON_BACKSP SDL_GAMEPAD_BUTTON_WEST
 #else
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_SOUTH
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
 #endif
+
+static SDL_Gamepad *gamepad = NULL;
 
 static int map_gamepad_button(int button) {
   switch (button) {
@@ -91,14 +104,15 @@ static int map_gamepad_button(int button) {
     case SDL_GAMEPAD_BUTTON_START:          return WINDOW_KEY_HOME;
     case GAMEPAD_BUTTON_ENTER:              return '\n';
     case GAMEPAD_BUTTON_ESCAPE:             return 27;
+#ifdef GAMEPAD_BUTTON_BACKSP
+    case GAMEPAD_BUTTON_BACKSP:             return 8;
+#endif
     case SDL_GAMEPAD_BUTTON_BACK:           return '\t';
   }
   return 0;
 }
 
 static void open_gamepad(SDL_JoystickID id) {
-  SDL_Gamepad *gamepad;
-
   if ((gamepad = SDL_OpenGamepad(id)) != NULL) {
     debug(DEBUG_INFO, "SDL", "gamepad %d \"%s\" opened", (int)id, SDL_GetGamepadName(gamepad));
   } else {
@@ -154,6 +168,11 @@ typedef struct {
 #endif
   void (*drop_callback)(char *filename, void *data);
   void *drop_data;
+#ifdef LIBSDL_STICK_POINTER
+  double px, py;      // pointer position (window pixels)
+  uint64_t ptime;     // last stick sample (us)
+  int pvisible;       // pointer drawn (hidden until the stick moves)
+#endif
 } libsdl_window_t;
 
 typedef struct {
@@ -284,6 +303,132 @@ static int libsdl_init_audio(void) {
 }
 #endif
 
+static int libsdl_present(libsdl_window_t *window);
+
+#ifdef LIBSDL_STICK_POINTER
+// Analog stick pointer (PlayStation Portable): the left stick moves a pointer
+// across the window at up to POINTER_SPEED pixels per second, the pen button
+// (Cross) presses mouse button 1 at its position. The pointer is drawn by
+// libsdl_present() over the persistent render target, so it only exists
+// with an accelerated renderer (the PSP one). It stays hidden until the
+// stick is moved for the first time.
+#define POINTER_DEADZONE 6000   // of 32767
+#define POINTER_SPEED    360.0  // pixels per second at full deflection
+#define POINTER_WAIT_MS  16     // longest event wait while the stick is deflected
+#define POINTER_WIDTH    12
+#define POINTER_HEIGHT   19
+
+static SDL_Texture *pointer_texture = NULL;
+
+// the classic arrow: 'X' outline, '.' fill, ' ' transparent
+static const char *pointer_shape[POINTER_HEIGHT] = {
+  "X           ",
+  "XX          ",
+  "X.X         ",
+  "X..X        ",
+  "X...X       ",
+  "X....X      ",
+  "X.....X     ",
+  "X......X    ",
+  "X.......X   ",
+  "X........X  ",
+  "X.........X ",
+  "X......XXXXX",
+  "X...X..X    ",
+  "X..X X..X   ",
+  "X.X  X..X   ",
+  "XX    X..X  ",
+  "X     X..X  ",
+  "       XX   ",
+  "            ",
+};
+
+static int stick_axis(SDL_GamepadAxis axis) {
+  int v;
+
+  if (gamepad == NULL) return 0;
+  v = SDL_GetGamepadAxis(gamepad, axis);
+  if (v > -POINTER_DEADZONE && v < POINTER_DEADZONE) return 0;
+  return v < 0 ? v + POINTER_DEADZONE : v - POINTER_DEADZONE;
+}
+
+static int libsdl_stick_active(void) {
+  return stick_axis(SDL_GAMEPAD_AXIS_LEFTX) != 0 || stick_axis(SDL_GAMEPAD_AXIS_LEFTY) != 0;
+}
+
+// moves the pointer with the stick; returns 1 when its position changed
+// (window->x / window->y hold the new position, and the frame was redrawn)
+static int libsdl_pointer_poll(libsdl_window_t *window) {
+  uint64_t now;
+  double dt, scale;
+  int ax, ay, x, y;
+
+  now = sys_get_clock();
+  if (window->ptime == 0) {
+    window->ptime = now;
+    return 0;
+  }
+  dt = (double)(now - window->ptime) / 1000000.0;
+  window->ptime = now;
+  if (dt > 0.1) dt = 0.1;
+
+  ax = stick_axis(SDL_GAMEPAD_AXIS_LEFTX);
+  ay = stick_axis(SDL_GAMEPAD_AXIS_LEFTY);
+  if (ax == 0 && ay == 0) return 0;
+
+  scale = POINTER_SPEED * dt / (32767.0 - POINTER_DEADZONE);
+  window->px += ax * scale;
+  window->py += ay * scale;
+  if (window->px < 0) window->px = 0;
+  if (window->py < 0) window->py = 0;
+  if (window->px > window->width - 1) window->px = window->width - 1;
+  if (window->py > window->height - 1) window->py = window->height - 1;
+  window->pvisible = 1;
+
+  x = (int)window->px;
+  y = (int)window->py;
+  if (x == window->x && y == window->y) return 0;
+
+  window->x = x;
+  window->y = y;
+  libsdl_present(window);
+
+  return 1;
+}
+
+static void libsdl_pointer_draw(libsdl_window_t *window) {
+  uint32_t pixels[POINTER_WIDTH * POINTER_HEIGHT];
+  SDL_FRect dst;
+  int i, j;
+
+  if (!window->pvisible) return;
+
+  if (pointer_texture == NULL) {
+    if ((pointer_texture = SDL_CreateTexture(window->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, POINTER_WIDTH, POINTER_HEIGHT)) == NULL) {
+      debug(DEBUG_ERROR, "SDL", "SDL_CreateTexture (pointer) failed: %s", SDL_GetError());
+      return;
+    }
+    for (i = 0; i < POINTER_HEIGHT; i++) {
+      for (j = 0; j < POINTER_WIDTH; j++) {
+        switch (pointer_shape[i][j]) {
+          case 'X': pixels[i * POINTER_WIDTH + j] = 0xFF000000; break;
+          case '.': pixels[i * POINTER_WIDTH + j] = 0xFFFFFFFF; break;
+          default:  pixels[i * POINTER_WIDTH + j] = 0x00000000; break;
+        }
+      }
+    }
+    SDL_UpdateTexture(pointer_texture, NULL, pixels, POINTER_WIDTH * sizeof(uint32_t));
+    SDL_SetTextureBlendMode(pointer_texture, SDL_BLENDMODE_BLEND);
+  }
+
+  dst.x = window->x;
+  dst.y = window->y;
+  dst.w = POINTER_WIDTH;
+  dst.h = POINTER_HEIGHT;
+  SDL_RenderTexture(window->renderer, pointer_texture, NULL, &dst);
+}
+#endif
+
 static int libsdl_init_video(void) {
   SDL_Cursor *cursor;
   int flags, i, n, r = -1;
@@ -307,6 +452,11 @@ static int libsdl_init_video(void) {
 #ifdef SWITCH
   // the touch screen drives the mouse (pen)
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
+#endif
+#ifdef PSP
+  // the built-in controller is a gamepad (SDL has a mapping for it); the
+  // pointer it drives is drawn by libsdl_present() (no mouse, no cursor)
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 #endif
 
   if (SDL_InitSubSystem(flags) == false) {
@@ -513,6 +663,17 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
 #ifdef LIBSDL_AUDIO_PUMP
   if (libsdl_audio_pump() && (wait < 0 || wait > LIBSDL_PUMP_WAIT_MS)) wait = LIBSDL_PUMP_WAIT_MS;
 #endif
+#ifdef LIBSDL_STICK_POINTER
+  // the stick moved the pointer: report the motion right away, and while it
+  // is deflected keep the waits short so that the pointer keeps moving
+  SDL_PumpEvents();
+  if (libsdl_pointer_poll(window)) {
+    *arg1 = window->x;
+    *arg2 = window->y;
+    return WINDOW_MOTION;
+  }
+  if (libsdl_stick_active() && (wait < 0 || wait > POINTER_WAIT_MS)) wait = POINTER_WAIT_MS;
+#endif
   has_ev = wait < 0 ? SDL_WaitEvent(&ev) : SDL_WaitEventTimeout(&ev, wait);
 
   if (has_ev) {
@@ -559,10 +720,27 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
         open_gamepad(ev.gdevice.which);
         break;
       case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+#ifdef LIBSDL_STICK_POINTER
+        if (ev.gbutton.button == GAMEPAD_BUTTON_PEN) {
+          // the pen touches the screen at the pointer position
+          *arg1 = SDL_BUTTON1;
+          window->buttons |= SDL_BUTTON1;
+          r = WINDOW_BUTTONDOWN;
+          break;
+        }
+#endif
         *arg1 = map_gamepad_button(ev.gbutton.button);
         if (*arg1) r = WINDOW_KEYDOWN;
         break;
       case SDL_EVENT_GAMEPAD_BUTTON_UP:
+#ifdef LIBSDL_STICK_POINTER
+        if (ev.gbutton.button == GAMEPAD_BUTTON_PEN) {
+          *arg1 = SDL_BUTTON1;
+          window->buttons &= ~SDL_BUTTON1;
+          r = WINDOW_BUTTONUP;
+          break;
+        }
+#endif
         *arg1 = map_gamepad_button(ev.gbutton.button);
         if (*arg1) r = WINDOW_KEYUP;
         break;
@@ -599,6 +777,16 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
     // feed the audio stream, and while a stream is playing return early
     // (with no event) instead of blocking, so that it is fed again soon
     if (libsdl_audio_pump() && (wait < 0 || wait > LIBSDL_PUMP_WAIT_MS)) wait = LIBSDL_PUMP_WAIT_MS;
+#endif
+#ifdef LIBSDL_STICK_POINTER
+    SDL_PumpEvents();
+    if (libsdl_pointer_poll(window)) {
+      *ekey = window->x;
+      *mods = window->y;
+      *ebuttons = buttons;
+      return WINDOW_MOTION;
+    }
+    if (libsdl_stick_active() && (wait < 0 || wait > POINTER_WAIT_MS)) wait = POINTER_WAIT_MS;
 #endif
     if (wait) {
       // wait: timeout in ms, or -1 to wait forever
@@ -777,7 +965,21 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
         if (remove == 0) SDL_PollEvent(&ev);
         continue;
 
+#ifdef LIBSDL_STICK_POINTER
+      case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+        if (ev.gbutton.button == GAMEPAD_BUTTON_PEN) {
+          buttons |= SDL_BUTTON1;
+        }
+        break;
+#endif
+
       case SDL_EVENT_GAMEPAD_BUTTON_UP:
+#ifdef LIBSDL_STICK_POINTER
+        if (ev.gbutton.button == GAMEPAD_BUTTON_PEN) {
+          buttons &= ~SDL_BUTTON1;
+          break;
+        }
+#endif
         if ((key = map_gamepad_button(ev.gbutton.button)) != 0) {
           *ekey = key;
           *mods = window->mods;
@@ -948,6 +1150,12 @@ static int libsdl_video_setup(libsdl_window_t *window) {
 }
 
 static int libsdl_video_close(libsdl_window_t *window) {
+#ifdef LIBSDL_STICK_POINTER
+  if (pointer_texture) {
+    SDL_DestroyTexture(pointer_texture);
+    pointer_texture = NULL;
+  }
+#endif
   if (window->target) {
     SDL_SetRenderTarget(window->renderer, NULL);
     SDL_DestroyTexture(window->target);
@@ -1020,6 +1228,12 @@ static window_t *libsdl_window_create(int encoding, int *width, int *height, int
     window->format = format;
     window->spixel = spixel;
     window->rotate = rotate;
+#ifdef LIBSDL_STICK_POINTER
+    window->px = window->width / 2;
+    window->py = window->height / 2;
+    window->x = (int)window->px;
+    window->y = (int)window->py;
+#endif
 
 #if defined(ESP32) || defined(ANDROID)
     sys_strncpy(window->driver, "software", MAX_DRIVER);
@@ -1109,6 +1323,25 @@ static void presentBackBuffer(libsdl_window_t *window, texture_t *t, GLuint prog
 }
 #endif
 
+// shows the scene: the persistent render target (plus the stick pointer,
+// when there is one) is copied to the back buffer and presented
+static int libsdl_present(libsdl_window_t *window) {
+  if (window->target != NULL) {
+    SDL_SetRenderTarget(window->renderer, NULL);
+    SDL_RenderClear(window->renderer);
+    SDL_RenderTexture(window->renderer, window->target, NULL, NULL);
+#ifdef LIBSDL_STICK_POINTER
+    libsdl_pointer_draw(window);
+#endif
+    SDL_RenderPresent(window->renderer);
+    SDL_SetRenderTarget(window->renderer, window->target);
+  } else {
+    SDL_RenderPresent(window->renderer);
+  }
+
+  return 0;
+}
+
 static int libsdl_window_render(window_t *_window) {
   libsdl_window_t *window = (libsdl_window_t *)_window;
   int r = -1;
@@ -1119,15 +1352,7 @@ static int libsdl_window_render(window_t *_window) {
       presentBackBuffer(window, window->texture, window->programId[0]);
     } else {
 #endif
-      if (window->target != NULL) {
-        SDL_SetRenderTarget(window->renderer, NULL);
-        SDL_RenderClear(window->renderer);
-        SDL_RenderTexture(window->renderer, window->target, NULL, NULL);
-        SDL_RenderPresent(window->renderer);
-        SDL_SetRenderTarget(window->renderer, window->target);
-      } else {
-        SDL_RenderPresent(window->renderer);
-      }
+      libsdl_present(window);
 #ifdef SDL_OPENGL
     }
 #endif
@@ -1431,6 +1656,10 @@ static const char *libsdl_find_soundfont(void) {
 #ifdef SWITCH
     "sdmc:/switch/pumpkinos/soundfont.sf2",
     "romfs:/soundfont.sf2",
+#endif
+#ifdef PSP
+    "ms0:/PSP/GAME/PumpkinOS/soundfont.sf2",
+    "ef0:/PSP/GAME/PumpkinOS/soundfont.sf2",
 #endif
     "/usr/local/share/soundfonts/default.sf2",
     NULL

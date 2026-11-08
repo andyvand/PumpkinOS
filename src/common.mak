@@ -26,6 +26,9 @@ MACHINE := arm
 else ifeq ($(OSNAME),switch)
 # the Nintendo Switch is always a 64-bit ARM (Cortex-A57)
 MACHINE := aarch64
+else ifeq ($(OSNAME),psp)
+# the PlayStation Portable is always a 32-bit MIPS (Allegrex)
+MACHINE := mips
 else
 MACHINE := $(shell uname -m)
 endif
@@ -96,6 +99,13 @@ else ifeq ($(MACHINE),ppc64le)
 SYS_ENDIAN=1
 SYS_CPU=3
 # ppc64 would be BIG_ENDIAN 4?
+else ifeq ($(MACHINE),mips)
+# little endian 32-bit MIPS (PlayStation Portable)
+SYS_ENDIAN=1
+SYS_CPU=4
+ifeq ($(BITS),)
+BITS=32
+endif
 else
 $(error Unknown CPU $(MACHINE))
 endif
@@ -119,6 +129,10 @@ else ifeq ($(OSNAME),switch)
 DEVKITPRO?=/opt/devkitpro
 AR=$(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-ar
 NM=$(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-nm -j -u
+else ifeq ($(OSNAME),psp)
+PSPDEV?=/opt/pspdev
+AR=$(PSPDEV)/bin/psp-ar
+NM=$(PSPDEV)/bin/psp-nm -j -u
 else
 AR=ar
 NM=nm -j -u
@@ -211,6 +225,29 @@ SWITCH_ARCH=-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -ftls-mo
 OSDEFS=$(SWITCH_ARCH) -D__SWITCH__ -DSWITCH -DSOEXT=\"$(SOEXT)\" -I$(PORTLIBS)/include -I$(LIBNX)/include -Wno-format -Wno-attributes
 CC=$(DEVKITA64)/bin/aarch64-none-elf-gcc
 CPP=$(DEVKITA64)/bin/aarch64-none-elf-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
+else ifeq ($(OSNAME),psp)
+# Sony PlayStation Portable (pspdev psp-gcc cross compiler, newlib + pspsdk).
+# Like MS-DOS, the Vita and the Switch everything is linked statically into
+# a single executable (see src/psp), there are no shared objects. The
+# compiler predefines PSP and __PSP__; -G0 keeps the small data section
+# empty (the program is far too big for 64KB of gp-relative data). Always
+# optimized: the unoptimized program is 14MB of code, which together with
+# its heaps does not fit the console (-g is still added in debug builds).
+SYS_OS=10
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=PSP
+PSPDEV?=/opt/pspdev
+PSPSDK=$(PSPDEV)/psp/sdk
+PSP_FW_VERSION?=600
+OSDEFS=-G0 -O2 -DPSP -D_PSP_FW_VERSION=$(PSP_FW_VERSION) -DSOEXT=\"$(SOEXT)\" -I$(PSPDEV)/psp/include -I$(PSPSDK)/include -Wno-format -Wno-attributes
+CC=$(PSPDEV)/bin/psp-gcc
+CPP=$(PSPDEV)/bin/psp-g++
 PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
@@ -338,6 +375,8 @@ else ifeq ($(OSNAME),vita)
 STRIP=$(VITASDK)/bin/arm-vita-eabi-strip
 else ifeq ($(OSNAME),switch)
 STRIP=$(DEVKITA64)/bin/aarch64-none-elf-strip
+else ifeq ($(OSNAME),psp)
+STRIP=$(PSPDEV)/bin/psp-strip
 else
 STRIP=strip
 endif

@@ -42,6 +42,9 @@ STATIC_APP=1
 else ifeq ($(OSNAME),switch)
 # Static build as well (linked into PumpkinOS.nro by src/switch), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),psp)
+# Static build as well (linked into EBOOT.PBP by src/psp), regular file names
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)

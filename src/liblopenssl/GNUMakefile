@@ -17,6 +17,10 @@ else ifeq ($(OSNAME),switch)
 # Nintendo Switch: OpenSSL comes from the devkitPro portlibs (already on the
 # include path through OSDEFS, see common.mak)
 OPENSSL=sysroot
+else ifeq ($(OSNAME),psp)
+# PlayStation Portable: the pspdev sysroot ships OpenSSL (on the include
+# path through OSDEFS, see common.mak)
+OPENSSL=sysroot
 endif
 
 ifeq ($(OPENSSL),)

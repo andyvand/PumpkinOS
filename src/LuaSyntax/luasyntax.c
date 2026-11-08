@@ -447,7 +447,7 @@ static void *PluginMain(void *p) {
   return &plugin;
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
 pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id)
 #else
 pluginMainF PluginInit(UInt32 *type, UInt32 *id)

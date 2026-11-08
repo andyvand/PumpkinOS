@@ -60,6 +60,22 @@ $(PROGRAM): $(OBJS)
 	@rm -f $(PROGRAM)
 	@$(AR) -cr $(PROGRAM) $(OBJS)
 
+else ifeq ($(OSNAME),psp)
+
+# Sony PlayStation Portable: cooperative threads (threadsc, like MS-DOS, the
+# Vita and the Switch) and no script engine (the stub lives in
+# src/psp/script.c). Sockets come from the pspsdk newlib glue on top of
+# sceNetInet (pspnet.o loads the network modules, brings the access point
+# connection up and supplies the getaddrinfo() the glue lacks). The pspdev
+# newlib libm has fmodl.
+PROGRAM=$(BIN)/libpit.a
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o pspnet.o pspsys.o
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpit.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
 else ifeq ($(OSNAME),Kernel)
 
 PROGRAM=$(BIN)/libpit.a

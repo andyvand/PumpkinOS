@@ -1120,7 +1120,7 @@ static void FinishData(void) {
   xfree(data);
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
 UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

@@ -224,6 +224,15 @@ int sys_switch_net_ready(void);
 void sys_switch_net_finish(void);
 #endif
 
+#ifdef PSP
+// sceNet / access point initialization (PlayStation Portable build, see pspnet.c)
+int sys_psp_net_init(int timeout_ms);
+
+int sys_psp_net_ready(void);
+
+void sys_psp_net_finish(void);
+#endif
+
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us);
 
 int sys_read(int fd, uint8_t *buf, int len);
