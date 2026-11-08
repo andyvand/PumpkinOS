@@ -71,10 +71,10 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 // platform convention: Cross/Circle on the Vita (south = Enter, east =
 // Escape), A/B on the Switch (east = Enter, south = Escape).
 //
-// PlayStation Portable: no touch screen, so the analog stick moves a pointer
-// drawn by this provider (LIBSDL_STICK_POINTER) and Cross is the pen (mouse
-// button 1); Triangle = Enter, Circle = Escape, Square = Backspace, the
-// rest as above.
+// PlayStation Portable: no touch screen, so the analog stick and the D-pad
+// move a pointer drawn by this provider (LIBSDL_STICK_POINTER) and Cross is
+// the pen (mouse button 1); Triangle = Enter, Circle = Escape, Square =
+// Backspace, the rest as above (the D-pad is not an arrow key here).
 #define LIBSDL_GAMEPAD
 
 #if defined(SWITCH)
@@ -95,10 +95,13 @@ static SDL_Gamepad *gamepad = NULL;
 
 static int map_gamepad_button(int button) {
   switch (button) {
+#ifndef LIBSDL_STICK_POINTER
+    // with the emulated pointer the D-pad moves it instead (pointer_axis)
     case SDL_GAMEPAD_BUTTON_DPAD_UP:        return WINDOW_KEY_UP;
     case SDL_GAMEPAD_BUTTON_DPAD_DOWN:      return WINDOW_KEY_DOWN;
     case SDL_GAMEPAD_BUTTON_DPAD_LEFT:      return WINDOW_KEY_LEFT;
     case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:     return WINDOW_KEY_RIGHT;
+#endif
     case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:  return WINDOW_KEY_PGUP;
     case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER: return WINDOW_KEY_PGDOWN;
     case SDL_GAMEPAD_BUTTON_START:          return WINDOW_KEY_HOME;
@@ -170,8 +173,8 @@ typedef struct {
   void *drop_data;
 #ifdef LIBSDL_STICK_POINTER
   double px, py;      // pointer position (window pixels)
-  uint64_t ptime;     // last stick sample (us)
-  int pvisible;       // pointer drawn (hidden until the stick moves)
+  uint64_t ptime;     // last stick / D-pad sample (us)
+  int pvisible;       // pointer drawn (always, once the window exists)
 #endif
 } libsdl_window_t;
 
@@ -306,12 +309,13 @@ static int libsdl_init_audio(void) {
 static int libsdl_present(libsdl_window_t *window);
 
 #ifdef LIBSDL_STICK_POINTER
-// Analog stick pointer (PlayStation Portable): the left stick moves a pointer
-// across the window at up to POINTER_SPEED pixels per second, the pen button
-// (Cross) presses mouse button 1 at its position. The pointer is drawn by
-// libsdl_present() over the persistent render target, so it only exists
-// with an accelerated renderer (the PSP one). It stays hidden until the
-// stick is moved for the first time.
+// Gamepad pointer (PlayStation Portable): the left stick moves a pointer
+// across the window at up to POINTER_SPEED pixels per second, a held D-pad
+// direction moves it at full speed, and the pen button (Cross) presses
+// mouse button 1 at its position. The pointer is drawn by libsdl_present()
+// over the persistent render target, so it only exists with an accelerated
+// renderer (the PSP one). It starts at the screen center and is always
+// visible.
 #define POINTER_DEADZONE 6000   // of 32767
 #define POINTER_SPEED    360.0  // pixels per second at full deflection
 #define POINTER_WAIT_MS  16     // longest event wait while the stick is deflected
@@ -343,21 +347,36 @@ static const char *pointer_shape[POINTER_HEIGHT] = {
   "            ",
 };
 
-static int stick_axis(SDL_GamepadAxis axis) {
-  int v;
+// deflection of one pointer axis, in -(32767 - deadzone) .. +(32767 - deadzone):
+// the analog stick past its dead zone, or else the D-pad at full deflection
+static int pointer_axis(SDL_GamepadAxis axis) {
+  int v, neg, pos;
 
   if (gamepad == NULL) return 0;
   v = SDL_GetGamepadAxis(gamepad, axis);
-  if (v > -POINTER_DEADZONE && v < POINTER_DEADZONE) return 0;
-  return v < 0 ? v + POINTER_DEADZONE : v - POINTER_DEADZONE;
+  if (v <= -POINTER_DEADZONE) return v + POINTER_DEADZONE;
+  if (v >= POINTER_DEADZONE) return v - POINTER_DEADZONE;
+
+  if (axis == SDL_GAMEPAD_AXIS_LEFTX) {
+    neg = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+    pos = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+  } else {
+    neg = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP);
+    pos = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+  }
+  if (neg && !pos) return -(32767 - POINTER_DEADZONE);
+  if (pos && !neg) return 32767 - POINTER_DEADZONE;
+
+  return 0;
 }
 
 static int libsdl_stick_active(void) {
-  return stick_axis(SDL_GAMEPAD_AXIS_LEFTX) != 0 || stick_axis(SDL_GAMEPAD_AXIS_LEFTY) != 0;
+  return pointer_axis(SDL_GAMEPAD_AXIS_LEFTX) != 0 || pointer_axis(SDL_GAMEPAD_AXIS_LEFTY) != 0;
 }
 
-// moves the pointer with the stick; returns 1 when its position changed
-// (window->x / window->y hold the new position, and the frame was redrawn)
+// moves the pointer with the stick / D-pad; returns 1 when its position
+// changed (window->x / window->y hold the new position, and the frame was
+// redrawn)
 static int libsdl_pointer_poll(libsdl_window_t *window) {
   uint64_t now;
   double dt, scale;
@@ -372,8 +391,8 @@ static int libsdl_pointer_poll(libsdl_window_t *window) {
   window->ptime = now;
   if (dt > 0.1) dt = 0.1;
 
-  ax = stick_axis(SDL_GAMEPAD_AXIS_LEFTX);
-  ay = stick_axis(SDL_GAMEPAD_AXIS_LEFTY);
+  ax = pointer_axis(SDL_GAMEPAD_AXIS_LEFTX);
+  ay = pointer_axis(SDL_GAMEPAD_AXIS_LEFTY);
   if (ax == 0 && ay == 0) return 0;
 
   scale = POINTER_SPEED * dt / (32767.0 - POINTER_DEADZONE);
@@ -664,8 +683,8 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
   if (libsdl_audio_pump() && (wait < 0 || wait > LIBSDL_PUMP_WAIT_MS)) wait = LIBSDL_PUMP_WAIT_MS;
 #endif
 #ifdef LIBSDL_STICK_POINTER
-  // the stick moved the pointer: report the motion right away, and while it
-  // is deflected keep the waits short so that the pointer keeps moving
+  // the stick / D-pad moved the pointer: report the motion right away, and
+  // while it is held keep the waits short so that the pointer keeps moving
   SDL_PumpEvents();
   if (libsdl_pointer_poll(window)) {
     *arg1 = window->x;
@@ -1233,6 +1252,7 @@ static window_t *libsdl_window_create(int encoding, int *width, int *height, int
     window->py = window->height / 2;
     window->x = (int)window->px;
     window->y = (int)window->py;
+    window->pvisible = 1;   // shown from the start, at the screen center
 #endif
 
 #if defined(ESP32) || defined(ANDROID)

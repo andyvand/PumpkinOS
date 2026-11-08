@@ -28,6 +28,7 @@ MKSFO=$(PSPDEV)/bin/mksfoex
 PACK_PBP=$(PSPDEV)/bin/pack-pbp
 FIXUP=$(PSPDEV)/bin/psp-fixup-imports
 PSP_STRIP=$(PSPDEV)/bin/psp-strip
+OBJDUMP=$(PSPDEV)/bin/psp-objdump
 PKG_CONFIG=PSPDEV=$(PSPDEV) $(PSPDEV)/bin/psp-pkg-config
 
 CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
@@ -47,9 +48,16 @@ MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(B
 # sce libraries they need, from the pspdev sysroot
 SDLLIBS=$(shell $(PKG_CONFIG) --static --libs sdl3-mixer sdl3)
 # the network stack (libpit/pspnet.c) and the modules OpenSSL's libcrypto
-# was built against; psp-gcc itself adds libc, libcglue, pthread, psputility,
-# psprtc, pspnet_inet, pspnet_resolver, pspsdk and pspuser
-PSPLIBS=-lpspnet -lpspnet_apctl -lpspnet_inet -lpspnet_resolver -lpsputility -lpsprtc -lpsppower -latomic
+# was built against. psp-gcc itself adds libc, libcglue, pthread, psputility,
+# psprtc, pspnet_inet, pspnet_resolver, pspsdk and pspuser after these, and
+# those four sce stub libraries must NOT be repeated here: each import stub
+# is its own archive member, and a library scanned twice (once here for our
+# references, once after libcglue for the glue's socket/netdb/time
+# references) gets its members pulled in two batches, so the module's NID
+# table in the ELF is no longer contiguous, the import table is wrong and
+# the firmware (or PPSSPP) binds the wrong functions. psp-fixup-imports does
+# not repair that; checkimports.py below catches it.
+PSPLIBS=-lpspnet -lpspnet_apctl -lpsppower -latomic
 
 # EXTLIBDIRS=-L<dir> on the make command line looks there first
 LDFLAGS=-G0 -Wl,-zmax-page-size=128 -Wl,-Map,$(BIN)/pumpkinos.map
@@ -60,6 +68,7 @@ $(ELF): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkinos.elf
 	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PSPDEV)/psp/lib -L$(PSPSDK)/lib $(SDLLIBS) $(PSPLIBS) -lstdc++ -lm $(EXTLIBS)
 	@$(FIXUP) $(ELF)
+	@python3 checkimports.py $(OBJDUMP) $(ELF)
 
 # MEMSIZE=1: use the extra memory of the PSP-2000 and later models (the
 # PSP-1000 only has 32MB, the firmware guards the setting there)

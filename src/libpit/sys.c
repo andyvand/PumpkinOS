@@ -1781,6 +1781,13 @@ int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us) {
     debug_errno("SYS", "read");
     return r;
   }
+  if (r > len) {
+    // never trust a count larger than the buffer (a broken socket layer,
+    // seen on the PSP with a corrupt import table): the callers would walk
+    // past the buffer and corrupt memory
+    debug(DEBUG_ERROR, "SYS", "read returned %d bytes for a %d bytes buffer", r, len);
+    return -1;
+  }
 
   *nread = r;
   return 1;

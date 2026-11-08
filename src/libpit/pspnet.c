@@ -234,6 +234,10 @@ int getaddrinfo(const char *node, const char *service, const struct addrinfo *hi
 
   for (i = 0; he->h_addr_list[i]; i++) {
     memcpy(&addr, he->h_addr_list[i], sizeof(addr));
+    // the glue's gethostbyname() keeps a static address and reports success
+    // when the resolver "succeeds" without writing it (PPSSPP can do that
+    // when a lookup yields no IPv4 result): 0.0.0.0 is not a host
+    if (addr == htonl(INADDR_ANY)) continue;
     if ((ai = new_addrinfo(hints, addr, port)) == NULL) {
       freeaddrinfo(head);
       return EAI_MEMORY;

@@ -76,9 +76,11 @@ half the scale.
 
 The PSP has no touch screen, so the window provider draws a pointer:
 
-* Analog stick: moves the pointer (it appears when the stick is first moved).
-* Cross: the pen (press and hold to drag, graffiti strokes work the same way).
-* D-pad: arrow keys. L / R: Page Up / Page Down.
+* Analog stick / D-pad: move the pointer (shown at the screen center from
+  the start; the stick is proportional, the D-pad moves at full speed).
+* Cross: the pen / mouse click at the pointer (press and hold to drag,
+  graffiti strokes work the same way).
+* L / R: Page Up / Page Down.
 * Start: Home (closes the current application and returns to the Launcher).
   Select: Tab.
 * Triangle: Enter. Circle: Escape. Square: Backspace.
@@ -126,8 +128,16 @@ pspdev tools) can use the same options as the Vita and Switch ports plus
 
 * No read-only package image: the VFS is shipped next to `EBOOT.PBP` as
   plain files (so there is no first-run copy).
-* The pointer is emulated (analog stick + Cross) and drawn by `liblsdl3`
+* The pointer is emulated (analog stick / D-pad + Cross) and drawn by `liblsdl3`
   over its persistent render target; it needs the accelerated PSP renderer.
+* The sce stub libraries psp-gcc links by itself (`psputility`, `psprtc`,
+  `pspnet_inet`, `pspnet_resolver`) are not repeated on the link line: a
+  stub library scanned twice gets its one-function-per-member objects
+  pulled in two batches, the module's NID table is no longer contiguous
+  and the loader binds the wrong functions (the symptom was the Browser
+  resolving every host to 0.0.0.0 and PPSSPP crashing on the first read).
+  `checkimports.py` runs after `psp-fixup-imports` and fails the build if
+  any module's NID range overlaps another's.
 * psp-gcc types `uint32_t` as `long unsigned int`: `-Wno-format` hides the
   resulting printf warnings, `libpumpkin/ssfn.h` no longer redefines the
   stdint types when gcc's `stdint.h` was included.
