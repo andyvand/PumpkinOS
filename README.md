@@ -15,7 +15,7 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on Android:
 ![](/screenshots/pumpkinos_android.jpg)
 
-@ PumpkinOS running on PSP:
+# PumpkinOS running on PSP:
 ![](/screenshots/PumpkinOS_PSP.png)
 
 # PumpkinOS running on PS Vita:
