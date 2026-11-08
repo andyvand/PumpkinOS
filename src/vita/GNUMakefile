@@ -85,7 +85,7 @@ $(VPK): $(EBOOT) $(SFO) $(SCE_SYS)
 	@mkdir -p $(STAGE)/vfs/app_install
 	@cp $(VFS)/app_install/*.prc $(STAGE)/vfs/app_install/
 	@if [ -f $(PUMPKINOS)/soundfont.sf2 ]; then cp $(PUMPKINOS)/soundfont.sf2 $(STAGE)/; fi
-	@if [ -f $(PUMPKINOS)/cacert.pem ]; then cp $(PUMPKINOS)/cacert.pem $(STAGE)/; fi
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(STAGE)/; fi
 	@$(VITA_PACK_VPK) -s $(SFO) -b $(EBOOT) -a sce_sys=sce_sys $$(for f in $(STAGE)/*; do printf -- '-a %s=%s ' $$f $$(basename $$f); done) $(VPK)
 
 clean:
