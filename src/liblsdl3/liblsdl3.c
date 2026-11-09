@@ -20,6 +20,10 @@
 #include "average.h"
 #include "debug.h"
 
+#ifdef WII
+#include <wiiuse/wpad.h>
+#endif
+
 // the audio provider runs in its own thread, which the ESP32 build does not have
 #if defined(ESP32)
 #define LIBSDL_NOAUDIO
@@ -35,8 +39,8 @@
 // The PlayStation Vita, Nintendo Switch and PSP builds use the same
 // cooperative threads (and the same pump): there SDL has a real audio thread
 // draining the stream.
-#if defined(GAMECUBE)
-// Nintendo GameCube: every SDL event pump scans the controller ports
+#if defined(GAMECUBE) || defined(WII)
+// Nintendo GameCube (and Wii): every SDL event pump scans the controller ports
 // (PAD_ScanPads), and a scan made before the serial interface has new data
 // (it polls the pads once per video frame) finds no controller; after four
 // such scans in a row SDL's driver reports the pad removed, then added again
@@ -45,6 +49,10 @@
 // once per frame; in between the events already queued are just read.
 #define LIBSDL_PUMP_INTERVAL_US 16000
 
+#ifdef WII
+static void libsdl_wii_buttons(void);
+#endif
+
 static void libsdl_pump_events(void) {
   static uint64_t last = 0;
   uint64_t now = sys_get_clock();
@@ -52,6 +60,9 @@ static void libsdl_pump_events(void) {
   if (last == 0 || now - last >= LIBSDL_PUMP_INTERVAL_US) {
     last = now;
     SDL_PumpEvents();
+#ifdef WII
+    libsdl_wii_buttons();
+#endif
   }
 }
 
@@ -65,7 +76,7 @@ static bool libsdl_poll_event(SDL_Event *ev) {
 #define SDL_PollEvent(ev) libsdl_poll_event(ev)
 #endif
 
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -93,7 +104,7 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
 // PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
 // emulates the mouse from it) and the gamepad buttons stand in for a few
 // keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
@@ -110,12 +121,21 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 // D-pad, A is the pen (mouse button 1), B = Escape, X = Enter, Y =
 // Backspace, Z = Tab, Start = Home, L/R = Page Up/Down. (SDL maps the
 // GameCube pad with A south, B west, X east, Y north, Z back.)
+//
+// Nintendo Wii: GameCube controllers work as on the GameCube. The Wiimote
+// pointed at the screen moves the same pointer (SDL turns its IR position
+// into mouse motion), and its buttons are read here (libsdl_wii_buttons)
+// and fed in as the GameCube buttons they stand for: A = the pen, B =
+// Escape, + = Enter, - = Backspace, Home = Home, 1/2 = Page Up/Down; the
+// D-pad sends arrow keys. SDL also reports A and B as mouse buttons and the
+// Wiimote as a gamepad of its own (with a layout that depends on the
+// extension plugged in): both are ignored.
 #define LIBSDL_GAMEPAD
 
 #if defined(SWITCH)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
-#elif defined(PSP) || defined(PS2) || defined(GAMECUBE)
+#elif defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
 #define LIBSDL_STICK_POINTER
 #if defined(PS2)
 // the PS2 gsKit renderer has no render targets (SDL_SetRenderTarget is a
@@ -124,7 +144,7 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define LIBSDL_SOFT_SCENE
 #endif
 #define GAMEPAD_BUTTON_PEN    SDL_GAMEPAD_BUTTON_SOUTH
-#if defined(GAMECUBE)
+#if defined(GAMECUBE) || defined(WII)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST   // X
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_WEST   // B
 #define GAMEPAD_BUTTON_BACKSP SDL_GAMEPAD_BUTTON_NORTH  // Y
@@ -168,6 +188,17 @@ static void open_gamepad(SDL_JoystickID id) {
   SDL_Gamepad *g;
 
   if (gamepad != NULL) return;
+#ifdef WII
+  {
+    // the Wiimotes are read directly (libsdl_wii_buttons): only GameCube
+    // controllers are opened as gamepads
+    const char *name = SDL_GetGamepadNameForID(id);
+    if (name && !sys_strncmp(name, "Wiimote", 7)) {
+      debug(DEBUG_INFO, "SDL", "gamepad %d \"%s\" ignored (read as a Wiimote)", (int)id, name);
+      return;
+    }
+  }
+#endif
   if ((g = SDL_OpenGamepad(id)) != NULL) {
     gamepad = g;
     debug(DEBUG_INFO, "SDL", "gamepad %d \"%s\" opened", (int)id, SDL_GetGamepadName(gamepad));
@@ -183,6 +214,89 @@ static void close_gamepad(SDL_JoystickID id) {
     gamepad = NULL;
   }
 }
+
+#ifdef WII
+// the Wiimote buttons and what they become: a GameCube gamepad button
+// (handled exactly like one), or an arrow key for the D-pad
+static const struct {
+  uint32_t wpad;
+  int gbutton;   // SDL_GAMEPAD_BUTTON_* or -1
+  SDL_Keycode key;
+  SDL_Scancode scancode;
+} wii_buttons[] = {
+  { WPAD_BUTTON_A,     GAMEPAD_BUTTON_PEN,                  0, 0 },
+  { WPAD_BUTTON_B,     GAMEPAD_BUTTON_ESCAPE,               0, 0 },
+  { WPAD_BUTTON_PLUS,  GAMEPAD_BUTTON_ENTER,                0, 0 },
+  { WPAD_BUTTON_MINUS, GAMEPAD_BUTTON_BACKSP,               0, 0 },
+  { WPAD_BUTTON_HOME,  SDL_GAMEPAD_BUTTON_START,            0, 0 },
+  { WPAD_BUTTON_1,     SDL_GAMEPAD_BUTTON_LEFT_SHOULDER,    0, 0 },
+  { WPAD_BUTTON_2,     SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER,   0, 0 },
+  { WPAD_BUTTON_UP,    -1, SDLK_UP,    SDL_SCANCODE_UP },
+  { WPAD_BUTTON_DOWN,  -1, SDLK_DOWN,  SDL_SCANCODE_DOWN },
+  { WPAD_BUTTON_LEFT,  -1, SDLK_LEFT,  SDL_SCANCODE_LEFT },
+  { WPAD_BUTTON_RIGHT, -1, SDLK_RIGHT, SDL_SCANCODE_RIGHT },
+  { 0, -1, 0, 0 }
+};
+
+// The buttons held on all the Wiimotes, compared with the previous call:
+// every change becomes an SDL event. SDL's joystick driver reads the
+// Wiimotes (WPAD_ReadPending) in each pump; only the held state is used
+// here, so it does not matter who reads them or how often.
+// Home held this long quits PumpkinOS (back to the loader)
+#define WII_HOME_QUIT_US 2000000
+
+static void libsdl_wii_buttons(void) {
+  static uint32_t prev = 0;
+  static uint64_t home_t0 = 0;
+  uint32_t held = 0, changed;
+  WPADData *data;
+  SDL_Event ev;
+  uint64_t now;
+  int i;
+
+  for (i = 0; i < WPAD_MAX_WIIMOTES; i++) {
+    data = WPAD_Data(i);
+    if (data && data->err == WPAD_ERR_NONE && data->data_present) held |= data->btns_h;
+  }
+
+  if (held & WPAD_BUTTON_HOME) {
+    now = sys_get_clock();
+    if (home_t0 == 0) {
+      home_t0 = now;
+    } else if (home_t0 != (uint64_t)-1 && now - home_t0 >= WII_HOME_QUIT_US) {
+      debug(DEBUG_INFO, "SDL", "Home held: quitting");
+      home_t0 = (uint64_t)-1;   // once
+      SDL_zero(ev);
+      ev.type = SDL_EVENT_QUIT;
+      SDL_PushEvent(&ev);
+    }
+  } else {
+    home_t0 = 0;
+  }
+
+  if ((changed = held ^ prev) == 0) return;
+  prev = held;
+  debug(DEBUG_INFO, "SDL", "Wiimote buttons 0x%08X", held);
+
+  for (i = 0; wii_buttons[i].wpad; i++) {
+    if (!(changed & wii_buttons[i].wpad)) continue;
+    SDL_zero(ev);
+    if (wii_buttons[i].gbutton >= 0) {
+      ev.type = (held & wii_buttons[i].wpad) ? SDL_EVENT_GAMEPAD_BUTTON_DOWN : SDL_EVENT_GAMEPAD_BUTTON_UP;
+      ev.gbutton.which = 0;
+      ev.gbutton.button = wii_buttons[i].gbutton;
+      ev.gbutton.down = (held & wii_buttons[i].wpad) != 0;
+    } else {
+      ev.type = (held & wii_buttons[i].wpad) ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
+      ev.key.key = wii_buttons[i].key;
+      ev.key.scancode = wii_buttons[i].scancode;
+      ev.key.down = (held & wii_buttons[i].wpad) != 0;
+    }
+    ev.common.timestamp = SDL_GetTicksNS();
+    SDL_PushEvent(&ev);
+  }
+}
+#endif
 #endif
 
 #define SDL_BUTTON1   1
@@ -517,6 +631,22 @@ static void libsdl_pointer_draw(libsdl_window_t *window) {
   dst.h = POINTER_HEIGHT;
   SDL_RenderTexture(window->renderer, pointer_texture, NULL, &dst);
 }
+
+#ifdef WII
+// the Wiimote moved the pointer (window->x / window->y): the stick pointer
+// continues from there, and the frame is redrawn with it
+static void libsdl_wii_pointer(libsdl_window_t *window) {
+  if (window->x < 0) window->x = 0;
+  if (window->y < 0) window->y = 0;
+  if (window->x > window->width - 1) window->x = window->width - 1;
+  if (window->y > window->height - 1) window->y = window->height - 1;
+  if (window->x == (int)window->px && window->y == (int)window->py && window->pvisible) return;
+  window->px = window->x;
+  window->py = window->y;
+  window->pvisible = 1;
+  libsdl_present(window);
+}
+#endif
 #endif
 
 static int libsdl_init_video(void) {
@@ -543,7 +673,7 @@ static int libsdl_init_video(void) {
   // the touch screen drives the mouse (pen)
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 #endif
-#if defined(PSP) || defined(PS2) || defined(GAMECUBE)
+#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
   // the built-in controller is a gamepad (SDL has a mapping for it); the
   // pointer it drives is drawn by libsdl_present() (no mouse, no cursor)
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
@@ -564,6 +694,10 @@ static int libsdl_init_video(void) {
             if ((cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT)) != NULL) {
               SDL_SetCursor(cursor);
             }
+#ifdef WII
+            // the pointer is drawn by libsdl_present(), as on the GameCube
+            SDL_HideCursor();
+#endif
             //SDL_ShowCursor(SDL_DISABLE);
             r = 0;
           }
@@ -738,6 +872,11 @@ static int map_key(libsdl_window_t *window, SDL_Event *ev) {
 }
 
 static int map_button(libsdl_window_t *window, SDL_Event *ev) {
+#ifdef WII
+  // the Wiimote A / B as mouse buttons: A is read directly (the pen), B is
+  // Escape (libsdl_wii_buttons)
+  return 0;
+#endif
   switch (ev->button.button) {
     case 1: return SDL_BUTTON1;
     case 3: return SDL_BUTTON2;
@@ -795,6 +934,9 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
       case SDL_EVENT_MOUSE_MOTION:
         window->x = ev.motion.x / window->xfactor;
         window->y = ev.motion.y / window->yfactor;
+#ifdef WII
+        libsdl_wii_pointer(window);
+#endif
         *arg1 = window->x;
         *arg2 = window->y;
         debug(DEBUG_INFO, "SDL", "Mouse move to \"%dx%d\"", window->x, window->y);
@@ -1019,7 +1161,7 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
         break;
 
       case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        switch (ev.button.button) {
+        switch (map_button(window, &ev) ? ev.button.button : 0) {
           case 1:
             buttons |= SDL_BUTTON1;
             break;
@@ -1031,7 +1173,7 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
         break;
 
       case SDL_EVENT_MOUSE_BUTTON_UP:
-        switch (ev.button.button) {
+        switch (map_button(window, &ev) ? ev.button.button : 0) {
           case 1:
             buttons &= ~SDL_BUTTON1;
             break;
@@ -1045,6 +1187,9 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
       case SDL_EVENT_MOUSE_MOTION:
         window->x = ev.motion.x;
         window->y = ev.motion.y;
+#ifdef WII
+        libsdl_wii_pointer(window);
+#endif
         *ekey = window->x;
         *mods = window->y;
         *ebuttons = buttons;
@@ -1733,7 +1878,7 @@ static int libsdl_window_update_texture_rect(window_t *_window, texture_t *textu
   }
   (void)pixels; (void)pitch;
   if (0) {
-#elif defined(GAMECUBE)
+#elif defined(GAMECUBE) || defined(WII)
   // the GameCube renderer's SDL_LockTexture() mallocs a staging buffer of
   // the locked size (600KB for the whole screen) and reports success even
   // when that fails, handing back a NULL pointer; SDL_UpdateTexture()

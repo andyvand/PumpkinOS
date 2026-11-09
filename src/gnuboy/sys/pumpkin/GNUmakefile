@@ -35,6 +35,9 @@ MACHINE := mips
 else ifeq ($(OSNAME),gamecube)
 # the Nintendo GameCube is always a 32-bit big endian PowerPC
 MACHINE := powerpc
+else ifeq ($(OSNAME),wii)
+# the Nintendo Wii as well
+MACHINE := powerpc
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -57,6 +60,8 @@ else ifeq ($(OSNAME),ps2)
 SYS_OS ?= 11
 else ifeq ($(OSNAME),gamecube)
 SYS_OS ?= 12
+else ifeq ($(OSNAME),wii)
+SYS_OS ?= 13
 else
 SYS_OS ?= 1
 endif
@@ -215,6 +220,17 @@ GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_re
                 -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
                 -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
 OSDEFS = -mogc -mcpu=750 -meabi -mhard-float -Os -ffunction-sections -fdata-sections -DGAMECUBE -D__gamecube__ -DGEKKO $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),wii)
+# Nintendo Wii: the GameCube setup with the Wii flags (src/wii links it)
+DEVKITPRO ?= /opt/devkitpro
+CC = $(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-gcc
+AR = $(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
+STATIC = 1
+GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_reset -Dxz_dec_run=gnuboy_xz_dec_run -Dxz_dec_end=gnuboy_xz_dec_end \
+                -Dxz_dec_lzma2_create=gnuboy_xz_dec_lzma2_create -Dxz_dec_lzma2_reset=gnuboy_xz_dec_lzma2_reset -Dxz_dec_lzma2_run=gnuboy_xz_dec_lzma2_run -Dxz_dec_lzma2_end=gnuboy_xz_dec_lzma2_end \
+                -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
+                -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
+OSDEFS = -mrvl -mcpu=750 -meabi -mhard-float -Os -ffunction-sections -fdata-sections -DWII -D__wii__ -DGEKKO $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

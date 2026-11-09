@@ -238,8 +238,9 @@ int sys_psp_net_ready(void);
 void sys_psp_net_finish(void);
 #endif
 
-#ifdef GAMECUBE
-// Broadband Adapter / lwIP initialization (Nintendo GameCube build, see gcnet.c)
+#if defined(GAMECUBE) || defined(WII)
+// network initialization (Nintendo GameCube: Broadband Adapter / lwIP;
+// Nintendo Wii: IOS sockets; see gcnet.c)
 int sys_gc_net_init(int timeout_ms);
 
 int sys_gc_net_ready(void);
@@ -247,15 +248,25 @@ int sys_gc_net_ready(void);
 void sys_gc_net_finish(void);
 
 // the name server used by gethostbyname() (default: the gateway); set it
-// before sys_gc_net_init()
+// before sys_gc_net_init() (GameCube only: the Wii uses the IOS resolver)
 void sys_gc_net_set_dns(const char *ip);
 
 // logs the C heap usage (gcsys.c)
 void sys_gc_memlog(const char *tag);
 
-// the ARAM RAM disk (gcramdisk.c): mounts it as "<name>:/" with the whole
-// auxiliary memory (16MB) behind it; returns 0 on success
+// what the C heap can still grow by (gcsys.c; MEM1 + MEM2 on the Wii)
+uint32_t sys_gc_heap_avail(void);
+
+// the RAM disk (gcramdisk.c): mounts it as "<name>:/" with the whole
+// auxiliary memory (16MB ARAM) behind it on the GameCube, a block of
+// ramdisk_kb KB (0 = the default, 16MB) of MEM2 on the Wii; returns 0 on
+// success
 int sys_gc_ramdisk_mount(const char *name);
+
+#ifdef WII
+// the RAM disk size in KB (before sys_gc_ramdisk_mount)
+void sys_gc_ramdisk_set_size(int kb);
+#endif
 #endif
 
 #ifdef PS2

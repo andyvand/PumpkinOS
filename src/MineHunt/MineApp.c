@@ -3002,7 +3002,7 @@ static void AppEventLoop()
  *			vmk		10/8/95		Initial Version
  *
  ***********************************************************************/
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
 PUBLIC UInt32 MineHuntPilotMain(UInt16 cmd, void * UNUSED_PARAM(cmdPBP), UInt16 launchFlags)
 #else
 PUBLIC UInt32 PilotMain(UInt16 cmd, void * UNUSED_PARAM(cmdPBP), UInt16 launchFlags)

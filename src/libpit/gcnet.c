@@ -13,6 +13,12 @@
 // sockets; the callers only ever select on sockets), getaddrinfo() /
 // freeaddrinfo() (an IPv4 version on top of gethostbyname(): the header
 // declares them but the library does not define them) and gai_strerror().
+//
+// Nintendo Wii: the same file. There the BSD layer talks to the IOS network
+// stack (the built-in Wi-Fi or a USB ethernet adapter, set up in the Wii
+// System Settings); if_config() brings it up (net_init) and reads back the
+// address, and IOS has a name resolver and getsockname() of its own, so the
+// DNS client and the net_getsockname() stub below are GameCube only.
 
 #include <stdlib.h>
 #include <string.h>
@@ -55,12 +61,20 @@ int sys_gc_net_init(int timeout_ms) {
 
   ip[0] = netmask[0] = gateway[0] = 0;
   if ((r = if_config(ip, netmask, gateway, true, retries)) < 0) {
+#ifdef WII
+    debug(DEBUG_ERROR, "SYS", "network initialization failed (%d): no connection configured in the Wii settings, no link or no DHCP answer; network unavailable", r);
+#else
     debug(DEBUG_ERROR, "SYS", "network initialization failed (%d): no Broadband Adapter, no link or no DHCP answer; network unavailable", r);
+#endif
     return -1;
   }
 
   strncpy(dns_server, dns_option[0] ? dns_option : gateway, sizeof(dns_server) - 1);
+#ifdef WII
+  debug(DEBUG_INFO, "SYS", "network up: address %s netmask %s gateway %s", ip, netmask, gateway);
+#else
   debug(DEBUG_INFO, "SYS", "network up: address %s netmask %s gateway %s, name server %s", ip, netmask, gateway, dns_server);
+#endif
   net_ready = 1;
 
   return 0;
@@ -71,10 +85,15 @@ int sys_gc_net_ready(void) {
 }
 
 void sys_gc_net_finish(void) {
+#ifdef WII
+  // IOS keeps the interface up across programs unless told otherwise
+  if (net_ready) net_deinit();
+#endif
   // (the GameCube stack has nothing to tear down)
   net_ready = 0;
 }
 
+#ifndef WII
 // --- what libogc's BSD layer expects from the stack but the GameCube
 // --- stack (libbba) does not provide
 
@@ -228,6 +247,7 @@ struct hostent *net_gethostbyname(const char *name) {
 
   return &dns_hostent;
 }
+#endif
 
 // select() on top of poll(): only sockets are ever passed here (see
 // vita_is_socket() in sys.c), which is all libogc's poll() handles

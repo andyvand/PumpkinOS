@@ -1,0 +1,126 @@
+# PumpkinOS for the Nintendo Wii (devkitPro devkitPPC + libogc + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider and every
+# application static library produced by the other modules into one DOL and
+# stages it, in the Homebrew Channel layout, as bin/wii/apps/pumpkinos/
+# (boot.dol, meta.xml, icon.png and the application PRCs: the apps/
+# directory goes to the root of an SD card or USB device), also zipped as
+# bin/PumpkinOS_Wii.zip (see README.md). A second DOL,
+# bin/wii/pumpkinos_embed.dol, carries the application PRCs inside the
+# program (for an emulator, or a loader without storage: it runs from the
+# MEM2 RAM disk). Build from src/ with:
+#
+#   make OSNAME=wii -f GNUMakefile
+#
+# DEVKITPRO may point at the devkitPro root (default /opt/devkitpro); PYTHON
+# is the interpreter running ../gamecube/mkvfsblob.py.
+
+include ../common.mak
+
+TITLE=PumpkinOS
+
+ELF=$(BIN)/pumpkinos.elf
+DOL=$(BIN)/pumpkinos.dol
+ELF_EMBED=$(BIN)/pumpkinos_embed.elf
+DOL_EMBED=$(BIN)/pumpkinos_embed.dol
+STAGE=$(BIN)/wii
+GAME=$(STAGE)/apps/pumpkinos
+TARGET=$(GAME)/boot.dol
+ZIP=$(BIN)/PumpkinOS_Wii.zip
+PYTHON?=python3
+MKVFSBLOB=../gamecube/mkvfsblob.py
+
+ELF2DOL=$(DEVKITPRO)/tools/bin/elf2dol
+BIN2S=$(DEVKITPRO)/tools/bin/bin2s
+PKG_CONFIG=PKG_CONFIG_LIBDIR=$(PORTLIBS)/lib/pkgconfig $(PORTLIBS)/bin/powerpc-eabi-pkg-config
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# the VFS archive linked into the embedded DOL (bin2s turns the file into an
+# assembler source with the symbols vfsblob_bin / vfsblob_bin_end /
+# vfsblob_bin_size, see extract_blob() in main.c); generated in bin/
+VFSBLOB=$(BIN)/vfsblob.bin
+VFSBLOB_SRC=$(BIN)/vfsblob.s
+VFSBLOB_OBJ=vfsblob.o
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a
+
+# SDL3 (GX video, AESND audio, the Wiimotes and GameCube controllers as
+# joysticks, USB keyboards) and SDL3_mixer with its decoders, with the libogc
+# libraries they need, from the wii portlibs (FluidSynth is C++, hence
+# -lstdc++)
+SDLLIBS=$(shell $(PKG_CONFIG) --static --libs sdl3-mixer sdl3)
+# the Wiimotes (wiiuse over the bluetooth stack), USB keyboards, the FAT
+# driver for the SD card and USB storage and libogc itself (IOS networking)
+WIILIBS=-lwiiuse -lbte -lwiikeyboard -laesnd -lfat -logc
+
+# EXTLIBDIRS=-L<dir> on the make command line looks there first
+# --gc-sections drops the functions and data nothing refers to (every
+# object is compiled with -ffunction-sections -fdata-sections, see
+# common.mak)
+LDFLAGS=$(WII_ARCH) -Wl,--gc-sections -Wl,-Map,$(BIN)/pumpkinos.map
+
+LINK=$(CC) $(LDFLAGS) -o $@ $(OBJS) $(EXTRA_OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(LIBOGC)/lib/wii -Wl,--start-group $(SDLLIBS) $(WIILIBS) -lstdc++ -lm $(EXTLIBS) -Wl,--end-group
+
+all: $(ZIP) $(DOL_EMBED)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@$(LINK)
+
+$(ELF_EMBED): EXTRA_OBJS=$(VFSBLOB_OBJ)
+$(ELF_EMBED): $(OBJS) $(VFSBLOB_OBJ) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos_embed.elf
+	@$(LINK)
+
+$(VFSBLOB): $(MKVFSBLOB) $(wildcard $(VFS)/app_install/*.prc)
+	@echo Creating vfsblob.bin
+	@$(PYTHON) $(MKVFSBLOB) -o $(VFSBLOB) $(VFS) app_install
+
+$(VFSBLOB_OBJ): $(VFSBLOB)
+	@echo Compiling vfsblob.bin
+	@$(BIN2S) -a 32 $(VFSBLOB) > $(VFSBLOB_SRC)
+	@$(CC) $(WII_ARCH) -c $(VFSBLOB_SRC) -o $(VFSBLOB_OBJ)
+
+$(DOL): $(ELF)
+	@echo Creating pumpkinos.dol
+	@$(ELF2DOL) $(ELF) $(DOL)
+
+$(DOL_EMBED): $(ELF_EMBED)
+	@echo Creating pumpkinos_embed.dol
+	@$(ELF2DOL) $(ELF_EMBED) $(DOL_EMBED)
+	@mkdir -p $(STAGE)
+	@cp $(DOL_EMBED) $(STAGE)/pumpkinos_embed.dol
+
+# The staged directory carries the DOL, the Homebrew Channel entry
+# (meta.xml with the build date, icon.png), the application PRCs
+# (vfs/app_install), the boot options file (pumpkin.cfg, comments only) and
+# this README. (the staged directory is not wiped: pumpkin.log, tmp/ and
+# vfs/ live there when it is used as the home)
+$(TARGET): $(DOL) README.md pumpkin.cfg meta.xml icon.png
+	@echo Creating apps/pumpkinos
+	@rm -rf $(GAME)/vfs/app_install
+	@mkdir -p $(GAME)/vfs/app_install $(GAME)/vfs/app_storage $(GAME)/vfs/app_card/PALM/Programs
+	@cp $(DOL) $(TARGET)
+	@cp $(VFS)/app_install/*.prc $(GAME)/vfs/app_install/
+	@cp README.md $(GAME)/README.md
+	@cp icon.png $(GAME)/icon.png
+	@sed -e "s/@DATE@/$$(date +%Y%m%d%H%M%S)/" -e "s/@VERSION@/$(VERSION)/" meta.xml > $(GAME)/meta.xml
+	@if [ ! -f $(GAME)/pumpkin.cfg ]; then cp pumpkin.cfg $(GAME)/pumpkin.cfg; fi
+
+$(ZIP): $(TARGET) README.md
+	@echo Creating PumpkinOS_Wii.zip
+	@rm -f $(ZIP)
+	@cd $(STAGE) && zip -qr $(abspath $(ZIP)) apps -x 'apps/pumpkinos/pumpkin.log' 'apps/pumpkinos/pumpkin.err' 'apps/pumpkinos/tmp/*' 'apps/pumpkinos/vfs/app_storage/*' 'apps/pumpkinos/vfs/app_card/*' '*.DS_Store'
+
+clean:
+	@rm -f $(ELF) $(DOL) $(ELF_EMBED) $(DOL_EMBED) $(ZIP) $(BIN)/pumpkinos.map $(OBJS) $(VFSBLOB) $(VFSBLOB_SRC) $(VFSBLOB_OBJ)
+	@rm -rf $(STAGE)

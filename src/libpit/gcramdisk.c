@@ -16,6 +16,11 @@
 // device is registered with newlib ("<name>:/...", see sys_gc_ramdisk_mount)
 // so that the standard calls (open/read/write/stat/opendir/...) work on it
 // like on an SD card.
+//
+// The Nintendo Wii has no ARAM, but 64MB of MEM2 next to its 24MB of MEM1:
+// there the blocks live in one block of the C heap (which spills into
+// MEM2), 16MB unless sys_gc_ramdisk_set_size() says otherwise, and the
+// "DMA" is a copy. Everything else is shared.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +36,7 @@
 #include <sys/statvfs.h>
 #include <sys/iosupport.h>
 #include <sys/reent.h>
+#include <malloc.h>
 
 #include <ogc/aram.h>
 #include <ogc/arqueue.h>
@@ -80,11 +86,36 @@ static uint32_t rd_nblocks;     // blocks in all
 static uint32_t rd_free;        // free blocks
 static uint32_t rd_hint;        // where the free block search starts
 static uint8_t *rd_bitmap;
+#ifndef WII
 static uint32_t rd_arstack[RD_AR_BLOCKS];
+#endif
 static uint8_t rd_bounce[RD_BLOCK] __attribute__((aligned(32)));
 static int rd_mounted = 0;
 static char rd_devname[16];
 
+#ifdef WII
+// the default RAM disk size, and the smallest one worth having
+#define RD_WII_DEFAULT_KB (16 * 1024)
+#define RD_WII_MIN_KB     (2 * 1024)
+
+static uint8_t *rd_mem;
+static uint32_t rd_size_kb = 0;
+
+void sys_gc_ramdisk_set_size(int kb) {
+  if (kb > 0) rd_size_kb = kb;
+}
+
+// copy between the bounce buffer and the block store (whole blocks)
+static void rd_dma(int dir, uint32_t block) {
+  uint8_t *p = rd_mem + block * RD_BLOCK;
+
+  if (dir == ARQ_MRAMTOARAM) {
+    memcpy(p, rd_bounce, RD_BLOCK);
+  } else {
+    memcpy(rd_bounce, p, RD_BLOCK);
+  }
+}
+#else
 // DMA between the bounce buffer and ARAM (whole blocks)
 static void rd_dma(int dir, uint32_t block) {
   ARQRequest req;
@@ -100,6 +131,7 @@ static void rd_dma(int dir, uint32_t block) {
     DCInvalidateRange(rd_bounce, RD_BLOCK);
   }
 }
+#endif
 
 static int rd_alloc_block(uint32_t *block) {
   uint32_t i, b;
@@ -756,6 +788,22 @@ int sys_gc_ramdisk_mount(const char *name) {
 
   if (rd_mounted) return 0;
 
+#ifdef WII
+  // as much of the requested size as the heap gives (one block)
+  (void)base;
+  size = (rd_size_kb ? rd_size_kb : RD_WII_DEFAULT_KB) * 1024;
+  if (size > 65535 * RD_BLOCK) size = 65535 * RD_BLOCK;  // (block indices are 16 bits)
+  for (rd_mem = NULL; rd_mem == NULL && size >= RD_WII_MIN_KB * 1024;) {
+    if ((rd_mem = memalign(32, size)) == NULL) size /= 2;
+  }
+  if (rd_mem == NULL) {
+    debug(DEBUG_ERROR, "SYS", "RAM disk: no memory for it");
+    return -1;
+  }
+  rd_base = 0;
+  rd_nblocks = size / RD_BLOCK;
+#else
+
   // AR_Init() is a no-op when already done (AESND, when the audio device was
   // opened first); the block tracking array given here serves whoever calls
   // AR_Alloc() afterwards (AESND: 32 voice buffers)
@@ -771,6 +819,7 @@ int sys_gc_ramdisk_mount(const char *name) {
   rd_base = (base + RD_RESERVE + 31) & ~31;
   rd_nblocks = (size - rd_base) / RD_BLOCK;
   if (rd_nblocks > 65535) rd_nblocks = 65535;  // (block indices are 16 bits)
+#endif
   if ((rd_bitmap = calloc(1, (rd_nblocks + 7) / 8)) == NULL) {
     return -1;
   }
@@ -783,12 +832,20 @@ int sys_gc_ramdisk_mount(const char *name) {
 
   strncpy(rd_devname, name, sizeof(rd_devname) - 1);
   if (AddDevice(&rd_devoptab) < 0) {
-    debug(DEBUG_ERROR, "SYS", "ARAM RAM disk: AddDevice(\"%s\") failed", name);
+    debug(DEBUG_ERROR, "SYS", "RAM disk: AddDevice(\"%s\") failed", name);
     free(rd_bitmap);
     rd_bitmap = NULL;
+#ifdef WII
+    free(rd_mem);
+    rd_mem = NULL;
+#endif
     return -1;
   }
   rd_mounted = 1;
+#ifdef WII
+  debug(DEBUG_INFO, "SYS", "RAM disk \"%s:/\" mounted: %u KB in %u blocks of %d bytes (at %p)", name, (rd_nblocks * RD_BLOCK) / 1024, rd_nblocks, RD_BLOCK, rd_mem);
+  return 0;
+#endif
   debug(DEBUG_INFO, "SYS", "ARAM RAM disk \"%s:/\" mounted: %u KB in %u blocks of %d bytes (ARAM 0x%08X-0x%08X)", name, (rd_nblocks * RD_BLOCK) / 1024, rd_nblocks, RD_BLOCK, rd_base, rd_base + rd_nblocks * RD_BLOCK);
 
   return 0;

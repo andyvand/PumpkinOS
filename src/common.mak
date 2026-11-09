@@ -35,6 +35,9 @@ MACHINE := mips
 else ifeq ($(OSNAME),gamecube)
 # the Nintendo GameCube is always a 32-bit big endian PowerPC (Gekko)
 MACHINE := powerpc
+else ifeq ($(OSNAME),wii)
+# the Nintendo Wii is always a 32-bit big endian PowerPC (Broadway)
+MACHINE := powerpc
 else
 MACHINE := $(shell uname -m)
 endif
@@ -150,7 +153,7 @@ else ifeq ($(OSNAME),ps2)
 PS2DEV?=/opt/ps2dev
 AR=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-ar
 NM=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-nm -j -u
-else ifeq ($(OSNAME),gamecube)
+else ifneq ($(filter gamecube wii,$(OSNAME)),)
 DEVKITPRO?=/opt/devkitpro
 AR=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
 NM=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-nm -j -u
@@ -323,6 +326,31 @@ PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
 
+else ifeq ($(OSNAME),wii)
+# Nintendo Wii (devkitPro devkitPPC cross compiler, newlib + libogc). The
+# same static model as the GameCube (see src/wii), with the libogc Wii
+# libraries: WII is the PumpkinOS platform macro, __wii__ and GEKKO are what
+# the libogc and SDL3 headers expect (-mrvl defines HW_RVL). The code shared
+# with the GameCube tests "defined(GAMECUBE) || defined(WII)". The compiler
+# flags are devkitPro's wii_rules MACHDEP. Optimized for size as well: MEM1
+# (24MB) holds the program, the heap spills into MEM2 (64MB).
+SYS_OS=13
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=Wii
+DEVKITPRO?=/opt/devkitpro
+DEVKITPPC=$(DEVKITPRO)/devkitPPC
+LIBOGC=$(DEVKITPRO)/libogc
+PORTLIBS=$(DEVKITPRO)/portlibs/wii
+WII_ARCH=-mrvl -mcpu=750 -meabi -mhard-float
+OSDEFS=$(WII_ARCH) -Os -ffunction-sections -fdata-sections -DWII -D__wii__ -DGEKKO -DSOEXT=\"$(SOEXT)\" -I$(PORTLIBS)/include -I$(LIBOGC)/include -Wno-format -Wno-attributes
+CC=$(DEVKITPPC)/bin/powerpc-eabi-gcc
+CPP=$(DEVKITPPC)/bin/powerpc-eabi-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
 else ifeq ($(OSNAME),Darwin)
 SYS_OS=1
 SOEXT=.dylib
@@ -450,7 +478,7 @@ else ifeq ($(OSNAME),psp)
 STRIP=$(PSPDEV)/bin/psp-strip
 else ifeq ($(OSNAME),ps2)
 STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
-else ifeq ($(OSNAME),gamecube)
+else ifneq ($(filter gamecube wii,$(OSNAME)),)
 STRIP=$(DEVKITPPC)/bin/powerpc-eabi-strip
 else
 STRIP=strip

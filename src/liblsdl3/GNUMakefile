@@ -44,6 +44,12 @@ else ifeq ($(OSNAME),gamecube)
 # are linked by src/gamecube
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),wii)
+# devkitPro SDL3 for the Wii (GX video, the Wiimote IR pointer as the mouse,
+# Wiimotes and GameCube controllers as gamepads) with SDL3_mixer; linked by
+# src/wii
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

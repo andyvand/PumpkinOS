@@ -139,6 +139,14 @@ else ifeq ($(OSNAME),gamecube)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
 EXTRA_MODULES=gamecube
 
+else ifeq ($(OSNAME),wii)
+
+# Nintendo Wii (devkitPro devkitPPC + libogc): the GameCube model, linked
+# into one DOL by src/wii (started from the Homebrew Channel). No TLS
+# provider either: the devkitPro Wii portlibs have no OpenSSL.
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
+EXTRA_MODULES=wii
+
 else ifeq ($(OSNAME),Haiku)
 
 ifneq ($(UNICORN),)

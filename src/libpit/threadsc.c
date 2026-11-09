@@ -19,7 +19,7 @@
 #include "debug.h"
 
 #define MAX_KEYS     256
-#if defined(PS2) || defined(GAMECUBE)
+#if defined(PS2) || defined(GAMECUBE) || defined(WII)
 // the task table is static (4KB+ per entry): keep it small where memory is
 // (single application mode runs a handful of tasks)
 #define MAX_THREADS  32
@@ -27,7 +27,7 @@
 #define MAX_THREADS  256
 #endif
 #define MAX_MESSAGES 256
-#if defined(PS2) || defined(GAMECUBE)
+#if defined(PS2) || defined(GAMECUBE) || defined(WII)
 // 32MB (24MB on the GameCube) in all: half a megabyte per task (a PalmOS
 // application never needs more than a few tens of kilobytes, the rest is
 // for the OS code around it)

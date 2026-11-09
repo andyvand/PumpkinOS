@@ -51,6 +51,9 @@ STATIC_APP=1
 else ifeq ($(OSNAME),gamecube)
 # Static build as well (linked into pumpkinos.dol by src/gamecube), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),wii)
+# Static build as well (linked into boot.dol by src/wii), regular file names
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)

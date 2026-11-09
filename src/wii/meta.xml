@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>PumpkinOS</name>
+  <coder>migueletto, Andy Vandijck</coder>
+  <version>@VERSION@</version>
+  <release_date>@DATE@</release_date>
+  <short_description>PalmOS re-implementation</short_description>
+  <long_description>PumpkinOS runs PalmOS applications: Memo Pad, Address Book, To Do List, Date Book, a web browser, a mail client, GNUBoy and more.
+
+Point the Wiimote at the screen to move the pointer, A is the pen, B is Escape, + is Enter, - is Backspace, Home goes back to the Launcher (hold it for two seconds to quit). A GameCube controller and a USB keyboard work too.
+
+Options go in pumpkin.cfg next to boot.dol (see README.md).</long_description>
+  <ahb_access/>
+</app>
