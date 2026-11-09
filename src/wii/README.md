@@ -37,6 +37,14 @@ The results:
   tree is zipped as `bin/PumpkinOS_Wii.zip`.
 * `bin/wii/pumpkinos_embed.dol`: the same program with the application PRCs
   linked in. It needs no storage, which suits an emulator.
+* `bin/PumpkinOS.wbfs`: a Wii disc image (fake signed) with
+  `pumpkinos_embed.dol` as its main program, for a USB loader or Dolphin.
+  It is made only when Wiimms ISO Tools (`wit`) are on the `PATH` (or
+  `WIT=<path to wit>`); `make OSNAME=wii -f GNUMakefile wbfs` builds it
+  alone. `WII_DISC_ID` (default `RPKEPO`), `WII_DISC_REGION` (default
+  `AUTO`: from the 4th ID character, `E` = USA; or `JAPAN`, `USA`, `EUROPE`,
+  `KOREA`) and `WII_DISC_IOS` (default 58) change the disc ID, region and
+  the IOS the console loads for it.
 * `bin/pumpkinos.elf`, `bin/pumpkinos_embed.elf` (unstripped, for
   `powerpc-eabi-addr2line`) and `bin/pumpkinos.map`.
 
@@ -58,6 +66,19 @@ is chosen in this order:
 
 On the first boot `vfs/` is filled from the `vfs/` next to the DOL, else from
 the archive built into `pumpkinos_embed.dol`. `-seed` does it again.
+
+### Disc image (WBFS)
+
+Copy `PumpkinOS.wbfs` to the `wbfs/` folder of a USB drive (or add it with
+`wwt`) and start it from a USB loader (USB Loader GX, WiiFlow; the disc is
+fake signed, so the loader needs a cIOS or a signature check patch). In
+Dolphin, open the file like any game, or `Dolphin -b -e
+bin/PumpkinOS.wbfs`. The disc carries no PRC files of its own: the program
+runs from `apps/pumpkinos/` or `pumpkinos/` on the SD card or USB device
+when one is present, else from the RAM disk seeded from the built-in
+archive. The disc boots through a small apploader built from
+`apploader/apploader.c`, which loads `sys/main.dol` (`mkdisc.py` lays out
+the disc directory that `wit copy` turns into the image).
 
 ### Dolphin
 

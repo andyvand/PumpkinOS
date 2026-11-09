@@ -8,12 +8,19 @@
 # bin/PumpkinOS_Wii.zip (see README.md). A second DOL,
 # bin/wii/pumpkinos_embed.dol, carries the application PRCs inside the
 # program (for an emulator, or a loader without storage: it runs from the
-# MEM2 RAM disk). Build from src/ with:
+# MEM2 RAM disk). With Wiimms ISO Tools (wit) on the PATH the embedded DOL
+# also goes on a fake signed Wii disc image, bin/PumpkinOS.wbfs (for a USB
+# loader or Dolphin; booted by the small apploader in apploader/). Build
+# from src/ with:
 #
 #   make OSNAME=wii -f GNUMakefile
 #
 # DEVKITPRO may point at the devkitPro root (default /opt/devkitpro); PYTHON
-# is the interpreter running ../gamecube/mkvfsblob.py.
+# is the interpreter running ../gamecube/mkvfsblob.py and mkdisc.py; WIT is
+# the wit command (empty skips the disc image), WII_DISC_ID the disc ID6,
+# WII_DISC_REGION its region (AUTO: from the 4th ID character, or JAPAN,
+# USA, EUROPE, KOREA) and WII_DISC_IOS
+# the IOS the console loads for it.
 
 include ../common.mak
 
@@ -29,6 +36,18 @@ TARGET=$(GAME)/boot.dol
 ZIP=$(BIN)/PumpkinOS_Wii.zip
 PYTHON?=python3
 MKVFSBLOB=../gamecube/mkvfsblob.py
+
+# the disc image: wit composes $(DISC_DIR) (sys/boot.bin, bi2.bin,
+# apploader.img, main.dol = the embedded DOL, files/) into $(WBFS)
+WIT?=$(shell command -v wit 2>/dev/null)
+WII_DISC_ID?=RPKEPO
+WII_DISC_REGION?=AUTO
+WII_DISC_IOS?=58
+WBFS=$(BIN)/PumpkinOS.wbfs
+DISC_DIR=$(BIN)/wiidisc
+APPLOADER_ELF=$(BIN)/apploader.elf
+APPLOADER_BIN=$(BIN)/apploader.bin
+APPLOADER_CFLAGS=-mcpu=750 -meabi -mhard-float -O2 -G0 -ffreestanding -fno-builtin -fno-common -nostdlib -fno-asynchronous-unwind-tables -Wall
 
 ELF2DOL=$(DEVKITPRO)/tools/bin/elf2dol
 BIN2S=$(DEVKITPRO)/tools/bin/bin2s
@@ -70,7 +89,7 @@ LDFLAGS=$(WII_ARCH) -Wl,--gc-sections -Wl,-Map,$(BIN)/pumpkinos.map
 
 LINK=$(CC) $(LDFLAGS) -o $@ $(OBJS) $(EXTRA_OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(LIBOGC)/lib/wii -Wl,--start-group $(SDLLIBS) $(WIILIBS) -lstdc++ -lm $(EXTLIBS) -Wl,--end-group
 
-all: $(ZIP) $(DOL_EMBED)
+all: $(ZIP) $(DOL_EMBED) $(if $(WIT),$(WBFS))
 
 $(ELF): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkinos.elf
@@ -121,6 +140,23 @@ $(ZIP): $(TARGET) README.md
 	@rm -f $(ZIP)
 	@cd $(STAGE) && zip -qr $(abspath $(ZIP)) apps -x 'apps/pumpkinos/pumpkin.log' 'apps/pumpkinos/pumpkin.err' 'apps/pumpkinos/tmp/*' 'apps/pumpkinos/vfs/app_storage/*' 'apps/pumpkinos/vfs/app_card/*' '*.DS_Store'
 
+$(APPLOADER_BIN): apploader/apploader.c apploader/apploader.ld
+	@echo Creating apploader.bin
+	@$(CC) $(APPLOADER_CFLAGS) -T apploader/apploader.ld -Wl,--gc-sections -o $(APPLOADER_ELF) apploader/apploader.c
+	@$(DEVKITPPC)/bin/powerpc-eabi-objcopy -O binary $(APPLOADER_ELF) $(APPLOADER_BIN)
+
+# wit lays the files out, makes the ticket and TMD (IOS $(WII_DISC_IOS)),
+# encrypts the partition and fake signs it
+$(WBFS): $(DOL_EMBED) $(APPLOADER_BIN) mkdisc.py README.md
+	@echo Creating PumpkinOS.wbfs
+	@$(PYTHON) mkdisc.py -o $(DISC_DIR) -id $(WII_DISC_ID) -title "$(TITLE)" -apploader $(APPLOADER_BIN) -dol $(DOL_EMBED) README.md
+	@rm -f $(WBFS)
+	@$(WIT) copy -q $(DISC_DIR) $(WBFS) --wbfs --region $(WII_DISC_REGION) --ios $(WII_DISC_IOS) --id $(WII_DISC_ID) --name "$(TITLE)" --modify all
+	@rm -rf $(DISC_DIR)
+
+wbfs: $(WBFS)
+
 clean:
 	@rm -f $(ELF) $(DOL) $(ELF_EMBED) $(DOL_EMBED) $(ZIP) $(BIN)/pumpkinos.map $(OBJS) $(VFSBLOB) $(VFSBLOB_SRC) $(VFSBLOB_OBJ)
-	@rm -rf $(STAGE)
+	@rm -f $(WBFS) $(APPLOADER_ELF) $(APPLOADER_BIN)
+	@rm -rf $(STAGE) $(DISC_DIR)
