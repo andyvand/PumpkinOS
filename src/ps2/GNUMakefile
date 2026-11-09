@@ -1,0 +1,83 @@
+# PumpkinOS for the Sony PlayStation 2 (ps2dev ps2sdk + gsKit + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider, the OpenSSL TLS
+# provider and every application static library produced by the other modules
+# into one ELF and stages it with the application PRCs as bin/ps2/PumpkinOS/
+# (the directory to copy to a USB stick, mass:/PumpkinOS/), also zipped as
+# bin/PumpkinOS_PS2.zip (see README.md). Build from src/ with:
+#
+#   make OSNAME=ps2 -f GNUMakefile
+#
+# PS2DEV may point at the ps2dev root (default /opt/ps2dev), PS2SDK and GSKIT
+# at the ps2sdk and gsKit installations ($(PS2DEV)/ps2sdk, $(PS2DEV)/gsKit).
+
+include ../common.mak
+
+TITLE=PumpkinOS
+
+ELF=$(BIN)/pumpkinos.elf
+STAGE=$(BIN)/ps2
+GAME=$(STAGE)/PumpkinOS
+TARGET=$(GAME)/PUMPKINOS.ELF
+ZIP=$(BIN)/PumpkinOS_PS2.zip
+
+PS2_STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
+# SDL3, SDL3_mixer and its decoders, OpenSSL and FluidSynth live in the EE
+# compiler sysroot (the compiler's default library path), the ps2sdk-ports
+# libraries (ps2_drivers, libgme, FLAC, opusfile, mpg123) in $(PS2SDK)/ports
+EELIB=$(PS2DEV)/ee/mips64r5900el-ps2-elf/lib
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+# SDL3 (gsKit video, audsrv audio, the DualShock as a gamepad) and SDL3_mixer
+# with its decoders (FluidSynth is C++, hence -lstdc++)
+SDLLIBS=-lSDL3_mixer -lfluidsynth -lxmp -lmpg123 -lgme -lz -lFLAC -lopusfile -lopus -lvorbisfile -lvorbis -logg -lwavpack -lSDL3 -lgskit -ldmakit
+# ps2_drivers (the IOP modules and their EE side: fileXio, memory cards, USB,
+# pad, audsrv, lwIP + netman for the network adapter) and the ps2sdk
+# libraries it builds on; mips64r5900el-ps2-elf-gcc itself appends libc,
+# libcdvd, libpthread, libpthreadglue, libcglue and libkernel as a group
+PS2LIBS=-lps2_drivers -lpatches -laudsrv -lpad -lmtap -lmc -lfileXio -lpoweroff -lps2ip -lnetman
+
+# EXTLIBDIRS=-L<dir> on the make command line looks there first
+# --wrap=gsKit_init_global_custom: smaller gsKit render queues (see main.c)
+LDFLAGS=-T$(PS2SDK)/ee/startup/linkfile -G0 -Wl,-zmax-page-size=128 -Wl,--wrap=gsKit_init_global_custom -Wl,-Map,$(BIN)/pumpkinos.map
+
+all: $(ZIP)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(EELIB) -L$(PS2SDK)/ee/lib -L$(PS2SDK)/ports/lib -L$(GSKIT)/lib -Wl,--start-group $(SDLLIBS) $(PS2LIBS) -lstdc++ -lm -latomic $(EXTLIBS) -Wl,--end-group
+
+# The staged directory carries the (stripped) ELF, the application PRCs
+# (vfs/app_install, copied to the memory card on the first boot), and, when
+# present in the PumpkinOS root, the CA bundle (https). No soundfont: the
+# 6MB file does not fit the console's memory.
+# (the staged directory is not wiped: it is a convenient place to run from
+# under PCSX2 / ps2link, where pumpkin.log, tmp/ and vfs/ live next to the ELF)
+$(TARGET): $(ELF)
+	@echo Creating PUMPKINOS.ELF
+	@rm -rf $(GAME)/vfs/app_install
+	@mkdir -p $(GAME)/vfs/app_install $(GAME)/vfs/app_storage $(GAME)/vfs/app_card/PALM/Programs
+	@$(PS2_STRIP) $(ELF) -o $(TARGET)
+	@cp $(VFS)/app_install/*.prc $(GAME)/vfs/app_install/
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(GAME)/; fi
+	@cp README.md $(GAME)/README.md
+
+$(ZIP): $(TARGET)
+	@echo Creating PumpkinOS_PS2.zip
+	@rm -f $(ZIP)
+	@cd $(STAGE) && zip -qr $(abspath $(ZIP)) PumpkinOS -x 'PumpkinOS/pumpkin.log' 'PumpkinOS/pumpkin.err' 'PumpkinOS/crash.log' 'PumpkinOS/tmp/*' 'PumpkinOS/hosthome/*'
+
+clean:
+	@rm -f $(ELF) $(ZIP) $(BIN)/pumpkinos.map $(OBJS)
+	@rm -rf $(STAGE)

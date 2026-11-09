@@ -423,7 +423,7 @@ static void launcherResetItems(launcher_data_t *data) {
   data->numItems = 0;
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
 extern UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 PrefPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
 extern UInt32 CommandPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
@@ -456,7 +456,7 @@ UInt32 (*LauncherStaticPilotMain(UInt32 creator))(UInt16 cmd, MemPtr cmdPBP, UIn
     case 'Brws': return BrowserPilotMain;
     case 'PMal': return MailPilotMain;
     case 'NetI': return NetInstPilotMain;
-#if defined(ESP_GNUBOY) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(ESP_GNUBOY) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
     case 'GBoy': return GnuBoyPilotMain;
 #endif
   }
@@ -501,7 +501,7 @@ static void launcherScanApps(launcher_data_t *data) {
         data->item[i].type = type;
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
         data->item[i].pilot_main = LauncherStaticPilotMain(creator);
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
@@ -642,7 +642,7 @@ static void launcherScanAppsSmall(launcher_data_t *data) {
         data->item[i].type = sysFileTApplication;
         data->item[i].creator = creator;
         data->item[i].rsrc = true;
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
         data->item[i].pilot_main = LauncherStaticPilotMain(creator);
 #endif
         if ((dbRef = DmOpenDatabase(cardNo, data->item[i].dbID, dmModeReadOnly)) != NULL) {
@@ -3266,7 +3266,7 @@ static void removeWidgets(launcher_data_t *data) {
   }
 }
 
-#if defined(ANDROID) || defined(EMSCRIPTEN) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(ANDROID) || defined(EMSCRIPTEN) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
 UInt32 LauncherPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
@@ -3318,6 +3318,9 @@ UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
       break;
     case 10:
       debug(DEBUG_INFO, PUMPKINOS, "Host OS is Sony PlayStation Portable");
+      break;
+    case 11:
+      debug(DEBUG_INFO, PUMPKINOS, "Host OS is Sony PlayStation 2");
       break;
     default:
       debug(DEBUG_ERROR, PUMPKINOS, "Host OS is unknown");

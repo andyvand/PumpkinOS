@@ -78,6 +78,18 @@
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
+#elif defined(PS2)
+// Sony PlayStation 2: 640x448 (NTSC, also used on PAL) at low density, laid
+// out like the PSP: the DIA strip at the bottom keeps the whole taskbar
+// artwork, hard-button row included (112 pixels), leaving a 640x336
+// application area. The 160 pixel wide artwork is centered in the 640 pixel
+// strip (taskbar_offset / graffiti_offset); the columns outside it are dead
+// space.
+#define DIA_WIDTH     640
+#define DIA_HEIGHT    448
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272

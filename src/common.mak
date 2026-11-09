@@ -29,6 +29,9 @@ MACHINE := aarch64
 else ifeq ($(OSNAME),psp)
 # the PlayStation Portable is always a 32-bit MIPS (Allegrex)
 MACHINE := mips
+else ifeq ($(OSNAME),ps2)
+# the PlayStation 2 Emotion Engine is a MIPS (R5900, n32 ABI: 32-bit pointers)
+MACHINE := mips
 else
 MACHINE := $(shell uname -m)
 endif
@@ -100,7 +103,7 @@ SYS_ENDIAN=1
 SYS_CPU=3
 # ppc64 would be BIG_ENDIAN 4?
 else ifeq ($(MACHINE),mips)
-# little endian 32-bit MIPS (PlayStation Portable)
+# little endian 32-bit MIPS (PlayStation Portable, PlayStation 2)
 SYS_ENDIAN=1
 SYS_CPU=4
 ifeq ($(BITS),)
@@ -133,6 +136,10 @@ else ifeq ($(OSNAME),psp)
 PSPDEV?=/opt/pspdev
 AR=$(PSPDEV)/bin/psp-ar
 NM=$(PSPDEV)/bin/psp-nm -j -u
+else ifeq ($(OSNAME),ps2)
+PS2DEV?=/opt/ps2dev
+AR=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-ar
+NM=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-nm -j -u
 else
 AR=ar
 NM=nm -j -u
@@ -248,6 +255,29 @@ PSP_FW_VERSION?=600
 OSDEFS=-G0 -O2 -DPSP -D_PSP_FW_VERSION=$(PSP_FW_VERSION) -DSOEXT=\"$(SOEXT)\" -I$(PSPDEV)/psp/include -I$(PSPSDK)/include -Wno-format -Wno-attributes
 CC=$(PSPDEV)/bin/psp-gcc
 CPP=$(PSPDEV)/bin/psp-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
+else ifeq ($(OSNAME),ps2)
+# Sony PlayStation 2 (ps2dev mips64r5900el-ps2-elf cross compiler, newlib +
+# ps2sdk). Like the PSP everything is linked statically into a single ELF
+# (see src/ps2), there are no shared objects. _EE is what the ps2sdk headers
+# expect, PS2 / __PS2__ are the platform macros (SDL3 tests __PS2__ as well);
+# -G0 keeps the small data section empty (the program is far too big for 64KB
+# of gp-relative data). Always optimized for size: the console has 32MB in
+# all and the program takes most of it.
+SYS_OS=11
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=PS2
+PS2DEV?=/opt/ps2dev
+PS2SDK?=$(PS2DEV)/ps2sdk
+GSKIT?=$(PS2DEV)/gsKit
+OSDEFS=-G0 -Os -D_EE -DPS2 -D__PS2__ -DSOEXT=\"$(SOEXT)\" -I$(PS2SDK)/ee/include -I$(PS2SDK)/common/include -I$(PS2SDK)/ports/include -Wno-format -Wno-attributes
+CC=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-gcc
+CPP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-g++
 PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
@@ -377,6 +407,8 @@ else ifeq ($(OSNAME),switch)
 STRIP=$(DEVKITA64)/bin/aarch64-none-elf-strip
 else ifeq ($(OSNAME),psp)
 STRIP=$(PSPDEV)/bin/psp-strip
+else ifeq ($(OSNAME),ps2)
+STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
 else
 STRIP=strip
 endif

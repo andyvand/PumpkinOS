@@ -33,6 +33,11 @@ else ifeq ($(OSNAME),psp)
 # from the pspdev sysroot are linked by src/psp
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),ps2)
+# ps2dev SDL3 (gsKit video, audsrv audio) with SDL3_mixer; the static
+# libraries from the ps2dev sysroot are linked by src/ps2
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

@@ -45,6 +45,9 @@ STATIC_APP=1
 else ifeq ($(OSNAME),psp)
 # Static build as well (linked into EBOOT.PBP by src/psp), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),ps2)
+# Static build as well (linked into PUMPKINOS.ELF by src/ps2), regular file names
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)

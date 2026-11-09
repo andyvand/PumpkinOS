@@ -6,6 +6,8 @@ else ifeq ($(OSNAME),switch)
 STATIC=1
 else ifeq ($(OSNAME),psp)
 STATIC=1
+else ifeq ($(OSNAME),ps2)
+STATIC=1
 endif
 
 ifeq ($(STATIC),1)

@@ -204,13 +204,25 @@ static void StoPtrFree(void *p) {
   }
 }
 
-#ifdef DOS
+// Platforms whose file systems cannot take the regular database directory
+// name (the escaped database name followed by its hex dump, up to 97
+// characters): MS-DOS (8.3) and the PlayStation 2 memory card (31
+// characters). There a database directory is the 8 hex digit FNV-1a hash of
+// the database name; the name itself is stored in the header file ("name="
+// line) and read back from there when the storage is scanned (see
+// StoHeaderName). Such a storage is not interchangeable with the regular
+// layout.
+#if defined(DOS) || defined(PS2)
+#define STO_HASHED_DIRS
+#endif
+
+#ifdef STO_HASHED_DIRS
 // MS-DOS keeps every file name within 8.3:
 // - a database directory is the 8 hex digit FNV-1a hash of the database
-//   name; the name itself is stored in the header file ("name=" line) and
-//   read back from there when the storage is scanned (see StoHeaderName),
+//   name (see above),
 // - a resource file is the 48 bit value type<<16|id written with 11 base 36
-//   digits split as 8.3 (see StoResName / StoParseResName),
+//   digits split as 8.3 (see StoResName / StoParseResName, DOS only: the
+//   regular resource names fit the PS2 memory card),
 // - a record file already is "%08X.%02X" (unique id, attributes).
 static uint32_t StoNameHash(const uint8_t *s) {
   uint32_t h = 2166136261u;
@@ -227,7 +239,9 @@ static void StoEscapeName(uint8_t *src, char *dst, int n) {
   sys_snprintf(dst, n, "%08X", StoNameHash(src));
   debug(DEBUG_TRACE, "STOR", "StoEscapeName \"%s\" -> \"%s\"", src, dst);
 }
+#endif
 
+#ifdef DOS
 static const char sto_base36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 static void StoResName(uint32_t type, uint32_t id, char *dst) {
@@ -267,7 +281,9 @@ static int StoParseResName(char *name, uint32_t *type, uint32_t *id) {
 
   return 1;
 }
-#else
+#endif
+
+#ifndef STO_HASHED_DIRS
 static void StoEscapeName(uint8_t *src, char *dst, int n) {
   int i, j;
 
@@ -527,7 +543,7 @@ static int StoWriteHeader(storage_t *sto, storage_db_t *db) {
       sys_snprintf(buf, sizeof(buf)-1, "ftype=%u\ntype='%4s'\ncreator='%4s'\ndbID=0x%08X\nattributes=%u\nuniqueIDSeed=%u\nversion=%u\ncrDate=%u\nmodDate=%u\nbckDate=%u\nmodNum=%d\n",
         db->ftype, stype, screator, db->dbID, db->attributes, db->uniqueIDSeed, db->version, db->crDate, db->modDate, db->bckDate, db->modNum);
     }
-#ifdef DOS
+#ifdef STO_HASHED_DIRS
     // the directory name is a hash: keep the database name in the header
     n = (int)sys_strlen(buf);
     sys_snprintf(&buf[n], sizeof(buf)-1-n, "name=%s\n", db->name);
@@ -598,7 +614,7 @@ static int StoReadHeaderPath(storage_t *sto, storage_db_t *db, char *path, int r
       if (sys_sscanf(buf, "modNum=%u", &db->modNum) == 1) {
         continue;
       }
-#ifdef DOS
+#ifdef STO_HASHED_DIRS
       // the directory name is a hash: the database name is kept in the header
       if (sys_strncmp(buf, "name=", 5) == 0) {
         sys_strncpy(db->name, buf + 5, dmDBNameLength - 1);
@@ -628,7 +644,7 @@ static int StoReadHeader(storage_t *sto, storage_db_t *db) {
   return StoReadHeaderPath(sto, db, buf, 1);
 }
 
-#ifdef DOS
+#ifdef STO_HASHED_DIRS
 // read the header of the database stored in directory dirname and recover
 // the database name from its "name=" line
 static int StoHeaderName(storage_t *sto, char *dirname, char *name, int n) {
@@ -954,7 +970,7 @@ int StoInit(char *path, mutex_t *mutex) {
               break;
             }
             db->magic = DB_MAGIC;
-#ifdef DOS
+#ifdef STO_HASHED_DIRS
             if (StoHeaderName(sto, ent->name, db->name, dmDBNameLength) != 0) {
               pumpkin_heap_free(db, "storage_db");
               continue;
@@ -1007,7 +1023,7 @@ int StoRefresh(void) {
         for (;;) {
           ent = StoReadEnt(dir);
           if (ent == NULL) break;
-#ifdef DOS
+#ifdef STO_HASHED_DIRS
           if (StoHeaderName(sto, ent->name, name, dmDBNameLength) != 0) continue;
 #else
           StoUnescapeName(ent->name, name, dmDBNameLength);
@@ -1235,7 +1251,7 @@ Err DmSetDatabaseInfo(UInt16 cardNo, LocalID dbID, const Char *nameP,
           storage_name(sto, (char *)nameP, 0, 0, 0, 0, 0, buf2);
           if (StoVfsRename(sto->session, buf1, buf2) == 0) {
             sys_strncpy(db->name, nameP, dmDBNameLength - 1);
-#ifdef DOS
+#ifdef STO_HASHED_DIRS
             // the header carries the name, update it in the renamed directory
             StoWriteHeader(sto, db);
 #endif

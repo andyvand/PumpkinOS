@@ -33,8 +33,8 @@
 #include <fcntl.h>
 #ifdef DOS
 #include <sys/poll.h>  /* Watt-32 */
-#elif defined(PSP)
-#include <sys/select.h> /* no poll() in the pspsdk glue */
+#elif defined(PSP) || defined(PS2)
+#include <sys/select.h> /* no poll() in the pspsdk / ps2sdk glue */
 #else
 #include <poll.h>
 #endif
@@ -98,6 +98,10 @@ static const char *ca_bundles[] = {
   "ms0:/PSP/GAME/PumpkinOS/cert.pem",                   /* PlayStation Portable: next to EBOOT.PBP (or SSL_CERT_FILE, see src/psp) */
   "ef0:/PSP/GAME/PumpkinOS/cert.pem",
 #endif
+#ifdef PS2
+  "mc0:/PumpkinOS/cert.pem",                            /* PlayStation 2: the home on the memory card (or SSL_CERT_FILE, see src/ps2) */
+  "mc1:/PumpkinOS/cert.pem",
+#endif
   "/etc/ssl/cert.pem",                                  /* macOS, FreeBSD, Alpine */
   "/etc/ssl/certs/ca-certificates.crt",                 /* Debian, Ubuntu, Arch */
   "/etc/pki/tls/certs/ca-bundle.crt",                   /* Fedora, RHEL */
@@ -155,7 +159,7 @@ static void liblopenssl_error(const char *what) {
 static int wait_fd(int fd, int want, uint32_t us) {
   uint32_t left = us;
   int slice, r;
-#if defined(WINDOWS) || defined(PSP)
+#if defined(WINDOWS) || defined(PSP) || defined(PS2)
   fd_set fds;
   struct timeval tv;
 #else
@@ -167,7 +171,7 @@ static int wait_fd(int fd, int want, uint32_t us) {
     slice = WAIT_SLICE_MS;
     if (us && (uint32_t)slice * 1000 > left) slice = (left + 999) / 1000;
 
-#if defined(WINDOWS) || defined(PSP)
+#if defined(WINDOWS) || defined(PSP) || defined(PS2)
     FD_ZERO(&fds);
 #ifdef WINDOWS
     FD_SET((SOCKET)fd, &fds);
@@ -706,7 +710,14 @@ static int dos_seed_openssl(void) {
 #endif
 
 int liblopenssl_load(void) {
+#if defined(PS2)
+  // no configuration file on a console (the default path would be looked up
+  // relative to the boot device)
+  debug(DEBUG_INFO, TAG, "initializing OpenSSL");
+  if (OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS | OPENSSL_INIT_NO_LOAD_CONFIG, NULL) != 1) {
+#else
   if (OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL) != 1) {
+#endif
     liblopenssl_error("OPENSSL_init_ssl failed");
     return -1;
   }

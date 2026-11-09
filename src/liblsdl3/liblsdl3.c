@@ -35,7 +35,7 @@
 // The PlayStation Vita, Nintendo Switch and PSP builds use the same
 // cooperative threads (and the same pump): there SDL has a real audio thread
 // draining the stream.
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -63,7 +63,7 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
 // PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
 // emulates the mouse from it) and the gamepad buttons stand in for a few
 // keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
@@ -71,17 +71,23 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 // platform convention: Cross/Circle on the Vita (south = Enter, east =
 // Escape), A/B on the Switch (east = Enter, south = Escape).
 //
-// PlayStation Portable: no touch screen, so the analog stick and the D-pad
-// move a pointer drawn by this provider (LIBSDL_STICK_POINTER) and Cross is
-// the pen (mouse button 1); Triangle = Enter, Circle = Escape, Square =
-// Backspace, the rest as above (the D-pad is not an arrow key here).
+// PlayStation Portable / PlayStation 2: no touch screen, so the analog stick
+// and the D-pad move a pointer drawn by this provider (LIBSDL_STICK_POINTER)
+// and Cross is the pen (mouse button 1); Triangle = Enter, Circle = Escape,
+// Square = Backspace, the rest as above (the D-pad is not an arrow key here).
 #define LIBSDL_GAMEPAD
 
 #if defined(SWITCH)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
-#elif defined(PSP)
+#elif defined(PSP) || defined(PS2)
 #define LIBSDL_STICK_POINTER
+#if defined(PS2)
+// the PS2 gsKit renderer has no render targets (SDL_SetRenderTarget is a
+// no-op there) and swaps between two undefined back buffers: the scene is
+// composed in memory and uploaded as one texture per present instead
+#define LIBSDL_SOFT_SCENE
+#endif
 #define GAMEPAD_BUTTON_PEN    SDL_GAMEPAD_BUTTON_SOUTH
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_NORTH
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
@@ -175,6 +181,13 @@ typedef struct {
   double px, py;      // pointer position (window pixels)
   uint64_t ptime;     // last stick / D-pad sample (us)
   int pvisible;       // pointer drawn (always, once the window exists)
+#endif
+#ifdef LIBSDL_SOFT_SCENE
+  SDL_Texture *scene_tex; // the scene: one streaming texture in a format native to the renderer, drawn whole at present
+  uint32_t scene_fmt;     // its SDL pixel format (ABGR1555 for a 16-bit window, ABGR8888 for a 32-bit one)
+  int scene_w, scene_h;
+  uint8_t *bgraw;         // background pixels (window_background, window pixel format), drawn by window_erase
+  int bg_w, bg_h;
 #endif
 } libsdl_window_t;
 
@@ -307,6 +320,9 @@ static int libsdl_init_audio(void) {
 #endif
 
 static int libsdl_present(libsdl_window_t *window);
+#ifdef LIBSDL_SOFT_SCENE
+static void libsdl_scene_clear(libsdl_window_t *window);
+#endif
 
 #ifdef LIBSDL_STICK_POINTER
 // Gamepad pointer (PlayStation Portable): the left stick moves a pointer
@@ -472,7 +488,7 @@ static int libsdl_init_video(void) {
   // the touch screen drives the mouse (pen)
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 #endif
-#ifdef PSP
+#if defined(PSP) || defined(PS2)
   // the built-in controller is a gamepad (SDL has a mapping for it); the
   // pointer it drives is drawn by libsdl_present() (no mouse, no cursor)
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
@@ -1098,6 +1114,9 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   }
 
   debug(DEBUG_INFO, "SDL", "creating window (%d x %d) fullscreen %d", w, h, window->fullscreen);
+#ifdef PS2
+  sys_ps2_memlog("window creation");
+#endif
   window->window = SDL_CreateWindow("", w, h, /*window->fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP :*/ 0);
   if (window->window == NULL) {
     debug(DEBUG_ERROR, "SDL", "SDL_CreateWindow failed: %s", SDL_GetError());
@@ -1125,6 +1144,9 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   if ((s = SDL_GetRendererName(window->renderer)) != NULL) {
     debug(DEBUG_INFO, "SDL", "using driver \"%s\"", s);
   }
+#ifdef PS2
+  sys_ps2_memlog("renderer created");
+#endif
 
   if (window->fullscreen) {
     //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
@@ -1148,7 +1170,28 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   // swap between undefined backbuffers on every SDL_RenderPresent, so
   // incremental drawing flickers. Route all drawing to a persistent target
   // texture; libsdl_window_render() blits it whole to the backbuffer.
+#ifdef LIBSDL_SOFT_SCENE
+  // the PS2 renderer has no render targets: the scene is one streaming
+  // texture in a format the renderer supports natively (so that
+  // SDL_LockTexture() gives the texture memory itself, no staging copy),
+  // written by libsdl_scene_blit() and drawn whole by libsdl_scene_present()
+  window->scene_w = w;
+  window->scene_h = h;
+  window->scene_fmt = window->spixel == 2 ? SDL_PIXELFORMAT_ABGR1555 : SDL_PIXELFORMAT_ABGR8888;
+  if (window->spixel != 2 && window->spixel != 4) {
+    debug(DEBUG_ERROR, "SDL", "scene: unsupported window format 0x%08X", window->format);
+  } else if ((window->scene_tex = SDL_CreateTexture(window->renderer, window->scene_fmt, SDL_TEXTUREACCESS_STREAMING, w, h)) == NULL) {
+    debug(DEBUG_ERROR, "SDL", "SDL_CreateTexture (scene) failed: %s", SDL_GetError());
+  } else {
+    SDL_SetTextureBlendMode(window->scene_tex, SDL_BLENDMODE_NONE);
+    SDL_SetTextureScaleMode(window->scene_tex, SDL_SCALEMODE_NEAREST);
+    libsdl_scene_clear(window);
+    debug(DEBUG_INFO, "SDL", "using a %dx%d scene texture (format %s) for \"%s\"", w, h, SDL_GetPixelFormatName(window->scene_fmt), s ? s : "?");
+  }
+  if (0) {
+#else
   if (s != NULL && sys_strcmp(s, "software")) {
+#endif
     window->target = SDL_CreateTexture(window->renderer, window->format, SDL_TEXTUREACCESS_TARGET, w, h);
     if (window->target != NULL) {
       SDL_SetRenderTarget(window->renderer, window->target);
@@ -1179,6 +1222,10 @@ static int libsdl_video_close(libsdl_window_t *window) {
     SDL_SetRenderTarget(window->renderer, NULL);
     SDL_DestroyTexture(window->target);
   }
+#ifdef LIBSDL_SOFT_SCENE
+  if (window->scene_tex) SDL_DestroyTexture(window->scene_tex);
+  if (window->bgraw) sys_free(window->bgraw);
+#endif
   if (window->background) SDL_DestroyTexture(window->background);
   if (window->renderer) SDL_DestroyRenderer(window->renderer);
   if (window->window) SDL_DestroyWindow(window->window);
@@ -1343,9 +1390,108 @@ static void presentBackBuffer(libsdl_window_t *window, texture_t *t, GLuint prog
 }
 #endif
 
+#ifdef LIBSDL_SOFT_SCENE
+// Scene texture (PlayStation 2): the textures PumpkinOS draws are kept in
+// memory (texture->buf, window pixel format) and blitted into one streaming
+// texture of a format the renderer takes as is (RGB565 -> ABGR1555, ARGB8888
+// -> ABGR8888), through SDL_LockTexture(), which on the PS2 renderer is the
+// texture memory itself; the texture is drawn whole at every present (the
+// renderer flips between two back buffers). Only a 1:1 window (xfactor =
+// yfactor = 1) is supported; pixels are copied opaque (no alpha blending
+// between textures).
+static void libsdl_scene_convert(libsdl_window_t *window, uint8_t *dst, uint8_t *src, int w) {
+  uint16_t *s16, *d16, p;
+  uint32_t *s32, *d32, q;
+  int i;
+
+  if (window->spixel == 2) {
+    s16 = (uint16_t *)src;
+    d16 = (uint16_t *)dst;
+    for (i = 0; i < w; i++) {
+      p = s16[i];  // RGB565
+      d16[i] = 0x8000 | ((p & 0x1F) << 10) | (((p >> 6) & 0x1F) << 5) | (p >> 11);
+    }
+  } else {
+    s32 = (uint32_t *)src;
+    d32 = (uint32_t *)dst;
+    for (i = 0; i < w; i++) {
+      q = s32[i];  // ARGB8888
+      d32[i] = (q & 0xFF00FF00) | ((q & 0xFF) << 16) | ((q >> 16) & 0xFF);
+    }
+  }
+}
+
+// copies the w x h rectangle at (sx,sy) of a sw x sh pixels source buffer
+// (window pixel format) to (x,y) of the scene, clipped to both
+static int libsdl_scene_blit(libsdl_window_t *window, uint8_t *src, int sw, int sh, int sx, int sy, int w, int h, int x, int y) {
+  SDL_Rect rect;
+  void *pixels;
+  uint8_t *s, *d;
+  int pitch, i;
+
+  if (window->scene_tex == NULL || src == NULL) return -1;
+
+  if (sx < 0) { w += sx; x -= sx; sx = 0; }
+  if (sy < 0) { h += sy; y -= sy; sy = 0; }
+  if (sx + w > sw) w = sw - sx;
+  if (sy + h > sh) h = sh - sy;
+  if (x < 0) { w += x; sx -= x; x = 0; }
+  if (y < 0) { h += y; sy -= y; y = 0; }
+  if (x + w > window->scene_w) w = window->scene_w - x;
+  if (y + h > window->scene_h) h = window->scene_h - y;
+  if (w <= 0 || h <= 0) return 0;
+
+  rect.x = x;
+  rect.y = y;
+  rect.w = w;
+  rect.h = h;
+  if (!SDL_LockTexture(window->scene_tex, &rect, &pixels, &pitch)) {
+    debug(DEBUG_ERROR, "SDL", "SDL_LockTexture (scene) failed: %s", SDL_GetError());
+    return -1;
+  }
+  s = &src[(sy * sw + sx) * window->spixel];
+  d = (uint8_t *)pixels;
+  for (i = 0; i < h; i++) {
+    libsdl_scene_convert(window, d, s, w);
+    s += sw * window->spixel;
+    d += pitch;
+  }
+  SDL_UnlockTexture(window->scene_tex);
+
+  return 0;
+}
+
+// black
+static void libsdl_scene_clear(libsdl_window_t *window) {
+  void *pixels;
+  int pitch;
+
+  if (window->scene_tex && SDL_LockTexture(window->scene_tex, NULL, &pixels, &pitch)) {
+    sys_memset(pixels, 0, pitch * window->scene_h);
+    SDL_UnlockTexture(window->scene_tex);
+  }
+}
+
+static int libsdl_scene_present(libsdl_window_t *window) {
+  SDL_RenderClear(window->renderer);
+  SDL_RenderTexture(window->renderer, window->scene_tex, NULL, NULL);
+#ifdef LIBSDL_STICK_POINTER
+  libsdl_pointer_draw(window);
+#endif
+  SDL_RenderPresent(window->renderer);
+
+  return 0;
+}
+#endif
+
 // shows the scene: the persistent render target (plus the stick pointer,
 // when there is one) is copied to the back buffer and presented
 static int libsdl_present(libsdl_window_t *window) {
+#ifdef LIBSDL_SOFT_SCENE
+  if (window->scene_tex != NULL) {
+    return libsdl_scene_present(window);
+  }
+#endif
   if (window->target != NULL) {
     SDL_SetRenderTarget(window->renderer, NULL);
     SDL_RenderClear(window->renderer);
@@ -1389,6 +1535,15 @@ static int libsdl_window_erase(window_t *_window, uint32_t bg) {
   window = (libsdl_window_t *)_window;
 
   if (window) {
+#ifdef LIBSDL_SOFT_SCENE
+    if (window->scene_tex) {
+      libsdl_scene_clear(window);
+      if (window->bgraw) {
+        libsdl_scene_blit(window, window->bgraw, window->bg_w, window->bg_h, 0, 0, window->bg_w, window->bg_h, 0, 0);
+      }
+      return 0;
+    }
+#endif
     SDL_RenderClear(window->renderer);
 
     if (window->background) {
@@ -1409,6 +1564,17 @@ static texture_t *libsdl_window_create_texture(window_t *_window, int width, int
 
   if (window) {
     if ((texture = sys_calloc(1, sizeof(texture_t))) != NULL) {
+#ifdef LIBSDL_SOFT_SCENE
+      // no SDL texture: the pixels stay in memory and are blitted into the scene
+      if ((texture->buf = sys_calloc(1, width * height * window->spixel)) != NULL) {
+        texture->width = width;
+        texture->height = height;
+      } else {
+        debug(DEBUG_ERROR, "SDL", "texture allocation (%dx%d) failed", width, height);
+        sys_free(texture);
+        texture = NULL;
+      }
+#else
       if ((texture->t = SDL_CreateTexture(window->renderer, window->format, SDL_TEXTUREACCESS_STREAMING, width, height)) != NULL) {
         SDL_SetTextureBlendMode(texture->t, SDL_BLENDMODE_BLEND);
         texture->width = width;
@@ -1421,6 +1587,7 @@ static texture_t *libsdl_window_create_texture(window_t *_window, int width, int
         sys_free(texture);
         texture = NULL;
       }
+#endif
     }
   }
 
@@ -1451,7 +1618,18 @@ static int libsdl_window_background(window_t *_window, uint32_t *raw, int width,
   window = (libsdl_window_t *)_window;
 
   if (window && raw) {
+#ifdef LIBSDL_SOFT_SCENE
+    if (window->bgraw) sys_free(window->bgraw);
+    if ((window->bgraw = sys_calloc(1, width * height * window->spixel)) != NULL) {
+      sys_memcpy(window->bgraw, raw, width * height * window->spixel);
+      window->bg_w = width;
+      window->bg_h = height;
+      r = 0;
+    }
+    if (0) {
+#else
     if ((window->background = SDL_CreateTexture(window->renderer, window->format, SDL_TEXTUREACCESS_STREAMING, width, height)) != NULL) {
+#endif
       rect.x = 0;
       rect.y = 0;
       rect.w = width;
@@ -1478,7 +1656,24 @@ static int libsdl_window_update_texture_rect(window_t *_window, texture_t *textu
   rect.w = w;
   rect.h = h;
 
+#ifdef LIBSDL_SOFT_SCENE
+  if (texture && texture->buf && w > 0 && h > 0) {
+    spitch = texture->width * window->spixel;
+    src = &src[(ty * texture->width + tx) * window->spixel];
+    dst = (uint8_t *)texture->buf + (ty * texture->width + tx) * window->spixel;
+    len = w * window->spixel;
+    for (i = 0; i < h; i++) {
+      sys_memcpy(dst, src, len);
+      src += spitch;
+      dst += spitch;
+    }
+    r = 0;
+  }
+  (void)pixels; (void)pitch;
+  if (0) {
+#else
   if (SDL_LockTexture(texture->t, &rect, &pixels, &pitch)) {
+#endif
     src = &src[(ty * texture->width + tx) * window->spixel];
     dst = (uint8_t *)pixels;
     len = w * window->spixel;
@@ -1513,6 +1708,11 @@ static int libsdl_window_draw_texture_rect(window_t *_window, texture_t *texture
       return 0;
     }
 #endif
+#ifdef LIBSDL_SOFT_SCENE
+    if (window->scene_tex) {
+      return libsdl_scene_blit(window, (uint8_t *)texture->buf, texture->width, texture->height, tx, ty, w, h, x, y);
+    }
+#endif
 
     src.x = tx;
     src.y = ty;
@@ -1541,6 +1741,11 @@ static int libsdl_window_draw_texture(window_t *_window, texture_t *texture, int
   window = (libsdl_window_t *)_window;
 
   if (window && texture) {
+#ifdef LIBSDL_SOFT_SCENE
+    if (window->scene_tex) {
+      return libsdl_scene_blit(window, (uint8_t *)texture->buf, texture->width, texture->height, 0, 0, texture->width, texture->height, x, y);
+    }
+#endif
     dst.x = x * window->xfactor;
     dst.y = y * window->yfactor;
     dst.w = texture->width  * window->xfactor;

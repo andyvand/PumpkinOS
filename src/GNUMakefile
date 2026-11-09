@@ -120,6 +120,15 @@ else ifeq ($(OSNAME),psp)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
 EXTRA_MODULES=psp
 
+else ifeq ($(OSNAME),ps2)
+
+# Sony PlayStation 2 (ps2dev): same static model as MS-DOS, the Vita, the
+# Switch and the PSP. Every application is compiled into a static library and
+# linked, together with libpit, libpumpkin, libos, the SDL3 window provider
+# and the OpenSSL TLS provider, into one ELF by src/ps2.
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
+EXTRA_MODULES=ps2
+
 else ifeq ($(OSNAME),Haiku)
 
 ifneq ($(UNICORN),)

@@ -99,6 +99,19 @@ controls (analog stick = pointer, Cross = pen, Start = back to the Launcher,
 Triangle = Enter, Circle = Escape) and the runtime layout
 (`ms0:/PSP/GAME/PumpkinOS/`).
 
+# Support for Sony PlayStation 2:
+PumpkinOS also builds for the PlayStation 2 with the ps2dev toolchain
+(ps2sdk, gsKit, SDL3 and OpenSSL), as a single statically linked homebrew
+ELF (`bin/ps2/PumpkinOS/PUMPKINOS.ELF`, started from any homebrew loader):
+
+    cd src
+    make OSNAME=ps2 -f GNUMakefile
+
+See [src/ps2/README.md](src/ps2/README.md) for the requirements, the
+controls (D-pad / analog stick = pointer, Cross = pen, Start = back to the
+Launcher, Triangle = Enter, Circle = Escape) and the runtime layout (the VFS
+is copied to the memory card, `mc0:/PumpkinOS/`, on the first boot).
+
 Launcher is the first application that runs when PumpkinOS starts. It shows a panel from which you can start other applications.
 Preferences will eventually contain all preference options for configuring PumpkinOS.
 Command is a command shell, still experimental. This release does not contain the four classic PIM applications from PalmOS.

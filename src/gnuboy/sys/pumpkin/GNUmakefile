@@ -29,6 +29,9 @@ MACHINE := aarch64
 else ifeq ($(OSNAME),psp)
 # the PlayStation Portable is always a 32-bit MIPS
 MACHINE := mips
+else ifeq ($(OSNAME),ps2)
+# the PlayStation 2 is always a MIPS (n32: 32-bit pointers)
+MACHINE := mips
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -47,6 +50,8 @@ else ifeq ($(OSNAME),switch)
 SYS_OS ?= 9
 else ifeq ($(OSNAME),psp)
 SYS_OS ?= 10
+else ifeq ($(OSNAME),ps2)
+SYS_OS ?= 11
 else
 SYS_OS ?= 1
 endif
@@ -173,6 +178,19 @@ CC = $(PSPDEV)/bin/psp-gcc
 AR = $(PSPDEV)/bin/psp-ar
 STATIC = 1
 OSDEFS = -G0 -DPSP -D_PSP_FW_VERSION=600 -I$(PSPDEV)/psp/include -I$(PSPDEV)/psp/sdk/include -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),ps2)
+# PlayStation 2: static library linked into PUMPKINOS.ELF by src/ps2, the
+# PRC only carries the resources (see src/app.mak)
+PS2DEV ?= /opt/ps2dev
+CC = $(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-gcc
+AR = $(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-ar
+STATIC = 1
+# (no ps2sdk include directories: their font.h / debug.h / loadfile.h would
+# shadow the PalmOS and libpit headers on a case-insensitive file system, and
+# the emulator glue does not need them)
+# -Dinflate=...: the emulator ships its own inflate(), and the PS2 link also
+# carries zlib (libgme, an SDL3_mixer decoder, needs it)
+OSDEFS = -G0 -Os -DPS2 -D__PS2__ -Dinflate=gnuboy_inflate -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

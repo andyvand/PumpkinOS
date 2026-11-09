@@ -150,6 +150,11 @@ typedef jmp_buf sys_jmp_buf;
 typedef struct __jmp_buf_tag *sys_jmp_bufp;
 
 #ifndef ESP32
+#ifdef PS2
+// lwIP (in ps2_drivers, the PS2 network stack) has a sys_init() of its own:
+// keep PumpkinOS's out of its way
+#define sys_init pit_sys_init
+#endif
 void sys_init(void);
 #endif
 
@@ -231,6 +236,18 @@ int sys_psp_net_init(int timeout_ms);
 int sys_psp_net_ready(void);
 
 void sys_psp_net_finish(void);
+#endif
+
+#ifdef PS2
+// network adapter / lwIP (EE) initialization (PlayStation 2 build, see ps2net.c)
+int sys_ps2_net_init(int timeout_ms);
+
+int sys_ps2_net_ready(void);
+
+void sys_ps2_net_finish(void);
+
+// logs the C heap usage (ps2sys.c)
+void sys_ps2_memlog(const char *tag);
 #endif
 
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us);
