@@ -27,7 +27,7 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on Sony PlayStation 2:
 ![](/screenshots/PumpkinOS_PS2.png)
 
-# PumpkinOS running on Nintendo GameCube:
+# PumpkinOS running on Nintendo GameCube / Nintendo Wii:
 ![](/screenshots/PumpkinOS_GameCube.png)
 
 # PumpkinOS running on ESP32:
