@@ -20,6 +20,9 @@
 
 #include <ps2sdkapi.h>
 
+// ps2ramdisk.c (see sys.h)
+int sys_ps2_ramdisk_ftruncate(void *fdinfo, int64_t length);
+
 // libcglue's fdman.h (not installed): the descriptor table
 #define PS2_FILENO_MAX 64
 
@@ -55,6 +58,15 @@ int ftruncate(int fd, off_t length) {
     errno = EBADF;
     return -1;
   }
+  // a RAM disk file is resized in place
+  if ((r = sys_ps2_ramdisk_ftruncate(&d->info, length)) != 1) {
+    if (r < 0) {
+      errno = -r;
+      return -1;
+    }
+    return 0;
+  }
+  r = -1;
   if ((filename = d->info.ops->getfilename(d->info.userdata)) == NULL || filename[0] == 0) {
     errno = EBADF;
     return -1;
@@ -234,5 +246,150 @@ void sys_ps2_memlog(const char *tag) {
   struct mallinfo mi = mallinfo();
   uint32_t avail = (uint32_t)((uint8_t *)EndOfHeap() - (uint8_t *)sbrk(0));
 
-  debug(DEBUG_INFO, "SYS", "memory at %s: %u KB left for sbrk, malloc arena %u KB (%u KB in use, %u KB free)", tag, avail / 1024, (unsigned)mi.arena / 1024, (unsigned)mi.uordblks / 1024, (unsigned)mi.fordblks / 1024);
+  uint32_t used, peak, limit, files;
+
+  sys_ps2_ramdisk_usage(&used, &peak, &limit, &files);
+  debug(DEBUG_INFO, "SYS", "memory at %s: %u KB left for sbrk, malloc arena %u KB (%u KB in use, %u KB free), RAM disk %u KB in %u files (peak %u KB of %u KB)", tag, avail / 1024, (unsigned)mi.arena / 1024, (unsigned)mi.uordblks / 1024, (unsigned)mi.fordblks / 1024, used / 1024, files, peak / 1024, limit / 1024);
+}
+
+// pthread mutexes, read-write locks and condition variables: lightweight
+// replacements for pthread-embedded's (the link picks them over libpthread).
+//
+// The EE kernel has 256 semaphores in all and pthread-embedded spends one
+// per mutex, two per condition variable and five per read-write lock;
+// OpenSSL 4 creates dozens of read-write locks at initialization and
+// libatomic (the R5900 has no atomic instructions) a mutex per touched
+// address bucket (64 in all), on top of the semaphores newlib's locks,
+// SDL3, lwIP and the RPC clients hold. The table overflowed during the
+// OpenSSL init: pthread-embedded's pthread_mutex_init() ignores a failed
+// CreateSema(), the handle stays 0 and the destroy that follows deletes
+// semaphore 0, which belongs to libkernel's helper thread (topThread,
+// priority 0, see ps2sdk ee/kernel/src/thread.c): WaitSema() on the
+// deleted semaphore fails at once and that thread spins forever, freezing
+// the console (whether the table overflowed depended on the heap layout,
+// through the libatomic buckets, and on the semaphores open files hold).
+//
+// PumpkinOS does not need these locks on the PS2: everything that uses them
+// (OpenSSL, libatomic, the C++ runtime) runs on the one kernel thread the
+// cooperative tasks share (libpit's own mutexes are mutexnull here for the
+// same reason); the SDL audio thread uses SDL's kernel semaphores. So the
+// locks keep no kernel resource: a handle is just marked initialized, lock
+// and unlock succeed at once, waiting on a condition variable returns at
+// once (a spurious wake-up, which callers must handle; a timed wait times
+// out). Static initializers (PTHREAD_*_INITIALIZER, -1) are accepted as
+// initialized handles.
+
+#include <errno.h>
+#include <time.h>
+
+#define PS2_LOCK_INITIALIZED ((void *)1)
+
+int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr) {
+  if (mutex == NULL) return EINVAL;
+  *mutex = (pthread_mutex_t)PS2_LOCK_INITIALIZED;
+  return 0;
+}
+
+int pthread_mutex_destroy(pthread_mutex_t *mutex) {
+  if (mutex == NULL || *mutex == NULL) return EINVAL;
+  *mutex = NULL;
+  return 0;
+}
+
+int pthread_mutex_lock(pthread_mutex_t *mutex) {
+  return (mutex == NULL || *mutex == NULL) ? EINVAL : 0;
+}
+
+int pthread_mutex_trylock(pthread_mutex_t *mutex) {
+  return (mutex == NULL || *mutex == NULL) ? EINVAL : 0;
+}
+
+int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *abstime) {
+  return (mutex == NULL || *mutex == NULL) ? EINVAL : 0;
+}
+
+int pthread_mutex_unlock(pthread_mutex_t *mutex) {
+  return (mutex == NULL || *mutex == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_init(pthread_rwlock_t *lock, const pthread_rwlockattr_t *attr) {
+  if (lock == NULL) return EINVAL;
+  *lock = (pthread_rwlock_t)PS2_LOCK_INITIALIZED;
+  return 0;
+}
+
+int pthread_rwlock_destroy(pthread_rwlock_t *lock) {
+  if (lock == NULL || *lock == NULL) return EINVAL;
+  *lock = NULL;
+  return 0;
+}
+
+int pthread_rwlock_rdlock(pthread_rwlock_t *lock) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_tryrdlock(pthread_rwlock_t *lock) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_timedrdlock(pthread_rwlock_t *lock, const struct timespec *abstime) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_wrlock(pthread_rwlock_t *lock) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_trywrlock(pthread_rwlock_t *lock) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_timedwrlock(pthread_rwlock_t *lock, const struct timespec *abstime) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_rwlock_unlock(pthread_rwlock_t *lock) {
+  return (lock == NULL || *lock == NULL) ? EINVAL : 0;
+}
+
+int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr) {
+  if (cond == NULL) return EINVAL;
+  *cond = (pthread_cond_t)PS2_LOCK_INITIALIZED;
+  return 0;
+}
+
+int pthread_cond_destroy(pthread_cond_t *cond) {
+  if (cond == NULL || *cond == NULL) return EINVAL;
+  *cond = NULL;
+  return 0;
+}
+
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
+  return (cond == NULL || *cond == NULL) ? EINVAL : 0;
+}
+
+int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime) {
+  return (cond == NULL || *cond == NULL) ? EINVAL : ETIMEDOUT;
+}
+
+int pthread_cond_signal(pthread_cond_t *cond) {
+  return (cond == NULL || *cond == NULL) ? EINVAL : 0;
+}
+
+int pthread_cond_broadcast(pthread_cond_t *cond) {
+  return (cond == NULL || *cond == NULL) ? EINVAL : 0;
+}
+
+// Linked with -Wl,--wrap=DeleteSema (ps2/GNUMakefile): semaphore 0 is the
+// one libkernel's helper thread waits on (see above); a library deleting it
+// through a zero handle it never checked would freeze the console, so the
+// request is refused (there is no legitimate reason to delete it).
+extern int __real_DeleteSema(int id);
+
+int __wrap_DeleteSema(int id) {
+  if (id == 0) {
+    debug(DEBUG_ERROR, "SYS", "refusing to delete kernel semaphore 0 (caller %p)", __builtin_return_address(0));
+    return -1;
+  }
+  return __real_DeleteSema(id);
 }

@@ -9,17 +9,17 @@
 //
 // Used on platforms without a thread library (MS-DOS/DJGPP) or where the
 // system threads are not wanted (PlayStation Vita, Nintendo Switch, PSP,
-// PlayStation 2). The
+// PlayStation 2, Nintendo GameCube). The
 // task switch is done with setjmp/longjmp; a new task starts with the stack
-// pointer set to the top of its own stack (x86, 32-bit ARM, AArch64 and
-// MIPS only).
+// pointer set to the top of its own stack (x86, 32-bit ARM, AArch64, MIPS
+// and 32-bit PowerPC only).
 
 #include "sys.h"
 #include "thread.h"
 #include "debug.h"
 
 #define MAX_KEYS     256
-#if defined(PS2)
+#if defined(PS2) || defined(GAMECUBE)
 // the task table is static (4KB+ per entry): keep it small where memory is
 // (single application mode runs a handful of tasks)
 #define MAX_THREADS  32
@@ -27,9 +27,10 @@
 #define MAX_THREADS  256
 #endif
 #define MAX_MESSAGES 256
-#if defined(PS2)
-// 32MB in all: half a megabyte per task (a PalmOS application never needs
-// more than a few tens of kilobytes, the rest is for the OS code around it)
+#if defined(PS2) || defined(GAMECUBE)
+// 32MB (24MB on the GameCube) in all: half a megabyte per task (a PalmOS
+// application never needs more than a few tens of kilobytes, the rest is
+// for the OS code around it)
 #define STACK_SIZE   (512 * 1024)
 #else
 #define STACK_SIZE   (1024 * 1024)
@@ -182,6 +183,13 @@ static void schedule(void) {
     // n32 one (PlayStation 2) 16 byte aligned; 16 satisfies both
     void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)15);
     asm volatile ("move $sp, %0" : : "r" (top) : "memory");
+#elif defined(__PPC__) || defined(__powerpc__)
+    // PowerPC EABI (Nintendo GameCube): r1 is the stack pointer, 16 byte
+    // aligned, and the word it points to is the back chain (a null one ends
+    // the chain for whoever walks the stack)
+    void *top = (void *)(((uintptr_t)next->stack_top & ~(uintptr_t)15) - 16);
+    *(uintptr_t *)top = 0;
+    asm volatile ("mr 1, %0" : : "r" (top) : "memory");
 #else
 #error "cooperative threads: unsupported architecture"
 #endif

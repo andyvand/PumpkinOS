@@ -71,7 +71,7 @@ typedef uint32_t in_addr_t;
 #include <sys/stat.h>
 #include <ctype.h>
 #include <fcntl.h>
-#if !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
 // the devkitA64 and pspdev newlibs ship termios.h without the sys/termios.h it includes
 #include <termios.h>
 #endif
@@ -81,16 +81,16 @@ typedef uint32_t in_addr_t;
 
 #ifdef ESP32
 #include <esp_dlfcn.h>
-#elif !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#elif !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
 #include <dlfcn.h>
 #endif
 
 #include <errno.h>
-#if !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
 #include <sys/ioctl.h>
 #endif
 #include <sys/socket.h>
-#if defined(SERENITY) || defined(ESP32) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(SERENITY) || defined(ESP32) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 #include <sys/select.h>
 
 #ifdef ESP32
@@ -102,7 +102,7 @@ typedef uint32_t in_addr_t;
 #include <sys/statvfs.h>
 #endif
 #else
-#if !defined(DOS) && !defined(HAIKU) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(DOS) && !defined(HAIKU) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
 #include <sys/syscall.h>
 #endif
 
@@ -127,6 +127,12 @@ typedef uint32_t in_addr_t;
 // the pspsdk newlib glue has no getaddrinfo(): libpit supplies one (pspnet.c)
 #include "pspnetdb.h"
 #include <pspthreadman.h>
+#endif
+#ifdef GAMECUBE
+// libogc declares getaddrinfo() but defines neither it nor gai_strerror()
+// (libpit supplies both, gcnet.c), nor select() (gcnet.c, on top of its
+// poll())
+const char *gai_strerror(int errcode);
 #endif
 #ifdef PS2
 // ps2sdk: the EE bus clock counter (timer.h, see sys_get_clock) and the
@@ -262,7 +268,7 @@ static int dos_is_socket(int fd) {
 }
 #endif
 
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 // The vitasdk newlib keeps files and SceNet sockets in one descriptor table,
 // but select() and recv() only work on sockets. getsockopt() fails with
 // EBADF on anything that is not a socket, which makes it a cheap test.
@@ -325,7 +331,7 @@ static int socket_select(int socket, uint32_t us, int nf) {
 #endif
   fd_set fds;
   int n, r;
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   uint64_t t0, t;
 
   // cooperative threads: do not block in select() for the whole timeout
@@ -743,7 +749,7 @@ void sys_usleep(uint32_t us) {
   bcm2835_delayMicroseconds(us);
 #elif defined(WINDOWS)
   Sleep(us / 1000 + (us % 1000 ? 1 : 0));
-#elif defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#elif defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // cooperative threads: a sleeping task gives the other tasks a turn,
   // long sleeps are sliced so that they keep getting turns
   uint64_t t0, t;
@@ -991,7 +997,7 @@ uint32_t sys_get_tid(void) {
   thread_id id = find_thread(NULL);
   return id;
 #endif
-#if defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return 0;
 #endif
 }
@@ -1145,7 +1151,12 @@ int sys_readdir(sys_dir_t *dir, char *name, int len) {
   struct dirent *ent;
   errno = 0;
   if ((ent = readdir(dir->dir)) == NULL) {
+#ifdef PS2
+    // (the CD file system driver ends a listing with EPERM)
+    if (errno && errno != EPERM) {
+#else
     if (errno) {
+#endif
       debug_errno("SYS", "readdir");
     }
     return -1;
@@ -1545,7 +1556,7 @@ int sys_select(int fd, uint32_t us) {
   return r;
 #elif defined(DOS)
   return dos_is_socket(fd) ? socket_select(fd, us, 1) : 1;
-#elif defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#elif defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // newlib's select() only knows sockets; a plain file never blocks
   return vita_is_socket(fd) ? socket_select(fd, us, 1) : 1;
 #else
@@ -2074,7 +2085,7 @@ fail:
   if (w != INVALID_SOCKET) closesocket(w);
 
   return -1;
-#elif defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#elif defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return -1;
 #else
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == -1) {
@@ -2108,7 +2119,7 @@ int sys_peek(int fd) {
     return r;
   }
 #endif
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   if (!vita_is_socket(fd)) {
     return r;
   }
@@ -2270,6 +2281,56 @@ int sys_stat(const char *pathname, sys_stat_t *st) {
         }
         closedir(dir);
       }
+      // the CD file system driver (cdfs.irx, a legacy ioman device) is not
+      // reliable through getstat(): iomanX does not translate its mode bits
+      // (a directory comes out as S_IRGRP, a file as S_IWGRP), and a path
+      // that does not exist "succeeds" with the fields of the previous
+      // lookup (the driver returns the boolean result of its search). Its
+      // directory listings are right (dread() is translated), so the entry
+      // is looked up in its parent directory instead.
+      if (!strncmp(buf, "cdfs:", 5)) {
+        char parent[FILE_PATH], name[FILE_PATH], *p;
+        struct dirent *ent;
+        DIR *dir;
+        int found = 0, isdir = 0, len;
+
+        sys_strncpy(parent, buf, FILE_PATH-1);
+        parent[FILE_PATH-1] = 0;
+        name[0] = 0;
+        len = sys_strlen(parent);
+        while (len > 6 && parent[len-1] == '/') parent[--len] = 0;
+        if (len <= 6) {
+          // the root of the disc ("cdfs:" or "cdfs:/")
+          found = isdir = 1;
+        } else {
+          if ((p = sys_strrchr(parent, '/')) == NULL) p = &parent[4];  // "cdfs:NAME"
+          sys_strncpy(name, p+1, FILE_PATH-1);
+          name[FILE_PATH-1] = 0;
+          *p = 0;
+          if (parent[5] == 0) {
+            // an entry of the root directory
+            parent[5] = '/';
+            parent[6] = 0;
+          }
+          if ((dir = opendir(parent)) != NULL) {
+            while ((ent = readdir(dir)) != NULL) {
+              if (!strcasecmp(ent->d_name, name)) {
+                found = 1;
+                isdir = ent->d_type == DT_DIR;
+                break;
+              }
+            }
+            closedir(dir);
+          }
+        }
+        debug(DEBUG_TRACE, "SYS", "cdfs stat(\"%s\"): raw mode 0%o, parent \"%s\" name \"%s\" %s", buf, (int)sb.st_mode, parent, name, found ? (isdir ? "is a directory" : "is a file") : "not found");
+        if (!found) {
+          errno = ENOENT;
+          return -1;
+        }
+        sb.st_mode = (isdir ? S_IFDIR : S_IFREG) | S_IRUSR;
+        if (isdir) sb.st_size = 0;
+      }
 #endif
       st->mode = 0;
       if (S_ISREG(sb.st_mode)) st->mode |= SYS_IFREG;
@@ -2282,7 +2343,11 @@ int sys_stat(const char *pathname, sys_stat_t *st) {
       st->mtime = sb.st_mtime;
       st->ctime = sb.st_ctime;
     } else {
+#ifdef PS2
+      if (errno != ENOENT || !strncmp(buf, "cdfs:", 5)) {
+#else
       if (errno != ENOENT) {
+#endif
         debug_errno("SYS", "stat(\"%s\")", buf);
       }
     }
@@ -2334,7 +2399,7 @@ int sys_statfs(const char *pathname, sys_statfs_t *st) {
     r = 0;
   }
 #endif
-#if defined(VITA) || defined(SWITCH) || defined(PSP)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(GAMECUBE)
   // (no statvfs on the PS2: sys_statfs fails there)
   struct statvfs sb;
 
@@ -2515,7 +2580,7 @@ int sys_mkdir(const char *pathname) {
 }
 
 int sys_serial_open(char *device, char *w, int baud) {
-#if defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return -1;
 #elif defined(WINDOWS)
   WCHAR *wbuf = (WCHAR *)sys_malloc((strlen(device) + 1) * sizeof(WCHAR));
@@ -2663,7 +2728,7 @@ int sys_serial_open(char *device, char *w, int baud) {
 }
 
 int sys_serial_baud(int serial, int baud) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   debug(DEBUG_ERROR, "SYS", "sys_serial_baud not implemented");
   return -1;
 #else
@@ -2735,7 +2800,7 @@ int sys_serial_baud(int serial, int baud) {
 }
 
 int sys_serial_word(int serial, char *w) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   debug(DEBUG_ERROR, "SYS", "sys_serial_word not implemented");
   return -1;
 #else
@@ -2799,7 +2864,7 @@ int sys_serial_word(int serial, char *w) {
 }
 
 void *sys_tty_raw(int fd) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return NULL;
 #else
   struct termios term;
@@ -2820,7 +2885,7 @@ void *sys_tty_raw(int fd) {
 }
 
 int sys_tty_restore(int fd, void *p) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return 0;
 #else
   int r = -1;
@@ -2835,7 +2900,7 @@ int sys_tty_restore(int fd, void *p) {
 }
 
 int sys_termsize(int fd, int *cols, int *rows) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return -1;
 #else
   struct winsize ws;
@@ -2862,7 +2927,7 @@ void sys_srand(unsigned int seed) {
 }
 
 int sys_isatty(int fd) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return 0;
 #else
   return isatty(fd);
@@ -2870,7 +2935,7 @@ int sys_isatty(int fd) {
 }
 
 int sys_daemonize(void) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return -1;
 #else
   pid_t pid;
@@ -3043,7 +3108,8 @@ int64_t sys_get_clock(void) {
   // the EE bus clock counter (147.456 MHz = 18432/125 ticks per microsecond)
   // since boot; clock_gettime() only knows the wall clock there too
   ts = (int64_t)((GetTimerSystemTime() * 125) / 18432);
-#elif defined(EMSCRIPTEN) || defined(HAIKU) || defined(VITA) || defined(SWITCH)
+#elif defined(EMSCRIPTEN) || defined(HAIKU) || defined(VITA) || defined(SWITCH) || defined(GAMECUBE)
+  // (libogc: the time base counter since boot)
   ts = gettime(CLOCK_MONOTONIC);
 #else
 #if _POSIX_TIMERS > 0
@@ -3173,7 +3239,7 @@ int sys_set_thread_name(char *name) {
   return 0;
 }
 
-#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
 static void sys_set_signals(int op) {
   sigset_t set;
 
@@ -3194,13 +3260,13 @@ static void sys_set_signals(int op) {
 #endif
 
 void sys_block_signals(void) {
-#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
   sys_set_signals(SIG_BLOCK);
 #endif
 }
 
 void sys_unblock_signals(void) {
-#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(DOS) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
   sys_set_signals(SIG_UNBLOCK);
 #endif
 }
@@ -3217,7 +3283,7 @@ void sys_install_handler(int signum, void (*handler)(int)) {
   signal(signum, handler);
 #endif
 #else
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // no signals on the Vita
 #elif !defined(ESP32)
   struct sigaction action;
@@ -3230,7 +3296,7 @@ void sys_install_handler(int signum, void (*handler)(int)) {
 }
 
 void sys_wait(int *status) {
-#if !defined(WINDOWS) && !defined(KERNEL) && !defined(ESP32) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2)
+#if !defined(WINDOWS) && !defined(KERNEL) && !defined(ESP32) && !defined(VITA) && !defined(SWITCH) && !defined(PSP) && !defined(PS2) && !defined(GAMECUBE)
   wait(status);
 #endif
 }
@@ -3248,7 +3314,7 @@ void *sys_lib_load(char *libname, int *first_load) {
 
   *first_load = 0;
 
-#if defined(KERNEL) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(KERNEL) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // no dynamic loading (on the Vita everything is linked statically)
   return NULL;
 #elif defined(WINDOWS)
@@ -3346,7 +3412,7 @@ void *sys_lib_load(char *libname, int *first_load) {
 void *sys_lib_defsymbol(void *lib, char *name, int mandatory) {
   void *sym;
 
-#if defined(KERNEL) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(KERNEL) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   sym = NULL;
 #elif defined(WINDOWS)
 #if defined(_WIN32_WCE) && !defined(REGULAR_GETPROCADDRESS)
@@ -3396,7 +3462,7 @@ void *sys_lib_defsymbol(void *lib, char *name, int mandatory) {
 }
 
 int sys_lib_close(void *lib) {
-#if defined(KERNEL) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(KERNEL) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return 0;
 #elif defined(WINDOWS)
   return FreeLibrary((HMODULE)lib);
@@ -3597,7 +3663,7 @@ static int sys_tcpip_fill_addr(struct sockaddr_storage *a, char *host, int port,
 
   sys_memset((char *)a, 0, sizeof(struct sockaddr_storage));
 
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // Watt-32 (DOS) and SceNet (Vita) have no IPv6 transport: never pick an
   // IPv6 address for a host name (the connect would fail or hang, e.g.
   // https://en.wikipedia.org)
@@ -3803,7 +3869,7 @@ static int sys_tcpip_connect(char *host, int port, int type, uint32_t us) {
       closesocket(sock);
       return -1;
     }
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
     // cooperative threads: poll the connection and yield in between (see socket_select)
     {
       uint64_t t0 = sys_get_clock(), t;
@@ -4497,7 +4563,7 @@ int sys_socket_native(int fd) {
 }
 
 int sys_fork_exec(char *filename, char *argv[], int fd) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return -1;
 #else
   char *envp[] = { NULL };
@@ -4920,7 +4986,7 @@ int sys_sscanf(const char *str, const char *format, ...) {
 }
 
 sys_size_t sys_getpagesize(void) {
-#if defined(WINDOWS) || defined(KERNEL) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(WINDOWS) || defined(KERNEL) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   return 4096; // XXX
 #else
   return sysconf(_SC_PAGE_SIZE);

@@ -31,12 +31,14 @@ WavPack, opus, vorbis) and OpenSSL installed in the EE compiler sysroot
     make OSNAME=ps2 -f GNUMakefile
 
 The result is `bin/ps2/PumpkinOS/` (the directory to copy to a USB stick, a
-memory card or wherever the loader finds it) and the same as
-`bin/PumpkinOS_PS2.zip`, plus `bin/pumpkinos.elf` (unstripped, for
+memory card or wherever the loader finds it), the same as
+`bin/PumpkinOS_PS2.zip`, a bootable disc image `bin/PumpkinOS_PS2.iso` (see
+Booting from a disc below), plus `bin/pumpkinos.elf` (unstripped, for
 `mips64r5900el-ps2-elf-addr2line`) and `bin/pumpkinos.map`. The directory
-carries `PUMPKINOS.ELF`, the application resources (`vfs/app_install/*.prc`)
-and, when it exists in the PumpkinOS root, `cert.pem` (https CA bundle). No
-soundfont: FluidSynth would load the whole 6MB file into the console's 32MB.
+carries `PUMPKINOS.ELF`, the application resources (`vfs/app_install/*.prc`),
+the boot options file `pumpkin.cfg` (comments only, see Options) and, when it
+exists in the PumpkinOS root, `cert.pem` (https CA bundle). No soundfont:
+FluidSynth would load the whole 6MB file into the console's 32MB.
 
 The build is always optimized for size (`-Os`, `-G0`): the program takes most
 of the console's memory (see Memory below). When switching from another
@@ -51,31 +53,54 @@ Copy `bin/ps2/PumpkinOS` to a USB stick (`mass:/PumpkinOS/`) or anywhere else
 a homebrew loader (uLaunchELF / wLaunchELF, OPL, FreeMcBoot...) can start an
 ELF from, and start `PUMPKINOS.ELF`. The layout:
 
-* **the memory card** holds the PumpkinOS home, `mc0:/PumpkinOS/` (the first
-  slot with a formatted PS2 memory card; `mc1:` when the first one is empty
-  or holds a PS1 card):
-  * `vfs/app_install`: the application PRCs (copied from the ELF's directory
-    on the first boot, see below; drop other PumpkinOS applications built for
-    the PS2 here, they are deployed at the next boot),
+* **a RAM disk** holds the PumpkinOS home, `ram:/PumpkinOS/`, like on the
+  GameCube (`libpit/ps2ramdisk.c`). It lives in the console's main memory
+  and is lost at power off:
+  * `vfs/app_install`: the application PRCs (copied from the ELF's
+    directory at every boot, see below),
   * `vfs/app_storage`: the database storage,
   * `vfs/app_card/PALM/Programs`: the card's Programs directory (data files of
-    applications, e.g. Game Boy ROMs for GNUBoy),
+    applications, e.g. Game Boy ROMs for GNUBoy; put them in
+    `vfs/app_card/PALM/Programs` next to the ELF and they are copied too),
   * `tmp`: temporary files,
 * **next to the ELF** (when that place is writable: a USB stick, the host under
-  PCSX2 / ps2link; else on the memory card as well): `pumpkin.log` (the log)
-  and `pumpkin.err` (stderr); `cert.pem` (the CA bundle for https) is looked
-  for next to the ELF, then in the home.
+  PCSX2 / ps2link): `pumpkin.log` (the log) and `pumpkin.err` (stderr);
+  `cert.pem` (the CA bundle for https) is looked for next to the ELF, then
+  in the home. When the ELF's place is not writable (a disc) the log goes to
+  stderr, the EE console (PCSX2's EE console log, ps2link), since in the RAM
+  disk it would only eat memory; `-log <file>` names a file instead
+  (`-log mass:/pumpkin.log`, or `-log mc0:/pumpkin.log`: on a memory card the
+  log is buffered in memory and appended to the file every 5 seconds or
+  16KB, with stderr in the same file, because the card driver has only 3
+  file handles in all).
 
-**First boot:** when `mc?:/PumpkinOS/vfs/app_install` does not exist yet the
-`vfs/` directory shipped next to the ELF is copied to the memory card, then
-PumpkinOS deploys the PRCs into `app_storage` as usual. A memory card is slow
-(every small file costs a few hundred milliseconds), so the first boot takes
-several minutes with a black screen: watch the log, or wait for the Launcher.
-The deployed storage takes about 6MB of the 8MB card (1273 files); the PRCs
-are removed from `app_install` once deployed. `-seed` copies `vfs/` again
-(it overwrites the PRCs, not the storage). `-home <dir>` puts the home
-somewhere else (`-home mass:/PumpkinOS/` keeps everything on the USB stick,
-which is much faster).
+**Every boot:** the RAM disk starts empty, so the `vfs/` directory shipped
+next to the ELF is copied to it and PumpkinOS deploys the PRCs into
+`app_storage` as usual. This takes a second or two (the deployed storage is
+about 1250 small files, 800KB of data). Nothing written by the applications
+(memos, addresses, preferences...) survives a reboot.
+
+The RAM disk takes its memory from the C heap: about 940KB once the PRCs are
+deployed (contents plus about 80 bytes per file), 1.25MB at the peak of the
+deploy. It may hold 3MB at most (`-ramdisk <KB>` changes that, 512 at
+least); past that, writes fail with "no space". Every file is one block of
+memory holding its whole contents, grown as it is written and trimmed when
+the last descriptor is closed. The PS2 has no spare memory the CPU cannot
+use directly like the GameCube's ARAM (the IOP's, the sound processor's and
+the GS's are taken by the drivers and the frame buffers).
+
+**Keeping the home on a memory card:** `-memcard` puts it on the first slot
+with a formatted PS2 memory card, `mc0:/PumpkinOS/` (`mc1:` when the first
+one is empty or holds a PS1 card), as before; `-home <dir>` puts it anywhere
+else (`-home mass:/PumpkinOS/` keeps everything on a USB stick). Such a home
+persists: `vfs/` is copied only when `vfs/app_install` does not exist yet
+(or when `app_install` and `app_storage` are both empty, an install that
+failed: the PRCs are removed as they are deployed), and `-seed` copies it
+again (it overwrites the PRCs, not the storage). A memory card is very slow
+(every small file costs a few hundred milliseconds): the first boot takes
+15 minutes or more with a black screen, and the deployed storage takes
+about 6MB of the 8MB card. The log goes to the home in that case (buffered,
+see above).
 
 The storage layout uses the hashed database directory names of the MS-DOS
 port (`libpumpkin/storage.c`, `STO_HASHED_DIRS`): a memory card file name is
@@ -83,6 +108,44 @@ limited to 31 characters, the regular `<name>_<hex>` directory names are up
 to 97. A PS2 `app_storage` can therefore be moved to a DOS installation and
 back, but not to the other platforms (and the resource file names are the
 regular ones, not the DOS 8.3 ones).
+
+### Booting from a disc
+
+`bin/PumpkinOS_PS2.iso` is a plain data disc image to burn to a CD-R (or a
+DVD-R): ISO9660 with a Joliet volume, `SYSTEM.CNF` in the root
+(`BOOT2 = cdrom0:\PUMPKINOS.ELF;1`, `VER = 1.00` and `VMODE = PAL`, or
+`NTSC` with `make PS2_VMODE=NTSC ...`), `PUMPKINOS.ELF`, `pumpkin.cfg`,
+`cert.pem`, this README and the `vfs/` directory with the application PRCs.
+It is built by `mkiso.py` (a small ISO9660 + Joliet writer, the equivalent of
+`mkisofs -iso-level 2 -J`; `mkiso.py -t <image>` lists an image) from a clean
+copy of the staged directory in `bin/ps2/cd/`, so that the files a PCSX2 or
+ps2link session leaves in `bin/ps2/PumpkinOS/` stay out.
+
+The console boots the disc like a game (a homebrew disc needs a modchip or a
+softmod such as FreeMcBoot / ESR / OPL; uLaunchELF can also start
+`cdfs:/PUMPKINOS.ELF` from any data disc), PCSX2 boots the image directly
+(`PCSX2 -batch bin/PumpkinOS_PS2.iso`). The BIOS passes `argv[0]` as
+`cdrom0:\PUMPKINOS.ELF;1`; `main.c` maps the `cdrom0:` device (the BIOS
+device, ISO9660 paths, no directory listing) to `cdfs:/`, the device of
+ps2sdk's `cdfs.irx` that `ps2_drivers` loads at startup (it prefers the
+Joliet names, so the PRCs keep their real names, and matches names
+case-insensitively). The disc is read-only, so:
+
+* the home is the RAM disk, seeded from the disc's `vfs/` at every boot
+  (`-memcard` or `-home mass:/PumpkinOS/` in `pumpkin.cfg` on the disc keep it
+  on a memory card or a USB stick instead),
+* the log goes to the EE console, or to the home when it is not the RAM
+  disk, or where `-log` says,
+* the options come from `pumpkin.cfg` on the disc (there is no command line).
+
+`cdfs.irx` has quirks `libpit/sys.c` and `main.c` work around: `getstat()`
+of a path that does not exist succeeds (the driver returns the boolean
+result of its lookup, 0, and leaves the fields as they were), so
+`sys_stat()` double checks every `cdfs:` answer by opening the directory or
+the file; only 4 directories and 4 files can be open at a time, so
+`copy_tree()` lists a directory and closes it before descending (the seed
+tree is already 4 levels deep). Disc reads are slow (a few hundred KB/s in
+PCSX2), the 12MB ELF takes a while to load.
 
 ### Screen and controls
 
@@ -150,8 +213,15 @@ Loaders usually start the ELF without arguments; one that passes them
 the PSP port plus the PS2 ones:
 
     [-width n] [-height n] [-density 72|144] [-depth n] [-hdepth 16|32]
-    [-mode n] [-dia 0|1] [-app <name>] [-boot <dir>] [-home <dir>] [-vfs <dir>]
-    [-log <file>] [-seed] [-nonet] [-pal | -ntsc] [-progressive] [-d 0|1|2]
+    [-mode n] [-dia 0|1] [-app <name>] [-boot <dir>] [-home <dir>] [-memcard]
+    [-ramdisk <KB>] [-vfs <dir>] [-log <file>] [-seed] [-nonet] [-pal | -ntsc]
+    [-progressive] [-d 0|1|2]
+
+The same options are read first from `pumpkin.cfg` in the directory the ELF
+was started from (`-boot <dir>` changes it): one or more options per line,
+`#` starts a comment; the command line comes after it and wins. The shipped
+file only holds comments. This is the only way to pass options on a disc, a
+USB stick or a memory card started from a loader.
 
 ## Testing with PCSX2
 
@@ -159,16 +229,33 @@ PCSX2 boots the ELF directly (`PCSX2 -batch -elf <path>/PUMPKINOS.ELF`);
 enable "HostFs" in its settings (`HostFs = true` in `PCSX2.ini`, under
 `[EmuCore]`) so that the ELF sees its own directory as `host:` (that is where
 `vfs/` is seeded from and where the log lands; the ELF gets `argv[0]` as
-`host:PUMPKINOS.ELF`). A formatted PS2 memory card must be in one of the two
-slots. The keyboard mapping of PCSX2's default pad profile has the D-pad on
+`host:PUMPKINOS.ELF`). No memory card is needed (only for `-memcard`). The
+keyboard mapping of PCSX2's default pad profile has the D-pad on
 the arrow keys, Cross on K, Circle on L, Triangle on I, Square on J, Start on
 Return and Select on Backspace.
 
+The disc image boots with `PCSX2 -batch bin/PumpkinOS_PS2.iso`; the log then
+goes to the EE console, which PCSX2 writes to its `emulog.txt` when
+`EnableEEConsole = true` (`[Logging]` in `PCSX2.ini`). To watch the disc code with the log on the
+host, boot the ELF from the host with the image in the drive and point it at
+the disc: `PCSX2 -batch -elf <path>/PUMPKINOS.ELF -gameargs "-boot cdfs:/
+-log host:cd.log" bin/PumpkinOS_PS2.iso` seeds the RAM disk from the disc
+and logs to `cd.log` next to the ELF (PCSX2 resolves `host:` against the
+ELF's directory).
+
 ## Differences from the PSP port
 
-* The VFS lives on the memory card, seeded from the ELF's directory on the
-  first boot (the PSP keeps it next to the EBOOT).
-* The database directories are hashed (31 character file names on the card).
+* The VFS lives on a RAM disk, seeded from the ELF's directory at every boot
+  (the PSP keeps it next to the EBOOT); `-memcard` keeps it on a memory
+  card. The RAM disk plugs into the C library glue: its path operation
+  table (`_libcglue_fdman_path_ops`) is replaced by one that handles `ram:`
+  paths and passes the others to fileXio, and its descriptors carry their
+  own read/write/seek/readdir operations (`ftruncate()` resizes in place).
+  The ELF can be started
+  from a disc (`bin/PumpkinOS_PS2.iso`), the options can come from a
+  `pumpkin.cfg` file.
+* The database directories are hashed (31 character file names on a memory
+  card; the RAM disk does not need it, but keeps the same layout).
 * The memory card driver (mcman) answers `stat()` for a path that does not
   exist with success and a directory mode without the owner bits (`0260`):
   `sys_stat()` double checks such answers with `opendir()`. `mkdir()` of an
@@ -180,6 +267,21 @@ Return and Select on Backspace.
   256 entry table (per EE kernel thread). It also implements the
   `ftruncate()` the glue stubs out (`ENOSYS`) by rewriting the file through a
   side file, like the PSP port.
+* The EE kernel has 256 semaphores in all and pthread-embedded spends one
+  per mutex, two per condition variable and five per read-write lock; with
+  the dozens of read-write locks OpenSSL 4 creates at initialization and the
+  mutex libatomic creates per touched address bucket (the R5900 has no
+  atomic instructions) the table overflowed, depending on the heap layout.
+  pthread-embedded's `pthread_mutex_init()` ignores the failed
+  `CreateSema()` and the destroy that follows deletes semaphore 0, the one
+  libkernel's helper thread (`topThread`, priority 0) waits on: that thread
+  then spins forever and the console freezes (typically right after
+  `SECURE: initializing OpenSSL` in the log). `libpit/ps2sys.c` replaces the
+  pthread mutex, read-write lock and condition variable functions with
+  no-cost ones (everything that uses them runs on the single kernel thread
+  the cooperative tasks share; PumpkinOS's own mutexes are `mutexnull` for
+  the same reason) and the link wraps `DeleteSema()` to refuse deleting
+  semaphore 0 (`-Wl,--wrap=DeleteSema`).
 * The ps2sdk newlib has `fmodl`, `getentropy()`, `getaddrinfo()` and
   `clock_gettime()` (wall clock only: `sys_get_clock()` uses the EE bus clock
   counter, `GetTimerSystemTime()`), but no `dlfcn.h`, `sys/syscall.h`,

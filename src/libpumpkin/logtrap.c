@@ -2425,13 +2425,10 @@ void logtrap_finish(logtrap_t *lt) {
 }
 
 static char *id2s(uint32_t ID, char *s) {
-  creator_id_t id;
-
-  id.t = ID;
-  s[0] = id.c[3];
-  s[1] = id.c[2];
-  s[2] = id.c[1];
-  s[3] = id.c[0];
+  s[0] = (char)(ID >> 24);
+  s[1] = (char)(ID >> 16);
+  s[2] = (char)(ID >> 8);
+  s[3] = (char)ID;
   s[4] = 0;
 
   return s;

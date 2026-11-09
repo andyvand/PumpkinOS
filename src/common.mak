@@ -32,6 +32,9 @@ MACHINE := mips
 else ifeq ($(OSNAME),ps2)
 # the PlayStation 2 Emotion Engine is a MIPS (R5900, n32 ABI: 32-bit pointers)
 MACHINE := mips
+else ifeq ($(OSNAME),gamecube)
+# the Nintendo GameCube is always a 32-bit big endian PowerPC (Gekko)
+MACHINE := powerpc
 else
 MACHINE := $(shell uname -m)
 endif
@@ -109,6 +112,13 @@ SYS_CPU=4
 ifeq ($(BITS),)
 BITS=32
 endif
+else ifeq ($(MACHINE),powerpc)
+# big endian 32-bit PowerPC (Nintendo GameCube)
+SYS_ENDIAN=2
+SYS_CPU=5
+ifeq ($(BITS),)
+BITS=32
+endif
 else
 $(error Unknown CPU $(MACHINE))
 endif
@@ -140,6 +150,10 @@ else ifeq ($(OSNAME),ps2)
 PS2DEV?=/opt/ps2dev
 AR=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-ar
 NM=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-nm -j -u
+else ifeq ($(OSNAME),gamecube)
+DEVKITPRO?=/opt/devkitpro
+AR=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
+NM=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-nm -j -u
 else
 AR=ar
 NM=nm -j -u
@@ -282,6 +296,33 @@ PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
 
+else ifeq ($(OSNAME),gamecube)
+# Nintendo GameCube (devkitPro devkitPPC cross compiler, newlib + libogc).
+# Like the Vita, the Switch, the PSP and the PS2 everything is linked
+# statically into a single executable (see src/gamecube), there are no
+# shared objects. GAMECUBE is the PumpkinOS platform macro, __gamecube__ and
+# GEKKO are what the libogc and SDL3 headers (and devkitPro's own build
+# rules) expect. The compiler flags are devkitPro's gamecube_rules MACHDEP.
+# Always optimized for size, with every function and data item in its own
+# section so that the link can drop what is not used: the console has 24MB
+# of main memory in all and the program takes most of it.
+SYS_OS=12
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=GameCube
+DEVKITPRO?=/opt/devkitpro
+DEVKITPPC=$(DEVKITPRO)/devkitPPC
+LIBOGC=$(DEVKITPRO)/libogc
+PORTLIBS=$(DEVKITPRO)/portlibs/gamecube
+GAMECUBE_ARCH=-mogc -mcpu=750 -meabi -mhard-float
+OSDEFS=$(GAMECUBE_ARCH) -Os -ffunction-sections -fdata-sections -DGAMECUBE -D__gamecube__ -DGEKKO -DSOEXT=\"$(SOEXT)\" -I$(PORTLIBS)/include -I$(LIBOGC)/include -Wno-format -Wno-attributes
+CC=$(DEVKITPPC)/bin/powerpc-eabi-gcc
+CPP=$(DEVKITPPC)/bin/powerpc-eabi-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
 else ifeq ($(OSNAME),Darwin)
 SYS_OS=1
 SOEXT=.dylib
@@ -409,6 +450,8 @@ else ifeq ($(OSNAME),psp)
 STRIP=$(PSPDEV)/bin/psp-strip
 else ifeq ($(OSNAME),ps2)
 STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
+else ifeq ($(OSNAME),gamecube)
+STRIP=$(DEVKITPPC)/bin/powerpc-eabi-strip
 else
 STRIP=strip
 endif

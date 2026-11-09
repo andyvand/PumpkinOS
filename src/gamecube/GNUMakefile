@@ -1,0 +1,120 @@
+# PumpkinOS for the Nintendo GameCube (devkitPro devkitPPC + libogc + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider and every
+# application static library produced by the other modules into one DOL and
+# stages it with the application PRCs as bin/gamecube/pumpkinos/ (the
+# directory to copy to an SD card), also zipped as bin/PumpkinOS_GameCube.zip
+# (see README.md). A second DOL, bin/gamecube/pumpkinos_embed.dol, carries
+# the application PRCs inside the program (for a console without an SD card
+# adapter, or an emulator: it runs from the ARAM RAM disk). Build from src/
+# with:
+#
+#   make OSNAME=gamecube -f GNUMakefile
+#
+# DEVKITPRO may point at the devkitPro root (default /opt/devkitpro); PYTHON
+# is the interpreter running mkvfsblob.py.
+
+include ../common.mak
+
+TITLE=PumpkinOS
+
+ELF=$(BIN)/pumpkinos.elf
+DOL=$(BIN)/pumpkinos.dol
+ELF_EMBED=$(BIN)/pumpkinos_embed.elf
+DOL_EMBED=$(BIN)/pumpkinos_embed.dol
+STAGE=$(BIN)/gamecube
+GAME=$(STAGE)/pumpkinos
+TARGET=$(GAME)/pumpkinos.dol
+ZIP=$(BIN)/PumpkinOS_GameCube.zip
+PYTHON?=python3
+
+ELF2DOL=$(DEVKITPRO)/tools/bin/elf2dol
+BIN2S=$(DEVKITPRO)/tools/bin/bin2s
+PKG_CONFIG=PKG_CONFIG_LIBDIR=$(PORTLIBS)/lib/pkgconfig $(PORTLIBS)/bin/powerpc-eabi-pkg-config
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# the VFS archive linked into the embedded DOL (bin2s turns the file into an
+# assembler source with the symbols vfsblob_bin / vfsblob_bin_end /
+# vfsblob_bin_size, see extract_blob() in main.c)
+VFSBLOB=$(BIN)/vfsblob.bin
+VFSBLOB_OBJ=vfsblob.o
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a
+
+# SDL3 (GX video, AESND audio, the controller as a gamepad) and SDL3_mixer
+# with its decoders, with the libogc libraries they need, from the gamecube
+# portlibs (FluidSynth is C++, hence -lstdc++)
+SDLLIBS=$(shell $(PKG_CONFIG) --static --libs sdl3-mixer sdl3)
+# the Broadband Adapter network stack (libpit/gcnet.c), the ISO9660 reader
+# for a disc, the FAT driver for SD cards and libogc itself
+GCLIBS=-lbba -liso9660 -laesnd -lfat -logc
+
+# EXTLIBDIRS=-L<dir> on the make command line looks there first
+# --gc-sections drops the functions and data nothing refers to (every
+# object is compiled with -ffunction-sections -fdata-sections, see
+# common.mak)
+LDFLAGS=$(GAMECUBE_ARCH) -Wl,--gc-sections -Wl,-Map,$(BIN)/pumpkinos.map
+
+LINK=$(CC) $(LDFLAGS) -o $@ $(OBJS) $(EXTRA_OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(LIBOGC)/lib/cube -Wl,--start-group $(SDLLIBS) $(GCLIBS) -lstdc++ -lm $(EXTLIBS) -Wl,--end-group
+
+all: $(ZIP) $(DOL_EMBED)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@$(LINK)
+
+$(ELF_EMBED): EXTRA_OBJS=$(VFSBLOB_OBJ)
+$(ELF_EMBED): $(OBJS) $(VFSBLOB_OBJ) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos_embed.elf
+	@$(LINK)
+
+$(VFSBLOB): mkvfsblob.py $(wildcard $(VFS)/app_install/*.prc)
+	@echo Creating vfsblob.bin
+	@$(PYTHON) mkvfsblob.py -o $(VFSBLOB) $(VFS) app_install
+
+$(VFSBLOB_OBJ): $(VFSBLOB)
+	@echo Compiling vfsblob.bin
+	@$(BIN2S) -a 32 $(VFSBLOB) > vfsblob.s
+	@$(CC) $(GAMECUBE_ARCH) -c vfsblob.s -o $(VFSBLOB_OBJ)
+
+$(DOL): $(ELF)
+	@echo Creating pumpkinos.dol
+	@$(ELF2DOL) $(ELF) $(DOL)
+
+$(DOL_EMBED): $(ELF_EMBED)
+	@echo Creating pumpkinos_embed.dol
+	@$(ELF2DOL) $(ELF_EMBED) $(DOL_EMBED)
+	@mkdir -p $(STAGE)
+	@cp $(DOL_EMBED) $(STAGE)/pumpkinos_embed.dol
+
+# The staged directory carries the DOL, the application PRCs
+# (vfs/app_install), the boot options file (pumpkin.cfg, comments only) and
+# this README. No soundfont: the 6MB file does not fit the console's memory.
+# (the staged directory is not wiped: pumpkin.log, tmp/ and vfs/ live there
+# when it is used as the home)
+$(TARGET): $(DOL) README.md pumpkin.cfg
+	@echo Creating pumpkinos
+	@rm -rf $(GAME)/vfs/app_install
+	@mkdir -p $(GAME)/vfs/app_install $(GAME)/vfs/app_storage $(GAME)/vfs/app_card/PALM/Programs
+	@cp $(DOL) $(TARGET)
+	@cp $(VFS)/app_install/*.prc $(GAME)/vfs/app_install/
+	@cp README.md $(GAME)/README.md
+	@if [ ! -f $(GAME)/pumpkin.cfg ]; then cp pumpkin.cfg $(GAME)/pumpkin.cfg; fi
+
+$(ZIP): $(TARGET) README.md
+	@echo Creating PumpkinOS_GameCube.zip
+	@rm -f $(ZIP)
+	@cd $(STAGE) && zip -qr $(abspath $(ZIP)) pumpkinos -x 'pumpkinos/pumpkin.log' 'pumpkinos/pumpkin.err' 'pumpkinos/tmp/*' 'pumpkinos/vfs/app_storage/*' 'pumpkinos/vfs/app_card/*' '*.DS_Store'
+
+clean:
+	@rm -f $(ELF) $(DOL) $(ELF_EMBED) $(DOL_EMBED) $(ZIP) $(BIN)/pumpkinos.map $(OBJS) $(VFSBLOB) $(VFSBLOB_OBJ) vfsblob.s
+	@rm -rf $(STAGE)

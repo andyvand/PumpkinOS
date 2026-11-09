@@ -167,7 +167,7 @@ static Boolean	PrvAppLaunchCmdDatabaseInit(DmOpenRef dbP);
  *         art   7/24/95   Initial Revision
  *
  ***********************************************************************/
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 PUBLIC UInt32   AddrPilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 PUBLIC UInt32   PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

@@ -6,18 +6,31 @@
 //
 // Layout: the ELF is started from wherever a loader finds it (a USB stick,
 // "mass:/PumpkinOS/PUMPKINOS.ELF", a memory card, the host under PCSX2 or
-// ps2link, a disc...). The VFS lives on a memory card: on the first boot
-// the vfs/ directory shipped next to the ELF is copied to
-// mc0:/PumpkinOS/vfs/ (the first slot holding a formatted PS2 memory card;
-// mc1: when the first one is empty or a PS1 card), with the temporary files
-// (tmp/) next to it. The log (pumpkin.log) and stderr (pumpkin.err) go next
-// to the ELF when that place is writable, else to the memory card as well.
+// ps2link, a CD/DVD: the BIOS boots "cdrom0:\PUMPKINOS.ELF;1" from the
+// SYSTEM.CNF of the disc image GNUMakefile builds, uLaunchELF starts
+// "cdfs:/PUMPKINOS.ELF"). The home is a RAM disk, like on the GameCube:
+// "ram:/PumpkinOS/" (libpit/ps2ramdisk.c), lost at power off; at every boot
+// the vfs/ directory shipped next to the ELF is copied to ram:/PumpkinOS/vfs/
+// and PumpkinOS deploys the application PRCs from there, with the temporary
+// files (tmp/) next to it. A memory card is far too slow for the storage
+// (more than 15 minutes for the first deploy) and has only 3 file handles;
+// -memcard keeps the home on the first formatted card (mc0:/PumpkinOS/, or
+// mc1:) and -home puts it anywhere else. The log (pumpkin.log) and stderr
+// (pumpkin.err) go next to the ELF when that place is writable, else to the
+// home when it is not the RAM disk (on a memory card the log is buffered),
+// else to the EE console (stderr; -log names a file instead).
+//
+// A disc is read through the cdfs device of ps2sdk's cdfs.irx (loaded by
+// ps2_drivers): "cdrom0:" (the BIOS device, no directory listing) is
+// mapped to "cdfs:/". A disc cannot carry command line options, so the
+// options can also come from a pumpkin.cfg file next to the ELF.
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <kernel.h>
 #include <sifrpc.h>
@@ -43,14 +56,33 @@
 
 #define MAX_PATH_LEN 256
 
-// the PumpkinOS directory on the memory card
+// the PumpkinOS directory on the RAM disk or the memory card
 #define PS2_HOME_DIR "PumpkinOS"
+
+// the RAM disk device (libpit/ps2ramdisk.c) and how much it may hold by
+// default (the deployed storage takes about 1MB, the PRCs it is deployed
+// from another 0.9MB while the deploy goes on)
+#define PS2_RAMDISK "ram"
+#define PS2_RAMDISK_KB 3072
 
 // where to look for the ELF (and its vfs/) when the loader gives no path
 #define PS2_DEFAULT_BOOT "mass:/PumpkinOS/"
 
 // how long to wait for the link and then for a DHCP lease at startup
 #define PS2_NET_TIMEOUT_MS 10000
+
+// the options file next to the ELF (a disc has no command line)
+#define PS2_CONFIG_FILE "pumpkin.cfg"
+#define PS2_CONFIG_MAX_ARGS 64
+#define PS2_CONFIG_MAX_SIZE 4096
+
+// the CD file system device of cdfs.irx; what the BIOS calls "cdrom0:"
+#define PS2_CDFS_ROOT "cdfs:/"
+
+// the log on a memory card is kept in memory and appended to the file every
+// so often (see cardlog_write)
+#define PS2_CARDLOG_SIZE 16384
+#define PS2_CARDLOG_FLUSH_US 5000000
 
 extern int liblsdl3_load(void);
 extern int liblsdl3_init(int pe, script_ref_t obj);
@@ -108,14 +140,17 @@ static void usage(void) {
   fprintf(stderr, "  -dia <0|1>     dynamic input area (default 1)\n");
   fprintf(stderr, "  -app <name>    start this application instead of the Launcher\n");
   fprintf(stderr, "  -boot <dir>    directory holding the ELF and the vfs/ to seed from (default: where the ELF was loaded from)\n");
-  fprintf(stderr, "  -home <dir>    PumpkinOS home (default: PumpkinOS/ on the first formatted PS2 memory card)\n");
+  fprintf(stderr, "  -home <dir>    PumpkinOS home (default: the RAM disk, %s:/%s/)\n", PS2_RAMDISK, PS2_HOME_DIR);
+  fprintf(stderr, "  -memcard       home on the first formatted PS2 memory card (%s/ on mc0: or mc1:)\n", PS2_HOME_DIR);
+  fprintf(stderr, "  -ramdisk <KB>  how much the RAM disk may hold (default %d)\n", PS2_RAMDISK_KB);
   fprintf(stderr, "  -vfs <dir>     VFS root directory (default <home>/vfs)\n");
-  fprintf(stderr, "  -log <file>    log file (default pumpkin.log next to the ELF, or in <home>)\n");
+  fprintf(stderr, "  -log <file>    log file (default pumpkin.log next to the ELF, else in a home that is not the RAM disk, else stderr)\n");
   fprintf(stderr, "  -seed          copy vfs/ from the boot directory again (overwrites the application PRCs)\n");
   fprintf(stderr, "  -nonet         do not bring the network up\n");
   fprintf(stderr, "  -pal | -ntsc   force the TV mode (default: the console's region)\n");
   fprintf(stderr, "  -progressive   480p output (component cable)\n");
   fprintf(stderr, "  -d <level>     log level: 0 = errors, 1 = info (default), 2 = trace; <level>:<system> for one system\n");
+  fprintf(stderr, "the same options are read from %s next to the ELF first (a disc has no command line)\n", PS2_CONFIG_FILE);
 }
 
 // does the directory exist ? (sys_stat() double checks the memory card
@@ -141,6 +176,21 @@ static void add_slash(char *path, int len) {
   if (n > 0 && n < len-1 && path[n-1] != '/' && path[n-1] != ':') {
     path[n] = '/';
     path[n+1] = 0;
+  }
+}
+
+// is this a path on the disc drive ? ("cdrom0:", "cdrom:", "cdfs:")
+static int is_cdrom(const char *path) {
+  return !strncmp(path, "cdrom", 5) || !strncmp(path, "cdfs:", 5);
+}
+
+// the BIOS and the loaders name the disc "cdrom0:" (a device without
+// directory listing, with ISO9660 paths like "\\DIR\\FILE.EXT;1"): the
+// disc is read through cdfs.irx instead, whose device is "cdfs:"
+static void cdrom_to_cdfs(char *boot, int len) {
+  if (!strncmp(boot, "cdrom", 5)) {
+    sys_strncpy(boot, PS2_CDFS_ROOT, len-1);
+    boot[len-1] = 0;
   }
 }
 
@@ -180,7 +230,37 @@ static void find_boot(const char *arg0, char *boot, int len) {
       sys_strncpy(boot, PS2_DEFAULT_BOOT, len-1);
     }
   }
+  cdrom_to_cdfs(boot, len);
   add_slash(boot, len);
+}
+
+// the options file next to the ELF: the same options as the command line,
+// separated by blanks or line breaks, '#' starts a comment. They are placed
+// before the real arguments, which therefore win.
+static int read_config(const char *boot, char **argv, int max, char *buf, int size) {
+  char path[MAX_PATH_LEN];
+  int fd, n, i, argc = 0, comment = 0;
+
+  sys_snprintf(path, MAX_PATH_LEN-1, "%s%s", boot, PS2_CONFIG_FILE);
+  if ((fd = sys_open(path, SYS_READ)) == -1) {
+    return 0;
+  }
+  n = sys_read(fd, (uint8_t *)buf, size-1);
+  sys_close(fd);
+  if (n <= 0) return 0;
+  buf[n] = 0;
+
+  for (i = 0; i < n && argc < max; i++) {
+    if (buf[i] == '#') comment = 1;
+    if (buf[i] == '\n' || buf[i] == '\r') comment = 0;
+    if (comment || buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r') {
+      buf[i] = 0;
+    } else if (i == 0 || buf[i-1] == 0) {
+      argv[argc++] = &buf[i];
+    }
+  }
+
+  return argc;
 }
 
 static const char *mc_type_name(int type) {
@@ -246,12 +326,16 @@ static int copy_file(const char *src, const char *dst) {
   return r;
 }
 
-// recursive copy of a directory tree (the initial VFS to the memory card)
+// recursive copy of a directory tree (the initial VFS to the memory card).
+// The directory is listed first and closed before its entries are copied:
+// the CD file system driver has only 4 directory descriptors (and 4 file
+// descriptors), and vfs/app_card/PALM/Programs is already 4 levels deep.
 static int copy_tree(const char *src, const char *dst) {
-  char name[FILE_PATH], s[MAX_PATH_LEN], d[MAX_PATH_LEN];
+  char s[MAX_PATH_LEN], d[MAX_PATH_LEN];
+  char *names, *name;
   sys_dir_t *dir;
   sys_stat_t st;
-  int r = 0;
+  int n, count, len, r = 0;
 
   if (!dir_exists(dst) && sys_mkdir(dst) != 0) {
     debug(DEBUG_ERROR, "MAIN", "could not create directory \"%s\"", dst);
@@ -263,8 +347,29 @@ static int copy_tree(const char *src, const char *dst) {
     return -1;
   }
 
-  while (sys_readdir(dir, name, sizeof(name)) == 0) {
+  // the names, one after the other, each terminated by a zero
+  len = 16 * FILE_PATH;
+  if ((names = sys_calloc(1, len)) == NULL) {
+    sys_closedir(dir);
+    return -1;
+  }
+  for (n = 0, count = 0;;) {
+    name = &names[n];
+    if (sys_readdir(dir, name, FILE_PATH) != 0) break;
     if (!strcmp(name, ".") || !strcmp(name, "..")) continue;
+    n += sys_strlen(name) + 1;
+    count++;
+    if (n + FILE_PATH > len) {
+      len *= 2;
+      if ((names = sys_realloc(names, len)) == NULL) {
+        sys_closedir(dir);
+        return -1;
+      }
+    }
+  }
+  sys_closedir(dir);
+
+  for (n = 0, name = names; count > 0; count--, name += sys_strlen(name) + 1) {
     sys_snprintf(s, MAX_PATH_LEN-1, "%s/%s", src, name);
     sys_snprintf(d, MAX_PATH_LEN-1, "%s/%s", dst, name);
     if (sys_stat(s, &st) != 0) continue;
@@ -278,9 +383,76 @@ static int copy_tree(const char *src, const char *dst) {
       }
     }
   }
-  sys_closedir(dir);
+  sys_free(names);
 
   return r;
+}
+
+// is this a directory with no entries ? (a missing directory counts as empty)
+static int dir_empty(const char *path) {
+  char name[FILE_PATH];
+  sys_dir_t *dir;
+  int empty = 1;
+
+  if ((dir = sys_opendir(path)) == NULL) return 1;
+  while (sys_readdir(dir, name, sizeof(name)) == 0) {
+    if (strcmp(name, ".") && strcmp(name, "..")) {
+      empty = 0;
+      break;
+    }
+  }
+  sys_closedir(dir);
+
+  return empty;
+}
+
+// is this a path on the RAM disk ? ("ram:")
+static int is_ramdisk(const char *path) {
+  return !strncmp(path, PS2_RAMDISK ":", sizeof(PS2_RAMDISK));
+}
+
+// is this a path on a memory card ? ("mc0:", "mc1:")
+static int is_memory_card(const char *path) {
+  return path[0] == 'm' && path[1] == 'c' && path[3] == ':';
+}
+
+// The log on a memory card. The card driver (mcman) has 3 file handles in
+// all: a log and a stderr kept open there leave one for PumpkinOS, whose
+// database installs then fail (mkdir: "File descriptor value too large").
+// So the log lines are collected in memory and appended to the file, which
+// is opened and closed for the occasion, when the buffer is full or 5
+// seconds after the previous flush; stderr is sent to the same stream.
+// (A crash can lose the last seconds of the log; the host and USB logs
+// are written at once, as before.)
+static char cardlog_path[MAX_PATH_LEN];
+static char cardlog_buf[PS2_CARDLOG_SIZE];
+static int cardlog_len;
+static int64_t cardlog_last;
+
+static void cardlog_flush(void) {
+  int fd, n, w;
+
+  if (cardlog_len > 0) {
+    if ((fd = open(cardlog_path, O_WRONLY | O_CREAT, 0644)) != -1) {
+      lseek(fd, 0, SEEK_END);
+      for (n = 0; n < cardlog_len; n += w) {
+        if ((w = write(fd, cardlog_buf + n, cardlog_len - n)) <= 0) break;
+      }
+      close(fd);
+    }
+    cardlog_len = 0;
+  }
+  cardlog_last = sys_get_clock();
+}
+
+static int cardlog_write(void *cookie, const char *buf, int n) {
+  if (n > PS2_CARDLOG_SIZE - cardlog_len) cardlog_flush();
+  if (n > PS2_CARDLOG_SIZE) n = PS2_CARDLOG_SIZE;
+  sys_memcpy(cardlog_buf + cardlog_len, buf, n);
+  cardlog_len += n;
+  if (sys_get_clock() - cardlog_last > PS2_CARDLOG_FLUSH_US) cardlog_flush();
+
+  return n;
 }
 
 // can files be created in this directory ? (the boot medium may be a disc)
@@ -300,12 +472,38 @@ static int writable_dir(const char *dir) {
 int main(int argc, char *argv[]) {
   char boot[MAX_PATH_LEN], home[MAX_PATH_LEN], work[MAX_PATH_LEN];
   char vfsdir[MAX_PATH_LEN], tmpdir[MAX_PATH_LEN], logfile[MAX_PATH_LEN], errfile[MAX_PATH_LEN], path[MAX_PATH_LEN], seed[MAX_PATH_LEN];
+  char *args[PS2_CONFIG_MAX_ARGS + 1], config[PS2_CONFIG_MAX_SIZE];
   const char *vfs_arg = NULL, *log_arg = NULL, *boot_arg = NULL, *home_arg = NULL, *tvmode = NULL;
   char *d, *p;
   sys_stat_t st;
-  int i, level = DEBUG_INFO, net = 1, reseed = 0, progressive = 0, mc = -1;
+  int i, fd, nargs = 0, level = DEBUG_INFO, net = 1, reseed = 0, progressive = 0, mc = -1, memcard = 0, ramdisk_kb = PS2_RAMDISK_KB;
 
   init_iop();
+
+  // "-boot" is the only option that must be known before the options file
+  // next to the ELF can be read
+  for (i = 1; i < argc-1; i++) {
+    if (!strcmp(argv[i], "-boot")) boot_arg = argv[i+1];
+  }
+  if (boot_arg) {
+    sys_strncpy(boot, boot_arg, MAX_PATH_LEN-1);
+    boot[MAX_PATH_LEN-1] = 0;
+    cdrom_to_cdfs(boot, MAX_PATH_LEN);
+    add_slash(boot, MAX_PATH_LEN);
+  } else {
+    find_boot(argc > 0 ? argv[0] : NULL, boot, MAX_PATH_LEN);
+  }
+
+  // the options: pumpkin.cfg next to the ELF first, then the command line
+  args[nargs++] = argc > 0 ? argv[0] : "PUMPKINOS.ELF";
+  i = PS2_CONFIG_MAX_ARGS - argc;
+  if (i > 0) nargs += read_config(boot, &args[nargs], i, config, PS2_CONFIG_MAX_SIZE);
+  for (i = 1; i < argc && nargs < PS2_CONFIG_MAX_ARGS; i++) {
+    args[nargs++] = argv[i];
+  }
+  args[nargs] = NULL;
+  argv = args;
+  argc = nargs;
 
   for (i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "-nodia")) {
@@ -314,6 +512,11 @@ int main(int argc, char *argv[]) {
       net = 0;
     } else if (!strcmp(argv[i], "-seed")) {
       reseed = 1;
+    } else if (!strcmp(argv[i], "-memcard")) {
+      memcard = 1;
+    } else if (i < argc-1 && !strcmp(argv[i], "-ramdisk")) {
+      ramdisk_kb = sys_atoi(argv[++i]);
+      if (ramdisk_kb < 512) ramdisk_kb = 512;
     } else if (!strcmp(argv[i], "-pal")) {
       tvmode = "PAL";
     } else if (!strcmp(argv[i], "-ntsc")) {
@@ -323,7 +526,7 @@ int main(int argc, char *argv[]) {
     } else if (i < argc-1 && !strcmp(argv[i], "-app")) {
       ps2_script_set_launcher(argv[++i]);
     } else if (i < argc-1 && !strcmp(argv[i], "-boot")) {
-      boot_arg = argv[++i];
+      i++;  // already handled
     } else if (i < argc-1 && !strcmp(argv[i], "-home")) {
       home_arg = argv[++i];
     } else if (i < argc-1 && !strcmp(argv[i], "-vfs")) {
@@ -347,77 +550,78 @@ int main(int argc, char *argv[]) {
     // anything else is ignored
   }
 
-  // where the ELF (and the vfs/ to seed from) is
-  if (boot_arg) {
-    sys_strncpy(boot, boot_arg, MAX_PATH_LEN-1);
-    boot[MAX_PATH_LEN-1] = 0;
-    add_slash(boot, MAX_PATH_LEN);
-  } else {
-    find_boot(argc > 0 ? argv[0] : NULL, boot, MAX_PATH_LEN);
-  }
-
-  // the log and stderr go next to the ELF when that is possible (a USB
-  // stick, the host), else to the home on the memory card
-  if (writable_dir(boot)) {
-    sys_strncpy(work, boot, MAX_PATH_LEN-1);
-  } else {
-    work[0] = 0;
-  }
-
   sys_init();
   debug_setsyslevel(NULL, level);
 
-  // the home: PumpkinOS/ on a memory card
+  // the home: the RAM disk, unless -home or -memcard say otherwise
+  home[0] = 0;
   if (home_arg) {
     sys_strncpy(home, home_arg, MAX_PATH_LEN-1);
     home[MAX_PATH_LEN-1] = 0;
     add_slash(home, MAX_PATH_LEN);
-  } else {
-    home[0] = 0;
+  } else if (memcard) {
+    mc = select_memory_card(home, MAX_PATH_LEN);
+    // (no card: the RAM disk, reported below)
   }
-  if (work[0] == 0) {
-    // nothing writable yet: the log must wait for the memory card
-    if (home[0] == 0) mc = select_memory_card(home, MAX_PATH_LEN);
-    if (home[0] == 0) {
-      // no card at all: run from the boot directory and hope it is writable
-      sys_strncpy(home, boot, MAX_PATH_LEN-1);
-    }
-    sys_strncpy(work, home, MAX_PATH_LEN-1);
+  if (home[0] == 0) {
+    sys_snprintf(home, MAX_PATH_LEN-1, "%s:/%s/", PS2_RAMDISK, PS2_HOME_DIR);
+  }
+  if (is_ramdisk(home) && sys_ps2_ramdisk_mount(PS2_RAMDISK, (uint32_t)ramdisk_kb * 1024) != 0) {
+    // (cannot happen short of a broken C library glue)
+    sys_strncpy(home, boot, MAX_PATH_LEN-1);
   }
 
+  // the log and stderr: next to the ELF when that is possible (a USB stick,
+  // the host; never a disc), else in the home unless it is the RAM disk
+  // (it would grow there without end, and be lost anyway), else stderr
+  if (!is_cdrom(boot) && writable_dir(boot)) {
+    sys_strncpy(work, boot, MAX_PATH_LEN-1);
+  } else if (!is_ramdisk(home)) {
+    sys_strncpy(work, home, MAX_PATH_LEN-1);
+  } else {
+    work[0] = 0;
+  }
   if (log_arg) {
     sys_snprintf(logfile, MAX_PATH_LEN-1, "%s", log_arg);
-  } else {
+  } else if (work[0]) {
     sys_snprintf(logfile, MAX_PATH_LEN-1, "%spumpkin.log", work);
+  } else {
+    sys_strncpy(logfile, "stderr", MAX_PATH_LEN-1);
   }
-  sys_snprintf(errfile, MAX_PATH_LEN-1, "%spumpkin.err", work);
+  errfile[0] = 0;
+  if (work[0]) sys_snprintf(errfile, MAX_PATH_LEN-1, "%spumpkin.err", work);
 
   // the home directory must exist before anything is written there
-  if (home[0]) {
-    sys_strncpy(path, home, MAX_PATH_LEN-1);
-    i = sys_strlen(path);
-    if (i > 1 && path[i-1] == '/') path[i-1] = 0;
-    mkdir_if_missing(path);
-  }
-  // there is no console: keep stderr in a file next to the log
-  freopen(errfile, "w", stderr);
-  debug_init(logfile);
-  debug(DEBUG_INFO, "MAIN", "%s starting on %s (boot \"%s\")", SYSTEM_NAME, SYSTEM_OS, boot);
-  if (argc > 0) debug(DEBUG_INFO, "MAIN", "argv[0] \"%s\"", argv[0]);
+  sys_strncpy(path, home, MAX_PATH_LEN-1);
+  i = sys_strlen(path);
+  if (i > 1 && path[i-1] == '/') path[i-1] = 0;
+  mkdir_if_missing(path);
 
-  if (home[0] == 0) {
-    mc = select_memory_card(home, MAX_PATH_LEN);
-    if (home[0] == 0) {
-      debug(DEBUG_ERROR, "MAIN", "no formatted PS2 memory card found: using the boot directory as home");
-      sys_strncpy(home, boot, MAX_PATH_LEN-1);
-    }
-    sys_strncpy(path, home, MAX_PATH_LEN-1);
-    i = sys_strlen(path);
-    if (i > 1 && path[i-1] == '/') path[i-1] = 0;
-    mkdir_if_missing(path);
+  if (is_memory_card(logfile)) {
+    // the log on a memory card: buffered, with stderr going to it as well
+    // (the card driver has 3 file handles in all, see cardlog_write)
+    sys_strncpy(cardlog_path, logfile, MAX_PATH_LEN-1);
+    cardlog_last = sys_get_clock();
+    if ((fd = open(cardlog_path, O_WRONLY | O_CREAT | O_TRUNC, 0644)) != -1) close(fd);
+    stderr = funopen(NULL, NULL, cardlog_write, NULL, NULL);
+    debug_init("stderr");
+  } else {
+    // there is no console: keep stderr in a file next to the log
+    if (errfile[0] && sys_strcmp(logfile, "stderr")) freopen(errfile, "w", stderr);
+    debug_init(logfile);
+  }
+  debug(DEBUG_INFO, "MAIN", "%s starting on %s (boot \"%s\"%s)", SYSTEM_NAME, SYSTEM_OS, boot, is_cdrom(boot) ? ", a disc" : "");
+  if (argc > 0) debug(DEBUG_INFO, "MAIN", "argv[0] \"%s\"", argv[0]);
+  for (i = 1; i < argc; i++) {
+    debug(DEBUG_INFO, "MAIN", "option \"%s\"", argv[i]);
+  }
+  if (memcard && mc < 0 && !home_arg) {
+    debug(DEBUG_ERROR, "MAIN", "no formatted PS2 memory card found: using the RAM disk");
   }
   if (mc >= 0) {
     debug(DEBUG_INFO, "MAIN", "home \"%s\" (memory card slot %d)", home, mc+1);
+  } else if (is_ramdisk(home)) {
+    debug(DEBUG_INFO, "MAIN", "home \"%s\" (RAM disk, %d KB at most, lost at power off)", home, ramdisk_kb);
   } else {
     debug(DEBUG_INFO, "MAIN", "home \"%s\"", home);
   }
@@ -428,20 +632,31 @@ int main(int argc, char *argv[]) {
     sys_snprintf(vfsdir, MAX_PATH_LEN-1, "%svfs", home);
   }
   add_slash(vfsdir, MAX_PATH_LEN);
-  // the temporary files live on the memory card, next to vfs/
+  // the temporary files live in the home, next to vfs/
   sys_snprintf(tmpdir, MAX_PATH_LEN-1, "%stmp", home);
 
   if (!vfs_arg) {
-    // first boot: copy the VFS shipped next to the ELF (the application
-    // PRCs in vfs/app_install) to the memory card; -seed does it again
+    // first boot (every boot on the RAM disk): copy the VFS shipped next to
+    // the ELF (the application PRCs in vfs/app_install) to the home; -seed
+    // does it again, and
+    // so does a home whose app_install and app_storage are both empty (an
+    // install that failed: the PRCs are removed as they are deployed)
     sys_snprintf(seed, MAX_PATH_LEN-1, "%svfs", boot);
     sys_snprintf(path, MAX_PATH_LEN-1, "%sapp_install", vfsdir);
+    if (!reseed && dir_exists(path) && dir_empty(path)) {
+      sys_snprintf(path, MAX_PATH_LEN-1, "%sapp_storage", vfsdir);
+      if (dir_empty(path)) {
+        debug(DEBUG_INFO, "MAIN", "no applications installed: seeding again");
+        reseed = 1;
+      }
+      sys_snprintf(path, MAX_PATH_LEN-1, "%sapp_install", vfsdir);
+    }
     if (sys_strcmp(seed, vfsdir) && sys_strncmp(seed, vfsdir, sys_strlen(seed)) && (reseed || !dir_exists(path))) {
       sys_snprintf(path, MAX_PATH_LEN-1, "%svfs", home);
       debug(DEBUG_INFO, "MAIN", "first boot: copying \"%s\" to \"%s\"", seed, path);
       if (dir_exists(seed)) {
         if (copy_tree(seed, path) != 0) {
-          debug(DEBUG_ERROR, "MAIN", "the VFS copy failed (memory card full?)");
+          debug(DEBUG_ERROR, "MAIN", "the VFS copy failed (home full?)");
         }
       } else {
         debug(DEBUG_ERROR, "MAIN", "\"%s\" not found: nothing to install", seed);
@@ -491,6 +706,8 @@ int main(int argc, char *argv[]) {
     thread_close();
     debug_close();
     fprintf(stderr, "SDL3 initialization failed, see %s\n", logfile);
+    fflush(stderr);
+    cardlog_flush();
     sys_ps2_net_finish();
     return 1;
   }
@@ -527,6 +744,7 @@ int main(int argc, char *argv[]) {
   liblsdl3_unload();
   debug(DEBUG_INFO, "MAIN", "%s stopping", SYSTEM_NAME);
   debug_close();
+  cardlog_flush();
 
   sys_ps2_net_finish();
 

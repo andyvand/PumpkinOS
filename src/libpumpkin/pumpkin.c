@@ -103,6 +103,21 @@ static uint32_t psp_heap_size = 1024*1024;
 #define PS2_HEAP_MAX     (8*1024*1024)
 extern void *EndOfHeap(void);
 extern void *sbrk(int incr);
+#elif defined(GAMECUBE)
+// the Nintendo GameCube has 24MB of main memory, most of it taken by the
+// program itself: like on the PS2 the global heap (HEAP_SIZE*8) is sized
+// from what the C heap (the libogc arena) still has at startup, keeping
+// GC_HEAP_RESERVE for what comes after it (the render target and its EFB
+// save texture, the application textures, the task heaps and stacks, the
+// network buffers), between 2MB and 6MB; the task heap follows (HEAP_SIZE =
+// 1/8 of it); see pumpkin_global_init()
+static uint32_t psp_heap_size = 512*1024;
+#define HEAP_SIZE psp_heap_size
+#define GC_HEAP_RESERVE (6*1024*1024)
+#define GC_HEAP_MIN     (2*1024*1024)
+#define GC_HEAP_MAX     (6*1024*1024)
+extern void *SYS_GetArena1Hi(void);
+extern void *sbrk(int incr);
 #else
 #define HEAP_SIZE (16*1024*1024)
 #endif
@@ -603,7 +618,7 @@ void pumpkin_enum_plugins(UInt32 type, void (*callback)(pumpkin_plugin_t *plugin
   }
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 extern pluginMainF ViPluginInit(UInt32 *type, UInt32 *id);
 extern pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id);
 #endif
@@ -619,7 +634,7 @@ void pumpkin_load_plugins(void) {
   pluginMainF pluginMain;
   void *lib;
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   pluginInit = ViPluginInit;
   if ((pluginMain = pluginInit(&type, &id)) != NULL) {
     pumpkin_register_plugin(type, id, pluginMain);
@@ -813,7 +828,17 @@ int pumpkin_global_init(script_engine_t *engine, window_provider_t *wp, audio_pr
     debug(DEBUG_INFO, PUMPKINOS, "%u KB of C heap left: %u MB global heap, %u KB per task", avail / 1024, global / (1024*1024), psp_heap_size / 1024);
   }
 #endif
-#if defined(PSP) || defined(PS2)
+#if defined(GAMECUBE)
+  {
+    uint32_t avail = (uint32_t)((uint8_t *)SYS_GetArena1Hi() - (uint8_t *)sbrk(0)), global;
+    global = avail > GC_HEAP_RESERVE + GC_HEAP_MIN ? avail - GC_HEAP_RESERVE : GC_HEAP_MIN;
+    if (global > GC_HEAP_MAX) global = GC_HEAP_MAX;
+    global &= ~(512*1024 - 1);
+    psp_heap_size = global / 8;
+    debug(DEBUG_INFO, PUMPKINOS, "%u KB of C heap left: %u MB global heap, %u KB per task", avail / 1024, global / (1024*1024), psp_heap_size / 1024);
+  }
+#endif
+#if defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // the PSP-1000 has 24MB of user memory for the program and its heap (the
   // PS2 about 31MB): halve the request until it fits (the per task heap
   // follows, see HEAP_SIZE)
@@ -2463,7 +2488,7 @@ int pumpkin_launcher(char *name, int width, int height) {
     } else {
       wman_add(pumpkin_module.wm, 0, texture, 0, 0, width, height);
       MemSet(&request, sizeof(launch_request_t), 0);
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
       // the applications are linked statically: pick the PilotMain of the
       // requested application (normally the Launcher) by its creator
       extern UInt32 (*LauncherStaticPilotMain(UInt32 creator))(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
@@ -2870,7 +2895,7 @@ static int pumpkin_resume_task(int handle) {
   return r;
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 static void pumpkin_forward_launch_code(UInt32 creator, char *name, UInt16 cmd, launch_union_t *param, UInt16 flags) {
   launch_request_t request;
   launch_msg_t msg;
@@ -2931,7 +2956,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
   int handle, call_sub, m68k, launched;
   uint32_t r = 0;
   void *data;
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
   uint32_t creator = 0;
 #endif
   sys_memset(&creq, 0, sizeof(client_request_t));
@@ -2957,7 +2982,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
       // XXX set sysAppLaunchFlagNewGlobals so that the app initializes properly
       creq.data.launch.flags |= sysAppLaunchFlagNewGlobals;
       break;
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
     case sysAppLaunchCmdSystemReset:
       debug(DEBUG_INFO, PUMPKINOS, "sending launch code %d to \"%s\" using call or message", cmd, name);
       if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator) == errNone) {
@@ -5271,26 +5296,17 @@ void pumpkin_crash_log(int code, char *msg) {
   }
 }
 
+// (shifts, not a byte view of the value: the host may be big endian)
 UInt32 pumpkin_s2id(UInt32 *ID, char *s) {
-  creator_id_t id;
-
-  id.c[3] = s[0];
-  id.c[2] = s[1];
-  id.c[1] = s[2];
-  id.c[0] = s[3];
-
-  *ID = id.t;
+  *ID = ((UInt32)(uint8_t)s[0] << 24) | ((UInt32)(uint8_t)s[1] << 16) | ((UInt32)(uint8_t)s[2] << 8) | (UInt32)(uint8_t)s[3];
   return *ID;
 }
 
 char *pumpkin_id2s(UInt32 ID, char *s) {
-  creator_id_t id;
-
-  id.t = ID;
-  s[0] = id.c[3];
-  s[1] = id.c[2];
-  s[2] = id.c[1];
-  s[3] = id.c[0];
+  s[0] = (char)(ID >> 24);
+  s[1] = (char)(ID >> 16);
+  s[2] = (char)(ID >> 8);
+  s[3] = (char)ID;
   s[4] = 0;
 
   return s;

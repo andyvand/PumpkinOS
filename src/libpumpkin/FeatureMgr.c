@@ -122,6 +122,9 @@ static Err FtrGetEx(UInt32 creator, UInt16 featureNum, UInt32 *valueP, Boolean *
 #elif SYS_CPU == 3
           *valueP = sysFtrNumProcessorPPC64LE;
           err = errNone;
+#elif SYS_CPU == 5
+          *valueP = sysFtrNumProcessorPPC;
+          err = errNone;
 #endif
           break;
         case sysFtrNumLanguage:

@@ -90,6 +90,17 @@
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
+#elif defined(GAMECUBE)
+// Nintendo GameCube: 640x480 (the NTSC / PAL60 frame, also used on PAL50
+// where the display is letterboxed by the video interface) at low density,
+// laid out like the PS2: the DIA strip at the bottom keeps the whole taskbar
+// artwork (112 pixels), leaving a 640x368 application area. The 160 pixel
+// wide artwork is centered in the strip.
+#define DIA_WIDTH     640
+#define DIA_HEIGHT    480
+#define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
+#define ALPHA_WIDTH   97
+#define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
 #else
 #define DIA_WIDTH     160
 #define DIA_HEIGHT    272

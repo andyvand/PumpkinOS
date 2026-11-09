@@ -38,6 +38,12 @@ else ifeq ($(OSNAME),ps2)
 # libraries from the ps2dev sysroot are linked by src/ps2
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),gamecube)
+# devkitPro SDL3 (GX video, AESND audio, the GameCube controller as a
+# gamepad) with SDL3_mixer; the static libraries from the gamecube portlibs
+# are linked by src/gamecube
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

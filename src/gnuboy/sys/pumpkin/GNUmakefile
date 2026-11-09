@@ -32,6 +32,9 @@ MACHINE := mips
 else ifeq ($(OSNAME),ps2)
 # the PlayStation 2 is always a MIPS (n32: 32-bit pointers)
 MACHINE := mips
+else ifeq ($(OSNAME),gamecube)
+# the Nintendo GameCube is always a 32-bit big endian PowerPC
+MACHINE := powerpc
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -52,6 +55,8 @@ else ifeq ($(OSNAME),psp)
 SYS_OS ?= 10
 else ifeq ($(OSNAME),ps2)
 SYS_OS ?= 11
+else ifeq ($(OSNAME),gamecube)
+SYS_OS ?= 12
 else
 SYS_OS ?= 1
 endif
@@ -82,6 +87,10 @@ SYS_SIZE ?= 2
 else ifeq ($(MACHINE),mips)
 SYS_CPU ?= 4
 SYS_SIZE ?= 1
+else ifeq ($(MACHINE),powerpc)
+SYS_CPU ?= 5
+SYS_SIZE ?= 1
+SYS_ENDIAN ?= 2
 else
 SYS_CPU ?= 3
 SYS_SIZE ?= 1
@@ -191,6 +200,21 @@ STATIC = 1
 # -Dinflate=...: the emulator ships its own inflate(), and the PS2 link also
 # carries zlib (libgme, an SDL3_mixer decoder, needs it)
 OSDEFS = -G0 -Os -DPS2 -D__PS2__ -Dinflate=gnuboy_inflate -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),gamecube)
+# Nintendo GameCube: static library linked into pumpkinos.dol by src/gamecube,
+# the PRC only carries the resources (see src/app.mak)
+DEVKITPRO ?= /opt/devkitpro
+CC = $(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-gcc
+AR = $(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
+STATIC = 1
+# (no libogc include directory: the emulator glue does not need it)
+# -Dxz_dec_*=...: the emulator ships its own copy of the xz decoder, and so
+# does the libxmp of the GameCube portlibs (an SDL3_mixer decoder)
+GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_reset -Dxz_dec_run=gnuboy_xz_dec_run -Dxz_dec_end=gnuboy_xz_dec_end \
+                -Dxz_dec_lzma2_create=gnuboy_xz_dec_lzma2_create -Dxz_dec_lzma2_reset=gnuboy_xz_dec_lzma2_reset -Dxz_dec_lzma2_run=gnuboy_xz_dec_lzma2_run -Dxz_dec_lzma2_end=gnuboy_xz_dec_lzma2_end \
+                -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
+                -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
+OSDEFS = -mogc -mcpu=750 -meabi -mhard-float -Os -ffunction-sections -fdata-sections -DGAMECUBE -D__gamecube__ -DGEKKO $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared
@@ -215,8 +239,14 @@ PICFLAG =
 else
 PICFLAG = -fPIC
 endif
+# the emulator core needs to know the host byte order (register pair layout)
+ifeq ($(SYS_ENDIAN),2)
+ENDIANFLAG = -DIS_BIG_ENDIAN
+else
+ENDIANFLAG = -DIS_LITTLE_ENDIAN
+endif
 COMMONFLAGS = -std=gnu11 -Wall -Wno-unknown-pragmas -Wno-unused-function -Wno-multichar \
-              -fsigned-char $(PICFLAG) $(OPT) -DGNUBOY_PUMPKIN -DIS_LITTLE_ENDIAN -D_GNU_SOURCE $(OSDEFS)
+              -fsigned-char $(PICFLAG) $(OPT) -DGNUBOY_PUMPKIN $(ENDIANFLAG) -D_GNU_SOURCE $(OSDEFS)
 
 # the emulator core only sees the gnuboy tree (its sys.h/debug.h clash
 # with the libpit headers of the same name)

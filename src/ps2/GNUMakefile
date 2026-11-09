@@ -4,12 +4,17 @@
 # provider and every application static library produced by the other modules
 # into one ELF and stages it with the application PRCs as bin/ps2/PumpkinOS/
 # (the directory to copy to a USB stick, mass:/PumpkinOS/), also zipped as
-# bin/PumpkinOS_PS2.zip (see README.md). Build from src/ with:
+# bin/PumpkinOS_PS2.zip, and as a bootable disc image bin/PumpkinOS_PS2.iso
+# (ISO9660 + Joliet with a SYSTEM.CNF, built by mkiso.py; see README.md).
+# Build from src/ with:
 #
 #   make OSNAME=ps2 -f GNUMakefile
 #
 # PS2DEV may point at the ps2dev root (default /opt/ps2dev), PS2SDK and GSKIT
 # at the ps2sdk and gsKit installations ($(PS2DEV)/ps2sdk, $(PS2DEV)/gsKit).
+# PS2_VMODE (PAL or NTSC, default PAL) is the VMODE line of SYSTEM.CNF, the
+# TV mode the console uses while booting the disc; PYTHON the interpreter
+# running mkiso.py.
 
 include ../common.mak
 
@@ -20,6 +25,12 @@ STAGE=$(BIN)/ps2
 GAME=$(STAGE)/PumpkinOS
 TARGET=$(GAME)/PUMPKINOS.ELF
 ZIP=$(BIN)/PumpkinOS_PS2.zip
+# the disc: a clean copy of the staged directory plus SYSTEM.CNF
+CD=$(STAGE)/cd
+ISO=$(BIN)/PumpkinOS_PS2.iso
+ISO_VOLUME=PUMPKINOS
+PS2_VMODE?=PAL
+PYTHON?=python3
 
 PS2_STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
 # SDL3, SDL3_mixer and its decoders, OpenSSL and FluidSynth live in the EE
@@ -49,19 +60,22 @@ SDLLIBS=-lSDL3_mixer -lfluidsynth -lxmp -lmpg123 -lgme -lz -lFLAC -lopusfile -lo
 PS2LIBS=-lps2_drivers -lpatches -laudsrv -lpad -lmtap -lmc -lfileXio -lpoweroff -lps2ip -lnetman
 
 # EXTLIBDIRS=-L<dir> on the make command line looks there first
-# --wrap=gsKit_init_global_custom: smaller gsKit render queues (see main.c)
-LDFLAGS=-T$(PS2SDK)/ee/startup/linkfile -G0 -Wl,-zmax-page-size=128 -Wl,--wrap=gsKit_init_global_custom -Wl,-Map,$(BIN)/pumpkinos.map
+# --wrap=gsKit_init_global_custom: smaller gsKit render queues (see main.c);
+# --wrap=DeleteSema: never delete the kernel helper thread's semaphore
+# (libpit/ps2sys.c)
+LDFLAGS=-T$(PS2SDK)/ee/startup/linkfile -G0 -Wl,-zmax-page-size=128 -Wl,--wrap=gsKit_init_global_custom -Wl,--wrap=DeleteSema -Wl,-Map,$(BIN)/pumpkinos.map
 
-all: $(ZIP)
+all: $(ZIP) $(ISO)
 
 $(ELF): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkinos.elf
 	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(EELIB) -L$(PS2SDK)/ee/lib -L$(PS2SDK)/ports/lib -L$(GSKIT)/lib -Wl,--start-group $(SDLLIBS) $(PS2LIBS) -lstdc++ -lm -latomic $(EXTLIBS) -Wl,--end-group
 
 # The staged directory carries the (stripped) ELF, the application PRCs
-# (vfs/app_install, copied to the memory card on the first boot), and, when
-# present in the PumpkinOS root, the CA bundle (https). No soundfont: the
-# 6MB file does not fit the console's memory.
+# (vfs/app_install, copied to the memory card on the first boot), the boot
+# options file (pumpkin.cfg, comments only) and, when present in the
+# PumpkinOS root, the CA bundle (https). No soundfont: the 6MB file does not
+# fit the console's memory.
 # (the staged directory is not wiped: it is a convenient place to run from
 # under PCSX2 / ps2link, where pumpkin.log, tmp/ and vfs/ live next to the ELF)
 $(TARGET): $(ELF)
@@ -72,12 +86,30 @@ $(TARGET): $(ELF)
 	@cp $(VFS)/app_install/*.prc $(GAME)/vfs/app_install/
 	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(GAME)/; fi
 	@cp README.md $(GAME)/README.md
+	@if [ ! -f $(GAME)/pumpkin.cfg ]; then cp pumpkin.cfg $(GAME)/pumpkin.cfg; fi
 
 $(ZIP): $(TARGET)
 	@echo Creating PumpkinOS_PS2.zip
 	@rm -f $(ZIP)
 	@cd $(STAGE) && zip -qr $(abspath $(ZIP)) PumpkinOS -x 'PumpkinOS/pumpkin.log' 'PumpkinOS/pumpkin.err' 'PumpkinOS/crash.log' 'PumpkinOS/tmp/*' 'PumpkinOS/hosthome/*'
 
+# The disc image: the BIOS reads SYSTEM.CNF from the root of the disc and
+# boots the ELF it names (cdrom0:\PUMPKINOS.ELF;1). The rest is the staged
+# directory (the PRCs are copied to the memory card on the first boot, the
+# disc being read-only); the image is built from a fresh copy so that the
+# files a PCSX2 / ps2link session leaves in the staged directory stay out.
+$(ISO): $(TARGET) mkiso.py pumpkin.cfg
+	@echo Creating PumpkinOS_PS2.iso
+	@rm -rf $(CD)
+	@mkdir -p $(CD)/vfs/app_install $(CD)/vfs/app_storage $(CD)/vfs/app_card/PALM/Programs
+	@cp $(TARGET) $(CD)/PUMPKINOS.ELF
+	@cp $(GAME)/vfs/app_install/*.prc $(CD)/vfs/app_install/
+	@if [ -f $(GAME)/cert.pem ]; then cp $(GAME)/cert.pem $(CD)/; fi
+	@cp README.md $(CD)/README.md
+	@cp pumpkin.cfg $(CD)/pumpkin.cfg
+	@printf 'BOOT2 = cdrom0:\\PUMPKINOS.ELF;1\r\nVER = 1.00\r\nVMODE = $(PS2_VMODE)\r\n' > $(CD)/SYSTEM.CNF
+	@$(PYTHON) mkiso.py -o $(ISO) -V $(ISO_VOLUME) $(CD)
+
 clean:
-	@rm -f $(ELF) $(ZIP) $(BIN)/pumpkinos.map $(OBJS)
+	@rm -f $(ELF) $(ZIP) $(ISO) $(BIN)/pumpkinos.map $(OBJS)
 	@rm -rf $(STAGE)

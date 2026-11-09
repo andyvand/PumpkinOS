@@ -83,10 +83,28 @@ else ifeq ($(OSNAME),ps2)
 # src/ps2/script.c). Sockets come from the ps2sdk newlib glue on top of the
 # lwIP stack running on the EE (ps2net.o loads the network adapter modules
 # and brings the link up with DHCP; it also supplies gai_strerror()).
-# ps2sys.o implements the ftruncate() the glue lacks. The newlib libm has
+# ps2sys.o implements the ftruncate() the glue lacks; ps2ramdisk.o is the
+# RAM disk ("ram:", the PumpkinOS home). The newlib libm has fmodl.
+PROGRAM=$(BIN)/libpit.a
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o ps2net.o ps2sys.o ps2ramdisk.o
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpit.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
+else ifeq ($(OSNAME),gamecube)
+
+# Nintendo GameCube: cooperative threads (threadsc, like MS-DOS, the Vita,
+# the Switch, the PSP and the PS2) and no script engine (the stub lives in
+# src/gamecube/script.c). Sockets come from libogc's BSD layer on top of
+# its lwIP stack driving the Broadband Adapter (gcnet.o brings the adapter
+# up with DHCP and supplies the getaddrinfo() and select() libogc lacks).
+# gcsys.o has the memory log; gcramdisk.o is the ARAM RAM disk ("ram:", the
+# home when no SD card adapter is present). The devkitPPC newlib libm has
 # fmodl.
 PROGRAM=$(BIN)/libpit.a
-OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o ps2net.o ps2sys.o
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o gcnet.o gcsys.o gcramdisk.o
 all: $(PROGRAM)
 $(PROGRAM): $(OBJS)
 	@echo Creating libpit.a

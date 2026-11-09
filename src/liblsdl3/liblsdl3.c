@@ -35,7 +35,37 @@
 // The PlayStation Vita, Nintendo Switch and PSP builds use the same
 // cooperative threads (and the same pump): there SDL has a real audio thread
 // draining the stream.
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(GAMECUBE)
+// Nintendo GameCube: every SDL event pump scans the controller ports
+// (PAD_ScanPads), and a scan made before the serial interface has new data
+// (it polls the pads once per video frame) finds no controller; after four
+// such scans in a row SDL's driver reports the pad removed, then added again
+// on the next good scan, over and over (every event poll is a pump, and the
+// event loops below poll every millisecond). So the queue is pumped at most
+// once per frame; in between the events already queued are just read.
+#define LIBSDL_PUMP_INTERVAL_US 16000
+
+static void libsdl_pump_events(void) {
+  static uint64_t last = 0;
+  uint64_t now = sys_get_clock();
+
+  if (last == 0 || now - last >= LIBSDL_PUMP_INTERVAL_US) {
+    last = now;
+    SDL_PumpEvents();
+  }
+}
+
+static bool libsdl_poll_event(SDL_Event *ev) {
+  libsdl_pump_events();
+  if (ev == NULL) return SDL_PeepEvents(NULL, 0, SDL_PEEKEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST) > 0;
+  return SDL_PeepEvents(ev, 1, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST) > 0;
+}
+
+#define SDL_PumpEvents() libsdl_pump_events()
+#define SDL_PollEvent(ev) libsdl_poll_event(ev)
+#endif
+
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -63,7 +93,7 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 // PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
 // emulates the mouse from it) and the gamepad buttons stand in for a few
 // keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
@@ -75,12 +105,17 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 // and the D-pad move a pointer drawn by this provider (LIBSDL_STICK_POINTER)
 // and Cross is the pen (mouse button 1); Triangle = Enter, Circle = Escape,
 // Square = Backspace, the rest as above (the D-pad is not an arrow key here).
+//
+// Nintendo GameCube: the same pointer, moved by the control stick and the
+// D-pad, A is the pen (mouse button 1), B = Escape, X = Enter, Y =
+// Backspace, Z = Tab, Start = Home, L/R = Page Up/Down. (SDL maps the
+// GameCube pad with A south, B west, X east, Y north, Z back.)
 #define LIBSDL_GAMEPAD
 
 #if defined(SWITCH)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
-#elif defined(PSP) || defined(PS2)
+#elif defined(PSP) || defined(PS2) || defined(GAMECUBE)
 #define LIBSDL_STICK_POINTER
 #if defined(PS2)
 // the PS2 gsKit renderer has no render targets (SDL_SetRenderTarget is a
@@ -89,9 +124,15 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define LIBSDL_SOFT_SCENE
 #endif
 #define GAMEPAD_BUTTON_PEN    SDL_GAMEPAD_BUTTON_SOUTH
+#if defined(GAMECUBE)
+#define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST   // X
+#define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_WEST   // B
+#define GAMEPAD_BUTTON_BACKSP SDL_GAMEPAD_BUTTON_NORTH  // Y
+#else
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_NORTH
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_BACKSP SDL_GAMEPAD_BUTTON_WEST
+#endif
 #else
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_SOUTH
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
@@ -121,11 +162,25 @@ static int map_gamepad_button(int button) {
   return 0;
 }
 
+// one gamepad at a time: the first one plugged in drives PumpkinOS, the
+// others are ignored until it is unplugged
 static void open_gamepad(SDL_JoystickID id) {
-  if ((gamepad = SDL_OpenGamepad(id)) != NULL) {
+  SDL_Gamepad *g;
+
+  if (gamepad != NULL) return;
+  if ((g = SDL_OpenGamepad(id)) != NULL) {
+    gamepad = g;
     debug(DEBUG_INFO, "SDL", "gamepad %d \"%s\" opened", (int)id, SDL_GetGamepadName(gamepad));
   } else {
     debug(DEBUG_ERROR, "SDL", "SDL_OpenGamepad(%d) failed: %s", (int)id, SDL_GetError());
+  }
+}
+
+static void close_gamepad(SDL_JoystickID id) {
+  if (gamepad != NULL && SDL_GetGamepadID(gamepad) == id) {
+    debug(DEBUG_INFO, "SDL", "gamepad %d removed", (int)id);
+    SDL_CloseGamepad(gamepad);
+    gamepad = NULL;
   }
 }
 #endif
@@ -488,7 +543,7 @@ static int libsdl_init_video(void) {
   // the touch screen drives the mouse (pen)
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 #endif
-#if defined(PSP) || defined(PS2)
+#if defined(PSP) || defined(PS2) || defined(GAMECUBE)
   // the built-in controller is a gamepad (SDL has a mapping for it); the
   // pointer it drives is drawn by libsdl_present() (no mouse, no cursor)
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
@@ -754,6 +809,9 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
       case SDL_EVENT_GAMEPAD_ADDED:
         open_gamepad(ev.gdevice.which);
         break;
+      case SDL_EVENT_GAMEPAD_REMOVED:
+        close_gamepad(ev.gdevice.which);
+        break;
       case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 #ifdef LIBSDL_STICK_POINTER
         if (ev.gbutton.button == GAMEPAD_BUTTON_PEN) {
@@ -997,6 +1055,10 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
 #ifdef LIBSDL_GAMEPAD
       case SDL_EVENT_GAMEPAD_ADDED:
         open_gamepad(ev.gdevice.which);
+        if (remove == 0) SDL_PollEvent(&ev);
+        continue;
+      case SDL_EVENT_GAMEPAD_REMOVED:
+        close_gamepad(ev.gdevice.which);
         if (remove == 0) SDL_PollEvent(&ev);
         continue;
 
@@ -1671,8 +1733,29 @@ static int libsdl_window_update_texture_rect(window_t *_window, texture_t *textu
   }
   (void)pixels; (void)pitch;
   if (0) {
+#elif defined(GAMECUBE)
+  // the GameCube renderer's SDL_LockTexture() mallocs a staging buffer of
+  // the locked size (600KB for the whole screen) and reports success even
+  // when that fails, handing back a NULL pointer; SDL_UpdateTexture()
+  // converts straight from the source into the texture, no allocation
+  (void)pixels; (void)pitch; (void)dst; (void)len; (void)i;
+  if (texture && texture->t && w > 0 && h > 0) {
+    spitch = texture->width * window->spixel;
+    if (SDL_UpdateTexture(texture->t, &rect, &src[(ty * texture->width + tx) * window->spixel], spitch)) {
+      r = 0;
+    } else {
+      debug(DEBUG_ERROR, "SDL", "SDL_UpdateTexture failed: %s", SDL_GetError());
+    }
+  }
+  if (0) {
 #else
   if (SDL_LockTexture(texture->t, &rect, &pixels, &pitch)) {
+    if (pixels == NULL) {
+      // (a renderer whose staging allocation failed)
+      debug(DEBUG_ERROR, "SDL", "SDL_LockTexture returned no pixels");
+      SDL_UnlockTexture(texture->t);
+      return -1;
+    }
 #endif
     src = &src[(ty * texture->width + tx) * window->spixel];
     dst = (uint8_t *)pixels;

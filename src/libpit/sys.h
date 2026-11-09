@@ -238,6 +238,26 @@ int sys_psp_net_ready(void);
 void sys_psp_net_finish(void);
 #endif
 
+#ifdef GAMECUBE
+// Broadband Adapter / lwIP initialization (Nintendo GameCube build, see gcnet.c)
+int sys_gc_net_init(int timeout_ms);
+
+int sys_gc_net_ready(void);
+
+void sys_gc_net_finish(void);
+
+// the name server used by gethostbyname() (default: the gateway); set it
+// before sys_gc_net_init()
+void sys_gc_net_set_dns(const char *ip);
+
+// logs the C heap usage (gcsys.c)
+void sys_gc_memlog(const char *tag);
+
+// the ARAM RAM disk (gcramdisk.c): mounts it as "<name>:/" with the whole
+// auxiliary memory (16MB) behind it; returns 0 on success
+int sys_gc_ramdisk_mount(const char *name);
+#endif
+
 #ifdef PS2
 // network adapter / lwIP (EE) initialization (PlayStation 2 build, see ps2net.c)
 int sys_ps2_net_init(int timeout_ms);
@@ -248,6 +268,18 @@ void sys_ps2_net_finish(void);
 
 // logs the C heap usage (ps2sys.c)
 void sys_ps2_memlog(const char *tag);
+
+// the RAM disk in main memory (ps2ramdisk.c): mounts it as "<name>:/",
+// holding up to `limit` bytes (contents and bookkeeping); returns 0 on
+// success
+int sys_ps2_ramdisk_mount(const char *name, uint32_t limit);
+
+// what the RAM disk holds now, at most so far, may hold, and its file count
+void sys_ps2_ramdisk_usage(uint32_t *used, uint32_t *peak, uint32_t *limit, uint32_t *files);
+
+// ftruncate() of a RAM disk descriptor (`fdinfo` is the libcglue descriptor
+// info): 0 or -errno, 1 when the descriptor is not on the RAM disk
+int sys_ps2_ramdisk_ftruncate(void *fdinfo, int64_t length);
 #endif
 
 int sys_read_timeout(int fd, uint8_t *buf, int len, int *nread, uint32_t us);

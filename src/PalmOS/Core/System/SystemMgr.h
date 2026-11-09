@@ -765,6 +765,7 @@ typedef struct SysExtPrefsType {
 #define	sysFtrNumProcessorx86		0x01000000		// Intel CPU		(Palm Simulator)
 #define sysFtrNumProcessorPPC64LE	0x02000000		// PowerPC64 in little-endian mode
 #define sysFtrNumProcessorPPC64		0x02100000		// PowerPC64 in big-endian mode (NYI)
+#define sysFtrNumProcessorPPC		0x02200000		// 32-bit PowerPC in big-endian mode (Gekko, Nintendo GameCube)
 
 // The following sysFtrNumProcessorIs68K(x) and sysFtrNumProcessorIsARM(x)
 // macros are intended to be used to test the value returned from a call to

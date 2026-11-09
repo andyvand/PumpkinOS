@@ -745,7 +745,7 @@ static void StopApplication(netinstall_app_t *a) {
   PrefSetAppPreferences(creator, PREFS_ID, PREFS_VERSION, &a->prefs, sizeof(netinstall_prefs_t), true);
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE)
 UInt32 NetInstPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

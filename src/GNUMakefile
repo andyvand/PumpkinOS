@@ -129,6 +129,16 @@ else ifeq ($(OSNAME),ps2)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
 EXTRA_MODULES=ps2
 
+else ifeq ($(OSNAME),gamecube)
+
+# Nintendo GameCube (devkitPro devkitPPC + libogc): same static model as the
+# Vita, the Switch, the PSP and the PS2. Every application is compiled into a
+# static library and linked, together with libpit, libpumpkin, libos and the
+# SDL3 window provider, into one DOL by src/gamecube. No TLS provider: the
+# devkitPro GameCube portlibs have no OpenSSL.
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
+EXTRA_MODULES=gamecube
+
 else ifeq ($(OSNAME),Haiku)
 
 ifneq ($(UNICORN),)
