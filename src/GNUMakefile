@@ -147,6 +147,15 @@ else ifeq ($(OSNAME),wii)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver
 EXTRA_MODULES=wii
 
+else ifeq ($(OSNAME),ps3)
+
+# Sony PlayStation 3 (ps3dev ppu-gcc + PSL1GHT): the static model of the
+# PS2, linked into one ELF by src/ps3, which turns it into EBOOT.BIN and
+# packs it as an installable PKG and a disc image (ISO). With the OpenSSL
+# TLS provider (the ps3dev portlibs have OpenSSL).
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
+EXTRA_MODULES=ps3
+
 else ifeq ($(OSNAME),Haiku)
 
 ifneq ($(UNICORN),)

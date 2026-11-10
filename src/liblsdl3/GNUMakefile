@@ -50,6 +50,12 @@ else ifeq ($(OSNAME),wii)
 # src/wii
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),ps3)
+# ps3dev SDL3 (RSX video, the DualShock 3 / SIXAXIS as a gamepad, no mouse)
+# with SDL3_mixer; the static libraries from the ps3dev portlibs are linked
+# by src/ps3
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

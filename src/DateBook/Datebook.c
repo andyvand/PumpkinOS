@@ -1369,7 +1369,7 @@ Char* DateParamString(const Char* inTemplate, const Char* param0,
  *			rbb	11/12/99	Added recentFormFeature to pick default view on launch
  *
  ***********************************************************************/
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
 PUBLIC UInt32   DatePilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 PUBLIC UInt32	PilotMain (UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

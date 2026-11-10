@@ -38,6 +38,9 @@ MACHINE := powerpc
 else ifeq ($(OSNAME),wii)
 # the Nintendo Wii is always a 32-bit big endian PowerPC (Broadway)
 MACHINE := powerpc
+else ifeq ($(OSNAME),ps3)
+# the PlayStation 3 Cell PPU is a 64-bit big endian PowerPC (LP64 in PSL1GHT)
+MACHINE := powerpc64
 else
 MACHINE := $(shell uname -m)
 endif
@@ -122,6 +125,13 @@ SYS_CPU=5
 ifeq ($(BITS),)
 BITS=32
 endif
+else ifeq ($(MACHINE),powerpc64)
+# big endian 64-bit PowerPC (PlayStation 3 Cell PPU)
+SYS_ENDIAN=2
+SYS_CPU=5
+ifeq ($(BITS),)
+BITS=64
+endif
 else
 $(error Unknown CPU $(MACHINE))
 endif
@@ -157,6 +167,10 @@ else ifneq ($(filter gamecube wii,$(OSNAME)),)
 DEVKITPRO?=/opt/devkitpro
 AR=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
 NM=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-nm -j -u
+else ifeq ($(OSNAME),ps3)
+PS3DEV?=/opt/ps3dev
+AR=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-ar
+NM=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-nm -j -u
 else
 AR=ar
 NM=nm -j -u
@@ -351,6 +365,33 @@ PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
 
+else ifeq ($(OSNAME),ps3)
+# Sony PlayStation 3 (ps3dev powerpc64-ps3-elf cross compiler, newlib +
+# PSL1GHT). The same static model as the PS2 and the Wii: everything is
+# linked into one ELF (see src/ps3), turned into a SELF / EBOOT.BIN. PS3 is
+# the PumpkinOS platform macro, __PS3__ the one SDL3 tests (the compiler
+# itself predefines __PPU__ and __powerpc64__). The compiler flags are
+# PSL1GHT's ppu_rules MACHDEP. The console has 256MB of main memory, so the
+# code is optimized for speed.
+SYS_OS=14
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=PS3
+PS3DEV?=/opt/ps3dev
+PSL1GHT?=$(PS3DEV)
+# ppu-gcc's specs find the PSL1GHT C runtime (lv2-crt0.o, -lsysbase -lc
+# -lrt -llv2) through the PSL1GHT environment variable
+export PSL1GHT
+PS3PORTLIBS=$(PS3DEV)/portlibs/ppu
+PS3_ARCH=-mhard-float -fmodulo-sched -ffunction-sections -fdata-sections
+OSDEFS=$(PS3_ARCH) -O2 -DPS3 -D__PS3__ -DSOEXT=\"$(SOEXT)\" -I$(PS3PORTLIBS)/include -I$(PSL1GHT)/ppu/include -Wno-format -Wno-attributes
+CC=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-gcc
+CPP=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
 else ifeq ($(OSNAME),Darwin)
 SYS_OS=1
 SOEXT=.dylib
@@ -480,6 +521,8 @@ else ifeq ($(OSNAME),ps2)
 STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
 else ifneq ($(filter gamecube wii,$(OSNAME)),)
 STRIP=$(DEVKITPPC)/bin/powerpc-eabi-strip
+else ifeq ($(OSNAME),ps3)
+STRIP=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-strip
 else
 STRIP=strip
 endif

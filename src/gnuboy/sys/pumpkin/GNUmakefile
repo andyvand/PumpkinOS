@@ -38,6 +38,9 @@ MACHINE := powerpc
 else ifeq ($(OSNAME),wii)
 # the Nintendo Wii as well
 MACHINE := powerpc
+else ifeq ($(OSNAME),ps3)
+# the PlayStation 3 Cell PPU is a 64-bit big endian PowerPC
+MACHINE := powerpc64
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -62,6 +65,8 @@ else ifeq ($(OSNAME),gamecube)
 SYS_OS ?= 12
 else ifeq ($(OSNAME),wii)
 SYS_OS ?= 13
+else ifeq ($(OSNAME),ps3)
+SYS_OS ?= 14
 else
 SYS_OS ?= 1
 endif
@@ -95,6 +100,10 @@ SYS_SIZE ?= 1
 else ifeq ($(MACHINE),powerpc)
 SYS_CPU ?= 5
 SYS_SIZE ?= 1
+SYS_ENDIAN ?= 2
+else ifeq ($(MACHINE),powerpc64)
+SYS_CPU ?= 5
+SYS_SIZE ?= 2
 SYS_ENDIAN ?= 2
 else
 SYS_CPU ?= 3
@@ -231,6 +240,22 @@ GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_re
                 -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
                 -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
 OSDEFS = -mrvl -mcpu=750 -meabi -mhard-float -Os -ffunction-sections -fdata-sections -DWII -D__wii__ -DGEKKO $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),ps3)
+# PlayStation 3: static library linked into EBOOT.BIN by src/ps3, the PRC
+# only carries the resources (see src/app.mak)
+PS3DEV ?= /opt/ps3dev
+CC = $(PS3DEV)/ppu/bin/powerpc64-ps3-elf-gcc
+AR = $(PS3DEV)/ppu/bin/powerpc64-ps3-elf-ar
+STATIC = 1
+# (no PSL1GHT include directory: the emulator glue does not need it)
+# -Dxz_*=...: the emulator ships its own copy of the xz decoder, and so does
+# the libxmp of the ps3dev portlibs (an SDL3_mixer decoder); -Dinflate=...:
+# its own inflate() as well, and the link carries zlib
+GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_reset -Dxz_dec_run=gnuboy_xz_dec_run -Dxz_dec_end=gnuboy_xz_dec_end \
+                -Dxz_dec_lzma2_create=gnuboy_xz_dec_lzma2_create -Dxz_dec_lzma2_reset=gnuboy_xz_dec_lzma2_reset -Dxz_dec_lzma2_run=gnuboy_xz_dec_lzma2_run -Dxz_dec_lzma2_end=gnuboy_xz_dec_lzma2_end \
+                -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
+                -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
+OSDEFS = -mhard-float -fmodulo-sched -ffunction-sections -fdata-sections -DPS3 -D__PS3__ -Dinflate=gnuboy_inflate $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

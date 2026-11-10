@@ -76,7 +76,7 @@ static bool libsdl_poll_event(SDL_Event *ev) {
 #define SDL_PollEvent(ev) libsdl_poll_event(ev)
 #endif
 
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -104,7 +104,7 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
 // PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
 // emulates the mouse from it) and the gamepad buttons stand in for a few
 // keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
@@ -116,6 +116,12 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 // and the D-pad move a pointer drawn by this provider (LIBSDL_STICK_POINTER)
 // and Cross is the pen (mouse button 1); Triangle = Enter, Circle = Escape,
 // Square = Backspace, the rest as above (the D-pad is not an arrow key here).
+//
+// PlayStation 3: the PSP / PS2 mapping on the DualShock 3 / SIXAXIS (no
+// mouse either): the left stick and the D-pad move the pointer, Cross is
+// the pen, Triangle = Enter, Circle = Escape, Square = Backspace, Start =
+// Home, Select = Tab, L1/R1 = Page Up/Down. SDL's PS3 driver reports the
+// pad as a plain joystick: libsdl_ps3_mapping() gives it a gamepad mapping.
 //
 // Nintendo GameCube: the same pointer, moved by the control stick and the
 // D-pad, A is the pen (mouse button 1), B = Escape, X = Enter, Y =
@@ -135,13 +141,23 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #if defined(SWITCH)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
-#elif defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#elif defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
 #define LIBSDL_STICK_POINTER
-#if defined(PS2)
+#if defined(PS2) || defined(PS3)
 // the PS2 gsKit renderer has no render targets (SDL_SetRenderTarget is a
 // no-op there) and swaps between two undefined back buffers: the scene is
-// composed in memory and uploaded as one texture per present instead
+// composed in memory and uploaded as one texture per present instead.
+// The PS3 RSX renderer is young as well (render targets without
+// synchronization, every texture A8R8G8B8 whatever its SDL format, at most
+// 1024 pixels wide, no blend modes): same scheme, with the scene kept in
+// memory and uploaded in tiles of at most 1024x1024 (LIBSDL_SCENE_TILES),
+// drawn scaled to the TV mode (720p: 1:1 for the 1280x720 screen)
 #define LIBSDL_SOFT_SCENE
+#endif
+#if defined(PS3)
+#define LIBSDL_SCENE_TILES
+#define LIBSDL_SCENE_TILE_MAX 1024
+#define LIBSDL_SCENE_MAX_TILES 16
 #endif
 #define GAMEPAD_BUTTON_PEN    SDL_GAMEPAD_BUTTON_SOUTH
 #if defined(GAMECUBE) || defined(WII)
@@ -214,6 +230,42 @@ static void close_gamepad(SDL_JoystickID id) {
     gamepad = NULL;
   }
 }
+
+#ifdef PS3
+// SDL's PS3 joystick driver has no gamepad mapping for the pads it finds
+// ("PS3 Controller", the pads connected when SDL starts: there is no hot
+// plugging): its buttons are Triangle, Circle, Cross, Square, L1, R1, Down,
+// Left, Up, Right, Select, Start, L2, R2, L3, R3 and its axes the left and
+// right sticks. Adding the mapping turns them into gamepads (SDL then
+// reports them with SDL_EVENT_GAMEPAD_ADDED).
+#define PS3_PAD_MAPPING "PS3 Controller,a:b2,b:b1,x:b3,y:b0,leftshoulder:b4,rightshoulder:b5," \
+  "dpdown:b6,dpleft:b7,dpup:b8,dpright:b9,back:b10,start:b11,lefttrigger:b12,righttrigger:b13," \
+  "leftstick:b14,rightstick:b15,leftx:a0,lefty:a1,rightx:a2,righty:a3"
+
+static void libsdl_ps3_mapping(void) {
+  SDL_JoystickID *ids;
+  char guid[64], mapping[512];
+  const char *name;
+  int i, n = 0;
+
+  if ((ids = SDL_GetJoysticks(&n)) == NULL) return;
+  for (i = 0; i < n; i++) {
+    name = SDL_GetJoystickNameForID(ids[i]);
+    debug(DEBUG_INFO, "SDL", "joystick %d \"%s\"%s", (int)ids[i], name ? name : "?", SDL_IsGamepad(ids[i]) ? " (gamepad)" : "");
+    if (SDL_IsGamepad(ids[i]) || name == NULL || sys_strcmp(name, "PS3 Controller")) continue;
+    SDL_GUIDToString(SDL_GetJoystickGUIDForID(ids[i]), guid, sizeof(guid));
+    sys_snprintf(mapping, sizeof(mapping)-1, "%s,%s", guid, PS3_PAD_MAPPING);
+    if (SDL_AddGamepadMapping(mapping) < 0) {
+      debug(DEBUG_ERROR, "SDL", "SDL_AddGamepadMapping failed: %s", SDL_GetError());
+    } else {
+      debug(DEBUG_INFO, "SDL", "gamepad mapping added for joystick %d", (int)ids[i]);
+    }
+    // (one mapping covers all the pads: they share the GUID)
+    break;
+  }
+  SDL_free(ids);
+}
+#endif
 
 #ifdef WII
 // the Wiimote buttons and what they become: a GameCube gamepad button
@@ -357,6 +409,14 @@ typedef struct {
   int scene_w, scene_h;
   uint8_t *bgraw;         // background pixels (window_background, window pixel format), drawn by window_erase
   int bg_w, bg_h;
+#endif
+#ifdef LIBSDL_SCENE_TILES
+  uint32_t *scene_buf;    // the scene itself (ARGB8888, scene_w x scene_h, opaque)
+  SDL_Texture *tile[LIBSDL_SCENE_MAX_TILES]; // its tiles on the GPU (scene_tex = tile[0])
+  SDL_Rect tile_rect[LIBSDL_SCENE_MAX_TILES]; // what part of the scene each one holds
+  int ntiles;
+  int dirty, dx0, dy0, dx1, dy1; // the part of the scene changed since the last upload
+  SDL_FRect view;         // where the scene is shown on the display (scaled, centered)
 #endif
 } libsdl_window_t;
 
@@ -625,10 +685,18 @@ static void libsdl_pointer_draw(libsdl_window_t *window) {
     SDL_SetTextureBlendMode(pointer_texture, SDL_BLENDMODE_BLEND);
   }
 
+#ifdef LIBSDL_SCENE_TILES
+  // (the scene is scaled to the display)
+  dst.x = window->view.x + window->x * window->view.w / window->scene_w;
+  dst.y = window->view.y + window->y * window->view.h / window->scene_h;
+  dst.w = POINTER_WIDTH * window->view.w / window->scene_w;
+  dst.h = POINTER_HEIGHT * window->view.h / window->scene_h;
+#else
   dst.x = window->x;
   dst.y = window->y;
   dst.w = POINTER_WIDTH;
   dst.h = POINTER_HEIGHT;
+#endif
   SDL_RenderTexture(window->renderer, pointer_texture, NULL, &dst);
 }
 
@@ -673,7 +741,7 @@ static int libsdl_init_video(void) {
   // the touch screen drives the mouse (pen)
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 #endif
-#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
   // the built-in controller is a gamepad (SDL has a mapping for it); the
   // pointer it drives is drawn by libsdl_present() (no mouse, no cursor)
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
@@ -684,6 +752,9 @@ static int libsdl_init_video(void) {
 
   } else {
     if (SDL_Init(flags) == true) {
+#ifdef PS3
+      libsdl_ps3_mapping();
+#endif
       if ((n = SDL_GetNumRenderDrivers()) == -1) {
         debug(DEBUG_ERROR, "SDL", "SDL_GetNumRenderDrivers failed: %s", SDL_GetError());
       } else {
@@ -1324,7 +1395,25 @@ static int libsdl_video_setup(libsdl_window_t *window) {
 #ifdef PS2
   sys_ps2_memlog("window creation");
 #endif
+#ifdef LIBSDL_SCENE_TILES
+  {
+    // PS3: the renderer always draws to the whole TV frame (the resolution
+    // chosen in the XMB settings): the window gets its size, and the scene
+    // is scaled to fit it, centered (window->view)
+    const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+    int dw = mode ? mode->w : (int)w, dh = mode ? mode->h : (int)h;
+    float scale = (float)dw / w < (float)dh / h ? (float)dw / w : (float)dh / h;
+
+    window->view.w = w * scale;
+    window->view.h = h * scale;
+    window->view.x = (dw - window->view.w) / 2;
+    window->view.y = (dh - window->view.h) / 2;
+    debug(DEBUG_INFO, "SDL", "display %dx%d: the %dx%d screen is shown at %.0f,%.0f %.0fx%.0f", dw, dh, w, h, window->view.x, window->view.y, window->view.w, window->view.h);
+    window->window = SDL_CreateWindow("", dw, dh, 0);
+  }
+#else
   window->window = SDL_CreateWindow("", w, h, /*window->fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP :*/ 0);
+#endif
   if (window->window == NULL) {
     debug(DEBUG_ERROR, "SDL", "SDL_CreateWindow failed: %s", SDL_GetError());
     return -1;
@@ -1384,6 +1473,48 @@ static int libsdl_video_setup(libsdl_window_t *window) {
   // written by libsdl_scene_blit() and drawn whole by libsdl_scene_present()
   window->scene_w = w;
   window->scene_h = h;
+#ifdef LIBSDL_SCENE_TILES
+  // PS3: the scene in memory, split into tiles the renderer takes (at most
+  // LIBSDL_SCENE_TILE_MAX pixels on a side; a 1280x720 screen makes two
+  // 640x720 tiles), all A8R8G8B8 (the only format the RSX renderer has)
+  window->scene_fmt = SDL_PIXELFORMAT_ARGB8888;
+  if (window->spixel != 2 && window->spixel != 4) {
+    debug(DEBUG_ERROR, "SDL", "scene: unsupported window format 0x%08X", window->format);
+  } else if ((window->scene_buf = sys_calloc(1, w * h * sizeof(uint32_t))) == NULL) {
+    debug(DEBUG_ERROR, "SDL", "scene: out of memory");
+  } else {
+    int nx = (w + LIBSDL_SCENE_TILE_MAX - 1) / LIBSDL_SCENE_TILE_MAX;
+    int ny = (h + LIBSDL_SCENE_TILE_MAX - 1) / LIBSDL_SCENE_TILE_MAX;
+    int tw = (w + nx - 1) / nx, th = (h + ny - 1) / ny, tx, ty, ok = 1;
+
+    window->ntiles = 0;
+    for (ty = 0; ty < ny && ok; ty++) {
+      for (tx = 0; tx < nx && ok; tx++) {
+        SDL_Rect *t = &window->tile_rect[window->ntiles];
+        if (window->ntiles == LIBSDL_SCENE_MAX_TILES) { ok = 0; break; }
+        t->x = tx * tw;
+        t->y = ty * th;
+        t->w = (t->x + tw > (int)w) ? (int)w - t->x : tw;
+        t->h = (t->y + th > (int)h) ? (int)h - t->y : th;
+        if ((window->tile[window->ntiles] = SDL_CreateTexture(window->renderer, window->scene_fmt, SDL_TEXTUREACCESS_STREAMING, t->w, t->h)) == NULL) {
+          debug(DEBUG_ERROR, "SDL", "SDL_CreateTexture (scene tile %dx%d) failed: %s", t->w, t->h, SDL_GetError());
+          ok = 0;
+          break;
+        }
+        SDL_SetTextureBlendMode(window->tile[window->ntiles], SDL_BLENDMODE_NONE);
+        window->ntiles++;
+      }
+    }
+    if (ok && window->ntiles > 0) {
+      window->scene_tex = window->tile[0];
+      libsdl_scene_clear(window);
+      debug(DEBUG_INFO, "SDL", "using a %dx%d scene in %d tile(s) of %dx%d for \"%s\"", w, h, window->ntiles, tw, th, s ? s : "?");
+    } else {
+      window->scene_tex = NULL;
+    }
+  }
+  if (0) {
+#else
   window->scene_fmt = window->spixel == 2 ? SDL_PIXELFORMAT_ABGR1555 : SDL_PIXELFORMAT_ABGR8888;
   if (window->spixel != 2 && window->spixel != 4) {
     debug(DEBUG_ERROR, "SDL", "scene: unsupported window format 0x%08X", window->format);
@@ -1396,6 +1527,7 @@ static int libsdl_video_setup(libsdl_window_t *window) {
     debug(DEBUG_INFO, "SDL", "using a %dx%d scene texture (format %s) for \"%s\"", w, h, SDL_GetPixelFormatName(window->scene_fmt), s ? s : "?");
   }
   if (0) {
+#endif
 #else
   if (s != NULL && sys_strcmp(s, "software")) {
 #endif
@@ -1429,6 +1561,16 @@ static int libsdl_video_close(libsdl_window_t *window) {
     SDL_SetRenderTarget(window->renderer, NULL);
     SDL_DestroyTexture(window->target);
   }
+#ifdef LIBSDL_SCENE_TILES
+  {
+    int i;
+    for (i = 0; i < window->ntiles; i++) {
+      if (window->tile[i]) SDL_DestroyTexture(window->tile[i]);
+    }
+    window->scene_tex = NULL;
+    if (window->scene_buf) sys_free(window->scene_buf);
+  }
+#endif
 #ifdef LIBSDL_SOFT_SCENE
   if (window->scene_tex) SDL_DestroyTexture(window->scene_tex);
   if (window->bgraw) sys_free(window->bgraw);
@@ -1597,6 +1739,24 @@ static void presentBackBuffer(libsdl_window_t *window, texture_t *t, GLuint prog
 }
 #endif
 
+#ifdef LIBSDL_SCENE_TILES
+// grows the changed part of the scene by the w x h rectangle at (x,y)
+static void libsdl_scene_dirty(libsdl_window_t *window, int x, int y, int w, int h) {
+  if (!window->dirty) {
+    window->dx0 = x;
+    window->dy0 = y;
+    window->dx1 = x + w;
+    window->dy1 = y + h;
+    window->dirty = 1;
+  } else {
+    if (x < window->dx0) window->dx0 = x;
+    if (y < window->dy0) window->dy0 = y;
+    if (x + w > window->dx1) window->dx1 = x + w;
+    if (y + h > window->dy1) window->dy1 = y + h;
+  }
+}
+#endif
+
 #ifdef LIBSDL_SOFT_SCENE
 // Scene texture (PlayStation 2): the textures PumpkinOS draws are kept in
 // memory (texture->buf, window pixel format) and blitted into one streaming
@@ -1611,6 +1771,24 @@ static void libsdl_scene_convert(libsdl_window_t *window, uint8_t *dst, uint8_t 
   uint32_t *s32, *d32, q;
   int i;
 
+#ifdef LIBSDL_SCENE_TILES
+  // PS3: ARGB8888, opaque (the renderer always blends with the texture alpha)
+  (void)d16; (void)q;
+  d32 = (uint32_t *)dst;
+  if (window->spixel == 2) {
+    s16 = (uint16_t *)src;
+    for (i = 0; i < w; i++) {
+      p = s16[i];  // RGB565
+      d32[i] = 0xFF000000 | ((((p >> 11) & 0x1F) * 255 / 31) << 16) | ((((p >> 5) & 0x3F) * 255 / 63) << 8) | ((p & 0x1F) * 255 / 31);
+    }
+  } else {
+    s32 = (uint32_t *)src;
+    for (i = 0; i < w; i++) {
+      d32[i] = s32[i] | 0xFF000000;  // ARGB8888
+    }
+  }
+  return;
+#endif
   if (window->spixel == 2) {
     s16 = (uint16_t *)src;
     d16 = (uint16_t *)dst;
@@ -1648,6 +1826,20 @@ static int libsdl_scene_blit(libsdl_window_t *window, uint8_t *src, int sw, int 
   if (y + h > window->scene_h) h = window->scene_h - y;
   if (w <= 0 || h <= 0) return 0;
 
+#ifdef LIBSDL_SCENE_TILES
+  // into the scene in memory; uploaded at the next present
+  (void)rect; (void)pixels; (void)pitch;
+  s = &src[(sy * sw + sx) * window->spixel];
+  d = (uint8_t *)&window->scene_buf[y * window->scene_w + x];
+  for (i = 0; i < h; i++) {
+    libsdl_scene_convert(window, d, s, w);
+    s += sw * window->spixel;
+    d += window->scene_w * sizeof(uint32_t);
+  }
+  libsdl_scene_dirty(window, x, y, w, h);
+  return 0;
+#endif
+
   rect.x = x;
   rect.y = y;
   rect.w = w;
@@ -1673,6 +1865,18 @@ static void libsdl_scene_clear(libsdl_window_t *window) {
   void *pixels;
   int pitch;
 
+#ifdef LIBSDL_SCENE_TILES
+  int i, n;
+
+  (void)pixels; (void)pitch;
+  if (window->scene_buf) {
+    n = window->scene_w * window->scene_h;
+    for (i = 0; i < n; i++) window->scene_buf[i] = 0xFF000000;
+    libsdl_scene_dirty(window, 0, 0, window->scene_w, window->scene_h);
+  }
+  return;
+#endif
+
   if (window->scene_tex && SDL_LockTexture(window->scene_tex, NULL, &pixels, &pitch)) {
     sys_memset(pixels, 0, pitch * window->scene_h);
     SDL_UnlockTexture(window->scene_tex);
@@ -1680,8 +1884,48 @@ static void libsdl_scene_clear(libsdl_window_t *window) {
 }
 
 static int libsdl_scene_present(libsdl_window_t *window) {
+#ifdef LIBSDL_SCENE_TILES
+  SDL_FRect dst;
+  SDL_Rect r, *t;
+  float sx, sy;
+  int i, x0, y0, x1, y1;
+
+  // the changed part of each tile goes to the GPU
+  if (window->dirty) {
+    for (i = 0; i < window->ntiles; i++) {
+      t = &window->tile_rect[i];
+      x0 = window->dx0 > t->x ? window->dx0 : t->x;
+      y0 = window->dy0 > t->y ? window->dy0 : t->y;
+      x1 = window->dx1 < t->x + t->w ? window->dx1 : t->x + t->w;
+      y1 = window->dy1 < t->y + t->h ? window->dy1 : t->y + t->h;
+      if (x1 <= x0 || y1 <= y0) continue;
+      r.x = x0 - t->x;
+      r.y = y0 - t->y;
+      r.w = x1 - x0;
+      r.h = y1 - y0;
+      if (!SDL_UpdateTexture(window->tile[i], &r, &window->scene_buf[y0 * window->scene_w + x0], window->scene_w * sizeof(uint32_t))) {
+        debug(DEBUG_ERROR, "SDL", "SDL_UpdateTexture (scene tile %d) failed: %s", i, SDL_GetError());
+      }
+    }
+    window->dirty = 0;
+  }
+
+  SDL_SetRenderDrawColor(window->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(window->renderer);
+  sx = window->view.w / window->scene_w;
+  sy = window->view.h / window->scene_h;
+  for (i = 0; i < window->ntiles; i++) {
+    t = &window->tile_rect[i];
+    dst.x = window->view.x + t->x * sx;
+    dst.y = window->view.y + t->y * sy;
+    dst.w = t->w * sx;
+    dst.h = t->h * sy;
+    SDL_RenderTexture(window->renderer, window->tile[i], NULL, &dst);
+  }
+#else
   SDL_RenderClear(window->renderer);
   SDL_RenderTexture(window->renderer, window->scene_tex, NULL, NULL);
+#endif
 #ifdef LIBSDL_STICK_POINTER
   libsdl_pointer_draw(window);
 #endif
@@ -2113,6 +2357,9 @@ static const char *libsdl_find_soundfont(void) {
 #ifdef PSP
     "ms0:/PSP/GAME/PumpkinOS/soundfont.sf2",
     "ef0:/PSP/GAME/PumpkinOS/soundfont.sf2",
+#endif
+#ifdef PS3
+    "/dev_hdd0/game/PUMP00001/USRDIR/soundfont.sf2",
 #endif
     "/usr/local/share/soundfonts/default.sf2",
     NULL

@@ -11,8 +11,8 @@
 // system threads are not wanted (PlayStation Vita, Nintendo Switch, PSP,
 // PlayStation 2, Nintendo GameCube). The
 // task switch is done with setjmp/longjmp; a new task starts with the stack
-// pointer set to the top of its own stack (x86, 32-bit ARM, AArch64, MIPS
-// and 32-bit PowerPC only).
+// pointer set to the top of its own stack (x86, 32-bit ARM, AArch64, MIPS,
+// 32-bit PowerPC and 64-bit PowerPC only).
 
 #include "sys.h"
 #include "thread.h"
@@ -183,6 +183,16 @@ static void schedule(void) {
     // n32 one (PlayStation 2) 16 byte aligned; 16 satisfies both
     void *top = (void *)((uintptr_t)next->stack_top & ~(uintptr_t)15);
     asm volatile ("move $sp, %0" : : "r" (top) : "memory");
+#elif defined(__powerpc64__)
+    // 64-bit PowerPC ELFv1 (PlayStation 3 PPU): r1 is the stack pointer, 16
+    // byte aligned, the doubleword it points to is the back chain (null:
+    // the end of the chain), and a callee may store into the caller's frame
+    // header (LR at 16(r1), the TOC pointer at 40(r1)) and its parameter
+    // save area (from 48(r1)): the first frame gets the 112 byte minimum
+    // frame (rounded up) to itself
+    void *top = (void *)(((uintptr_t)next->stack_top & ~(uintptr_t)15) - 128);
+    sys_memset(top, 0, 128);
+    asm volatile ("mr 1, %0" : : "r" (top) : "memory");
 #elif defined(__PPC__) || defined(__powerpc__)
     // PowerPC EABI (Nintendo GameCube): r1 is the stack pointer, 16 byte
     // aligned, and the word it points to is the back chain (a null one ends

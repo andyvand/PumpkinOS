@@ -25,6 +25,10 @@ else ifeq ($(OSNAME),ps2)
 # PlayStation 2: OpenSSL lives in the ps2dev EE sysroot (the compiler's
 # default include path)
 OPENSSL=sysroot
+else ifeq ($(OSNAME),ps3)
+# PlayStation 3: OpenSSL lives in the ps3dev portlibs (on the include path
+# through OSDEFS, see common.mak)
+OPENSSL=sysroot
 endif
 
 ifeq ($(OPENSSL),)

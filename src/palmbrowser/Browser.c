@@ -1883,7 +1883,7 @@ static void EventLoop(browser_t *b) {
   } while (event.eType != appStopEvent && !b->stop);
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
 UInt32 BrowserPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

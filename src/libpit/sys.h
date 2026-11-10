@@ -269,6 +269,22 @@ void sys_gc_ramdisk_set_size(int kb);
 #endif
 #endif
 
+#ifdef PS3
+// network initialization (PlayStation 3 build, see ps3net.c): libnet up
+// and the console's connection waited for, at most timeout_ms
+int sys_ps3_net_init(int timeout_ms);
+
+int sys_ps3_net_ready(void);
+
+void sys_ps3_net_finish(void);
+
+// logs the user memory / C heap usage (ps3sys.c)
+void sys_ps3_memlog(const char *tag);
+
+// the user memory the process can still get (ps3sys.c)
+uint32_t sys_ps3_mem_avail(void);
+#endif
+
 #ifdef PS2
 // network adapter / lwIP (EE) initialization (PlayStation 2 build, see ps2net.c)
 int sys_ps2_net_init(int timeout_ms);

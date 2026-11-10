@@ -126,6 +126,28 @@ $(PROGRAM): $(OBJS)
 	@rm -f $(PROGRAM)
 	@$(AR) -cr $(PROGRAM) $(OBJS)
 
+else ifeq ($(OSNAME),ps3)
+
+# Sony PlayStation 3: cooperative threads (threadsc, like the other consoles)
+# and no script engine (the stub lives in src/ps3/script.c). Sockets come
+# from PSL1GHT's libnet (LV2 sockets: descriptors tagged with
+# SOCKET_FD_MASK, which select() cannot take, so the waits use poll());
+# ps3net.o loads the network module, brings the connection up and supplies
+# the getaddrinfo() / gai_strerror() libnet lacks (IPv4, on top of
+# gethostbyname()). ps3sys.o has the memory log. ps3jmp.o replaces the C
+# library's setjmp()/longjmp(), the 32-bit PowerPC ones (the upper halves of
+# the callee-saved registers were lost at every task switch).
+PROGRAM=$(BIN)/libpit.a
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o ps3net.o ps3sys.o ps3jmp.o
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpit.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+ps3jmp.o: ps3jmp.S
+	@echo Assembling ps3jmp.S
+	@$(CC) $(PS3_ARCH) -c -o $@ $<
+
 else ifeq ($(OSNAME),Kernel)
 
 PROGRAM=$(BIN)/libpit.a

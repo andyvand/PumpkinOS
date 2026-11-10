@@ -54,8 +54,9 @@
 #define DIA_GHEIGHT   (DIA_GRAFFITI_HEIGHT + DIA_TASKBAR_HEIGHT)
 #define ALPHA_WIDTH   97
 #define ALPHA_HEIGHT  DIA_GRAFFITI_HEIGHT
-#elif defined(SWITCH)
-// Nintendo Switch: 1280x720 screen at double density, laid out like the
+#elif defined(SWITCH) || defined(PS3)
+// Nintendo Switch (and PlayStation 3: its 720p frame, scaled to the TV
+// mode by the RSX): 1280x720 screen at double density, laid out like the
 // Vita: the DIA strip at the bottom keeps the whole taskbar artwork, hard
 // buttons included (224 pixels), leaving a 1280x496 application area. The
 // 320 pixel wide artwork is centered in the 1280 pixel strip

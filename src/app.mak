@@ -54,6 +54,9 @@ STATIC_APP=1
 else ifeq ($(OSNAME),wii)
 # Static build as well (linked into boot.dol by src/wii), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),ps3)
+# Static build as well (linked into EBOOT.BIN by src/ps3), regular file names
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)

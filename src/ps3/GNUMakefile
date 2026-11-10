@@ -1,0 +1,137 @@
+# PumpkinOS for the Sony PlayStation 3 (ps3dev ppu-gcc + PSL1GHT + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider, the OpenSSL TLS
+# provider and every application static library produced by the other modules
+# into one ELF, and turns it into:
+#
+#   bin/PumpkinOS_PS3.pkg         installable package (title PUMP00001, the
+#   bin/PumpkinOS_PS3.gnpdrm.pkg  debug and the finalized "retail" format):
+#                                 /dev_hdd0/game/PUMP00001/
+#   bin/PumpkinOS_PS3.iso         disc image (title PUMP00002, ISO9660 +
+#                                 Joliet, PS3_DISC.SFB + PS3_GAME/), for
+#                                 webMAN / IRISMAN / RPCS3
+#   bin/ps3/pumpkinos.elf         unstripped (powerpc64-ps3-elf-addr2line)
+#   bin/ps3/pumpkinos.self        signed SELF of it (RPCS3: File > Boot SELF)
+#
+# Build from src/ with:
+#
+#   make OSNAME=ps3 -f GNUMakefile
+#
+# PS3DEV may point at the ps3dev root (default /opt/ps3dev); PYTHON is the
+# interpreter running mkiso.py. make_self, make_self_npdrm and
+# package_finalize are linked against Homebrew's openssl@3
+# (libcrypto.3.dylib): when it is not installed, PS3_TOOLS_LIBPATH names a
+# directory holding a libcrypto.3.dylib (found automatically in a python.org
+# framework), passed as DYLD_FALLBACK_LIBRARY_PATH.
+
+include ../common.mak
+
+PYTHON?=python3
+
+PS3BIN=$(PS3DEV)/bin
+PPUBIN=$(PS3DEV)/ppu/bin
+PS3_STRIP=$(PPUBIN)/powerpc64-ps3-elf-strip
+
+TITLE=PumpkinOS
+APPID=PUMP00001
+CONTENTID=UP0001-$(APPID)_00-0000000000000000
+DISC_ID=PUMP00002
+
+STAGE=$(BIN)/ps3
+ELF=$(STAGE)/pumpkinos.elf
+SELF=$(STAGE)/pumpkinos.self
+STRIPPED=$(STAGE)/build/pumpkinos.elf
+PKGDIR=$(STAGE)/pkg
+DISCDIR=$(STAGE)/disc
+PKG=$(BIN)/PumpkinOS_PS3.pkg
+GPKG=$(BIN)/PumpkinOS_PS3.gnpdrm.pkg
+ISO=$(BIN)/PumpkinOS_PS3.iso
+
+ifeq ($(PS3_TOOLS_LIBPATH),)
+ifeq ($(wildcard /opt/homebrew/opt/openssl@3/lib/libcrypto.3.dylib),)
+PS3_TOOLS_LIBPATH:=$(patsubst %/libcrypto.3.dylib,%,$(firstword $(wildcard /usr/local/opt/openssl@3/lib/libcrypto.3.dylib /Library/Frameworks/Python.framework/Versions/*/lib/libcrypto.3.dylib)))
+endif
+endif
+ifneq ($(PS3_TOOLS_LIBPATH),)
+TOOLENV=DYLD_FALLBACK_LIBRARY_PATH=$(PS3_TOOLS_LIBPATH)
+endif
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+# SDL3 (RSX video, the pads, libaudio) and SDL3_mixer with its decoders
+# (FluidSynth is C++, hence -lstdc++); OpenSSL. The portlibs directory comes
+# before PSL1GHT's: both have a libssl.a (PSL1GHT's is the cellSsl stub).
+SDLLIBS=-lSDL3_mixer -lfluidsynth -lxmp -lwavpack -lvorbisfile -lvorbis -logg -lSDL3
+SSLLIBS=-lssl -lcrypto
+# PSL1GHT (ppu-gcc itself adds -lsysbase -lc -lrt -llv2)
+PSLLIBS=-lrsx -lgcm_sys -lio -laudio -lsysutil -lsysmodule -lnetctl -lnet -lpthread -lrt -llv2
+
+LDFLAGS=-Wl,-Map,$(STAGE)/pumpkinos.map -Wl,--gc-sections
+
+all: $(PKG) $(ISO) $(SELF)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@mkdir -p $(STAGE)
+	@$(CC) $(PS3_ARCH) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PS3PORTLIBS)/lib -L$(PSL1GHT)/ppu/lib -Wl,--start-group $(SSLLIBS) $(SDLLIBS) $(PSLLIBS) -lstdc++ -lm $(EXTLIBS) -Wl,--end-group
+
+# stripped, with the PRX stubs fixed up (sprxlinker)
+$(STRIPPED): $(ELF)
+	@mkdir -p $(dir $(STRIPPED))
+	@$(PS3_STRIP) $(ELF) -o $(STRIPPED)
+	@$(PS3BIN)/sprxlinker $(STRIPPED)
+
+$(SELF): $(STRIPPED)
+	@echo Creating pumpkinos.self
+	@$(TOOLENV) $(PS3BIN)/make_self $(STRIPPED) $(SELF) > /dev/null
+
+# what goes next to EBOOT.BIN: the application PRCs (vfs/app_install,
+# copied to the home on the first boot), the boot options file, the CA
+# bundle (https) and the soundfont (MIDI), when present in the PumpkinOS root
+define usrdir
+	@mkdir -p $(1)/vfs/app_install $(1)/vfs/app_storage $(1)/vfs/app_card/PALM/Programs
+	@cp $(VFS)/app_install/*.prc $(1)/vfs/app_install/
+	@cp pumpkin.cfg README.md $(1)/
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(1)/; fi
+	@if [ -f $(PUMPKINOS)/soundfont.sf2 ]; then cp $(PUMPKINOS)/soundfont.sf2 $(1)/; fi
+endef
+
+# the package: an NPDRM EBOOT.BIN (the content id is part of its signature)
+$(PKG): $(STRIPPED) sfo.xml ICON0.PNG pumpkin.cfg README.md
+	@echo Creating PumpkinOS_PS3.pkg
+	@rm -rf $(PKGDIR)
+	@mkdir -p $(PKGDIR)/USRDIR
+	@$(TOOLENV) $(PS3BIN)/make_self_npdrm $(STRIPPED) $(PKGDIR)/USRDIR/EBOOT.BIN $(CONTENTID) > /dev/null
+	@cp ICON0.PNG $(PKGDIR)/ICON0.PNG
+	@$(PS3BIN)/sfo --title "$(TITLE)" --appid "$(APPID)" -f sfo.xml $(PKGDIR)/PARAM.SFO
+	$(call usrdir,$(PKGDIR)/USRDIR)
+	@rm -f $(PKG) $(GPKG)
+	@$(PS3BIN)/pkg --contentid $(CONTENTID) $(PKGDIR)/ $(PKG) > /dev/null
+	@cp $(PKG) $(GPKG)
+	@$(TOOLENV) $(PS3BIN)/package_finalize $(GPKG)
+
+# the disc: PS3_DISC.SFB and PS3_GAME/ (a disc game, category DG) with a
+# plain (non NPDRM) EBOOT.BIN
+$(ISO): $(STRIPPED) sfo_disc.xml ICON0.PNG pumpkin.cfg README.md mkiso.py
+	@echo Creating PumpkinOS_PS3.iso
+	@rm -rf $(DISCDIR)
+	@mkdir -p $(DISCDIR)/PS3_GAME/USRDIR
+	@$(TOOLENV) $(PS3BIN)/make_self $(STRIPPED) $(DISCDIR)/PS3_GAME/USRDIR/EBOOT.BIN > /dev/null
+	@cp ICON0.PNG $(DISCDIR)/PS3_GAME/ICON0.PNG
+	@$(PS3BIN)/sfo --title "$(TITLE)" --appid "$(DISC_ID)" -f sfo_disc.xml $(DISCDIR)/PS3_GAME/PARAM.SFO
+	$(call usrdir,$(DISCDIR)/PS3_GAME/USRDIR)
+	@$(PYTHON) mkiso.py -s -i $(DISC_ID) -o $(ISO) $(DISCDIR)
+
+clean:
+	@rm -f $(PKG) $(GPKG) $(ISO) $(OBJS)
+	@rm -rf $(STAGE)

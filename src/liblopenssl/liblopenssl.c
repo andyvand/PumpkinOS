@@ -35,6 +35,8 @@
 #include <sys/poll.h>  /* Watt-32 */
 #elif defined(PSP) || defined(PS2)
 #include <sys/select.h> /* no poll() in the pspsdk / ps2sdk glue */
+#elif defined(PS3)
+#include <net/poll.h>   /* PSL1GHT libnet: LV2 sockets cannot go into an fd_set */
 #else
 #include <poll.h>
 #endif
@@ -97,6 +99,9 @@ static const char *ca_bundles[] = {
 #ifdef PSP
   "ms0:/PSP/GAME/PumpkinOS/cert.pem",                   /* PlayStation Portable: next to EBOOT.PBP (or SSL_CERT_FILE, see src/psp) */
   "ef0:/PSP/GAME/PumpkinOS/cert.pem",
+#endif
+#ifdef PS3
+  "/dev_hdd0/game/PUMP00001/USRDIR/cert.pem",           /* PlayStation 3: next to EBOOT.BIN of the installed package (or SSL_CERT_FILE, see src/ps3) */
 #endif
 #ifdef PS2
   "mc0:/PumpkinOS/cert.pem",                            /* PlayStation 2: the home on the memory card (or SSL_CERT_FILE, see src/ps2) */
@@ -710,7 +715,7 @@ static int dos_seed_openssl(void) {
 #endif
 
 int liblopenssl_load(void) {
-#if defined(PS2)
+#if defined(PS2) || defined(PS3)
   // no configuration file on a console (the default path would be looked up
   // relative to the boot device)
   debug(DEBUG_INFO, TAG, "initializing OpenSSL");

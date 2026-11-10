@@ -12,6 +12,8 @@ else ifeq ($(OSNAME),gamecube)
 STATIC=1
 else ifeq ($(OSNAME),wii)
 STATIC=1
+else ifeq ($(OSNAME),ps3)
+STATIC=1
 endif
 
 ifeq ($(STATIC),1)
