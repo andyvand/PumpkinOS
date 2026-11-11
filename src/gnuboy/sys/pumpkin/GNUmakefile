@@ -197,7 +197,7 @@ DEVKITPRO ?= /opt/devkitpro
 CC = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-gcc
 AR = $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-ar
 STATIC = 1
-OSDEFS = -D__SWITCH__ -DSWITCH -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -ftls-model=local-exec -I$(DEVKITPRO)/libnx/include -Wno-format -Wno-attributes
+OSDEFS = -D__SWITCH__ -DSWITCH -Dinflate=gnuboy_inflate -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -ftls-model=local-exec -I$(DEVKITPRO)/libnx/include -Wno-format -Wno-attributes
 else ifeq ($(OSNAME),psp)
 # PlayStation Portable: static library linked into EBOOT.PBP by src/psp, the
 # PRC only carries the resources (see src/app.mak)

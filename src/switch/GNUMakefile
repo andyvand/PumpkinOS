@@ -82,7 +82,7 @@ all: $(NRO) nsp
 
 $(ELF): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkinos.elf
-	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(LIBNX)/lib $(SDLLIBS) $(SWITCHLIBS) -lstdc++ -lm $(EXTLIBS)
+	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl -lssl -lcrypto $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(LIBNX)/lib $(SDLLIBS) $(SWITCHLIBS) -lstdc++ -lz -lm $(EXTLIBS)
 
 $(NACP): GNUMakefile
 	@echo Creating pumpkinos.nacp
