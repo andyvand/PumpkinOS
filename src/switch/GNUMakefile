@@ -17,18 +17,24 @@ APP_VERSION=$(VERSION).0
 
 ELF=$(BIN)/pumpkinos.elf
 NRO=$(BIN)/PumpkinOS.nro
+NSP=$(BIN)/PumpkinOS.nsp
+DLC_NSP=$(BIN)/PumpkinOS_DLC.nsp
+DLC_STAGE=$(BIN)/switch_dlc
 NACP=$(BIN)/pumpkinos.nacp
 ROMFS=$(BIN)/romfs
 ICON=icon.jpg
 
 TOOLS=$(DEVKITPRO)/tools/bin
 ELF2NRO=$(TOOLS)/elf2nro
+ELF2NSO=$(TOOLS)/elf2nso
+NPDMTOOL=$(TOOLS)/npdmtool
+BUILD_ROMFS=$(TOOLS)/build_romfs
 NACPTOOL=$(TOOLS)/nacptool
 PKG_CONFIG=$(PORTLIBS)/bin/aarch64-none-elf-pkg-config
 
-CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font -DSWITCH_TITLE_ID=0x$(SWITCH_TITLE_ID)ULL
 
-SOURCE=main.c script.c
+SOURCE=main.c script.c aoc.c
 OBJS=$(SOURCE:%.c=%.o)
 
 # applications and plugins (static libraries built by app.mak)
@@ -47,7 +53,32 @@ SWITCHLIBS=-lEGL -lglapi -ldrm_nouveau -lnx
 # EXTLIBDIRS=-L<dir> on the make command line looks there first
 LDFLAGS=-specs=$(LIBNX)/switch.specs $(SWITCH_ARCH) -Wl,-Map,$(BIN)/pumpkinos.map
 
-all: $(NRO)
+# Installable title (NSP, see mknsp.py). The application title ID must end
+# in 000 (SWITCH_TITLE_ID=<16 hex digits> changes it). The NCAs are
+# encrypted with keys from a prod.keys file: SWITCH_KEYS=<path>, else
+# ~/.switch/prod.keys or the one Ryujinx uses; without one the NSP is
+# skipped with a note. The Program NCA header is signed (signature 2) with
+# the RSA-2048 key SWITCH_SIGN_KEY, whose modulus goes into main.npdm; it is
+# created on the first build when missing (SWITCH_SIGN_KEY= turns signing
+# off). The fixed-key signatures (NCA signature 1, ACID) need Nintendo's
+# private keys and stay empty: see mknsp.py and README.md.
+SWITCH_TITLE_ID?=0100506B696E0000
+SWITCH_KEYS?=
+SWITCH_SIGN_KEY?=$(HOME)/.switch/pumpkinos_acid.pem
+
+# Add-on content (DLC, PumpkinOS_DLC.nsp, title ID = SWITCH_TITLE_ID +
+# 0x1000 + SWITCH_DLC_INDEX): the RomFS is the folder SWITCH_DLC_DIR, laid
+# out like the home directory (vfs/app_install/*.prc, vfs/app_card/...,
+# soundfont.sf2, cert.pem). PumpkinOS copies the files missing in
+# sdmc:/switch/pumpkinos/ at boot, once per DLC content (the build stamps it
+# with a hash of the files, pumpkinos_dlc.id). SWITCH_DLC_DIR= skips it.
+SWITCH_DLC_DIR?=dlc
+SWITCH_DLC_INDEX?=1
+EXEFS=$(BIN)/switch_exefs
+
+all: $(NRO) nsp
+
+.PHONY: nsp
 
 $(ELF): $(OBJS) $(MODULES) $(APPLIBS)
 	@echo Linking pumpkinos.elf
@@ -69,6 +100,50 @@ $(NRO): $(ELF) $(NACP) $(ICON)
 	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(ROMFS)/; fi
 	@$(ELF2NRO) $(ELF) $(NRO) --icon=$(ICON) --nacp=$(NACP) --romfsdir=$(ROMFS)
 
+# the ExeFS (main NSO + main.npdm) and the RomFS image are made here, the
+# NCAs and the NSP by mknsp.py
+nsp: $(NRO) pumpkinos.json.in mknsp.py
+	@keys="$(SWITCH_KEYS)"; \
+	if [ -z "$$keys" ]; then \
+	  for k in "$$HOME/.switch/prod.keys" "$$HOME/Library/Application Support/Ryujinx/system/prod.keys" "$$HOME/.config/Ryujinx/system/prod.keys"; do \
+	    if [ -f "$$k" ]; then keys="$$k"; break; fi; \
+	  done; \
+	fi; \
+	if [ -z "$$keys" ] || [ ! -f "$$keys" ]; then \
+	  echo "Note: no prod.keys found (SWITCH_KEYS=<path>), PumpkinOS.nsp not created"; \
+	  exit 0; \
+	fi; \
+	sign=""; \
+	if [ -n "$(SWITCH_SIGN_KEY)" ]; then \
+	  if [ ! -f "$(SWITCH_SIGN_KEY)" ]; then \
+	    echo "Creating the NCA signing key $(SWITCH_SIGN_KEY)"; \
+	    mkdir -p "$$(dirname "$(SWITCH_SIGN_KEY)")" && \
+	    (umask 077; openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$(SWITCH_SIGN_KEY)") || exit 1; \
+	  fi; \
+	  sign="$(SWITCH_SIGN_KEY)"; \
+	fi; \
+	echo Creating PumpkinOS.nsp; \
+	rm -rf $(EXEFS) && mkdir -p $(EXEFS) && \
+	$(ELF2NSO) $(ELF) $(EXEFS)/main && \
+	sed 's/@TITLE_ID@/0x$(SWITCH_TITLE_ID)/g' pumpkinos.json.in > $(BIN)/pumpkinos.json && \
+	{ $(NPDMTOOL) $(BIN)/pumpkinos.json $(EXEFS)/main.npdm > $(BIN)/npdmtool.log 2>&1 || { cat $(BIN)/npdmtool.log; exit 1; }; } && \
+	$(BUILD_ROMFS) $(ROMFS) $(BIN)/pumpkinos_romfs.bin > /dev/null && \
+	python3 mknsp.py -k "$$keys" -t $(SWITCH_TITLE_ID) -o $(NSP) -exefs $(EXEFS) \
+	  -romfs $(BIN)/pumpkinos_romfs.bin -nacp $(NACP) -icon $(ICON) -build_romfs $(BUILD_ROMFS) \
+	  $${sign:+-sign "$$sign"} && \
+	if [ -n "$(SWITCH_DLC_DIR)" ] && [ -d "$(SWITCH_DLC_DIR)" ]; then \
+	  echo Creating PumpkinOS_DLC.nsp; \
+	  rm -rf $(DLC_STAGE) && mkdir -p $(DLC_STAGE) && \
+	  cp -R "$(SWITCH_DLC_DIR)/." $(DLC_STAGE)/ && \
+	  rm -f $(DLC_STAGE)/pumpkinos_dlc.id && \
+	  (cd $(DLC_STAGE) && find . -type f | LC_ALL=C sort | while read f; do shasum -a 256 "$$f"; done) | \
+	    shasum -a 256 | cut -c1-64 > $(BIN)/pumpkinos_dlc.id && \
+	  mv $(BIN)/pumpkinos_dlc.id $(DLC_STAGE)/ && \
+	  $(BUILD_ROMFS) $(DLC_STAGE) $(BIN)/pumpkinos_dlc_romfs.bin > /dev/null && \
+	  python3 mknsp.py -k "$$keys" -t $(SWITCH_TITLE_ID) -o $(DLC_NSP) -aoc $(SWITCH_DLC_INDEX) \
+	    -romfs $(BIN)/pumpkinos_dlc_romfs.bin; \
+	fi
+
 clean:
-	@rm -f $(ELF) $(NRO) $(NACP) $(BIN)/pumpkinos.map $(OBJS)
-	@rm -rf $(ROMFS)
+	@rm -f $(ELF) $(NRO) $(NSP) $(DLC_NSP) $(BIN)/pumpkinos_dlc_romfs.bin $(NACP) $(BIN)/pumpkinos.map $(BIN)/pumpkinos.json $(BIN)/pumpkinos_romfs.bin $(BIN)/npdmtool.log $(OBJS)
+	@rm -rf $(ROMFS) $(EXEFS) $(DLC_STAGE)

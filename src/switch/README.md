@@ -34,6 +34,11 @@ Add `TYPE=release` for an optimized build. The result is `bin/PumpkinOS.nro`
 (`vfs/app_install/*.prc`) and, when they exist in the PumpkinOS root,
 `soundfont.sf2` (MIDI) and `cert.pem` (https CA bundle).
 
+When a `prod.keys` file is found (`SWITCH_KEYS=<path>`, else
+`~/.switch/prod.keys` or Ryujinx's `system/prod.keys`) the build also makes
+`bin/PumpkinOS.nsp`, an installable title (see below); without keys it prints
+a note and skips it.
+
 When switching from another `OSNAME` run `make OSNAME=switch -f GNUMakefile
 clean` first: objects of another platform that are newer than their sources
 would otherwise be archived as they are.
@@ -68,6 +73,64 @@ homebrew far less memory, and PumpkinOS allocates a 64MB global heap plus
 For development `nxlink -s bin/PumpkinOS.nro -- -nxlink` uploads and starts
 the NRO over the network and mirrors stderr to the host (`-nxlink` is the
 only option that is Switch specific; the others are listed below).
+
+### Installable title (NSP)
+
+`bin/PumpkinOS.nsp` holds the same program as an installable application
+(title ID `0100506B696E0000`, change it with `SWITCH_TITLE_ID=<16 hex
+digits ending in 000>`), packed by `mknsp.py`: a Program NCA (ExeFS with
+`main`, the NSO made by `elf2nso`, and `main.npdm`, made by `npdmtool` from
+`pumpkinos.json.in`; RomFS with the same data as the NRO), a Control NCA
+(`control.nacp` and the icon) and a Meta NCA (the CNMT). The NCAs are
+encrypted with `header_key` and `key_area_key_application_00` from the keys
+file (key generation 0, so any firmware accepts them).
+
+Signatures: the Program NCA header is signed (signature 2, RSA-2048-PSS)
+with `SWITCH_SIGN_KEY` (default `~/.switch/pumpkinos_acid.pem`, created on
+the first build; keep it if you want later builds signed with the same key,
+`SWITCH_SIGN_KEY=` turns signing off), whose modulus is stored in the ACID of
+`main.npdm`, which is the key the system checks signature 2 with. NCA
+signature 1 and the ACID's own signature are checked with fixed Nintendo
+keys whose private halves are not available, so they stay empty: the
+console still needs signature patches (Atmosphere with sigpatches) and an
+NSP installer (DBI, Tinfoil, Goldleaf). There is no ticket (no rights ID).
+Because PSS signatures are randomized, two builds of the NSP are no longer
+byte identical. Once installed,
+PumpkinOS shows up on the HOME menu and runs as a regular application with
+the full application memory, no title override needed; it uses the same
+`sdmc:/switch/pumpkinos/` home as the NRO. Ryujinx runs the NSP directly
+(`Ryujinx bin/PumpkinOS.nsp`, or File > Load Application From File).
+
+### Add-on content (DLC)
+
+The build also packs `bin/PumpkinOS_DLC.nsp`, an add-on content title for
+PumpkinOS (title ID = the application's + 0x1000 + `SWITCH_DLC_INDEX`,
+default 1: `0100506B696E1001`). Its RomFS is the folder `SWITCH_DLC_DIR`
+(default `src/switch/dlc`, which only holds a sample text file), laid out
+like the home directory:
+
+    vfs/app_install/*.prc            application resources to deploy
+    vfs/app_card/PALM/Programs/...   card files (e.g. Game Boy ROMs for GNUBoy)
+    soundfont.sf2, cert.pem          MIDI soundfont, https CA bundle
+
+Since the applications are linked into the program, a DLC carries data only:
+a PRC in it is useful when its code is already in the program. For example:
+
+    make OSNAME=switch -f GNUMakefile SWITCH_DLC_DIR=/path/to/mydlc SWITCH_DLC_INDEX=2
+
+`SWITCH_DLC_DIR=` skips the DLC. At boot PumpkinOS lists its installed add-on
+contents (the `aoc:u` service, see `aoc.c`), mounts each RomFS and copies
+the files missing in `sdmc:/switch/pumpkinos/` (existing files are kept).
+That happens once per DLC content: the build stamps the RomFS with a hash of
+its files (`pumpkinos_dlc.id`) and PumpkinOS remembers the applied stamp in
+`sdmc:/switch/pumpkinos/dlc/<data id>.id`, so a rebuilt DLC with other files
+is merged again. Add-on contents are only taken when their base ID is
+PumpkinOS's: an NRO started through a title override sees the DLCs of that
+other title and ignores them. The DLC NSP is installed like the base one
+(same keys, no ticket, needs signature patches). In Ryujinx add it with
+Manage DLC on the PumpkinOS entry (stored in `games/<titleid>/dlc.json`).
+After changing `SWITCH_TITLE_ID` run `make clean` (`main.c` gets the ID at
+compile time).
 
 ### Screen and controls
 
