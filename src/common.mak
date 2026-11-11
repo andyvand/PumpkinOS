@@ -41,6 +41,9 @@ MACHINE := powerpc
 else ifeq ($(OSNAME),ps3)
 # the PlayStation 3 Cell PPU is a 64-bit big endian PowerPC (LP64 in PSL1GHT)
 MACHINE := powerpc64
+else ifeq ($(OSNAME),wiiu)
+# the Nintendo Wii U is a 32-bit big endian PowerPC (Espresso, 3 cores)
+MACHINE := powerpc
 else
 MACHINE := $(shell uname -m)
 endif
@@ -163,7 +166,7 @@ else ifeq ($(OSNAME),ps2)
 PS2DEV?=/opt/ps2dev
 AR=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-ar
 NM=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-nm -j -u
-else ifneq ($(filter gamecube wii,$(OSNAME)),)
+else ifneq ($(filter gamecube wii wiiu,$(OSNAME)),)
 DEVKITPRO?=/opt/devkitpro
 AR=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
 NM=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-nm -j -u
@@ -365,6 +368,32 @@ PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
 
+else ifeq ($(OSNAME),wiiu)
+# Nintendo Wii U (devkitPro devkitPPC cross compiler, newlib + wut). The
+# same static model as the Wii and the PS3: everything is linked into one
+# ELF (see src/wiiu), turned into an RPX by elf2rpl. WIIU is the PumpkinOS
+# platform macro, __WIIU__ / __WUT__ are what the wut and SDL3 headers
+# expect (SDL_PLATFORM_WIIU). The compiler flags are wut_rules' MACHDEP. The
+# console gives a program about 800MB (MEM2), so the code is optimized for
+# speed; every function and data item is in its own section all the same
+# (wut.specs links with --gc-sections).
+SYS_OS=15
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=WiiU
+DEVKITPRO?=/opt/devkitpro
+DEVKITPPC=$(DEVKITPRO)/devkitPPC
+WUT=$(DEVKITPRO)/wut
+PORTLIBS=$(DEVKITPRO)/portlibs/wiiu
+WIIU_ARCH=-DESPRESSO -mcpu=750 -meabi -mhard-float
+OSDEFS=$(WIIU_ARCH) -O2 -ffunction-sections -fdata-sections -DWIIU -D__WIIU__ -D__WUT__ -DSOEXT=\"$(SOEXT)\" -I$(PORTLIBS)/include -I$(WUT)/include -Wno-format -Wno-attributes
+CC=$(DEVKITPPC)/bin/powerpc-eabi-gcc
+CPP=$(DEVKITPPC)/bin/powerpc-eabi-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
 else ifeq ($(OSNAME),ps3)
 # Sony PlayStation 3 (ps3dev powerpc64-ps3-elf cross compiler, newlib +
 # PSL1GHT). The same static model as the PS2 and the Wii: everything is
@@ -519,7 +548,7 @@ else ifeq ($(OSNAME),psp)
 STRIP=$(PSPDEV)/bin/psp-strip
 else ifeq ($(OSNAME),ps2)
 STRIP=$(PS2DEV)/ee/bin/mips64r5900el-ps2-elf-strip
-else ifneq ($(filter gamecube wii,$(OSNAME)),)
+else ifneq ($(filter gamecube wii wiiu,$(OSNAME)),)
 STRIP=$(DEVKITPPC)/bin/powerpc-eabi-strip
 else ifeq ($(OSNAME),ps3)
 STRIP=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-strip

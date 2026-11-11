@@ -41,6 +41,9 @@ MACHINE := powerpc
 else ifeq ($(OSNAME),ps3)
 # the PlayStation 3 Cell PPU is a 64-bit big endian PowerPC
 MACHINE := powerpc64
+else ifeq ($(OSNAME),wiiu)
+# the Nintendo Wii U is a 32-bit big endian PowerPC as well
+MACHINE := powerpc
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -67,6 +70,8 @@ else ifeq ($(OSNAME),wii)
 SYS_OS ?= 13
 else ifeq ($(OSNAME),ps3)
 SYS_OS ?= 14
+else ifeq ($(OSNAME),wiiu)
+SYS_OS ?= 15
 else
 SYS_OS ?= 1
 endif
@@ -256,6 +261,21 @@ GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_re
                 -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
                 -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
 OSDEFS = -mhard-float -fmodulo-sched -ffunction-sections -fdata-sections -DPS3 -D__PS3__ -Dinflate=gnuboy_inflate $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),wiiu)
+# Wii U: static library linked into the RPX by src/wiiu, the PRC only
+# carries the resources (see src/app.mak)
+DEVKITPRO ?= /opt/devkitpro
+CC = $(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-gcc
+AR = $(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
+STATIC = 1
+# (no wut include directory: the emulator glue does not need it)
+# -Dxz_*=...: the emulator ships its own copy of the xz decoder, and so does
+# the libxmp of the wiiu portlibs (an SDL3_mixer decoder)
+GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_reset -Dxz_dec_run=gnuboy_xz_dec_run -Dxz_dec_end=gnuboy_xz_dec_end \
+                -Dxz_dec_lzma2_create=gnuboy_xz_dec_lzma2_create -Dxz_dec_lzma2_reset=gnuboy_xz_dec_lzma2_reset -Dxz_dec_lzma2_run=gnuboy_xz_dec_lzma2_run -Dxz_dec_lzma2_end=gnuboy_xz_dec_lzma2_end \
+                -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
+                -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
+OSDEFS = -DESPRESSO -mcpu=750 -meabi -mhard-float -O2 -ffunction-sections -fdata-sections -DWIIU -D__WIIU__ -D__WUT__ $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
 else
 CC = gcc
 LINKFLAGS = -shared

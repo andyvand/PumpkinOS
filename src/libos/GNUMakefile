@@ -22,6 +22,8 @@ else ifeq ($(OSNAME),wii)
 STATIC=1
 else ifeq ($(OSNAME),ps3)
 STATIC=1
+else ifeq ($(OSNAME),wiiu)
+STATIC=1
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 else

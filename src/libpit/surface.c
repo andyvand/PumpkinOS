@@ -39,6 +39,12 @@
 #define abs64 abss
 #endif
 
+#ifdef WIIU
+// no thread local storage in an RPX (elf2rpl has no TLS relocations); the
+// threads are cooperative there anyway
+#define STBI_NO_THREAD_LOCALS
+#endif
+
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION

@@ -1,0 +1,193 @@
+# PumpkinOS for the Nintendo Wii U (devkitPro devkitPPC + wut + SDL3).
+#
+# Links libpit, libpumpkin, libos, the SDL3 window provider, the OpenSSL TLS
+# provider and every application static library produced by the other
+# modules into one ELF, turns it into an RPX (elf2rpl) and packs it as:
+#
+#   bin/PumpkinOS_WiiU.wua        the game image: a Wii U Archive holding the
+#                                 title (code/, content/, meta/) for Cemu
+#                                 (File > Load, or add it to the game list)
+#   bin/PumpkinOS_WiiU.wuhb       Wii U Homebrew Bundle (Aroma: sd:/wiiu/apps/)
+#   bin/PumpkinOS_WiiU.zip        the bundle in its SD card layout
+#   bin/PumpkinOS_WiiU_HBL.zip    the bare RPX with vfs/ for the Homebrew
+#                                 Launcher (sd:/wiiu/apps/pumpkinos/)
+#   bin/PumpkinOS_WiiU_WUP.zip    the installable title package (WUP:
+#                                 title.tmd, title.tik, .app/.h3 contents) in
+#                                 sd:/install/PumpkinOS/, for an installer
+#                                 such as WUP Installer GX2; also unpacked in
+#                                 bin/wiiu/wup/ (Cemu loads its title.tmd).
+#                                 Only made when the Wii U common key is
+#                                 given (see below)
+#   bin/wiiu/title/<id>_v<n>/     the title directory the .wua is made of
+#                                 (also what Cemu loads unpacked, and the
+#                                 input of a WUP packer such as NUSPacker)
+#   bin/wiiu/pumpkinos.elf        unstripped (powerpc-eabi-addr2line)
+#   bin/wiiu/pumpkinos.rpx
+#
+# Build from src/ with:
+#
+#   make OSNAME=wiiu -f GNUMakefile
+#
+# DEVKITPRO may point at the devkitPro root (default /opt/devkitpro); PYTHON
+# is the interpreter running mktga.py and mkwua.py (the .wua needs zstd:
+# Python 3.14, or an older one with the zstandard module). WIIU_TITLE_ID
+# (16 hex digits) and WIIU_TITLE_VERSION set the title's identity.
+#
+# The title package needs the Wii U common key (it encrypts the title key
+# in the ticket); it is not part of PumpkinOS. Give it as WIIU_COMMON_KEY=<32
+# hex digits> or WIIU_OTP=<path to the console's otp.bin> (on the command
+# line or in the environment). WIIU_CERT=<title.cert> adds a certificate
+# chain (some installers want the file; any title's title.cert works).
+
+include ../common.mak
+
+PYTHON?=python3
+
+TITLE=PumpkinOS
+AUTHOR=migueletto, Andy Vandijck
+WIIU_TITLE_ID?=0005000010F5A500
+WIIU_TITLE_VERSION?=0
+WIIU_PRODUCT?=PMPK
+# the group id is the middle of the title id, as in Nintendo's titles
+WIIU_GROUP_ID=0000$(shell echo $(WIIU_TITLE_ID) | cut -c11-14)
+WIIU_TITLE_VERSION_HEX=$(shell printf '%04X' $(WIIU_TITLE_VERSION))
+
+ELF2RPL=$(DEVKITPRO)/tools/bin/elf2rpl
+WUHBTOOL=$(DEVKITPRO)/tools/bin/wuhbtool
+PKG_CONFIG=PKG_CONFIG_LIBDIR=$(PORTLIBS)/lib/pkgconfig $(PORTLIBS)/bin/powerpc-eabi-pkg-config
+
+STAGE=$(BIN)/wiiu
+ELF=$(STAGE)/pumpkinos.elf
+RPX=$(STAGE)/pumpkinos.rpx
+CONTENT=$(STAGE)/content
+TITLEDIR=$(STAGE)/title/$(WIIU_TITLE_ID)_v$(WIIU_TITLE_VERSION)
+WUA=$(BIN)/PumpkinOS_WiiU.wua
+WUHB=$(BIN)/PumpkinOS_WiiU.wuhb
+ZIP=$(BIN)/PumpkinOS_WiiU.zip
+HBLZIP=$(BIN)/PumpkinOS_WiiU_HBL.zip
+SDDIR=$(STAGE)/sd
+HBLDIR=$(STAGE)/hbl
+WUPDIR=$(STAGE)/wup
+WUPZIP=$(BIN)/PumpkinOS_WiiU_WUP.zip
+WUP_KEYARG=$(if $(WIIU_COMMON_KEY),-k $(WIIU_COMMON_KEY),$(if $(WIIU_OTP),-otp "$(WIIU_OTP)"))
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/liblsdl3.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+# SDL3 (GX2 video on the TV and the GamePad, AX audio, the GamePad / Pro
+# Controllers / Wiimotes) and SDL3_mixer with its decoders (FluidSynth is
+# C++, hence -lstdc++), OpenSSL, wut (pkg-config also gives the wut specs)
+SDLLIBS=$(filter-out -specs=%,$(shell $(PKG_CONFIG) --static --libs sdl3-mixer sdl3 openssl))
+
+# wut.specs: the RPX linker script, crt0 and --gc-sections / --emit-relocs
+# (what elf2rpl needs); EXTLIBDIRS=-L<dir> on the make command line looks
+# there first
+LDFLAGS=$(WIIU_ARCH) -specs=$(WUT)/share/wut.specs -Wl,-Map,$(STAGE)/pumpkinos.map
+
+all: $(WUA) $(ZIP) $(HBLZIP) $(if $(WUP_KEYARG),$(WUPZIP),wup-note)
+
+$(ELF): $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking pumpkinos.elf
+	@mkdir -p $(STAGE)
+	@$(CC) $(LDFLAGS) -o $(ELF) $(OBJS) -L$(BIN) -Wl,--start-group -los -lpumpkin -llsdl3 -llopenssl $(APPLDFLAGS) -lpit -Wl,--end-group $(EXTLIBDIRS) -L$(PORTLIBS)/lib -L$(WUT)/lib -Wl,--start-group $(SDLLIBS) -lwut -lstdc++ -lm $(EXTLIBS) -Wl,--end-group
+
+$(RPX): $(ELF)
+	@echo Creating pumpkinos.rpx
+	@$(ELF2RPL) $(ELF) $(RPX) || (echo "elf2rpl failed: a library was built with -fPIC or uses thread local storage (see README.md)"; rm -f $(RPX); exit 1)
+
+# what goes in the content of the bundle and of the title (mounted at
+# fs:/vol/content/): the application PRCs (vfs/app_install, copied to the
+# home on the first boot), the boot options file, this README, the CA bundle
+# (https) and the soundfont (MIDI), when present in the PumpkinOS root
+define content
+	@rm -rf $(1)
+	@mkdir -p $(1)/vfs/app_install $(1)/vfs/app_storage $(1)/vfs/app_card/PALM/Programs
+	@cp $(VFS)/app_install/*.prc $(1)/vfs/app_install/
+	@cp pumpkin.cfg README.md $(1)/
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then cp $(PUMPKINOS)/cert.pem $(1)/; fi
+	@if [ -f $(PUMPKINOS)/soundfont.sf2 ]; then cp $(PUMPKINOS)/soundfont.sf2 $(1)/; fi
+endef
+
+$(STAGE)/content.stamp: $(wildcard $(VFS)/app_install/*.prc) pumpkin.cfg README.md
+	@echo Creating the content directory
+	@mkdir -p $(STAGE)
+	$(call content,$(CONTENT))
+	@touch $@
+
+# Homebrew bundle for Aroma
+$(WUHB): $(RPX) $(STAGE)/content.stamp icon.png tv.png drc.png
+	@echo Creating PumpkinOS_WiiU.wuhb
+	@$(WUHBTOOL) $(RPX) $(WUHB) --content=$(CONTENT) --name="$(TITLE)" --short-name="$(TITLE)" --author="$(AUTHOR)" --icon=icon.png --tv-image=tv.png --drc-image=drc.png
+
+$(ZIP): $(WUHB)
+	@echo Creating PumpkinOS_WiiU.zip
+	@rm -rf $(SDDIR) $(ZIP)
+	@mkdir -p $(SDDIR)/wiiu/apps
+	@cp $(WUHB) $(SDDIR)/wiiu/apps/pumpkinos.wuhb
+	@cd $(SDDIR) && zip -qr $(abspath $(ZIP)) wiiu -x '*.DS_Store'
+
+# the Homebrew Launcher: the RPX with its meta.xml / icon.png and the
+# content next to it (sd:/wiiu/apps/pumpkinos/)
+$(HBLZIP): $(RPX) $(STAGE)/content.stamp icon.png hbl.xml
+	@echo Creating PumpkinOS_WiiU_HBL.zip
+	@rm -rf $(HBLDIR) $(HBLZIP)
+	$(call content,$(HBLDIR)/wiiu/apps/pumpkinos)
+	@cp $(RPX) $(HBLDIR)/wiiu/apps/pumpkinos/pumpkinos.rpx
+	@cp icon.png $(HBLDIR)/wiiu/apps/pumpkinos/icon.png
+	@sed -e "s/@DATE@/$$(date +%Y%m%d%H%M%S)/" -e "s/@VERSION@/$(VERSION)/" hbl.xml > $(HBLDIR)/wiiu/apps/pumpkinos/meta.xml
+	@cd $(HBLDIR) && zip -qr $(abspath $(HBLZIP)) wiiu -x '*.DS_Store'
+
+# the title: code/ (the RPX, app.xml, cos.xml), content/ and meta/
+# (meta.xml, the icon and the boot screens as TGA)
+$(STAGE)/title.stamp: $(RPX) $(STAGE)/content.stamp title/app.xml title/cos.xml title/meta.xml icon.png tv.png drc.png logo.png mktga.py
+	@echo Creating the title $(WIIU_TITLE_ID)_v$(WIIU_TITLE_VERSION)
+	@rm -rf $(STAGE)/title
+	@mkdir -p $(STAGE)
+	@mkdir -p $(TITLEDIR)/code $(TITLEDIR)/meta
+	@cp $(RPX) $(TITLEDIR)/code/pumpkinos.rpx
+	@sed -e "s/@TITLE_ID@/$(WIIU_TITLE_ID)/" -e "s/@TITLE_VERSION@/$(WIIU_TITLE_VERSION_HEX)/" -e "s/@GROUP_ID@/$(WIIU_GROUP_ID)/" title/app.xml > $(TITLEDIR)/code/app.xml
+	@sed -e "s/@RPX@/pumpkinos.rpx/" title/cos.xml > $(TITLEDIR)/code/cos.xml
+	@sed -e "s/@TITLE_ID@/$(WIIU_TITLE_ID)/" -e "s/@TITLE_VERSION_DEC@/$(WIIU_TITLE_VERSION)/" -e "s/@GROUP_ID@/$(WIIU_GROUP_ID)/" \
+	     -e "s/@PRODUCT@/$(WIIU_PRODUCT)/" -e "s/@DATE@/$$(date '+%Y-%m-%d %H:%M:%S')/" -e "s/@NAME@/$(TITLE)/" -e "s/@PUBLISHER@/$(AUTHOR)/" \
+	     title/meta.xml > $(TITLEDIR)/meta/meta.xml
+	@$(PYTHON) mktga.py -a -s 128x128 icon.png $(TITLEDIR)/meta/iconTex.tga
+	@$(PYTHON) mktga.py -s 1280x720 tv.png $(TITLEDIR)/meta/bootTvTex.tga
+	@$(PYTHON) mktga.py -s 854x480 drc.png $(TITLEDIR)/meta/bootDrcTex.tga
+	@$(PYTHON) mktga.py -a -s 170x42 logo.png $(TITLEDIR)/meta/bootLogoTex.tga
+	$(call content,$(TITLEDIR)/content)
+	@touch $@
+
+$(WUA): $(STAGE)/title.stamp mkwua.py
+	@echo Creating PumpkinOS_WiiU.wua
+	@$(PYTHON) mkwua.py -o $(WUA) $(TITLEDIR)
+
+# the installable title package, from the title directory
+$(WUPZIP): $(STAGE)/title.stamp mkwup.py
+	@echo Creating PumpkinOS_WiiU_WUP.zip
+	@$(PYTHON) mkwup.py -o $(WUPDIR) -t $(WIIU_TITLE_ID) -v $(WIIU_TITLE_VERSION) -g $(WIIU_GROUP_ID) $(WUP_KEYARG) $(if $(WIIU_CERT),-cert "$(WIIU_CERT)") $(TITLEDIR)
+	@rm -rf $(STAGE)/wupzip $(WUPZIP)
+	@mkdir -p $(STAGE)/wupzip/install
+	@cp -R $(WUPDIR) $(STAGE)/wupzip/install/PumpkinOS
+	@cd $(STAGE)/wupzip && zip -qr $(abspath $(WUPZIP)) install -x '*.DS_Store'
+	@rm -rf $(STAGE)/wupzip
+
+wup-note:
+	@echo "PumpkinOS_WiiU_WUP.zip not made: set WIIU_COMMON_KEY=<hex> or WIIU_OTP=<otp.bin> for the title package"
+
+wup: $(if $(WUP_KEYARG),$(WUPZIP),wup-note)
+
+wua: $(WUA)
+wuhb: $(WUHB)
+
+clean:
+	@rm -f $(WUA) $(WUHB) $(ZIP) $(HBLZIP) $(WUPZIP) $(OBJS)
+	@rm -rf $(STAGE)

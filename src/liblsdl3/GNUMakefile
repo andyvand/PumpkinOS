@@ -56,6 +56,12 @@ else ifeq ($(OSNAME),ps3)
 # by src/ps3
 STATIC=1
 CUSTOMFLAGS=$(MIXER_FLAGS)
+else ifeq ($(OSNAME),wiiu)
+# devkitPro SDL3 for the Wii U (GX2 video on the TV and the GamePad, the
+# GamePad touch screen as the mouse, the GamePad / Pro Controllers /
+# Wiimotes as gamepads, AX audio) with SDL3_mixer; linked by src/wiiu
+STATIC=1
+CUSTOMFLAGS=$(MIXER_FLAGS)
 else ifeq ($(OSNAME),Emscripten)
 STATIC=2
 CUSTOMFLAGS=-s USE_SDL=3

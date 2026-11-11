@@ -57,6 +57,9 @@ STATIC_APP=1
 else ifeq ($(OSNAME),ps3)
 # Static build as well (linked into EBOOT.BIN by src/ps3), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),wiiu)
+# Static build as well (linked into the RPX by src/wiiu), regular file names
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)

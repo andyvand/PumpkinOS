@@ -103,6 +103,10 @@ static const char *ca_bundles[] = {
 #ifdef PS3
   "/dev_hdd0/game/PUMP00001/USRDIR/cert.pem",           /* PlayStation 3: next to EBOOT.BIN of the installed package (or SSL_CERT_FILE, see src/ps3) */
 #endif
+#ifdef WIIU
+  "fs:/vol/content/cert.pem",                           /* Wii U: the bundle / title content (or SSL_CERT_FILE, see src/wiiu) */
+  "fs:/vol/external01/wiiu/pumpkinos/cert.pem",         /* the home on the SD card */
+#endif
 #ifdef PS2
   "mc0:/PumpkinOS/cert.pem",                            /* PlayStation 2: the home on the memory card (or SSL_CERT_FILE, see src/ps2) */
   "mc1:/PumpkinOS/cert.pem",
@@ -715,7 +719,7 @@ static int dos_seed_openssl(void) {
 #endif
 
 int liblopenssl_load(void) {
-#if defined(PS2) || defined(PS3)
+#if defined(PS2) || defined(PS3) || defined(WIIU)
   // no configuration file on a console (the default path would be looked up
   // relative to the boot device)
   debug(DEBUG_INFO, TAG, "initializing OpenSSL");

@@ -148,6 +148,20 @@ ps3jmp.o: ps3jmp.S
 	@echo Assembling ps3jmp.S
 	@$(CC) $(PS3_ARCH) -c -o $@ $<
 
+else ifeq ($(OSNAME),wiiu)
+
+# Nintendo Wii U: cooperative threads (threadsc, like the other consoles)
+# and no script engine (the stub lives in src/wiiu/script.c). Sockets come
+# from wut (nsysnet behind newlib descriptors, with select(), poll() and
+# getaddrinfo()); wiiusys.o waits for the connection and has the memory log.
+PROGRAM=$(BIN)/libpit.a
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o wiiusys.o
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpit.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
 else ifeq ($(OSNAME),Kernel)
 
 PROGRAM=$(BIN)/libpit.a

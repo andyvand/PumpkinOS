@@ -76,7 +76,7 @@ static bool libsdl_poll_event(SDL_Event *ev) {
 #define SDL_PollEvent(ev) libsdl_poll_event(ev)
 #endif
 
-#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
+#if defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
 #define LIBSDL_AUDIO_PUMP
 #define LIBSDL_PUMP_LEAD_MS 100 // audio kept queued in the SDL stream
 #define LIBSDL_PUMP_WAIT_MS 20  // longest event wait while a stream plays
@@ -104,7 +104,7 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #define SDL_WaitEventTimeout(ev, ms) libsdl_wait_event(ev, ms)
 #endif
 
-#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
+#if defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
 // PlayStation Vita / Nintendo Switch: the touch screen is the pen (SDL
 // emulates the mouse from it) and the gamepad buttons stand in for a few
 // keyboard keys: D-pad = arrows, L/R = Page Up/Down, Start (+) = Home (back
@@ -136,12 +136,18 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 // D-pad sends arrow keys. SDL also reports A and B as mouse buttons and the
 // Wiimote as a gamepad of its own (with a layout that depends on the
 // extension plugged in): both are ignored.
+//
+// Nintendo Wii U: the GamePad touch screen is the pen (SDL emulates the
+// mouse from it; the GamePad shows the TV picture scaled, see
+// libsdl_wiiu_touch), and the GamePad / Pro Controller buttons are the
+// Switch ones: D-pad = arrows, L/R = Page Up/Down, + = Home, - = Tab, A
+// (east) = Enter, B (south) = Escape.
 #define LIBSDL_GAMEPAD
 
-#if defined(SWITCH)
+#if defined(SWITCH) || defined(WIIU)
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_EAST
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_SOUTH
-#elif defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
+#elif defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
 #define LIBSDL_STICK_POINTER
 #if defined(PS2) || defined(PS3)
 // the PS2 gsKit renderer has no render targets (SDL_SetRenderTarget is a
@@ -172,6 +178,21 @@ static int libsdl_wait_event(SDL_Event *ev, int wait) {
 #else
 #define GAMEPAD_BUTTON_ENTER  SDL_GAMEPAD_BUTTON_SOUTH
 #define GAMEPAD_BUTTON_ESCAPE SDL_GAMEPAD_BUTTON_EAST
+#endif
+
+#if defined(WIIU)
+// Wii U: the PS3 scheme as well, the scene composed in memory and uploaded
+// once per present in 640x720 tiles (A8R8G8B8), drawn scaled to the TV
+// frame. With a persistent render target the same texture is updated and
+// drawn several times between two presents (the DIA strip: once whole,
+// then the parts that change), and Cemu, which checks a texture for CPU
+// writes at most once per frame (and never one exactly 1280 pixels wide),
+// kept drawing the first version: the DIA strip stayed black. Uploading
+// each tile once per frame is what the console's GPU likes best anyway.
+#define LIBSDL_SOFT_SCENE
+#define LIBSDL_SCENE_TILES
+#define LIBSDL_SCENE_TILE_MAX 1024
+#define LIBSDL_SCENE_MAX_TILES 16
 #endif
 
 static SDL_Gamepad *gamepad = NULL;
@@ -741,7 +762,16 @@ static int libsdl_init_video(void) {
   // the touch screen drives the mouse (pen)
   SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 #endif
-#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3)
+#ifdef WIIU
+  // the GamePad touch screen drives the mouse (pen); the window is on the
+  // TV and shown on the GamePad as well (scaled by the GPU / Cafe OS)
+  SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
+  SDL_SetHint("SDL_WIIU_WINDOW_TARGET", "both");
+  // the controllers keep working while the HOME menu is up (SDL pauses the
+  // rest itself)
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+#endif
+#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
   // the built-in controller is a gamepad (SDL has a mapping for it); the
   // pointer it drives is drawn by libsdl_present() (no mouse, no cursor)
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
@@ -942,6 +972,47 @@ static int map_key(libsdl_window_t *window, SDL_Event *ev) {
   return key;
 }
 
+#ifdef WIIU
+// The window covers the whole TV frame (720p or 1080p; 640x480 on a 4:3
+// TV): the PumpkinOS screen is drawn into it scaled and centered
+// (window->view, see libsdl_video_setup), and the GamePad shows the TV
+// frame scaled to its 854x480 (centered when the shapes differ). SDL
+// reports a touch as a mouse position in GamePad pixels (relative to the
+// window, clamped to its size): undo both scalings.
+#define WIIU_DRC_WIDTH  854.0f
+#define WIIU_DRC_HEIGHT 480.0f
+
+static void libsdl_wiiu_touch(libsdl_window_t *window, float mx, float my) {
+  float ww, wh, s, wx, wy, x, y;
+  int iw = 0, ih = 0;
+
+  SDL_GetWindowSize(window->window, &iw, &ih);
+  if (iw <= 0 || ih <= 0 || window->view.w <= 0 || window->view.h <= 0) {
+    window->x = mx;
+    window->y = my;
+    return;
+  }
+  ww = iw;
+  wh = ih;
+
+  // GamePad pixels -> window pixels
+  s = WIIU_DRC_WIDTH / ww < WIIU_DRC_HEIGHT / wh ? WIIU_DRC_WIDTH / ww : WIIU_DRC_HEIGHT / wh;
+  wx = (mx - (WIIU_DRC_WIDTH - ww * s) / 2.0f) / s;
+  wy = (my - (WIIU_DRC_HEIGHT - wh * s) / 2.0f) / s;
+
+  // window pixels -> screen pixels
+  x = (wx - window->view.x) * window->scene_w / window->view.w;
+  y = (wy - window->view.y) * window->scene_h / window->view.h;
+
+  if (x < 0) x = 0;
+  if (x > window->scene_w - 1) x = window->scene_w - 1;
+  if (y < 0) y = 0;
+  if (y > window->scene_h - 1) y = window->scene_h - 1;
+  window->x = x;
+  window->y = y;
+}
+#endif
+
 static int map_button(libsdl_window_t *window, SDL_Event *ev) {
 #ifdef WII
   // the Wiimote A / B as mouse buttons: A is read directly (the pen), B is
@@ -1007,6 +1078,9 @@ static int libsdl_event2(libsdl_window_t *window, int wait, int *arg1, int *arg2
         window->y = ev.motion.y / window->yfactor;
 #ifdef WII
         libsdl_wii_pointer(window);
+#endif
+#ifdef WIIU
+        libsdl_wiiu_touch(window, ev.motion.x, ev.motion.y);
 #endif
         *arg1 = window->x;
         *arg2 = window->y;
@@ -1260,6 +1334,9 @@ static int libsdl_event(libsdl_window_t *window, int wait, int remove, int *ekey
         window->y = ev.motion.y;
 #ifdef WII
         libsdl_wii_pointer(window);
+#endif
+#ifdef WIIU
+        libsdl_wiiu_touch(window, ev.motion.x, ev.motion.y);
 #endif
         *ekey = window->x;
         *mods = window->y;
@@ -2360,6 +2437,10 @@ static const char *libsdl_find_soundfont(void) {
 #endif
 #ifdef PS3
     "/dev_hdd0/game/PUMP00001/USRDIR/soundfont.sf2",
+#endif
+#ifdef WIIU
+    "fs:/vol/content/soundfont.sf2",
+    "fs:/vol/external01/wiiu/pumpkinos/soundfont.sf2",
 #endif
     "/usr/local/share/soundfonts/default.sf2",
     NULL

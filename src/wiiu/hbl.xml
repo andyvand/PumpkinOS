@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>PumpkinOS</name>
+  <coder>migueletto, Andy Vandijck</coder>
+  <version>@VERSION@</version>
+  <release_date>@DATE@</release_date>
+  <short_description>PalmOS re-implementation</short_description>
+  <long_description>PumpkinOS runs PalmOS applications: Memo Pad, Address Book, To Do List, Date Book, a web browser, a mail client, GNUBoy and more.
+
+The GamePad touch screen is the pen. A is Enter, B is Escape, + goes back to the Launcher, - is Tab, the D-pad sends the arrow keys, L/R are Page Up/Down. The picture is shown on the TV and on the GamePad.
+
+Options go in pumpkin.cfg next to pumpkinos.rpx or in sd:/wiiu/pumpkinos/ (see README.md).</long_description>
+</app>

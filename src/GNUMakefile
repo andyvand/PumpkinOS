@@ -156,6 +156,16 @@ else ifeq ($(OSNAME),ps3)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
 EXTRA_MODULES=ps3
 
+else ifeq ($(OSNAME),wiiu)
+
+# Nintendo Wii U (devkitPro devkitPPC + wut): the static model of the Wii
+# and the PS3, linked into one ELF by src/wiiu, which turns it into an RPX
+# and packs it as a Homebrew Launcher / Aroma bundle (WUHB) and as a game
+# image for Cemu (WUA) and for installers (the code/content/meta title
+# layout). With the OpenSSL TLS provider (the wiiu portlibs have OpenSSL).
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
+EXTRA_MODULES=wiiu
+
 else ifeq ($(OSNAME),Haiku)
 
 ifneq ($(UNICORN),)

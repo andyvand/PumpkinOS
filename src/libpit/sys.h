@@ -285,6 +285,22 @@ void sys_ps3_memlog(const char *tag);
 uint32_t sys_ps3_mem_avail(void);
 #endif
 
+#ifdef WIIU
+// network (Nintendo Wii U build, see wiiusys.c): waits at most timeout_ms
+// for the connection wut's socket layer brings up
+int sys_wiiu_net_init(int timeout_ms);
+
+int sys_wiiu_net_ready(void);
+
+void sys_wiiu_net_finish(void);
+
+// logs the free MEM2 (the heap malloc() uses, wiiusys.c)
+void sys_wiiu_memlog(const char *tag);
+
+// the free MEM2 in bytes (wiiusys.c)
+uint32_t sys_wiiu_mem_avail(void);
+#endif
+
 #ifdef PS2
 // network adapter / lwIP (EE) initialization (PlayStation 2 build, see ps2net.c)
 int sys_ps2_net_init(int timeout_ms);
