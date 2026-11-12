@@ -9,6 +9,12 @@ For a series of articles describing various aspects of PumpkinOS, look here: htt
 # PumpkinOS running on macOS:
 ![](/screenshots/pumpkinos_macOS.png)
 
+# PumpkinOS running on Mac OS 8.1 (m68k):
+![](/screenshots/PumpkinOS_Mac68K.png)
+
+# PumpkinOS running on Mac OS 9.0 (ppc):
+![](/screenshots/PumpkinOS_MacPPC.png)
+
 # PumpkinOS running on DOS
 ![](/screenshots/PumpkinOS_DOS.png)
 
