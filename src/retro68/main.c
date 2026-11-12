@@ -1304,6 +1304,9 @@ int main(int argc, char *argv[]) {
   sys_snprintf(path, sizeof(path)-1, "%scert.pem", home);
   if (file_exists(path) && mac_hfs_path(path, hfs, sizeof(hfs)) == 0) {
     debug(DEBUG_INFO, TAG, "CA bundle \"%s\"", hfs);
+    // liblopenssl reads it through the File Manager layer (POSIX path);
+    // SSL_CERT_FILE (HFS path, newlib stdio) stays as a fallback
+    setenv("PUMPKIN_CA_FILE", path, 1);
     setenv("SSL_CERT_FILE", hfs, 1);
   } else {
     debug(DEBUG_ERROR, TAG, "no cert.pem next to the application: https cannot verify servers");

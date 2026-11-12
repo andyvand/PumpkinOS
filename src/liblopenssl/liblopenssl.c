@@ -398,8 +398,65 @@ static int load_ca_dir(SSL_CTX *ctx, const char *dir) {
 }
 #endif
 
+#ifdef MACCLASSIC
+/* classic Mac OS: newlib's stdio (BIO_new_file, used by the OpenSSL file
+ * lookup behind SSL_CERT_FILE) does not reliably open the bundle, so read it
+ * through the PumpkinOS file layer (File Manager, POSIX path in
+ * PUMPKIN_CA_FILE, set by src/retro68/main.c) and parse it from memory.
+ * A bundle saved with classic Mac line endings (CR) is accepted too. */
+static int load_ca_file_mac(SSL_CTX *ctx, const char *path) {
+  X509_STORE *store = SSL_CTX_get_cert_store(ctx);
+  sys_stat_t st;
+  uint8_t *buf;
+  BIO *bio;
+  X509 *x;
+  int fd, n, len, i;
+
+  if (store == NULL || sys_stat(path, &st) != 0 || st.size == 0 || st.size > 4*1024*1024) return 0;
+  if ((fd = sys_open(path, SYS_READ)) == -1) return 0;
+  if ((buf = xmalloc((int)st.size)) == NULL) {
+    sys_close(fd);
+    return 0;
+  }
+  for (len = 0; len < (int)st.size; len += n) {
+    n = sys_read(fd, buf + len, (int)st.size - len);
+    if (n <= 0) break;
+  }
+  sys_close(fd);
+
+  for (i = 0; i < len; i++) {
+    if (buf[i] == '\r') buf[i] = '\n';
+  }
+
+  n = 0;
+  if ((bio = BIO_new_mem_buf(buf, len)) != NULL) {
+    while ((x = PEM_read_bio_X509(bio, NULL, NULL, NULL)) != NULL) {
+      if (X509_STORE_add_cert(store, x) == 1) n++;
+      X509_free(x);
+    }
+    BIO_free(bio);
+  }
+  ERR_clear_error();
+  xfree(buf);
+
+  return n;
+}
+#endif
+
 static void load_ca_certs(SSL_CTX *ctx) {
   int i;
+#ifdef MACCLASSIC
+  char *mac_ca = getenv("PUMPKIN_CA_FILE");
+
+  if (mac_ca && mac_ca[0]) {
+    int n = load_ca_file_mac(ctx, mac_ca);
+    if (n > 0) {
+      debug(DEBUG_INFO, TAG, "loaded %d CA certificates from %s", n, mac_ca);
+      return;
+    }
+    debug(DEBUG_ERROR, TAG, "no CA certificates loaded from %s", mac_ca);
+  }
+#endif
 
   if (opt_cacert) {
     if (SSL_CTX_load_verify_locations(ctx, opt_cacert, NULL) == 1) {
