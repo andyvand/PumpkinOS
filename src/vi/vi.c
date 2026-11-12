@@ -4502,7 +4502,7 @@ static void *PluginMain(void *p) {
   return e;
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
 pluginMainF ViPluginInit(UInt32 *type, UInt32 *id)
 #else
 pluginMainF PluginInit(UInt32 *type, UInt32 *id)

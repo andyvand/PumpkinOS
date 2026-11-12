@@ -149,6 +149,70 @@ static secure_provider_t provider;
 static int opt_verify = 1;
 static char *opt_cacert = NULL;
 
+#ifdef MACCLASSIC
+/* classic Mac OS: OpenSSL is built without sockets (OPENSSL_NO_SOCK, there
+ * is no SSL_set_fd()): this BIO moves the bytes over the MacTCP sockets of
+ * libpit (macnet.c). Reads do not block, so SSL_ERROR_WANT_READ sends the
+ * caller to wait_fd() (poll(), which yields to the other threads). */
+static BIO_METHOD *mac_bio_method;
+
+static int mac_bio_write(BIO *b, const char *buf, int len) {
+  int fd = (int)(intptr_t)BIO_get_data(b);
+  ssize_t n;
+
+  BIO_clear_retry_flags(b);
+  if (len <= 0) return 0;
+  n = send(fd, buf, len, 0);
+  if (n < 0) {
+    if (errno == EWOULDBLOCK || errno == EAGAIN) BIO_set_retry_write(b);
+    return -1;
+  }
+
+  return (int)n;
+}
+
+static int mac_bio_read(BIO *b, char *buf, int len) {
+  int fd = (int)(intptr_t)BIO_get_data(b);
+  ssize_t n;
+
+  BIO_clear_retry_flags(b);
+  if (len <= 0) return 0;
+  n = recv(fd, buf, len, MSG_DONTWAIT);
+  if (n < 0) {
+    if (errno == EWOULDBLOCK || errno == EAGAIN) BIO_set_retry_read(b);
+    return -1;
+  }
+
+  return (int)n;
+}
+
+static long mac_bio_ctrl(BIO *b, int cmd, long num, void *ptr) {
+  (void)b; (void)num; (void)ptr;
+  return cmd == BIO_CTRL_FLUSH ? 1 : 0;
+}
+
+static int mac_bio_create(BIO *b) {
+  BIO_set_init(b, 1);
+  return 1;
+}
+
+static BIO *mac_bio_new(int fd) {
+  BIO *b;
+
+  if (mac_bio_method == NULL) {
+    if ((mac_bio_method = BIO_meth_new(BIO_TYPE_SOURCE_SINK | BIO_get_new_index(), "MacTCP socket")) == NULL) return NULL;
+    BIO_meth_set_write(mac_bio_method, mac_bio_write);
+    BIO_meth_set_read(mac_bio_method, mac_bio_read);
+    BIO_meth_set_ctrl(mac_bio_method, mac_bio_ctrl);
+    BIO_meth_set_create(mac_bio_method, mac_bio_create);
+  }
+  if ((b = BIO_new(mac_bio_method)) == NULL) return NULL;
+  BIO_set_data(b, (void *)(intptr_t)fd);
+
+  return b;
+}
+#endif
+
 static void liblopenssl_error(const char *what) {
   char buf[256];
   unsigned long e;
@@ -453,11 +517,23 @@ static secure_t *liblopenssl_connect(secure_config_t *c, char *host, int port, i
     }
   }
 
+#ifdef MACCLASSIC
+  {
+    BIO *bio;
+    if ((bio = mac_bio_new(sock)) == NULL) {
+      liblopenssl_error("error creating socket BIO");
+      SSL_free(ssl);
+      return NULL;
+    }
+    SSL_set_bio(ssl, bio, bio);
+  }
+#else
   if (SSL_set_fd(ssl, sock) != 1) {
     liblopenssl_error("error setting file descriptor");
     SSL_free(ssl);
     return NULL;
   }
+#endif
 
   if ((s = xcalloc(1, sizeof(secure_t))) == NULL) {
     SSL_free(ssl);
@@ -719,7 +795,7 @@ static int dos_seed_openssl(void) {
 #endif
 
 int liblopenssl_load(void) {
-#if defined(PS2) || defined(PS3) || defined(WIIU)
+#if defined(PS2) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
   // no configuration file on a console (the default path would be looked up
   // relative to the boot device)
   debug(DEBUG_INFO, TAG, "initializing OpenSSL");

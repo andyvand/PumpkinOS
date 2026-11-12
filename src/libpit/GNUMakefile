@@ -162,6 +162,22 @@ $(PROGRAM): $(OBJS)
 	@rm -f $(PROGRAM)
 	@$(AR) -cr $(PROGRAM) $(OBJS)
 
+else ifeq ($(OSNAME),retro68)
+
+# Classic Mac OS (Retro68): cooperative threads (threadsc, like the
+# consoles) and no script engine (the stub lives in src/retro68/script.c).
+# The C library has no directories, sockets or real stat(): macsys.o
+# implements the POSIX calls PumpkinOS uses on top of the File Manager,
+# macnet.o the BSD sockets on top of MacTCP (or Open Transport's MacTCP
+# compatibility) and its name resolver.
+PROGRAM=$(BIN)/libpit.a
+OBJS=$(SOURCE:%.c=%.o) threadsc.o mutexnull.o httpc.o httpd.o template.o macsys.o macnet.o
+all: $(PROGRAM)
+$(PROGRAM): $(OBJS)
+	@echo Creating libpit.a
+	@rm -f $(PROGRAM)
+	@$(AR) -cr $(PROGRAM) $(OBJS)
+
 else ifeq ($(OSNAME),Kernel)
 
 PROGRAM=$(BIN)/libpit.a

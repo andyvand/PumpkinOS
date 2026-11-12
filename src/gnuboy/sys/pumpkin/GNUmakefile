@@ -44,6 +44,9 @@ MACHINE := powerpc64
 else ifeq ($(OSNAME),wiiu)
 # the Nintendo Wii U is a 32-bit big endian PowerPC as well
 MACHINE := powerpc
+else ifeq ($(OSNAME),retro68)
+# classic Mac OS: 680x0 unless MACHINE=powerpc is given
+MACHINE := m68k
 else
 MACHINE ?= $(shell uname -m)
 endif
@@ -72,6 +75,8 @@ else ifeq ($(OSNAME),ps3)
 SYS_OS ?= 14
 else ifeq ($(OSNAME),wiiu)
 SYS_OS ?= 15
+else ifeq ($(OSNAME),retro68)
+SYS_OS ?= 16
 else
 SYS_OS ?= 1
 endif
@@ -109,6 +114,10 @@ SYS_ENDIAN ?= 2
 else ifeq ($(MACHINE),powerpc64)
 SYS_CPU ?= 5
 SYS_SIZE ?= 2
+SYS_ENDIAN ?= 2
+else ifeq ($(MACHINE),m68k)
+SYS_CPU ?= 6
+SYS_SIZE ?= 1
 SYS_ENDIAN ?= 2
 else
 SYS_CPU ?= 3
@@ -276,6 +285,21 @@ GC_XZ_RENAMES = -Dxz_dec_init=gnuboy_xz_dec_init -Dxz_dec_reset=gnuboy_xz_dec_re
                 -Dxz_dec_bcj_create=gnuboy_xz_dec_bcj_create -Dxz_dec_bcj_reset=gnuboy_xz_dec_bcj_reset -Dxz_dec_bcj_run=gnuboy_xz_dec_bcj_run \
                 -Dxz_crc32=gnuboy_xz_crc32 -Dxz_crc32_init=gnuboy_xz_crc32_init -Dxz_crc64=gnuboy_xz_crc64 -Dxz_crc64_init=gnuboy_xz_crc64_init
 OSDEFS = -DESPRESSO -mcpu=750 -meabi -mhard-float -O2 -ffunction-sections -fdata-sections -DWIIU -D__WIIU__ -D__WUT__ $(GC_XZ_RENAMES) -Wno-format -Wno-attributes
+else ifeq ($(OSNAME),retro68)
+# classic Mac OS (Retro68): static library linked into the Mac application
+# by src/retro68, the PRC only carries the resources (see src/app.mak)
+RETRO68 ?= /opt/retro68
+ifeq ($(MACHINE),powerpc)
+CC = $(RETRO68)/bin/powerpc-apple-macos-gcc
+AR = $(RETRO68)/bin/powerpc-apple-macos-ar
+RETRO68_ARCH =
+else
+CC = $(RETRO68)/bin/m68k-apple-macos-gcc
+AR = $(RETRO68)/bin/m68k-apple-macos-ar
+RETRO68_ARCH = -m68020 -msoft-float
+endif
+STATIC = 1
+OSDEFS = $(RETRO68_ARCH) -O2 -ffunction-sections -fdata-sections -DMACCLASSIC -D__int64_t_defined=1 -DFD_SETSIZE=256 -I$(PUMPKIN)/src/retro68/include -Wno-format -Wno-attributes -Wno-incompatible-pointer-types -Wno-error=int-conversion
 else
 CC = gcc
 LINKFLAGS = -shared

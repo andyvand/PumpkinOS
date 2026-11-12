@@ -1344,7 +1344,7 @@ static Boolean chooser_loop(void)
 /* PilotMain                                                          */
 /* ------------------------------------------------------------------ */
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
 UInt32 GnuBoyPilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 #else
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)

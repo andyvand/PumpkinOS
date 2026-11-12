@@ -39,9 +39,9 @@
 #define abs64 abss
 #endif
 
-#ifdef WIIU
-// no thread local storage in an RPX (elf2rpl has no TLS relocations); the
-// threads are cooperative there anyway
+#if defined(WIIU) || defined(MACCLASSIC)
+// no thread local storage in an RPX (elf2rpl has no TLS relocations), nor
+// in a classic Mac application; the threads are cooperative there anyway
 #define STBI_NO_THREAD_LOCALS
 #endif
 

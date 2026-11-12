@@ -29,6 +29,11 @@ else ifeq ($(OSNAME),ps3)
 # PlayStation 3: OpenSSL lives in the ps3dev portlibs (on the include path
 # through OSDEFS, see common.mak)
 OPENSSL=sysroot
+else ifeq ($(OSNAME),retro68)
+# Classic Mac OS: OpenSSL (built with Retro68, no sockets: the provider
+# talks to the MacTCP streams through its own BIO) lives in the Retro68
+# sysroot
+OPENSSL=sysroot
 else ifeq ($(OSNAME),wiiu)
 # Wii U: OpenSSL comes from the devkitPro wiiu portlibs (on the include path
 # through OSDEFS, see common.mak)

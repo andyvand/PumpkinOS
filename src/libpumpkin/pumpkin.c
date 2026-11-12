@@ -131,6 +131,18 @@ static uint32_t psp_heap_size = 2*1024*1024;
 #define WII_HEAP_RESERVE (24*1024*1024)
 #define WII_HEAP_MIN     (4*1024*1024)
 #define WII_HEAP_MAX     (16*1024*1024)
+#elif defined(MACCLASSIC)
+// classic Mac OS: everything comes out of the application partition (its
+// SIZE resource, adjustable in the Finder's Get Info window): the global
+// heap is sized like on the Wii from what the partition still has once the
+// program is loaded, keeping MAC_HEAP_RESERVE for the rest (the task heaps
+// and stacks, the offscreen window, the sound buffers, the MacTCP streams,
+// OpenSSL), between 3MB and 16MB
+static uint32_t psp_heap_size = 1024*1024;
+#define HEAP_SIZE psp_heap_size
+#define MAC_HEAP_RESERVE (4*1024*1024)
+#define MAC_HEAP_MIN     (3*1024*1024)
+#define MAC_HEAP_MAX     (16*1024*1024)
 #else
 #define HEAP_SIZE (16*1024*1024)
 #endif
@@ -631,7 +643,7 @@ void pumpkin_enum_plugins(UInt32 type, void (*callback)(pumpkin_plugin_t *plugin
   }
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
 extern pluginMainF ViPluginInit(UInt32 *type, UInt32 *id);
 extern pluginMainF LuaPluginInit(UInt32 *type, UInt32 *id);
 #endif
@@ -647,7 +659,7 @@ void pumpkin_load_plugins(void) {
   pluginMainF pluginMain;
   void *lib;
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
   pluginInit = ViPluginInit;
   if ((pluginMain = pluginInit(&type, &id)) != NULL) {
     pumpkin_register_plugin(type, id, pluginMain);
@@ -861,7 +873,17 @@ int pumpkin_global_init(script_engine_t *engine, window_provider_t *wp, audio_pr
     debug(DEBUG_INFO, PUMPKINOS, "%u KB of C heap left: %u MB global heap, %u KB per task", avail / 1024, global / (1024*1024), psp_heap_size / 1024);
   }
 #endif
-#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(MACCLASSIC)
+  {
+    uint32_t avail = sys_mac_heap_avail(), global;
+    global = avail > MAC_HEAP_RESERVE + MAC_HEAP_MIN ? avail - MAC_HEAP_RESERVE : MAC_HEAP_MIN;
+    if (global > MAC_HEAP_MAX) global = MAC_HEAP_MAX;
+    global &= ~(512*1024 - 1);
+    psp_heap_size = global / 8;
+    debug(DEBUG_INFO, PUMPKINOS, "%u KB free in the partition: %u MB global heap, %u KB per task", avail / 1024, global / (1024*1024), psp_heap_size / 1024);
+  }
+#endif
+#if defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(MACCLASSIC)
   // the PSP-1000 has 24MB of user memory for the program and its heap (the
   // PS2 about 31MB): halve the request until it fits (the per task heap
   // follows, see HEAP_SIZE)
@@ -2511,7 +2533,7 @@ int pumpkin_launcher(char *name, int width, int height) {
     } else {
       wman_add(pumpkin_module.wm, 0, texture, 0, 0, width, height);
       MemSet(&request, sizeof(launch_request_t), 0);
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
       // the applications are linked statically: pick the PilotMain of the
       // requested application (normally the Launcher) by its creator
       extern UInt32 (*LauncherStaticPilotMain(UInt32 creator))(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags);
@@ -2918,7 +2940,7 @@ static int pumpkin_resume_task(int handle) {
   return r;
 }
 
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
 static void pumpkin_forward_launch_code(UInt32 creator, char *name, UInt16 cmd, launch_union_t *param, UInt16 flags) {
   launch_request_t request;
   launch_msg_t msg;
@@ -2979,7 +3001,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
   int handle, call_sub, m68k, launched;
   uint32_t r = 0;
   void *data;
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
   uint32_t creator = 0;
 #endif
   sys_memset(&creq, 0, sizeof(client_request_t));
@@ -3005,7 +3027,7 @@ static uint32_t pumpkin_launch_request(LocalID dbID, char *name, UInt16 cmd, lau
       // XXX set sysAppLaunchFlagNewGlobals so that the app initializes properly
       creq.data.launch.flags |= sysAppLaunchFlagNewGlobals;
       break;
-#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(ESP32) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
     case sysAppLaunchCmdSystemReset:
       debug(DEBUG_INFO, PUMPKINOS, "sending launch code %d to \"%s\" using call or message", cmd, name);
       if (DmDatabaseInfo(0, dbID, name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &creator) == errNone) {

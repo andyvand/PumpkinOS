@@ -425,7 +425,7 @@ int libos_start_direct(window_provider_t *wp, secure_provider_t *secure, int wid
 }
 #endif
 
-#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
 int libos_start(int pe) {
 #else
 static int libos_start(int pe) {
@@ -569,7 +569,7 @@ static int libos_start(int pe) {
   return r;
 }
 
-#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU)
+#if defined(KERNEL) || defined(ESP32) || defined(ANDROID) || defined(DOS) || defined(VITA) || defined(SWITCH) || defined(PSP) || defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(PS3) || defined(WIIU) || defined(MACCLASSIC)
 int libos_app_init(int pe) {
 #else
 static int libos_app_init(int pe) {

@@ -125,6 +125,10 @@ static Err FtrGetEx(UInt32 creator, UInt16 featureNum, UInt32 *valueP, Boolean *
 #elif SYS_CPU == 5
           *valueP = sysFtrNumProcessorPPC;
           err = errNone;
+#elif SYS_CPU == 6
+          // 680x0 (classic Mac OS): the processor family of the 68K Palms
+          *valueP = sysFtrNumProcessor328;
+          err = errNone;
 #endif
           break;
         case sysFtrNumLanguage:

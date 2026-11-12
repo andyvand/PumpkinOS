@@ -285,6 +285,19 @@ void sys_ps3_memlog(const char *tag);
 uint32_t sys_ps3_mem_avail(void);
 #endif
 
+#ifdef MACCLASSIC
+// classic Mac OS (Retro68, see macsys.c / macnet.c): the free memory in the
+// application partition, in bytes
+uint32_t sys_mac_heap_avail(void);
+
+// the MacTCP driver: opens it (0 when TCP/IP is available)
+int mac_net_init(void);
+
+int mac_net_ready(void);
+
+void mac_net_finish(void);
+#endif
+
 #ifdef WIIU
 // network (Nintendo Wii U build, see wiiusys.c): waits at most timeout_ms
 // for the connection wut's socket layer brings up

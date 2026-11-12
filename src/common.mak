@@ -44,6 +44,9 @@ MACHINE := powerpc64
 else ifeq ($(OSNAME),wiiu)
 # the Nintendo Wii U is a 32-bit big endian PowerPC (Espresso, 3 cores)
 MACHINE := powerpc
+else ifeq ($(OSNAME),retro68)
+# classic Mac OS (Retro68): 680x0 unless MACHINE=powerpc is given
+MACHINE := m68k
 else
 MACHINE := $(shell uname -m)
 endif
@@ -128,6 +131,13 @@ SYS_CPU=5
 ifeq ($(BITS),)
 BITS=32
 endif
+else ifeq ($(MACHINE),m68k)
+# big endian 32-bit Motorola 680x0 (classic Mac OS, Retro68)
+SYS_ENDIAN=2
+SYS_CPU=6
+ifeq ($(BITS),)
+BITS=32
+endif
 else ifeq ($(MACHINE),powerpc64)
 # big endian 64-bit PowerPC (PlayStation 3 Cell PPU)
 SYS_ENDIAN=2
@@ -170,6 +180,15 @@ else ifneq ($(filter gamecube wii wiiu,$(OSNAME)),)
 DEVKITPRO?=/opt/devkitpro
 AR=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-ar
 NM=$(DEVKITPRO)/devkitPPC/bin/powerpc-eabi-nm -j -u
+else ifeq ($(OSNAME),retro68)
+RETRO68?=/opt/retro68
+ifeq ($(MACHINE),powerpc)
+RETRO68_TRIPLE=powerpc-apple-macos
+else
+RETRO68_TRIPLE=m68k-apple-macos
+endif
+AR=$(RETRO68)/bin/$(RETRO68_TRIPLE)-ar
+NM=$(RETRO68)/bin/$(RETRO68_TRIPLE)-nm -j -u
 else ifeq ($(OSNAME),ps3)
 PS3DEV?=/opt/ps3dev
 AR=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-ar
@@ -394,6 +413,37 @@ PICFLAG=
 # the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
 CSTD=-std=gnu99
 
+else ifeq ($(OSNAME),retro68)
+# Classic Mac OS, System 7.1 to Mac OS 9 (Retro68 cross compilers, newlib +
+# Multiversal interfaces). The static model of the consoles: everything is
+# linked into one application (see src/retro68), a 68K CODE resource
+# application (MACHINE=m68k, the default) or a PowerPC PEF fragment
+# (MACHINE=powerpc). MACCLASSIC is the PumpkinOS platform macro; the
+# compilers predefine macintosh and __m68k__ / __POWERPC__. The headers in
+# src/retro68/include supply the POSIX networking and directory API the
+# Retro68 C library lacks (libpit/macsys.c implements it on top of the File
+# Manager and MacTCP). 68K code is built for a 68020 or better without an
+# FPU (the 68030 / 68LC040 Macs without one are common); a Color QuickDraw
+# Mac is needed anyway. int32_t is a long here, hence the relaxed pointer
+# type checks.
+SYS_OS=16
+EXTLIBS=-lm
+SOEXT=.a
+LUAPLAT=linux
+OS=MacOS
+RETRO68?=/opt/retro68
+ifeq ($(MACHINE),powerpc)
+RETRO68_ARCH=
+else
+RETRO68_ARCH=-m68020 -msoft-float
+endif
+OSDEFS=$(RETRO68_ARCH) -O2 -ffunction-sections -fdata-sections -DMACCLASSIC -DFD_SETSIZE=256 -D__int64_t_defined=1 -I$(SRC)/retro68/include -DSOEXT=\"$(SOEXT)\" -Wno-format -Wno-attributes -Wno-incompatible-pointer-types -Wno-error=int-conversion -Wno-pointer-sign
+CC=$(RETRO68)/bin/$(RETRO68_TRIPLE)-gcc
+CPP=$(RETRO68)/bin/$(RETRO68_TRIPLE)-g++
+PICFLAG=
+# the newlib headers hide the POSIX API under -std=c99 (__STRICT_ANSI__)
+CSTD=-std=gnu99
+
 else ifeq ($(OSNAME),ps3)
 # Sony PlayStation 3 (ps3dev powerpc64-ps3-elf cross compiler, newlib +
 # PSL1GHT). The same static model as the PS2 and the Wii: everything is
@@ -552,6 +602,8 @@ else ifneq ($(filter gamecube wii wiiu,$(OSNAME)),)
 STRIP=$(DEVKITPPC)/bin/powerpc-eabi-strip
 else ifeq ($(OSNAME),ps3)
 STRIP=$(PS3DEV)/ppu/bin/powerpc64-ps3-elf-strip
+else ifeq ($(OSNAME),retro68)
+STRIP=echo
 else
 STRIP=strip
 endif

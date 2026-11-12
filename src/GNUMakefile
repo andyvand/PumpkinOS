@@ -166,6 +166,16 @@ else ifeq ($(OSNAME),wiiu)
 BASE_MODULES=pilrc prcbuild libpit libpumpkin libos liblsdl3 BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
 EXTRA_MODULES=wiiu
 
+else ifeq ($(OSNAME),retro68)
+
+# Classic Mac OS (Retro68, 68K or PowerPC): the static model of the
+# consoles. Every application is compiled into a static library and linked,
+# together with libpit, libpumpkin, libos and the OpenSSL TLS provider, into
+# one Mac application by src/retro68, which has its own native window
+# (QuickDraw) and audio (Sound Manager) providers, like src/windows.
+BASE_MODULES=pilrc prcbuild libpit libpumpkin libos BOOT Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt gnuboy/sys/pumpkin palmbrowser palmmail netinstserver liblopenssl
+EXTRA_MODULES=retro68
+
 else ifeq ($(OSNAME),Haiku)
 
 ifneq ($(UNICORN),)

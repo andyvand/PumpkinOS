@@ -1,0 +1,161 @@
+# PumpkinOS for classic Mac OS (Retro68): 68K and PowerPC.
+#
+# Links libpit, libpumpkin, libos, the OpenSSL TLS provider and every
+# application static library produced by the other modules, together with
+# the native window / audio providers of main.c, into one Mac application:
+#
+#   MACHINE=m68k (default)   a 68K application (CODE resources made by
+#                            Elf2Mac): 68020 or better, no FPU needed
+#   MACHINE=powerpc          a PowerPC application (a PEF code fragment in
+#                            the data fork, made by MakePEF)
+#
+# and packs it as:
+#
+#   bin/PumpkinOS_Mac68K.dsk / bin/PumpkinOS_MacPPC.dsk
+#                            an HFS disk image holding the "PumpkinOS"
+#                            folder: the application, vfs/ with the
+#                            application PRCs, cert.pem, pumpkin.cfg and
+#                            the README (mount it in Basilisk II /
+#                            SheepShaver / Mini vMac, or write it to a disk)
+#   bin/PumpkinOS_Mac68K.bin / bin/PumpkinOS_MacPPC.bin
+#                            the application alone, MacBinary
+#   bin/retro68/<arch>/      the intermediate files (PumpkinOS.code.bin.gdb
+#                            is the unstripped 68K ELF for
+#                            m68k-apple-macos-addr2line, PumpkinOS.xcoff
+#                            the PowerPC one)
+#
+# Build from src/ with:
+#
+#   make OSNAME=retro68 -f GNUMakefile                   (68K)
+#   make OSNAME=retro68 MACHINE=powerpc -f GNUMakefile   (PowerPC)
+#
+# Both architectures use the same bin/lib*.a: run "make clean" with the
+# same OSNAME / MACHINE when switching. RETRO68 points at the Retro68
+# installation (default /opt/retro68). MEM_PREFERRED / MEM_MINIMUM (in KB)
+# set the memory partition of the application. DSK_SIZE is the size of the
+# disk image in MB.
+
+include ../common.mak
+
+PYTHON?=python3
+
+ifeq ($(MACHINE),powerpc)
+ARCH=PPC
+REZ_ARCH=-DPPC
+MEM_PREFERRED?=49152
+MEM_MINIMUM?=24576
+else
+ARCH=68K
+REZ_ARCH=
+MEM_PREFERRED?=28672
+MEM_MINIMUM?=18432
+endif
+
+DSK_SIZE?=48
+
+REZ=$(RETRO68)/bin/Rez
+MAKEPEF=$(RETRO68)/bin/MakePEF
+HFORMAT=$(RETRO68)/bin/hformat
+HMOUNT=$(RETRO68)/bin/hmount
+HUMOUNT=$(RETRO68)/bin/humount
+HMKDIR=$(RETRO68)/bin/hmkdir
+HCOPY=$(RETRO68)/bin/hcopy
+HATTRIB=$(RETRO68)/bin/hattrib
+REZINCLUDES=-I$(RETRO68)/$(RETRO68_TRIPLE)/RIncludes -I$(RETRO68)/RIncludes
+
+STAGE=$(BIN)/retro68/$(ARCH)
+APP=$(STAGE)/PumpkinOS
+APPBIN=$(BIN)/PumpkinOS_Mac$(ARCH).bin
+DSK=$(BIN)/PumpkinOS_Mac$(ARCH).dsk
+
+CUSTOMFLAGS=-I$(SRC)/libpit -I$(SRC)/libpumpkin -I$(SRC)/font
+
+SOURCE=main.c script.c
+OBJS=$(SOURCE:%.c=%.o)
+
+# applications and plugins (static libraries built by app.mak)
+APPS=Launcher Preferences Command vi LuaSyntax MemoPad AddressBook ToDoList DateBook SpaceTrader MineHunt Browser Mail NetInstall GnuBoy
+APPLIBS=$(addprefix $(BIN)/lib,$(addsuffix .a,$(APPS)))
+APPLDFLAGS=$(addprefix -l,$(APPS))
+
+MODULES=$(BIN)/libos.a $(BIN)/libpumpkin.a $(BIN)/libpit.a $(BIN)/liblopenssl.a
+
+PUMPKINLIBS=-L$(BIN) -Wl,--start-group -los -lpumpkin -llopenssl $(APPLDFLAGS) -lpit -Wl,--end-group
+SSLLIBS=-lssl -lcrypto
+
+all: $(DSK)
+
+ifeq ($(MACHINE),powerpc)
+
+# PowerPC: XCOFF from the linker, a PEF fragment from MakePEF, which goes
+# into the data fork (the 'cfrg' resource points at it)
+$(STAGE)/PumpkinOS.xcoff: $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking PumpkinOS.xcoff
+	@mkdir -p $(STAGE)
+	@$(CC) -o $@ $(OBJS) $(PUMPKINLIBS) $(EXTLIBDIRS) $(SSLLIBS) -lm -lInterfaceLib -lMathLib $(EXTLIBS) -Wl,-gc-sections
+
+$(STAGE)/PumpkinOS.pef: $(STAGE)/PumpkinOS.xcoff
+	@echo Creating PumpkinOS.pef
+	@$(MAKEPEF) $< -o $@
+
+APPCODE=$(STAGE)/PumpkinOS.pef
+REZCODE=--data $(STAGE)/PumpkinOS.pef
+
+else
+
+# 68K: the linker (Elf2Mac) writes the CODE resources and keeps the ELF
+# next to them (.gdb)
+$(STAGE)/PumpkinOS.code.bin: $(OBJS) $(MODULES) $(APPLIBS)
+	@echo Linking PumpkinOS.code.bin
+	@mkdir -p $(STAGE)
+	@$(CC) $(RETRO68_ARCH) -o $@ $(OBJS) $(PUMPKINLIBS) $(EXTLIBDIRS) $(SSLLIBS) -lm $(EXTLIBS) -Wl,-gc-sections
+
+APPCODE=$(STAGE)/PumpkinOS.code.bin
+REZCODE=--copy $(STAGE)/PumpkinOS.code.bin
+
+endif
+
+$(STAGE)/icon.r: icon.png mkicon.py
+	@echo Creating the icons
+	@mkdir -p $(STAGE)
+	@$(PYTHON) mkicon.py icon.png $@
+
+# the application: resources (SIZE, icons, alerts, bundle) + the code, as
+# MacBinary
+$(APPBIN): $(APPCODE) pumpkin.r $(STAGE)/icon.r
+	@echo Creating PumpkinOS_Mac$(ARCH).bin
+	@$(REZ) $(REZ_ARCH) -DMEM_PREFERRED="($(MEM_PREFERRED)*1024)" -DMEM_MINIMUM="($(MEM_MINIMUM)*1024)" -DVERSION_STR="\"$(VERSION)\"" \
+	  $(REZINCLUDES) -I$(STAGE) pumpkin.r $(REZCODE) -t APPL -c PmOS -o $(APPBIN)
+
+# the disk image: a PumpkinOS folder with the application and what it needs
+$(DSK): $(APPBIN) $(wildcard $(VFS)/$(VFS_INSTALL_DIR)/*.prc) pumpkin.cfg README.md
+	@echo Creating PumpkinOS_Mac$(ARCH).dsk
+	@rm -f $(DSK)
+	@dd if=/dev/zero of=$(DSK) bs=1048576 count=$(DSK_SIZE) 2>/dev/null
+	@$(HFORMAT) -l PumpkinOS $(DSK) >/dev/null
+	@$(HMKDIR) ":PumpkinOS"
+	@$(HCOPY) -m $(APPBIN) ":PumpkinOS:PumpkinOS"
+	@$(HMKDIR) ":PumpkinOS:vfs"
+	@$(HMKDIR) ":PumpkinOS:vfs:$(VFS_INSTALL_DIR)"
+	@$(HMKDIR) ":PumpkinOS:vfs:$(VFS_STORAGE_DIR)"
+	@$(HMKDIR) ":PumpkinOS:vfs:app_card"
+	@$(HMKDIR) ":PumpkinOS:vfs:app_card:PALM"
+	@$(HMKDIR) ":PumpkinOS:vfs:app_card:PALM:Programs"
+	@for f in $(VFS)/$(VFS_INSTALL_DIR)/*.prc; do \
+	  $(HCOPY) -r "$$f" ":PumpkinOS:vfs:$(VFS_INSTALL_DIR):$$(basename "$$f")" || exit 1; \
+	  $(HATTRIB) -t "Gld0" -c "PmOS" ":PumpkinOS:vfs:$(VFS_INSTALL_DIR):$$(basename "$$f")"; \
+	done
+	@$(HCOPY) -t pumpkin.cfg ":PumpkinOS:pumpkin.cfg"
+	@$(HATTRIB) -t TEXT -c ttxt ":PumpkinOS:pumpkin.cfg"
+	@$(HCOPY) -t README.md ":PumpkinOS:README"
+	@$(HATTRIB) -t TEXT -c ttxt ":PumpkinOS:README"
+	@if [ -f $(PUMPKINOS)/cert.pem ]; then \
+	  $(HCOPY) -r $(PUMPKINOS)/cert.pem ":PumpkinOS:cert.pem" && $(HATTRIB) -t TEXT -c ttxt ":PumpkinOS:cert.pem"; \
+	fi
+	@$(HUMOUNT) >/dev/null
+
+app: $(APPBIN)
+
+clean:
+	@rm -f $(OBJS) $(APPBIN) $(DSK)
+	@rm -rf $(STAGE)

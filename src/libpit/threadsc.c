@@ -19,7 +19,7 @@
 #include "debug.h"
 
 #define MAX_KEYS     256
-#if defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(PS2) || defined(GAMECUBE) || defined(WII) || defined(MACCLASSIC)
 // the task table is static (4KB+ per entry): keep it small where memory is
 // (single application mode runs a handful of tasks)
 #define MAX_THREADS  32
@@ -27,13 +27,28 @@
 #define MAX_THREADS  256
 #endif
 #define MAX_MESSAGES 256
-#if defined(PS2) || defined(GAMECUBE) || defined(WII)
+#if defined(MACCLASSIC)
+// classic Mac OS: the stacks are slots of the stack area (see
+// libpit/macsys.c and src/retro68/main.c, STACK_SLOT_SIZE)
+#define STACK_SIZE   (256 * 1024)
+#elif defined(PS2) || defined(GAMECUBE) || defined(WII)
 // 32MB (24MB on the GameCube) in all: half a megabyte per task (a PalmOS
 // application never needs more than a few tens of kilobytes, the rest is
 // for the OS code around it)
 #define STACK_SIZE   (512 * 1024)
 #else
 #define STACK_SIZE   (1024 * 1024)
+#endif
+
+#ifdef MACCLASSIC
+// classic Mac OS: the stacks live in the stack area (see libpit/macsys.c)
+extern void *mac_stack_alloc(uint32_t size);
+extern void mac_stack_free(void *p);
+#define STACK_ALLOC(n) mac_stack_alloc(n)
+#define STACK_FREE(p)  mac_stack_free(p)
+#else
+#define STACK_ALLOC(n) sys_malloc(n)
+#define STACK_FREE(p)  sys_free(p)
 #endif
 
 struct thread_key_t {
@@ -193,6 +208,21 @@ static void schedule(void) {
     void *top = (void *)(((uintptr_t)next->stack_top & ~(uintptr_t)15) - 128);
     sys_memset(top, 0, 128);
     asm volatile ("mr 1, %0" : : "r" (top) : "memory");
+#elif defined(__m68k__)
+    // 680x0 (classic Mac OS): sp is a7, the stack only needs to be even;
+    // 4 byte alignment keeps the longs on the stack fast
+    void *top = (void *)(((uintptr_t)next->stack_top & ~(uintptr_t)3) - 16);
+    sys_memset(top, 0, 16);
+    asm volatile ("move.l %0, %%sp" : : "r" (top) : "memory");
+#elif defined(macintosh) && (defined(__PPC__) || defined(__powerpc__))
+    // 32-bit PowerPC, classic Mac OS (the AIX ABI of the CFM runtime): r1
+    // is the stack pointer, 16 byte aligned, the word it points to is the
+    // back chain and a callee may store into the caller's 24 byte linkage
+    // area (CR at 4(r1), LR at 8(r1), the TOC at 20(r1)) and its 32 byte
+    // parameter area: the first frame gets 64 bytes to itself
+    void *top = (void *)(((uintptr_t)next->stack_top & ~(uintptr_t)15) - 64);
+    sys_memset(top, 0, 64);
+    asm volatile ("mr 1, %0" : : "r" (top) : "memory");
 #elif defined(__PPC__) || defined(__powerpc__)
     // PowerPC EABI (Nintendo GameCube): r1 is the stack pointer, 16 byte
     // aligned, and the word it points to is the back chain (a null one ends
@@ -242,7 +272,7 @@ static void free_current_task(void) {
   thread_arg_t *targ = &tasks[current];
   int i;
 
-  sys_free(targ->stack_bottom);
+  STACK_FREE(targ->stack_bottom);
   targ->stack_bottom = NULL;
   targ->stack_top = NULL;
 
@@ -369,7 +399,7 @@ int thread_begin(char *tag, int action(void *arg), void *arg) {
     return -1;
   }
 
-  if ((targ->stack_bottom = sys_malloc(STACK_SIZE)) == NULL) {
+  if ((targ->stack_bottom = STACK_ALLOC(STACK_SIZE)) == NULL) {
     debug(DEBUG_ERROR, "THREAD", "no memory for thread stack");
     return -1;
   }

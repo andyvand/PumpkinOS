@@ -1,0 +1,6 @@
+#ifndef MACCLASSIC_NETINET_TCP_H
+#define MACCLASSIC_NETINET_TCP_H
+
+#define TCP_NODELAY 0x01
+
+#endif

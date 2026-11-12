@@ -60,6 +60,9 @@ STATIC_APP=1
 else ifeq ($(OSNAME),wiiu)
 # Static build as well (linked into the RPX by src/wiiu), regular file names
 STATIC_APP=1
+else ifeq ($(OSNAME),retro68)
+# Static build as well (linked into the Mac application by src/retro68)
+STATIC_APP=1
 endif
 
 ifeq ($(STATIC_APP),1)
