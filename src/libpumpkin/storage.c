@@ -206,13 +206,14 @@ static void StoPtrFree(void *p) {
 
 // Platforms whose file systems cannot take the regular database directory
 // name (the escaped database name followed by its hex dump, up to 97
-// characters): MS-DOS (8.3) and the PlayStation 2 memory card (31
-// characters). There a database directory is the 8 hex digit FNV-1a hash of
+// characters): MS-DOS (8.3), the PlayStation 2 memory card (31
+// characters) and the classic Mac OS HFS (31 characters, "Address Book"
+// already needs 37). There a database directory is the 8 hex digit FNV-1a hash of
 // the database name; the name itself is stored in the header file ("name="
 // line) and read back from there when the storage is scanned (see
 // StoHeaderName). Such a storage is not interchangeable with the regular
 // layout.
-#if defined(DOS) || defined(PS2)
+#if defined(DOS) || defined(PS2) || defined(MACCLASSIC)
 #define STO_HASHED_DIRS
 #endif
 
@@ -222,7 +223,7 @@ static void StoPtrFree(void *p) {
 //   name (see above),
 // - a resource file is the 48 bit value type<<16|id written with 11 base 36
 //   digits split as 8.3 (see StoResName / StoParseResName, DOS only: the
-//   regular resource names fit the PS2 memory card),
+//   regular resource names fit the PS2 memory card and HFS),
 // - a record file already is "%08X.%02X" (unique id, attributes).
 static uint32_t StoNameHash(const uint8_t *s) {
   uint32_t h = 2166136261u;
