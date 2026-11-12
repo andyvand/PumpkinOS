@@ -414,12 +414,50 @@ static int load_ca_dir(SSL_CTX *ctx, const char *dir) {
 static X509_STORE *mac_ca_store;
 static int mac_ca_tried;
 
+#define PEM_BEGIN_CERT "-----BEGIN CERTIFICATE-----"
+#define PEM_END_CERT   "-----END CERTIFICATE-----"
+
+static char *find_str(char *p, int len, const char *s) {
+  int n = (int)sys_strlen(s), i;
+
+  for (i = 0; i + n <= len; i++) {
+    if (p[i] == s[0] && !sys_memcmp(p + i, s, n)) return p + i;
+  }
+
+  return NULL;
+}
+
+/* logs a certificate that did not decode: its position, the "=== subject"
+ * comment above it (OpenBSD / curl style bundles) and the OpenSSL error */
+static void ca_bad_cert(int idx, char *buf, char *begin) {
+  char subject[128], err[160];
+  unsigned long e;
+  char *p, *q;
+  int n;
+
+  subject[0] = 0;
+  for (p = begin; p > buf; p--) {
+    if (p[-1] == '\n' && p + 4 < begin && !sys_memcmp(p, "=== ", 4)) {
+      for (q = p + 4, n = 0; q < begin && *q != '\n' && n < (int)sizeof(subject) - 1; q++) subject[n++] = *q;
+      subject[n] = 0;
+      break;
+    }
+    if (begin - p > 16384) break;
+  }
+
+  e = ERR_peek_last_error();
+  if (e) ERR_error_string_n(e, err, sizeof(err)); else sys_strcpy(err, "unknown error");
+  ERR_clear_error();
+  debug(DEBUG_ERROR, TAG, "CA certificate %d (%s) at offset %d not decoded: %s", idx, subject[0] ? subject : "?", (int)(begin - buf), err);
+}
+
 static int load_ca_file_mac(X509_STORE *store, const char *path) {
   sys_stat_t st;
   uint8_t *buf;
   BIO *bio;
   X509 *x;
-  int fd, n, len, i;
+  char *begin, *end = NULL;
+  int fd, n, len, i, idx, failed = 0, elen = (int)sizeof(PEM_END_CERT) - 1;
 
   if (sys_stat(path, &st) != 0) {
     debug(DEBUG_ERROR, TAG, "CA bundle %s not found", path);
@@ -450,16 +488,35 @@ static int load_ca_file_mac(X509_STORE *store, const char *path) {
     if (buf[i] == '\r') buf[i] = '\n';
   }
 
+  /* every BEGIN/END block is decoded on its own: PEM_read_bio_X509() over
+   * the whole buffer stops at the first certificate it cannot decode and
+   * silently drops all the ones after it */
   n = 0;
-  if ((bio = BIO_new_mem_buf(buf, len)) != NULL) {
-    while ((x = PEM_read_bio_X509(bio, NULL, NULL, NULL)) != NULL) {
-      if (X509_STORE_add_cert(store, x) == 1) n++;
-      X509_free(x);
+  for (i = 0, idx = 0; i < len; i = (int)(end - (char *)buf) + elen) {
+    begin = find_str((char *)buf + i, len - i, PEM_BEGIN_CERT);
+    if (begin == NULL) break;
+    end = find_str(begin, len - (int)(begin - (char *)buf), PEM_END_CERT);
+    if (end == NULL) break;
+    idx++;
+
+    x = NULL;
+    if ((bio = BIO_new_mem_buf(begin, (int)(end - begin) + elen)) != NULL) {
+      x = PEM_read_bio_X509(bio, NULL, NULL, NULL);
+      BIO_free(bio);
     }
-    BIO_free(bio);
+    if (x == NULL) {
+      ca_bad_cert(idx, (char *)buf, begin);
+      failed++;
+      continue;
+    }
+    if (X509_STORE_add_cert(store, x) == 1) n++;
+    X509_free(x);
+    ERR_clear_error();
   }
   ERR_clear_error();
   xfree(buf);
+
+  if (failed) debug(DEBUG_ERROR, TAG, "CA bundle %s: %d of %d certificates could not be decoded", path, failed, idx);
 
   return n;
 }
