@@ -140,7 +140,7 @@ static uint32_t psp_heap_size = 2*1024*1024;
 // OpenSSL), between 3MB and 16MB
 static uint32_t psp_heap_size = 1024*1024;
 #define HEAP_SIZE psp_heap_size
-#define MAC_HEAP_RESERVE (4*1024*1024)
+#define MAC_HEAP_RESERVE (6*1024*1024)
 #define MAC_HEAP_MIN     (3*1024*1024)
 #define MAC_HEAP_MAX     (16*1024*1024)
 #else

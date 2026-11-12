@@ -185,16 +185,20 @@ static Boolean strEq(const char *a, const char *b) {
   return StrCompare(a, b) == 0;
 }
 
-static void *growArray(void *p, UInt32 *size, UInt32 need, UInt32 elemSize) {
+/* grows *pp to hold need elements; on failure *pp is left as it was */
+static Boolean growArray(void *pp, UInt32 *size, UInt32 need, UInt32 elemSize) {
+  void **p = (void **)pp;
+  void *np;
   UInt32 newSize;
 
-  if (need <= *size) return p;
+  if (need <= *size) return true;
   newSize = *size ? *size : 64;
   while (newSize < need) newSize *= 2;
-  p = xrealloc(p, newSize * elemSize);
+  if ((np = xrealloc(*p, newSize * elemSize)) == NULL) return false;
+  *p = np;
   *size = newSize;
 
-  return p;
+  return true;
 }
 
 static void catStr(char *out, int size, int *pos, const char *s, int n) {
@@ -242,7 +246,7 @@ static void docFree(browser_t *b) {
 
 static Int16 docAddLink(browser_t *b, const char *href) {
   if (b->nlinks >= MAX_LINKS) return LINK_NONE;
-  b->links = growArray(b->links, &b->linksSize, b->nlinks + 1, sizeof(char *));
+  if (!growArray(&b->links, &b->linksSize, b->nlinks + 1, sizeof(char *))) return LINK_NONE;
   b->links[b->nlinks] = xstrdup(href);
   return (Int16)b->nlinks++;
 }
@@ -250,7 +254,8 @@ static Int16 docAddLink(browser_t *b, const char *href) {
 static void docAddItem(browser_t *b, UInt8 kind, const char *s, UInt16 len, UInt8 font, Int16 link, UInt8 flags) {
   item_t *it;
 
-  b->items = growArray(b->items, &b->itemsSize, b->nitems + 1, sizeof(item_t));
+  if (len && !growArray(&b->text, &b->textSize, b->textLen + len, 1)) return;
+  if (!growArray(&b->items, &b->itemsSize, b->nitems + 1, sizeof(item_t))) return;
   it = &b->items[b->nitems++];
   it->kind = kind;
   it->font = font;
@@ -260,7 +265,6 @@ static void docAddItem(browser_t *b, UInt8 kind, const char *s, UInt16 len, UInt
   it->len = len;
 
   if (len) {
-    b->text = growArray(b->text, &b->textSize, b->textLen + len, 1);
     MemMove(b->text + b->textLen, s, len);
     b->textLen += len;
   }
@@ -1051,12 +1055,43 @@ static int fetchCallback(int ptr, void *_data) {
     }
 
     if (hc->response_fd > 0) {
+      int64_t total;
+      int cap = 0;
+
+      /* allocate the body once at its final size: growing it 4K at a time
+         copies it over and over and, where every malloc is its own block
+         (classic Mac OS), shreds the heap until a large block no longer fits */
+      total = sys_seek(hc->response_fd, 0, SYS_SEEK_END);
+      sys_seek(hc->response_fd, 0, SYS_SEEK_SET);
+      if (total > MAX_RESPONSE) total = MAX_RESPONSE;
+      if (total > 0) {
+        for (cap = (int)total; cap > 0; cap = cap > 16384 ? cap / 2 : 0) {
+          if ((f->body = xmalloc(cap + 1)) != NULL) break;
+        }
+        if (cap < total) debug(DEBUG_ERROR, "Browser", "out of memory: keeping %d of %d bytes", cap, (int)total);
+      }
+
       for (;;) {
         n = sys_read(hc->response_fd, (uint8_t *)buf, 4096);
         if (n <= 0) break;
         if (f->len + n > MAX_RESPONSE) n = MAX_RESPONSE - f->len;
         if (n <= 0) break;
-        f->body = xrealloc(f->body, f->len + n + 1);
+        if (f->len + n > cap) {
+          /* size unknown or the file grew: grow geometrically, and stop
+             (keeping what was read) when memory runs out */
+          int ncap = cap ? cap * 2 : 65536;
+          char *nb;
+          if (ncap > MAX_RESPONSE) ncap = MAX_RESPONSE;
+          if (ncap < f->len + n) ncap = f->len + n;
+          if ((nb = xrealloc(f->body, ncap + 1)) == NULL) {
+            debug(DEBUG_ERROR, "Browser", "out of memory: response cut at %d bytes", cap);
+            n = cap - f->len;
+            if (n <= 0) break;
+          } else {
+            f->body = nb;
+            cap = ncap;
+          }
+        }
         sys_memcpy(f->body + f->len, buf, n);
         f->len += n;
         f->body[f->len] = 0;
@@ -1188,7 +1223,10 @@ static fetch_status_t doFetch(browser_t *b, const char *url, fetch_t **out) {
 static UInt32 newLine(browser_t *b, Coord y) {
   line_t *ln;
 
-  b->lines = growArray(b->lines, &b->linesSize, b->nlines + 1, sizeof(line_t));
+  if (!growArray(&b->lines, &b->linesSize, b->nlines + 1, sizeof(line_t))) {
+    /* out of memory: keep adding to the last line */
+    return b->nlines ? b->nlines - 1 : 0;
+  }
   ln = &b->lines[b->nlines];
   ln->y = y;
   ln->h = 0;
@@ -1201,7 +1239,8 @@ static UInt32 newLine(browser_t *b, Coord y) {
 static void addSeg(browser_t *b, UInt32 li, Coord x, UInt32 off, UInt16 len, UInt8 font, Int16 link) {
   seg_t *sg;
 
-  b->segs = growArray(b->segs, &b->segsSize, b->nsegs + 1, sizeof(seg_t));
+  if (li >= b->nlines) return;
+  if (!growArray(&b->segs, &b->segsSize, b->nsegs + 1, sizeof(seg_t))) return;
   sg = &b->segs[b->nsegs++];
   sg->x = x;
   sg->off = off;
@@ -1227,6 +1266,11 @@ static void layoutDoc(browser_t *b) {
 
   y = 0;
   li = newLine(b, y);
+  if (b->nlines == 0) {
+    /* not even one line fits in memory */
+    FntSetFont(oldFont);
+    return;
+  }
   x = 2;
 
   for (i = 0; i < b->nitems; i++) {
