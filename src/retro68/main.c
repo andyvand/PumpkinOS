@@ -72,8 +72,8 @@ extern void pumpkin_set_finish(int finish);
 
 // the thread stacks (see libpit/macsys.c): a slot per PumpkinOS thread
 // below a main stack of MAIN_STACK bytes
-#define STACK_SLOT_SIZE (256 * 1024)
-#define STACK_SLOTS     8
+#define STACK_SLOT_SIZE (512 * 1024)
+#define STACK_SLOTS     6
 #define MAIN_STACK      (256 * 1024)
 
 // resources (pumpkin.r)

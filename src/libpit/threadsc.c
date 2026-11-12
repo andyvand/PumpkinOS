@@ -29,8 +29,16 @@
 #define MAX_MESSAGES 256
 #if defined(MACCLASSIC)
 // classic Mac OS: the stacks are slots of the stack area (see
-// libpit/macsys.c and src/retro68/main.c, STACK_SLOT_SIZE)
-#define STACK_SIZE   (256 * 1024)
+// libpit/macsys.c and src/retro68/main.c, STACK_SLOT_SIZE). A TLS handshake
+// (OpenSSL certificate verification, plus the on demand CA decoding of
+// liblopenssl) runs deeper than 256KB of 680x0 frames; the slots are next
+// to each other, so an overflow silently corrupts the neighbouring thread
+#define STACK_SIZE   (512 * 1024)
+// the stacks are filled with STACK_FILL when created: an overwritten guard
+// at the bottom is reported (thread_yield, thread end), and every thread
+// logs how much of its stack it used when it ends
+#define STACK_GUARD_SIZE 2048
+#define STACK_FILL       0xA5
 #elif defined(PS2) || defined(GAMECUBE) || defined(WII)
 // 32MB (24MB on the GameCube) in all: half a megabyte per task (a PalmOS
 // application never needs more than a few tens of kilobytes, the rest is
@@ -86,6 +94,7 @@ typedef struct {
   void *stack_bottom;
   void *stack_top;
   uint32_t stack_size;
+  int stack_overflow;
   jmp_buf jbuf;
 } thread_arg_t;
 
@@ -148,6 +157,27 @@ static thread_arg_t *choose_next_task(void) {
   return found ? &tasks[current] : NULL;
 }
 
+#ifdef STACK_GUARD_SIZE
+// bytes of the stack that were never written (from the bottom)
+static uint32_t stack_untouched(thread_arg_t *targ) {
+  uint8_t *p = (uint8_t *)targ->stack_bottom;
+  uint32_t n;
+
+  if (p == NULL) return 0;
+  for (n = 0; n < targ->stack_size && p[n] == STACK_FILL; n++);
+
+  return n;
+}
+
+static void stack_check(thread_arg_t *targ) {
+  if (targ->stack_bottom && !targ->stack_overflow && stack_untouched(targ) < STACK_GUARD_SIZE) {
+    targ->stack_overflow = 1;
+    debug(DEBUG_ERROR, "THREAD", "thread id %d (%s): stack overflow (%u bytes), memory below it is corrupted",
+      targ->id, targ->name ? targ->name : "?", targ->stack_size);
+  }
+}
+#endif
+
 // First activation of a task. Runs on the task's own stack, so it must not
 // use anything from the caller's frame (schedule() below), only globals:
 // that frame lives on the main stack and is reused by the scheduler as soon
@@ -165,6 +195,11 @@ static void __attribute__((noinline)) task_entry(void) {
 
   // the task may have yielded (and been resumed) many times: refetch it
   targ = &tasks[current];
+#ifdef STACK_GUARD_SIZE
+  stack_check(targ);
+  debug(DEBUG_INFO, "THREAD", "thread id %d used %u of %u bytes of stack", id,
+    targ->stack_size - stack_untouched(targ), targ->stack_size);
+#endif
   debug(DEBUG_INFO, "THREAD", "thread id %d end", id);
   thread_set(local, NULL);
   thread_set(tname, NULL);
@@ -247,6 +282,9 @@ void thread_yield(int waiting) {
   if (!running || current < 0) return;
 
   targ = &tasks[current];
+#ifdef STACK_GUARD_SIZE
+  stack_check(targ);
+#endif
 
   if (waiting) {
     targ->status = TASK_WAITING;
@@ -417,6 +455,10 @@ int thread_begin(char *tag, int action(void *arg), void *arg) {
 
   targ->stack_size = STACK_SIZE;
   targ->stack_top = (uint8_t *)targ->stack_bottom + targ->stack_size;
+  targ->stack_overflow = 0;
+#ifdef STACK_GUARD_SIZE
+  sys_memset(targ->stack_bottom, STACK_FILL, targ->stack_size);
+#endif
 
   num_threads++;
 
