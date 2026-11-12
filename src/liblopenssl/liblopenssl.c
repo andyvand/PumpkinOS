@@ -89,6 +89,7 @@
 /* how long one wait slice is; thread_must_end() is checked between slices */
 #define WAIT_SLICE_MS 200
 
+#ifndef MACCLASSIC
 /* candidate CA bundles used when the OpenSSL default location has none */
 static const char *ca_bundles[] = {
   "cert.pem",                                           /* DOS */
@@ -120,6 +121,7 @@ static const char *ca_bundles[] = {
   "/usr/local/etc/openssl/cert.pem",
   NULL
 };
+#endif
 
 #ifdef ANDROID
 /* Android has no PEM bundle. The system trust store is a directory of
@@ -328,6 +330,7 @@ static int load_pem_cert_key(SSL_CTX *ctx, char *cert, char *key) {
   return r;
 }
 
+#ifndef MACCLASSIC
 static int has_ca_certs(SSL_CTX *ctx) {
   X509_STORE *store = SSL_CTX_get_cert_store(ctx);
   STACK_OF(X509_OBJECT) *objs;
@@ -345,6 +348,7 @@ static int has_ca_certs(SSL_CTX *ctx) {
 #endif
   return r;
 }
+#endif
 
 /* register the expected peer identity for host name verification; host may
    be a DNS name or an IPv4/IPv6 literal */
@@ -399,21 +403,36 @@ static int load_ca_dir(SSL_CTX *ctx, const char *dir) {
 #endif
 
 #ifdef MACCLASSIC
-/* classic Mac OS: newlib's stdio (BIO_new_file, used by the OpenSSL file
- * lookup behind SSL_CERT_FILE) does not reliably open the bundle, so read it
- * through the PumpkinOS file layer (File Manager, POSIX path in
- * PUMPKIN_CA_FILE, set by src/retro68/main.c) and parse it from memory.
+/* classic Mac OS: OpenSSL's file lookups (SSL_CERT_FILE, opt_cacert) open
+ * the bundle with newlib's stdio, which only takes HFS paths
+ * ("Volume:Folder:file") and does not reliably find it. The bundle is read
+ * instead through the PumpkinOS file layer (File Manager, POSIX path
+ * "/Volume/Folder/cert.pem", see liblopenssl_set_ca_file()) and parsed from
+ * memory, once: parsing ~150 certificates is slow on a 68K, and httpc makes
+ * a new SSL_CTX for every connection, so they all share one X509_STORE.
  * A bundle saved with classic Mac line endings (CR) is accepted too. */
-static int load_ca_file_mac(SSL_CTX *ctx, const char *path) {
-  X509_STORE *store = SSL_CTX_get_cert_store(ctx);
+static X509_STORE *mac_ca_store;
+static int mac_ca_tried;
+
+static int load_ca_file_mac(X509_STORE *store, const char *path) {
   sys_stat_t st;
   uint8_t *buf;
   BIO *bio;
   X509 *x;
   int fd, n, len, i;
 
-  if (store == NULL || sys_stat(path, &st) != 0 || st.size == 0 || st.size > 4*1024*1024) return 0;
-  if ((fd = sys_open(path, SYS_READ)) == -1) return 0;
+  if (sys_stat(path, &st) != 0) {
+    debug(DEBUG_ERROR, TAG, "CA bundle %s not found", path);
+    return 0;
+  }
+  if (st.size == 0 || st.size > 4*1024*1024) {
+    debug(DEBUG_ERROR, TAG, "CA bundle %s has invalid size %u", path, (uint32_t)st.size);
+    return 0;
+  }
+  if ((fd = sys_open(path, SYS_READ)) == -1) {
+    debug(DEBUG_ERROR, TAG, "could not open CA bundle %s", path);
+    return 0;
+  }
   if ((buf = xmalloc((int)st.size)) == NULL) {
     sys_close(fd);
     return 0;
@@ -423,6 +442,9 @@ static int load_ca_file_mac(SSL_CTX *ctx, const char *path) {
     if (n <= 0) break;
   }
   sys_close(fd);
+  if (len < (int)st.size) {
+    debug(DEBUG_ERROR, TAG, "CA bundle %s: read %d of %u bytes", path, len, (uint32_t)st.size);
+  }
 
   for (i = 0; i < len; i++) {
     if (buf[i] == '\r') buf[i] = '\n';
@@ -441,22 +463,54 @@ static int load_ca_file_mac(SSL_CTX *ctx, const char *path) {
 
   return n;
 }
+
+/* the shared store loaded from the bundle, or NULL */
+static X509_STORE *mac_ca_get(void) {
+  X509_STORE *store;
+  int n;
+
+  if (mac_ca_tried) return mac_ca_store;
+  mac_ca_tried = 1;
+  if (opt_cacert == NULL || opt_cacert[0] == 0) return NULL;
+  if ((store = X509_STORE_new()) == NULL) return NULL;
+
+  if ((n = load_ca_file_mac(store, opt_cacert)) > 0) {
+    debug(DEBUG_INFO, TAG, "loaded %d CA certificates from %s", n, opt_cacert);
+    mac_ca_store = store;
+  } else {
+    debug(DEBUG_ERROR, TAG, "no CA certificates loaded from %s", opt_cacert);
+    X509_STORE_free(store);
+  }
+
+  return mac_ca_store;
+}
 #endif
+
+/* the CA bundle to verify servers with (a POSIX path; also the Lua
+ * cacert option). Called by the hosts before the first connection. */
+void liblopenssl_set_ca_file(const char *path) {
+  if (opt_cacert) xfree(opt_cacert);
+  opt_cacert = (path && path[0]) ? xstrdup((char *)path) : NULL;
+#ifdef MACCLASSIC
+  if (mac_ca_store) X509_STORE_free(mac_ca_store);
+  mac_ca_store = NULL;
+  mac_ca_tried = 0;
+#endif
+}
 
 static void load_ca_certs(SSL_CTX *ctx) {
-  int i;
 #ifdef MACCLASSIC
-  char *mac_ca = getenv("PUMPKIN_CA_FILE");
+  X509_STORE *store;
 
-  if (mac_ca && mac_ca[0]) {
-    int n = load_ca_file_mac(ctx, mac_ca);
-    if (n > 0) {
-      debug(DEBUG_INFO, TAG, "loaded %d CA certificates from %s", n, mac_ca);
-      return;
-    }
-    debug(DEBUG_ERROR, TAG, "no CA certificates loaded from %s", mac_ca);
+  if ((store = mac_ca_get()) != NULL) {
+    /* set1: the context takes its own reference to the shared store */
+    SSL_CTX_set1_cert_store(ctx, store);
+    return;
   }
-#endif
+  /* no stdio fallbacks: they would need HFS paths */
+  debug(DEBUG_ERROR, TAG, "no CA certificate bundle found, certificate verification will fail");
+#else
+  int i;
 
   if (opt_cacert) {
     if (SSL_CTX_load_verify_locations(ctx, opt_cacert, NULL) == 1) {
@@ -489,6 +543,7 @@ static void load_ca_certs(SSL_CTX *ctx) {
   }
 
   debug(DEBUG_ERROR, TAG, "no CA certificate bundle found, certificate verification will fail");
+#endif
 }
 
 static secure_config_t *liblopenssl_new(char *cert, char *key) {
@@ -700,7 +755,13 @@ static int liblopenssl_key(int pe) {
 }
 
 static int liblopenssl_cacert(int pe) {
-  return set_string_option(pe, &opt_cacert);
+  int r = set_string_option(pe, &opt_cacert);
+#ifdef MACCLASSIC
+  if (mac_ca_store) X509_STORE_free(mac_ca_store);
+  mac_ca_store = NULL;
+  mac_ca_tried = 0;
+#endif
+  return r;
 }
 
 static int liblopenssl_verify(int pe) {

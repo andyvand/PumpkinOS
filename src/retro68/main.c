@@ -110,6 +110,7 @@ extern int libos_start(int pe);
 #ifndef NO_HTTPS
 extern int liblopenssl_load(void);
 extern int liblopenssl_init(int pe, script_ref_t obj);
+extern void liblopenssl_set_ca_file(const char *path);
 #endif
 
 typedef struct {
@@ -1299,15 +1300,13 @@ int main(int argc, char *argv[]) {
   sys_set_tmpdir(tmpdir);
 
 #ifndef NO_HTTPS
-  // the CA bundle next to the application; OpenSSL opens it with newlib's
-  // stdio, which takes HFS paths
+  // the CA bundle next to the application, as a POSIX path: liblopenssl
+  // reads it through the File Manager layer (newlib's stdio, which OpenSSL
+  // would use for SSL_CERT_FILE, needs HFS paths and does not find it)
   sys_snprintf(path, sizeof(path)-1, "%scert.pem", home);
-  if (file_exists(path) && mac_hfs_path(path, hfs, sizeof(hfs)) == 0) {
-    debug(DEBUG_INFO, TAG, "CA bundle \"%s\"", hfs);
-    // liblopenssl reads it through the File Manager layer (POSIX path);
-    // SSL_CERT_FILE (HFS path, newlib stdio) stays as a fallback
-    setenv("PUMPKIN_CA_FILE", path, 1);
-    setenv("SSL_CERT_FILE", hfs, 1);
+  if (file_exists(path)) {
+    debug(DEBUG_INFO, TAG, "CA bundle \"%s\"", path);
+    liblopenssl_set_ca_file(path);
   } else {
     debug(DEBUG_ERROR, TAG, "no cert.pem next to the application: https cannot verify servers");
   }
