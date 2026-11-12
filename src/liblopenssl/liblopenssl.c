@@ -405,17 +405,34 @@ static int load_ca_dir(SSL_CTX *ctx, const char *dir) {
 #ifdef MACCLASSIC
 /* classic Mac OS: OpenSSL's file lookups (SSL_CERT_FILE, opt_cacert) open
  * the bundle with newlib's stdio, which only takes HFS paths
- * ("Volume:Folder:file") and does not reliably find it. The bundle is read
- * instead through the PumpkinOS file layer (File Manager, POSIX path
- * "/Volume/Folder/cert.pem", see liblopenssl_set_ca_file()) and parsed from
- * memory, once: parsing ~150 certificates is slow on a 68K, and httpc makes
- * a new SSL_CTX for every connection, so they all share one X509_STORE.
+ * ("Volume:Folder:file") and does not reliably find it, so the bundle is read
+ * through the PumpkinOS file layer (File Manager, POSIX path
+ * "/Volume/Folder/cert.pem", see liblopenssl_set_ca_file()).
+ *
+ * The certificates are not all kept decoded: Retro68's malloc() is one
+ * NewPtr() per call, and ~130 parsed X509 objects (thousands of small
+ * OpenSSL allocations) exhaust the few MB of the application partition left
+ * next to the PumpkinOS heap ("malloc failure" after ~35 certificates).
+ * Instead the bundle text stays in memory with an index of subject name
+ * hashes (each certificate is decoded once and freed), and a lookup method
+ * on the shared X509_STORE decodes a root only when a verification asks for
+ * that issuer; it then stays in the store. httpc makes a new SSL_CTX for
+ * every connection, so they all share this one store.
  * A bundle saved with classic Mac line endings (CR) is accepted too. */
-static X509_STORE *mac_ca_store;
-static int mac_ca_tried;
-
 #define PEM_BEGIN_CERT "-----BEGIN CERTIFICATE-----"
 #define PEM_END_CERT   "-----END CERTIFICATE-----"
+
+typedef struct {
+  unsigned long hash;  /* X509_NAME_hash of the subject */
+  int offset, len;     /* the BEGIN..END block in mac_ca_pem */
+} mac_ca_entry_t;
+
+static X509_STORE *mac_ca_store;
+static X509_LOOKUP_METHOD *mac_ca_method;
+static char *mac_ca_pem;
+static mac_ca_entry_t *mac_ca_index;
+static int mac_ca_count;
+static int mac_ca_tried;
 
 static char *find_str(char *p, int len, const char *s) {
   int n = (int)sys_strlen(s), i;
@@ -425,6 +442,18 @@ static char *find_str(char *p, int len, const char *s) {
   }
 
   return NULL;
+}
+
+static X509 *mac_ca_decode(char *pem, int len) {
+  BIO *bio;
+  X509 *x = NULL;
+
+  if ((bio = BIO_new_mem_buf(pem, len)) != NULL) {
+    x = PEM_read_bio_X509(bio, NULL, NULL, NULL);
+    BIO_free(bio);
+  }
+
+  return x;
 }
 
 /* logs a certificate that did not decode: its position, the "=== subject"
@@ -451,13 +480,48 @@ static void ca_bad_cert(int idx, char *buf, char *begin) {
   debug(DEBUG_ERROR, TAG, "CA certificate %d (%s) at offset %d not decoded: %s", idx, subject[0] ? subject : "?", (int)(begin - buf), err);
 }
 
-static int load_ca_file_mac(X509_STORE *store, const char *path) {
-  sys_stat_t st;
-  uint8_t *buf;
-  BIO *bio;
+/* X509_LOOKUP get_by_subject: decodes the bundle certificates whose subject
+ * matches, adds them to the store and returns the first one */
+static int mac_ca_by_subject(X509_LOOKUP *lu, X509_LOOKUP_TYPE type, const X509_NAME *name, X509_OBJECT *ret) {
+  X509_STORE *store = X509_LOOKUP_get_store(lu);
+  unsigned long h;
   X509 *x;
-  char *begin, *end = NULL;
-  int fd, n, len, i, idx, failed = 0, elen = (int)sizeof(PEM_END_CERT) - 1;
+  int i, found = 0;
+
+  if (type != X509_LU_X509 || name == NULL || mac_ca_pem == NULL) return 0;
+  h = X509_NAME_hash(name);
+
+  for (i = 0; i < mac_ca_count; i++) {
+    if (mac_ca_index[i].hash != h) continue;
+    if ((x = mac_ca_decode(mac_ca_pem + mac_ca_index[i].offset, mac_ca_index[i].len)) == NULL) continue;
+    if (X509_NAME_cmp(X509_get_subject_name(x), name) == 0) {
+      X509_STORE_add_cert(store, x);
+      if (!found && X509_OBJECT_set1_X509(ret, x) == 1) found = 1;
+    }
+    X509_free(x);
+  }
+  ERR_clear_error();
+
+  return found;
+}
+
+static void mac_ca_reset(void) {
+  if (mac_ca_store) X509_STORE_free(mac_ca_store);
+  mac_ca_store = NULL;
+  if (mac_ca_pem) xfree(mac_ca_pem);
+  mac_ca_pem = NULL;
+  if (mac_ca_index) xfree(mac_ca_index);
+  mac_ca_index = NULL;
+  mac_ca_count = 0;
+  mac_ca_tried = 0;
+}
+
+/* reads and indexes the bundle; returns the number of usable certificates */
+static int mac_ca_load(const char *path) {
+  sys_stat_t st;
+  char *buf, *begin, *end;
+  X509 *x;
+  int fd, n, len, i, idx, max, failed = 0, elen = (int)sizeof(PEM_END_CERT) - 1;
 
   if (sys_stat(path, &st) != 0) {
     debug(DEBUG_ERROR, TAG, "CA bundle %s not found", path);
@@ -472,11 +536,12 @@ static int load_ca_file_mac(X509_STORE *store, const char *path) {
     return 0;
   }
   if ((buf = xmalloc((int)st.size)) == NULL) {
+    debug(DEBUG_ERROR, TAG, "no memory for the CA bundle (%u bytes)", (uint32_t)st.size);
     sys_close(fd);
     return 0;
   }
   for (len = 0; len < (int)st.size; len += n) {
-    n = sys_read(fd, buf + len, (int)st.size - len);
+    n = sys_read(fd, (uint8_t *)buf + len, (int)st.size - len);
     if (n <= 0) break;
   }
   sys_close(fd);
@@ -488,40 +553,43 @@ static int load_ca_file_mac(X509_STORE *store, const char *path) {
     if (buf[i] == '\r') buf[i] = '\n';
   }
 
-  /* every BEGIN/END block is decoded on its own: PEM_read_bio_X509() over
-   * the whole buffer stops at the first certificate it cannot decode and
-   * silently drops all the ones after it */
-  n = 0;
-  for (i = 0, idx = 0; i < len; i = (int)(end - (char *)buf) + elen) {
-    begin = find_str((char *)buf + i, len - i, PEM_BEGIN_CERT);
-    if (begin == NULL) break;
-    end = find_str(begin, len - (int)(begin - (char *)buf), PEM_END_CERT);
-    if (end == NULL) break;
+  /* upper bound of the number of certificates */
+  for (max = 0, begin = buf; (begin = find_str(begin, len - (int)(begin - buf), PEM_BEGIN_CERT)) != NULL; begin++) max++;
+  if (max == 0 || (mac_ca_index = xcalloc(max, sizeof(mac_ca_entry_t))) == NULL) {
+    xfree(buf);
+    return 0;
+  }
+
+  /* every BEGIN/END block is decoded on its own (and freed right away):
+   * PEM_read_bio_X509() over the whole buffer would stop at the first
+   * certificate it cannot decode */
+  mac_ca_count = 0;
+  for (i = 0, idx = 0; i < len && mac_ca_count < max; i = (int)(end - buf) + elen) {
+    if ((begin = find_str(buf + i, len - i, PEM_BEGIN_CERT)) == NULL) break;
+    if ((end = find_str(begin, len - (int)(begin - buf), PEM_END_CERT)) == NULL) break;
     idx++;
 
-    x = NULL;
-    if ((bio = BIO_new_mem_buf(begin, (int)(end - begin) + elen)) != NULL) {
-      x = PEM_read_bio_X509(bio, NULL, NULL, NULL);
-      BIO_free(bio);
-    }
-    if (x == NULL) {
-      ca_bad_cert(idx, (char *)buf, begin);
+    if ((x = mac_ca_decode(begin, (int)(end - begin) + elen)) == NULL) {
+      ca_bad_cert(idx, buf, begin);
       failed++;
       continue;
     }
-    if (X509_STORE_add_cert(store, x) == 1) n++;
+    mac_ca_index[mac_ca_count].hash = X509_NAME_hash(X509_get_subject_name(x));
+    mac_ca_index[mac_ca_count].offset = (int)(begin - buf);
+    mac_ca_index[mac_ca_count].len = (int)(end - begin) + elen;
+    mac_ca_count++;
     X509_free(x);
     ERR_clear_error();
   }
   ERR_clear_error();
-  xfree(buf);
+  mac_ca_pem = buf;
 
   if (failed) debug(DEBUG_ERROR, TAG, "CA bundle %s: %d of %d certificates could not be decoded", path, failed, idx);
 
-  return n;
+  return mac_ca_count;
 }
 
-/* the shared store loaded from the bundle, or NULL */
+/* the shared store backed by the bundle index, or NULL */
 static X509_STORE *mac_ca_get(void) {
   X509_STORE *store;
   int n;
@@ -529,15 +597,29 @@ static X509_STORE *mac_ca_get(void) {
   if (mac_ca_tried) return mac_ca_store;
   mac_ca_tried = 1;
   if (opt_cacert == NULL || opt_cacert[0] == 0) return NULL;
-  if ((store = X509_STORE_new()) == NULL) return NULL;
 
-  if ((n = load_ca_file_mac(store, opt_cacert)) > 0) {
-    debug(DEBUG_INFO, TAG, "loaded %d CA certificates from %s", n, opt_cacert);
-    mac_ca_store = store;
-  } else {
-    debug(DEBUG_ERROR, TAG, "no CA certificates loaded from %s", opt_cacert);
-    X509_STORE_free(store);
+  if (mac_ca_method == NULL) {
+    if ((mac_ca_method = X509_LOOKUP_meth_new("PumpkinOS Mac CA bundle")) == NULL) return NULL;
+    X509_LOOKUP_meth_set_get_by_subject(mac_ca_method, mac_ca_by_subject);
   }
+
+  if ((n = mac_ca_load(opt_cacert)) == 0) {
+    debug(DEBUG_ERROR, TAG, "no CA certificates loaded from %s", opt_cacert);
+    mac_ca_reset();
+    mac_ca_tried = 1;
+    return NULL;
+  }
+
+  if ((store = X509_STORE_new()) == NULL || X509_STORE_add_lookup(store, mac_ca_method) == NULL) {
+    liblopenssl_error("error creating the CA store");
+    if (store) X509_STORE_free(store);
+    mac_ca_reset();
+    mac_ca_tried = 1;
+    return NULL;
+  }
+
+  debug(DEBUG_INFO, TAG, "indexed %d CA certificates from %s (decoded on demand)", n, opt_cacert);
+  mac_ca_store = store;
 
   return mac_ca_store;
 }
@@ -549,9 +631,7 @@ void liblopenssl_set_ca_file(const char *path) {
   if (opt_cacert) xfree(opt_cacert);
   opt_cacert = (path && path[0]) ? xstrdup((char *)path) : NULL;
 #ifdef MACCLASSIC
-  if (mac_ca_store) X509_STORE_free(mac_ca_store);
-  mac_ca_store = NULL;
-  mac_ca_tried = 0;
+  mac_ca_reset();
 #endif
 }
 
@@ -814,9 +894,7 @@ static int liblopenssl_key(int pe) {
 static int liblopenssl_cacert(int pe) {
   int r = set_string_option(pe, &opt_cacert);
 #ifdef MACCLASSIC
-  if (mac_ca_store) X509_STORE_free(mac_ca_store);
-  mac_ca_store = NULL;
-  mac_ca_tried = 0;
+  mac_ca_reset();
 #endif
   return r;
 }
